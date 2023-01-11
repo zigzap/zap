@@ -47,6 +47,7 @@ pub fn ensureDeps(step: *std.build.Step) !void {
     const allocator = std.heap.page_allocator;
     ensureGit(allocator);
     try ensureSubmodule(allocator, "src/deps/facilio");
+    try ensurePatch(allocator, "src/deps/facilio", "../0001-microsecond-logging.patch");
     ensureMake(allocator);
     try makeFacilioLibdump(allocator);
 }
@@ -115,6 +116,18 @@ fn ensureSubmodule(allocator: std.mem.Allocator, path: []const u8) !void {
         if (std.mem.eql(u8, no_ensure_submodules, "true")) return;
     } else |_| {}
     var child = std.ChildProcess.init(&.{ "git", "submodule", "update", "--init", path }, allocator);
+    child.cwd = sdkPath("/");
+    child.stderr = std.io.getStdErr();
+    child.stdout = std.io.getStdOut();
+    _ = try child.spawnAndWait();
+}
+
+fn ensurePatch(allocator: std.mem.Allocator, path: []const u8, patch: []const u8) !void {
+    if (std.process.getEnvVarOwned(allocator, "NO_ENSURE_SUBMODULES")) |no_ensure_submodules| {
+        defer allocator.free(no_ensure_submodules);
+        if (std.mem.eql(u8, no_ensure_submodules, "true")) return;
+    } else |_| {}
+    var child = std.ChildProcess.init(&.{ "git", "-C", path, "am", "-3", patch }, allocator);
     child.cwd = sdkPath("/");
     child.stderr = std.io.getStdErr();
     child.stdout = std.io.getStdOut();
