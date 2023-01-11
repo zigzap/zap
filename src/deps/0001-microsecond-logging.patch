@@ -1,0 +1,30 @@
+From 16e68143a9e092ea212f26de46f6a807a7024587 Mon Sep 17 00:00:00 2001
+From: Rene Schallner <rene@renerocks.ai>
+Date: Wed, 11 Jan 2023 23:25:36 +0100
+Subject: [PATCH] microsecond logging
+
+---
+ lib/facil/http/http.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/facil/http/http.c b/lib/facil/http/http.c
+index d1027ffe..80ce938c 100644
+--- a/lib/facil/http/http.c
++++ b/lib/facil/http/http.c
+@@ -2072,10 +2072,10 @@ void http_write_log(http_s *h) {
+     fiobj_str_write(l, " -- ", 4);
+   }
+ 
+-  bytes_sent = ((end.tv_sec - start.tv_sec) * 1000) +
+-               ((end.tv_nsec - start.tv_nsec) / 1000000);
++  bytes_sent = ((end.tv_sec - start.tv_sec) * 1000000) +
++               ((end.tv_nsec - start.tv_nsec) / 1000);
+   fiobj_str_write_i(l, bytes_sent);
+-  fiobj_str_write(l, "ms\r\n", 4);
++  fiobj_str_write(l, "us\r\n", 4);
+ 
+   buff = fiobj_obj2cstr(l);
+   fwrite(buff.data, 1, buff.len, stderr);
+-- 
+2.36.2
+

@@ -1,3 +1,3 @@
-# zap - make zig web apps great again
+# zap - make zig rest apis great again
 
-## wraps `facil.io` lib
+## patches and wraps `facil.io` lib
