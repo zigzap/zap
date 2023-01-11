@@ -1,5 +1,5 @@
 const std = @import("std");
-const zap = @import("facilio");
+const zap = @import("zap");
 
 fn on_request(request: [*c]zap.C.http_s) callconv(.C) void {
     std.debug.print("GOT A REQUEST!\n", .{});

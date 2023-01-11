@@ -1,8 +1,8 @@
 const std = @import("std");
 
-const facilio = std.build.Pkg{
-    .name = "facilio",
-    .source = std.build.FileSource{ .path = "src/deps/facilio.zig" },
+const zap = std.build.Pkg{
+    .name = "zap",
+    .source = std.build.FileSource{ .path = "src/deps/zap.zig" },
 };
 
 pub fn build(b: *std.build.Builder) !void {
@@ -19,7 +19,7 @@ pub fn build(b: *std.build.Builder) !void {
 
     var example = b.addExecutable("example", "examples/hello/hello.zig");
     example.setBuildMode(mode);
-    example.addPackage(facilio);
+    example.addPackage(zap);
     example.addIncludePath("src/deps/facilio/libdump/all");
     _ = try addFacilio(example);
 
