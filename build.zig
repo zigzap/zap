@@ -26,16 +26,23 @@ pub fn build(b: *std.build.Builder) !void {
     const example_run = example.run();
     example_run_step.dependOn(&example_run.step);
 
-    // install the artifact
-    const example_build_step = b.addInstallArtifact(example);
+    // install the artifact - depending on the "example"
     // only after the ensure step
-    example_build_step.step.dependOn(ensure_step);
     // the step invoked via `zig build example` on the installed exe which
     // itself depends on the "ensure" step
+    const example_build_step = b.addInstallArtifact(example);
+    example.step.dependOn(ensure_step);
     example_step.dependOn(&example_build_step.step);
 }
 
+fn logstep(msg: []const u8) void {
+    std.debug.print("=================================================\n", .{});
+    std.debug.print("== STEP :   {s}\n", .{msg});
+    std.debug.print("=================================================\n", .{});
+}
+
 pub fn ensureDeps(step: *std.build.Step) !void {
+    logstep("ENSURE DEPS");
     _ = step;
     const allocator = std.heap.page_allocator;
     ensureGit(allocator);
