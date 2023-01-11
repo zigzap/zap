@@ -53,7 +53,7 @@ pub fn addFacilio(exe: *std.build.LibExeObjStep) !void {
     if (b.is_release) try flags.append("-Os");
     try flags.append("-Wno-return-type-c-linkage");
     try flags.append("-fno-sanitize=undefined");
-
+    try flags.append("-DFIO_OVERRIDE_MALLOC");
     exe.addIncludePath("./src/deps/facilio/libdump/all");
 
     // Add C

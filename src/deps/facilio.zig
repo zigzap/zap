@@ -1,6 +1,7 @@
 // zig type definitions for facilio lib
 // or maybe let's just make it zap directly...
 
+const std = @import("std");
 pub const C = @cImport({
     @cInclude("http.h");
     @cInclude("fio.h");
@@ -34,8 +35,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
         }
         pfolder = pf.ptr;
     }
-
-    if (C.http_listen(port, interface, .{
+    var x: C.http_settings_s = .{
         .on_request = settings.on_request,
         .on_upgrade = settings.on_upgrade,
         .on_response = settings.on_response,
@@ -55,7 +55,11 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
         .ws_timeout = 0,
         .log = if (settings.log) 1 else 0,
         .is_client = 0,
-    }) == -1) {
+    };
+    // TODO: BUG: without this print statement, -Drelease* loop forever
+    // in debug2 and debug3
+    std.debug.print("X\n", .{});
+    if (C.http_listen(port, interface, x) == -1) {
         return error.ListenError;
     }
 }
