@@ -5,7 +5,7 @@ const facilio = std.build.Pkg{
     .source = std.build.FileSource{ .path = "src/deps/facilio.zig" },
 };
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.build.Builder) !void {
 
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
@@ -15,7 +15,7 @@ pub fn build(b: *std.build.Builder) void {
     lib.setBuildMode(mode);
     lib.addPackage(facilio);
 
-    const lib_facilio = addFacilioLib(lib);
+    const lib_facilio = try addFacilioLib(lib);
     lib.linkLibrary(lib_facilio);
     lib.install();
 
@@ -26,10 +26,11 @@ pub fn build(b: *std.build.Builder) void {
     test_step.dependOn(&main_tests.step);
 }
 
-pub fn addFacilioLib(exe: *std.build.LibExeObjStep) *std.build.LibExeObjStep {
+pub fn addFacilioLib(exe: *std.build.LibExeObjStep) !*std.build.LibExeObjStep {
     ensureGit(exe.builder.allocator);
+    try ensureSubmodule(exe.builder.allocator, "src/deps/facilio");
     ensureMake(exe.builder.allocator);
-    makeFacilioLibdump(exe.builder.allocator) catch unreachable;
+    try makeFacilioLibdump(exe.builder.allocator);
 
     var b = exe.builder;
     var lib_facilio = b.addStaticLibrary("facilio", null);
@@ -37,9 +38,9 @@ pub fn addFacilioLib(exe: *std.build.LibExeObjStep) *std.build.LibExeObjStep {
 
     // Generate flags
     var flags = std.ArrayList([]const u8).init(std.heap.page_allocator);
-    if (b.is_release) flags.append("-Os") catch unreachable;
-    flags.append("-Wno-return-type-c-linkage") catch unreachable;
-    flags.append("-fno-sanitize=undefined") catch unreachable;
+    if (b.is_release) try flags.append("-Os");
+    try flags.append("-Wno-return-type-c-linkage");
+    try flags.append("-fno-sanitize=undefined");
 
     lib_facilio.addIncludePath("./src/deps/facilio/libdump/all");
 
@@ -91,6 +92,18 @@ fn ensureGit(allocator: std.mem.Allocator) void {
         std.log.err("mach: error: 'git --version' failed. Is git not installed?", .{});
         std.process.exit(1);
     }
+}
+
+fn ensureSubmodule(allocator: std.mem.Allocator, path: []const u8) !void {
+    if (std.process.getEnvVarOwned(allocator, "NO_ENSURE_SUBMODULES")) |no_ensure_submodules| {
+        defer allocator.free(no_ensure_submodules);
+        if (std.mem.eql(u8, no_ensure_submodules, "true")) return;
+    } else |_| {}
+    var child = std.ChildProcess.init(&.{ "git", "submodule", "update", "--init", path }, allocator);
+    child.cwd = sdkPath("/");
+    child.stderr = std.io.getStdErr();
+    child.stdout = std.io.getStdOut();
+    _ = try child.spawnAndWait();
 }
 
 fn ensureMake(allocator: std.mem.Allocator) void {
