@@ -30,7 +30,8 @@ pub fn build(b: *std.build.Builder) !void {
     const example_build_step = b.addInstallArtifact(example);
     // only after the ensure step
     example_build_step.step.dependOn(ensure_step);
-    // via `zig build example` invoked step depends on the installed exe
+    // the step invoked via `zig build example` on the installed exe which
+    // itself depends on the "ensure" step
     example_step.dependOn(&example_build_step.step);
 }
 
