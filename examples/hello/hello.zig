@@ -1,17 +1,14 @@
 const std = @import("std");
-const facilio = @import("facilio").Http;
+const facilio = @import("facilio");
 
-fn on_request(request: [*c]facilio.http_s) callconv(.C) void {
+fn on_request(request: [*c]facilio.Http.http_s) callconv(.C) void {
     std.debug.print("REQUEST!\n", .{});
     var msg: []const u8 = "Hello from ZAP!";
-    _ = facilio.http_send_body(request, @intToPtr(
-        *anyopaque,
-        @ptrToInt(msg.ptr),
-    ), msg.len);
+    _ = facilio.sendBody(request, msg);
 }
 
 pub fn main() void {
-    if (facilio.http_listen("3000", null, .{
+    if (facilio.Http.http_listen("3000", null, .{
         .on_request = on_request,
         .log = 1,
         .on_upgrade = null,
@@ -36,7 +33,7 @@ pub fn main() void {
         std.debug.print("Listening failed\n", .{});
         return;
     }
-    facilio.fio_start(.{
+    facilio.Http.fio_start(.{
         .threads = 4,
         .workers = 4,
     });
