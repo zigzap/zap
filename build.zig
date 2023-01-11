@@ -11,30 +11,41 @@ pub fn build(b: *std.build.Builder) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const lib = b.addStaticLibrary("zap", "src/main.zig");
-    lib.setBuildMode(mode);
-    lib.addPackage(facilio);
+    var ensure_step = b.step("deps", "ensure external dependencies");
+    ensure_step.makeFn = ensureDeps;
 
-    const lib_facilio = try addFacilioLib(lib);
-    lib.linkLibrary(lib_facilio);
-    lib.install();
+    const example_run_step = b.step("run-example", "run the example");
+    const example_step = b.step("example", "build the example");
 
-    const main_tests = b.addTest("src/main.zig");
-    main_tests.setBuildMode(mode);
+    var example = b.addExecutable("example", "examples/hello/hello.zig");
+    example.setBuildMode(mode);
+    example.addPackage(facilio);
+    example.addIncludePath("src/deps/facilio/libdump/all");
+    _ = try addFacilio(example);
 
-    const test_step = b.step("test", "Run library tests");
-    test_step.dependOn(&main_tests.step);
+    const example_run = example.run();
+    example_run_step.dependOn(&example_run.step);
+
+    // install the artifact
+    const example_build_step = b.addInstallArtifact(example);
+    // only after the ensure step
+    example_build_step.step.dependOn(ensure_step);
+    // via `zig build example` invoked step depends on the installed exe
+    example_step.dependOn(&example_build_step.step);
 }
 
-pub fn addFacilioLib(exe: *std.build.LibExeObjStep) !*std.build.LibExeObjStep {
-    ensureGit(exe.builder.allocator);
-    try ensureSubmodule(exe.builder.allocator, "src/deps/facilio");
-    ensureMake(exe.builder.allocator);
-    try makeFacilioLibdump(exe.builder.allocator);
+pub fn ensureDeps(step: *std.build.Step) !void {
+    _ = step;
+    const allocator = std.heap.page_allocator;
+    ensureGit(allocator);
+    try ensureSubmodule(allocator, "src/deps/facilio");
+    ensureMake(allocator);
+    try makeFacilioLibdump(allocator);
+}
 
+pub fn addFacilio(exe: *std.build.LibExeObjStep) !void {
     var b = exe.builder;
-    var lib_facilio = b.addStaticLibrary("facilio", null);
-    lib_facilio.linkLibC();
+    exe.linkLibC();
 
     // Generate flags
     var flags = std.ArrayList([]const u8).init(std.heap.page_allocator);
@@ -42,13 +53,10 @@ pub fn addFacilioLib(exe: *std.build.LibExeObjStep) !*std.build.LibExeObjStep {
     try flags.append("-Wno-return-type-c-linkage");
     try flags.append("-fno-sanitize=undefined");
 
-    lib_facilio.addIncludePath("./src/deps/facilio/libdump/all");
-
-    // legacy for fio_mem
-    lib_facilio.addIncludePath("src/deps/facilio/lib/facil/legacy");
+    exe.addIncludePath("./src/deps/facilio/libdump/all");
 
     // Add C
-    lib_facilio.addCSourceFiles(&.{
+    exe.addCSourceFiles(&.{
         "src/deps/facilio/libdump/all/http.c",
         "src/deps/facilio/libdump/all/fiobj_numbers.c",
         "src/deps/facilio/libdump/all/fio_siphash.c",
@@ -64,8 +72,6 @@ pub fn addFacilioLib(exe: *std.build.LibExeObjStep) !*std.build.LibExeObjStep {
         "src/deps/facilio/libdump/all/http_internal.c",
         "src/deps/facilio/libdump/all/fiobj_mustache.c",
     }, flags.items);
-
-    return lib_facilio;
 }
 
 fn sdkPath(comptime suffix: []const u8) []const u8 {

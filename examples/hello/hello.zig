@@ -1,10 +1,5 @@
 const std = @import("std");
-const testing = std.testing;
 const facilio = @import("facilio").Http;
-
-export fn add(a: i32, b: i32) i32 {
-    return a + b;
-}
 
 fn on_request(request: [*c]facilio.http_s) callconv(.C) void {
     std.debug.print("REQUEST!\n", .{});
@@ -15,12 +10,8 @@ fn on_request(request: [*c]facilio.http_s) callconv(.C) void {
     ), msg.len);
 }
 
-test "basic add functionality" {
-    try testing.expect(add(3, 7) == 10);
-}
-
-test "http" {
-    _ = facilio.http_listen("3000", null, .{
+pub fn main() void {
+    if (facilio.http_listen("3000", null, .{
         .on_request = on_request,
         .log = 1,
         .on_upgrade = null,
@@ -40,8 +31,12 @@ test "http" {
         .timeout = 0,
         .ws_timeout = 0,
         .is_client = 0,
-    });
-    _ = facilio.fio_start(.{
+    }) == -1) {
+        // listen failed
+        std.debug.print("Listening failed\n", .{});
+        return;
+    }
+    facilio.fio_start(.{
         .threads = 4,
         .workers = 4,
     });
