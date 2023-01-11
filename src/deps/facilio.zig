@@ -58,7 +58,9 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
     };
     // TODO: BUG: without this print statement, -Drelease* loop forever
     // in debug2 and debug3
-    std.debug.print("X\n", .{});
+    // std.debug.print("X\n", .{});
+    std.time.sleep(500 * 1000 * 1000);
+
     if (C.http_listen(port, interface, x) == -1) {
         return error.ListenError;
     }
