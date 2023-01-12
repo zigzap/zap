@@ -19,7 +19,7 @@ pub fn build(b: *std.build.Builder) !void {
         src: []const u8,
     }{
         .{ .name = "hello", .src = "examples/hello/hello.zig" },
-        // .{ .name = "routes", .src = "examples/routes/routes.zig" },
+        .{ .name = "routes", .src = "examples/routes/routes.zig" },
         // .{ .name = "serve", .src = "examples/serve/serve.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
