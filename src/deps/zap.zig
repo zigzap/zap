@@ -44,8 +44,8 @@ pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;
 pub const SimpleHttpListenerSettings = struct {
     port: usize,
     interface: [*c]const u8 = null,
-    on_request: SimpleHttpRequestFn,
-    public_folder: ?[]u8 = null,
+    on_request: ?SimpleHttpRequestFn,
+    public_folder: ?[]const u8 = null,
     max_clients: ?u8 = null,
     timeout: ?u8 = null,
     log: bool = false,
@@ -71,7 +71,7 @@ pub const SimpleHttpListener = struct {
                 .query = fio2str(r.*.query),
                 .h = r,
             };
-            l.settings.on_request(req);
+            l.settings.on_request.?(req);
         }
     }
 
@@ -82,14 +82,14 @@ pub const SimpleHttpListener = struct {
         if (self.settings.public_folder) |pf| {
             pfolder_len = pf.len;
             // TODO: make sure it's 0-terminated!!!
-            if (pf[pf.len - 1] != 0) {
-                return error.ValueNotZeroTerminated;
-            }
+            // if (pf[pf.len - 1] != 0) {
+            //     return error.ValueNotZeroTerminated;
+            // }
             pfolder = pf.ptr;
         }
 
         var x: C.http_settings_s = .{
-            .on_request = Self.theOneAndOnlyRequestCallBack,
+            .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
             .on_upgrade = null,
             .on_response = null,
             .on_finish = null,
@@ -164,9 +164,9 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
     if (settings.public_folder) |pf| {
         pfolder_len = pf.len;
         // TODO: make sure it's 0-terminated!!!
-        if (pf[pf.len - 1] != 0) {
-            return error.ValueNotZeroTerminated;
-        }
+        // if (pf[pf.len - 1] != 0) {
+        //     return error.ValueNotZeroTerminated;
+        // }
         pfolder = pf.ptr;
     }
     var x: C.http_settings_s = .{
