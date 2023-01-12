@@ -14,25 +14,51 @@ pub fn build(b: *std.build.Builder) !void {
     var ensure_step = b.step("deps", "ensure external dependencies");
     ensure_step.makeFn = ensureDeps;
 
-    const example_run_step = b.step("run-example", "run the example");
-    const example_step = b.step("example", "build the example");
+    inline for ([_]struct {
+        name: []const u8,
+        src: []const u8,
+    }{
+        .{ .name = "hello", .src = "examples/hello/hello.zig" },
+        // .{ .name = "routes", .src = "examples/routes/routes.zig" },
+        // .{ .name = "serve", .src = "examples/serve/serve.zig" },
+    }) |excfg| {
+        const ex_name = excfg.name;
+        const ex_src = excfg.src;
+        const ex_build_desc = try std.fmt.allocPrint(
+            b.allocator,
+            "build the {s} example",
+            .{ex_name},
+        );
+        const ex_run_stepname = try std.fmt.allocPrint(
+            b.allocator,
+            "run-{s}",
+            .{ex_name},
+        );
+        const ex_run_stepdesc = try std.fmt.allocPrint(
+            b.allocator,
+            "run the {s} example",
+            .{ex_name},
+        );
+        const example_run_step = b.step(ex_run_stepname, ex_run_stepdesc);
+        const example_step = b.step(ex_name, ex_build_desc);
 
-    var example = b.addExecutable("example", "examples/hello/hello.zig");
-    example.setBuildMode(mode);
-    example.addPackage(zap);
-    example.addIncludePath("src/deps/facilio/libdump/all");
-    _ = try addFacilio(example);
+        var example = b.addExecutable(ex_name, ex_src);
+        example.setBuildMode(mode);
+        example.addPackage(zap);
+        example.addIncludePath("src/deps/facilio/libdump/all");
+        _ = try addFacilio(example);
 
-    const example_run = example.run();
-    example_run_step.dependOn(&example_run.step);
+        const example_run = example.run();
+        example_run_step.dependOn(&example_run.step);
 
-    // install the artifact - depending on the "example"
-    // only after the ensure step
-    // the step invoked via `zig build example` on the installed exe which
-    // itself depends on the "ensure" step
-    const example_build_step = b.addInstallArtifact(example);
-    example.step.dependOn(ensure_step);
-    example_step.dependOn(&example_build_step.step);
+        // install the artifact - depending on the "example"
+        // only after the ensure step
+        // the step invoked via `zig build example` on the installed exe which
+        // itself depends on the "ensure" step
+        const example_build_step = b.addInstallArtifact(example);
+        example.step.dependOn(ensure_step);
+        example_step.dependOn(&example_build_step.step);
+    }
 }
 
 fn logstep(msg: []const u8) void {

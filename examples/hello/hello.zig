@@ -13,7 +13,7 @@ fn on_request(r: zap.SimpleRequest) void {
 }
 
 pub fn main() !void {
-    var listener: zap.SimpleHttpListener = zap.SimpleHttpListener.init(.{
+    var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
         .log = false,
