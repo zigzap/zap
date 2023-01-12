@@ -1,21 +1,30 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request(r: [*c]zap.C.http_s) callconv(.C) void {
-    _ = zap.sendBody(r, "<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+fn on_request(r: zap.SimpleRequest) void {
+    if (r.path) |the_path| {
+        std.debug.print("PATH: {s}\n", .{the_path});
+    }
+
+    if (r.query) |the_query| {
+        std.debug.print("QUERY: {s}\n", .{the_query});
+    }
+    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
 pub fn main() !void {
-    // listen
-    try zap.listen("3000", null, .{
+    var listener: zap.SimpleHttpListener = zap.SimpleHttpListener.init(.{
+        .port = 3000,
         .on_request = on_request,
-        .log = true,
+        .log = false,
     });
+    try listener.listen();
+
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 
-    // start working
+    // start worker threads
     zap.start(.{
-        .threads = 4,
-        .workers = 4,
+        .threads = 2,
+        .workers = 2,
     });
 }
