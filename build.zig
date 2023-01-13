@@ -2,7 +2,7 @@ const std = @import("std");
 
 const zap = std.build.Pkg{
     .name = "zap",
-    .source = std.build.FileSource{ .path = "src/deps/zap.zig" },
+    .source = std.build.FileSource{ .path = "src/zap.zig" },
 };
 
 pub fn build(b: *std.build.Builder) !void {
@@ -47,8 +47,7 @@ pub fn build(b: *std.build.Builder) !void {
         var example = b.addExecutable(ex_name, ex_src);
         example.setBuildMode(mode);
         example.addPackage(zap);
-        example.addIncludePath("src/deps/facilio/libdump/all");
-        _ = try addFacilio(example);
+        _ = try addFacilio(example, "./");
 
         const example_run = example.run();
         example_run_step.dependOn(&example_run.step);
@@ -80,7 +79,7 @@ pub fn ensureDeps(step: *std.build.Step) !void {
     try makeFacilioLibdump(allocator);
 }
 
-pub fn addFacilio(exe: *std.build.LibExeObjStep) !void {
+pub fn addFacilio(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void {
     var b = exe.builder;
     exe.linkLibC();
 
@@ -91,24 +90,24 @@ pub fn addFacilio(exe: *std.build.LibExeObjStep) !void {
     try flags.append("-fno-sanitize=undefined");
     try flags.append("-DFIO_OVERRIDE_MALLOC");
     try flags.append("-DFIO_HTTP_EXACT_LOGGING");
-    exe.addIncludePath("./src/deps/facilio/libdump/all");
+    exe.addIncludePath(p ++ "src/deps/facilio/libdump/all");
 
     // Add C
     exe.addCSourceFiles(&.{
-        "src/deps/facilio/libdump/all/http.c",
-        "src/deps/facilio/libdump/all/fiobj_numbers.c",
-        "src/deps/facilio/libdump/all/fio_siphash.c",
-        "src/deps/facilio/libdump/all/fiobj_str.c",
-        "src/deps/facilio/libdump/all/http1.c",
-        "src/deps/facilio/libdump/all/fiobj_ary.c",
-        "src/deps/facilio/libdump/all/fiobj_data.c",
-        "src/deps/facilio/libdump/all/fiobj_hash.c",
-        "src/deps/facilio/libdump/all/websockets.c",
-        "src/deps/facilio/libdump/all/fiobj_json.c",
-        "src/deps/facilio/libdump/all/fio.c",
-        "src/deps/facilio/libdump/all/fiobject.c",
-        "src/deps/facilio/libdump/all/http_internal.c",
-        "src/deps/facilio/libdump/all/fiobj_mustache.c",
+        p ++ "src/deps/facilio/libdump/all/http.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_numbers.c",
+        p ++ "src/deps/facilio/libdump/all/fio_siphash.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_str.c",
+        p ++ "src/deps/facilio/libdump/all/http1.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_ary.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_data.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_hash.c",
+        p ++ "src/deps/facilio/libdump/all/websockets.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_json.c",
+        p ++ "src/deps/facilio/libdump/all/fio.c",
+        p ++ "src/deps/facilio/libdump/all/fiobject.c",
+        p ++ "src/deps/facilio/libdump/all/http_internal.c",
+        p ++ "src/deps/facilio/libdump/all/fiobj_mustache.c",
     }, flags.items);
 }
 
