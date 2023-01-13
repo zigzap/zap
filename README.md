@@ -43,6 +43,48 @@ $ # open http://localhost:3000 in your browser
 ```
 ... and open [http://localhost:3000](http://locahhost:3000) in your browser.
 
+## Using ⚡zap⚡ in your own projects 
+
+If you don't have an existing zig project, create one like this:
+
+```shell 
+$ mkdir zaptest && cd zaptest
+$ zig init-exe
+$ git init 
+```
+
+With an existing zig project, adding zap to it is easy:
+
+1. Add zap as a git submodule 
+2. Add zap to your `build.zig` 
+
+To add zap as a git submodule:
+
+```shell 
+$ mkdir libs
+$ git submodule add https://github.com/renerocksai/zap.git libs/zap
+```
+
+Then, add the following at the top of your `build.zig`:
+
+```zig
+const zap_builder = @import("./libs/zap/build.zig");
+
+const zap = std.build.Pkg{
+    .name = "zap",
+    .source = std.build.FileSource{ .path = "./libs/zap/src/zap.zig" },
+};
+```
+
+In the `build` function, add the following before `exe.install()`:
+
+```zig 
+    exe.addPackage(zap);
+    zap_builder.addZap(exe, "./libs/zap/") catch unreachable;
+```
+
+From then on, you can use the zap package in your project. Check out the examples to see how to use zap.
+
 ## Examples
 
 You build and run the examples via:
