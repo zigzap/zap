@@ -7,14 +7,26 @@ pub const C = @cImport({
     @cInclude("fio.h");
 });
 
-pub fn start(args: C.fio_start_args) void {
-    C.fio_start(args);
-}
-
 pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
     const x: C.fio_str_info_s = C.fiobj_obj2cstr(o);
     return std.mem.span(x.data);
+}
+
+pub fn str2fio(s: []const u8) C.fio_str_info_s {
+    return .{
+        .data = toCharPtr(s),
+        .len = s.len,
+        .capa = s.len,
+    };
+}
+
+fn toCharPtr(s: []const u8) [*c]u8 {
+    return @intToPtr([*c]u8, @ptrToInt(s.ptr));
+}
+
+pub fn start(args: C.fio_start_args) void {
+    C.fio_start(args);
 }
 
 const ListenError = error{
@@ -26,6 +38,12 @@ const ListenError = error{
 const HttpParam = struct {
     key: []const u8,
     value: []const u8,
+};
+
+const ContentType = enum {
+    TEXT,
+    HTML,
+    JSON,
 };
 
 pub const SimpleRequest = struct {
@@ -42,6 +60,32 @@ pub const SimpleRequest = struct {
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
+    }
+
+    pub fn setContentType(self: *const Self, c: ContentType) void {
+        self.setHeader("content-type", switch (c) {
+            .TEXT => "text/plain",
+            .JSON => "application/json",
+            else => "text/html",
+        });
+    }
+
+    pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) void {
+        const hname: C.fio_str_info_s = .{
+            .data = toCharPtr(name),
+            .len = name.len,
+            .capa = name.len,
+        };
+        const vname: C.fio_str_info_s = .{
+            .data = toCharPtr(value),
+            .len = value.len,
+            .capa = value.len,
+        };
+        _ = C.http_set_header2(self.h, hname, vname);
+
+        // Note to self:
+        // const new_fiobj_str = C.fiobj_str_new(name.ptr, name.len);
+        // C.fiobj_free(new_fiobj_str);
     }
 
     pub fn nextParam(self: *const Self) ?HttpParam {
