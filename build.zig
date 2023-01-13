@@ -47,7 +47,7 @@ pub fn build(b: *std.build.Builder) !void {
         var example = b.addExecutable(ex_name, ex_src);
         example.setBuildMode(mode);
         example.addPackage(zap);
-        _ = try addFacilio(example, "./");
+        try addFacilio(example, "./");
 
         const example_run = example.run();
         example_run_step.dependOn(&example_run.step);
@@ -109,6 +109,14 @@ pub fn addFacilio(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void 
         p ++ "src/deps/facilio/libdump/all/http_internal.c",
         p ++ "src/deps/facilio/libdump/all/fiobj_mustache.c",
     }, flags.items);
+}
+
+pub fn addZap(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void {
+    try addFacilio(exe, p);
+    var b = exe.builder;
+    var ensure_step = b.step("zap-deps", "ensure zap's dependencies");
+    ensure_step.makeFn = ensureDeps;
+    exe.step.dependOn(ensure_step);
 }
 
 fn sdkPath(comptime suffix: []const u8) []const u8 {
