@@ -1,7 +1,7 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request_verbose(r: zap.SimpleRequest) void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -12,11 +12,16 @@ fn on_request(r: zap.SimpleRequest) void {
     _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
+fn on_request_minimal(r: zap.SimpleRequest) void {
+    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+}
+
 pub fn main() !void {
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
-        .on_request = on_request,
+        .on_request = on_request_verbose,
         .log = false,
+        .max_clients = 100000,
     });
     try listener.listen();
 

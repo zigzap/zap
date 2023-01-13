@@ -110,7 +110,7 @@ pub const SimpleHttpListenerSettings = struct {
     interface: [*c]const u8 = null,
     on_request: ?SimpleHttpRequestFn,
     public_folder: ?[]const u8 = null,
-    max_clients: ?u8 = null,
+    max_clients: ?isize = null,
     timeout: ?u8 = null,
     log: bool = false,
 };
