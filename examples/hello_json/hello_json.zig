@@ -19,7 +19,7 @@ fn on_request(r: zap.SimpleRequest) void {
         const user = users.get(user_id);
 
         var json_to_send: []const u8 = undefined;
-        if (JsonHelper.stringify(user, .{})) |json| {
+        if (stringify(user, .{})) |json| {
             json_to_send = json;
         } else {
             json_to_send = "null";
@@ -39,20 +39,16 @@ fn setupUserData(a: std.mem.Allocator) !void {
     try users.put(2, .{ .first_name = "Your", .last_name = "Mom" });
 }
 
-const JsonHelper = struct {
-    // "static" instance of buffer
+fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
     var buf: [100]u8 = undefined;
     var fba = std.heap.FixedBufferAllocator.init(&buf);
-
-    fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
-        var string = std.ArrayList(u8).init(fba.allocator());
-        if (std.json.stringify(value, options, string.writer())) {
-            return string.items;
-        } else |_| { // error
-            return null;
-        }
+    var string = std.ArrayList(u8).init(fba.allocator());
+    if (std.json.stringify(value, options, string.writer())) {
+        return string.items;
+    } else |_| { // error
+        return null;
     }
-};
+}
 
 pub fn main() !void {
     var a = std.heap.page_allocator;
