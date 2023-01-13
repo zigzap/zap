@@ -6,6 +6,7 @@ fn dispatch_routes(r: zap.SimpleRequest) void {
     if (r.path) |the_path| {
         if (routes.get(the_path)) |foo| {
             foo(r);
+            return;
         }
     }
     // or default: present menu

@@ -46,7 +46,7 @@ $ # open http://localhost:3000 in your browser
 You build and run the examples via:
 
 ```shell
-$ zig build hello [EXAMPLE]
+$ zig build [EXAMPLE]
 $ ./zig-out/bin/[EXAMPLE]
 ```
 

@@ -23,9 +23,16 @@ const ListenError = error{
     ListenError,
 };
 
+const HttpParam = struct {
+    key: []const u8,
+    value: []const u8,
+};
+
 pub const SimpleRequest = struct {
     path: ?[]const u8,
     query: ?[]const u8,
+    body: ?[]const u8,
+    method: ?[]const u8,
     h: [*c]C.http_s,
 
     const Self = @This();
@@ -35,6 +42,19 @@ pub const SimpleRequest = struct {
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
+    }
+
+    pub fn nextParam(self: *const Self) ?HttpParam {
+        if (self.h.*.params == 0) return null;
+        var key: C.FIOBJ = undefined;
+        const value = C.fiobj_hash_pop(self.h.*.params, &key);
+        if (value == C.FIOBJ_INVALID) {
+            return null;
+        }
+        return HttpParam{
+            .key = fio2str(key).?,
+            .value = fio2str(value).?,
+        };
     }
 };
 
@@ -69,6 +89,8 @@ pub const SimpleHttpListener = struct {
             var req: SimpleRequest = .{
                 .path = fio2str(r.*.path),
                 .query = fio2str(r.*.query),
+                .body = fio2str(r.*.body),
+                .method = fio2str(r.*.method),
                 .h = r,
             };
             l.settings.on_request.?(req);
