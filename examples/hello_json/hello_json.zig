@@ -39,8 +39,8 @@ fn setupUserData(a: std.mem.Allocator) !void {
     try users.put(2, .{ .first_name = "Your", .last_name = "Mom" });
 }
 
+var buf: [100]u8 = undefined;
 fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
-    var buf: [100]u8 = undefined;
     var fba = std.heap.FixedBufferAllocator.init(&buf);
     var string = std.ArrayList(u8).init(fba.allocator());
     if (std.json.stringify(value, options, string.writer())) {
@@ -60,7 +60,15 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\ 
+        \\ Check out:
+        \\ http://localhost:3000/user/1   # -- first user
+        \\ http://localhost:3000/user/2   # -- second user
+        \\ http://localhost:3000/user/3   # -- non-existing user
+        \\
+    , .{});
 
     // start worker threads
     zap.start(.{
