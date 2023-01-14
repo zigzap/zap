@@ -326,7 +326,7 @@ pub fn main() !void {
 
 ### [endpoints](examples/endpoints/)
 
-Only showing `main.zig` here:
+[`main.zig`](examples/endpoints/main.zig):
 
 ```zig
 const std = @import("std");
@@ -369,3 +369,6 @@ pub fn main() !void {
     });
 }
 ```
+
+
+[`endpoints.zig`](examples/endpoints/endpoints.zig):
