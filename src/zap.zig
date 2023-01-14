@@ -7,6 +7,8 @@ pub const C = @cImport({
     @cInclude("fio.h");
 });
 
+pub usingnamespace @import("endpoint.zig");
+
 pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
     const x: C.fio_str_info_s = C.fiobj_obj2cstr(o);
@@ -60,6 +62,14 @@ pub const SimpleRequest = struct {
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
+    }
+
+    pub fn sendJson(self: *const Self, json: []const u8) c_int {
+        self.setContentType(.JSON);
+        return C.http_send_body(self.h, @intToPtr(
+            *anyopaque,
+            @ptrToInt(json.ptr),
+        ), json.len);
     }
 
     pub fn setContentType(self: *const Self, c: ContentType) void {

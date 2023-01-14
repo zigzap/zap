@@ -1,91 +1,105 @@
 const std = @import("std");
 const zap = @import("zap.zig");
 const Request = zap.SimpleRequest;
-const RequestFn = zap.SimpleHttpRequestFn;
 const ListenerSettings = zap.SimpleHttpListenerSettings;
 const Listener = zap.SimpleHttpListener;
 
-const SimpleEndpointSettings = struct {
+pub const RequestFn = *const fn (self: *SimpleEndpoint, r: Request) void;
+pub const SimpleEndpointSettings = struct {
     path: []const u8,
-    get: ?RequestFn,
-    post: ?RequestFn,
-    put: ?RequestFn,
-    delete: ?RequestFn,
+    get: ?RequestFn = null,
+    post: ?RequestFn = null,
+    put: ?RequestFn = null,
+    delete: ?RequestFn = null,
 };
 
-const SimpleEndpoint = struct {
+pub const SimpleEndpoint = struct {
     settings: SimpleEndpointSettings,
 
-    var Self = @This();
+    const Self = @This();
 
     pub fn init(s: SimpleEndpointSettings) Self {
         return .{
-            .path = s.path,
-            .get = s.get orelse &nop,
-            .post = s.post orelse &nop,
-            .put = s.put orelse &nop,
-            .delete = s.delete orelse &nop,
+            .settings = .{
+                .path = s.path,
+                .get = s.get orelse &nop,
+                .post = s.post orelse &nop,
+                .put = s.put orelse &nop,
+                .delete = s.delete orelse &nop,
+            },
         };
     }
 
-    fn nop(r: Request) void {
+    fn nop(self: *SimpleEndpoint, r: Request) void {
+        _ = self;
         _ = r;
     }
 
-    pub fn onRequest(r: zap.SimpleRequest) void {
+    pub fn onRequest(self: *SimpleEndpoint, r: zap.SimpleRequest) void {
         if (r.method) |m| {
             if (std.mem.eql(u8, m, "GET"))
-                // TODO
-                nop();
+                return self.settings.get.?(self, r);
+            if (std.mem.eql(u8, m, "POST"))
+                return self.settings.post.?(self, r);
+            if (std.mem.eql(u8, m, "PUT"))
+                return self.settings.put.?(self, r);
+            if (std.mem.eql(u8, m, "DELETE"))
+                return self.settings.delete.?(self, r);
         }
     }
 };
 
-const EndpointListenerError = error{
+pub const EndpointListenerError = error{
     EndpointPathShadowError,
 };
 
-var endpoints: std.StringHashMap(*SimpleEndpoint) = undefined;
+// var endpoints: std.StringHashMap(*SimpleEndpoint) = undefined;
+var endpoints: std.ArrayList(*SimpleEndpoint) = undefined;
 
 // NOTE: We switch on path.startsWith -> so use endpoints with distinctly
 // starting names!!
-const SimpleEndpointListener = struct {
+pub const SimpleEndpointListener = struct {
     listener: Listener,
     allocator: std.mem.Allocator,
 
-    var Self = @This();
+    const Self = @This();
 
     pub fn init(a: std.mem.Allocator, l: ListenerSettings) Self {
-        l.on_request = onRequest;
-        endpoints = std.StringHashMap(*SimpleEndpoint).init(a);
+        var ls = l;
+        ls.on_request = onRequest;
+        endpoints = std.ArrayList(*SimpleEndpoint).init(a);
         return .{
-            .listener = Listener.init(l),
+            .listener = Listener.init(ls),
             .allocator = a,
         };
     }
 
+    pub fn listen(self: *SimpleEndpointListener) !void {
+        try self.listener.listen();
+    }
+
     pub fn addEndpoint(self: *SimpleEndpointListener, e: *SimpleEndpoint) !void {
-        var it = endpoints.keyIterator();
-        while (it.next()) |existing_path| {
+        _ = self;
+        for (endpoints.items) |other| {
             if (std.mem.startsWith(
                 u8,
-                existing_path,
-                e.path,
+                other.settings.path,
+                e.settings.path,
             ) or std.mem.startsWith(
                 u8,
-                e.path,
-                existing_path,
+                e.settings.path,
+                other.settings.path,
             )) {
                 return EndpointListenerError.EndpointPathShadowError;
             }
         }
-        try self.endpoints.put(e.path, e);
+        try endpoints.append(e);
     }
 
     fn onRequest(r: Request) void {
         if (r.path) |p| {
-            for (endpoints) |e| {
-                if (std.mem.startsWith(u8, p, e.path)) {
+            for (endpoints.items) |e| {
+                if (std.mem.startsWith(u8, p, e.settings.path)) {
                     e.onRequest(r);
                     return;
                 }
