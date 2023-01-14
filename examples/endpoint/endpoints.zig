@@ -49,17 +49,15 @@ pub fn getUserListEndpoint() *zap.SimpleEndpoint {
 fn userIdFromPath(path: []const u8) ?usize {
     if (path.len >= endpoint.settings.path.len + 2) {
         if (path[endpoint.settings.path.len] != '/') {
-            std.debug.print("no slash\n", .{});
             return null;
         }
         const idstr = path[endpoint.settings.path.len + 1 ..];
-        std.debug.print("idstr={s}\n", .{idstr});
         return std.fmt.parseUnsigned(usize, idstr, 10) catch null;
     }
     return null;
 }
 
-var jsonbuf: [1024]u8 = undefined;
+var jsonbuf: [100 * 1024]u8 = undefined;
 fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
     var fba = std.heap.FixedBufferAllocator.init(&jsonbuf);
     var string = std.ArrayList(u8).init(fba.allocator());
@@ -72,32 +70,46 @@ fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
 
 pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
-    std.debug.print("getUser()\n", .{});
     if (r.path) |path| {
-        std.debug.print("getUser({s})\n", .{path});
         if (userIdFromPath(path)) |id| {
-            std.debug.print("getUser({})\n", .{id});
             if (users.get(id)) |user| {
-                std.debug.print("getUser(): {}\n", .{user});
                 if (stringify(user, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             }
-        } else {
-            std.debug.print("User not found\n", .{});
         }
     }
 }
 
+fn stringifyUserList(
+    userlist: *std.ArrayList(Users.User),
+    options: std.json.StringifyOptions,
+) !?[]const u8 {
+    var fba = std.heap.FixedBufferAllocator.init(&jsonbuf);
+    var string = std.ArrayList(u8).init(fba.allocator());
+    var writer = string.writer();
+    try writer.writeByte('[');
+    var first: bool = true;
+    for (userlist.items) |user| {
+        if (!first) try writer.writeByte(',');
+        first = false;
+        try std.json.stringify(user, options, string.writer());
+    }
+    try writer.writeByte(']');
+    return string.items;
+}
+
 pub fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
-    std.debug.print("listUsers()\n", .{});
-    _ = r;
     _ = e;
-    var l = std.ArrayList(Users.User).init(alloc);
+    var l: std.ArrayList(Users.User) = std.ArrayList(Users.User).init(alloc);
     if (users.list(&l)) {} else |_| {
         return;
     }
-    // if (stringify(l, .{})) |json| {
-    //     _ = r.sendJson(json);
-    // }
+    if (stringifyUserList(&l, .{})) |maybe_json| {
+        if (maybe_json) |json| {
+            _ = r.sendJson(json);
+        }
+    } else |_| {
+        return;
+    }
 }

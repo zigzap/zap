@@ -23,9 +23,7 @@ pub fn main() !void {
     // fake some users
     var uid: usize = undefined;
     uid = try Endpoints.getUsers().addByName("renerocksai", null);
-    std.debug.print("Added user {}\n", .{uid});
     uid = try Endpoints.getUsers().addByName("renerocksai", "your mom");
-    std.debug.print("Added user {}\n", .{uid});
 
     // listen
     try listener.listen();
