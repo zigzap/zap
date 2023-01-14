@@ -1,7 +1,120 @@
+<html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width'>
+        <title>NIM Sensor Sync</title>
+        <style>
+            body {background-color: #0d1117; }
+            h1 {color: #cdb4db; text-align: center;}
+            h2 {color: #ffafcc; text-align: center;}
+            h3 {color: #ffc8dd; text-align: center; text-decoration: underline;}
+            .brighter {color: #bde0fe;}
+            p {color: #ffc927; padding-left: 50px; margin-right: 50px;}
+
+            label {color: #B0B0B0;}
+            a {color: #ffc927; padding-left:15px;}
+            input {color: #B06060; margin-bottom: 20px; font-weight: bold; }
+            textarea {
+                background-color:#181818; 
+                color: #cdb4db; 
+                font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+                font-size: 1em;
+                border-radius: 12px;
+                border: 2px solid #cdb4db;
+                padding: 15px;
+                margin-top: 10px;
+            }
+            button {
+                background-color: #ffafcc;
+                border-radius: 12px;
+                border: 2px solid #cdb4db;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+            }
+            .center {
+                display: flex;
+                justify-content: center;
+            }
+        </style>
 <html>
     <body>
-        <p><a href="/user/1">Show example user 1</a></p>
-        <p><a href="/user/2">Show example user 2</a></p>
-        <p><a href="/list">Show ALL users</a></p>
+        <div class="center">
+            <p><a href="/user/1">Show example user 1</a></p>
+            <p><a href="/user/2">Show example user 2</a></p>
+            <p><a href="/list">Show ALL users</a></p>
+        </div>
+        <form style="text-align:center">
+            <div>
+                <label>First name:</label><br>
+                <input id="first_name"></input>
+            </div>
+            <div>
+                <label>Last name:</label><br>
+                <input id="last_name"></input>
+            </div>
+            <div class="center">
+                <button type="button" onclick="onNewUser();">Add new user!</button>
+            </div>
+        </form>
+        <div style="padding:20px; margin-top: 1rem;">
+            <label style="margin-bottom: 10px;">Log Output:</label>
+            <a id="logtoggler" onclick="toggleLog();" href="#">(hide)</a>
+            <div class="center">
+                <textarea id="log" style="width:80%; height: 18rem; display:block;"></textarea>
+            </div>
+        </div>
+    <script>
+        var eL = document.getElementById("log");
+        var eLt = document.getElementById("logtoggler");
+
+        var showLog = true;
+
+        function toggleLog() {
+            if(showLog) {
+                eL.style.display = "none";
+                eLt.textContent = "(show)";
+            } else { 
+                eL.style.display = "block";
+                eLt.textContent = "(hide)";
+            }
+            showLog = !showLog;
+        }
+        function log(s) {
+            eL.value += s.toString();
+            eL.value += "\n"
+            eL.scrollTop = eL.scrollHeight;
+        }
+
+        function sendJSON(data, slug) {
+            json = JSON.stringify(data);
+            log("SENDING: " + json);
+            const response = fetch(slug, {
+                method: "POST",
+                body: json,
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                }
+            });
+            return response;
+        }
+
+        function onNewUser() {
+            var first_name = document.getElementById("first_name").value;
+            var last_name = document.getElementById("last_name").value;
+            data = {
+                first_name: first_name,
+                last_name: last_name,
+            }
+            sendJSON(data, "/user")
+            .then((response) => response.json())
+            .then((data) => {
+                log("SUCESS: " + JSON.stringify(data));
+            })
+            .catch((error) => {
+                log("Error posting data");
+            });}
+    </script>
     </body>
 </html>

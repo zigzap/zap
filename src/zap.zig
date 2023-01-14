@@ -99,18 +99,18 @@ pub const SimpleRequest = struct {
         // C.fiobj_free(new_fiobj_str);
     }
 
-    // pub fn nextParam(self: *const Self) ?HttpParam {
-    //     if (self.h.*.params == 0) return null;
-    //     var key: C.FIOBJ = undefined;
-    //     const value = C.fiobj_hash_pop(self.h.*.params, &key);
-    //     if (value == C.FIOBJ_INVALID) {
-    //         return null;
-    //     }
-    //     return HttpParam{
-    //         .key = fio2str(key).?,
-    //         .value = fio2str(value).?,
-    //     };
-    // }
+    pub fn nextParam(self: *const Self) ?HttpParam {
+        if (self.h.*.params == 0) return null;
+        var key: C.FIOBJ = undefined;
+        const value = C.fiobj_hash_pop(self.h.*.params, &key);
+        if (value == C.FIOBJ_INVALID) {
+            return null;
+        }
+        return HttpParam{
+            .key = fio2str(key).?,
+            .value = fio2str(value).?,
+        };
+    }
 };
 
 pub const HttpRequestFn = *const fn (r: [*c]C.http_s) callconv(.C) void;

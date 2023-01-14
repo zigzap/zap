@@ -3,7 +3,9 @@ const std = @import("std");
 //
 // JSON helpers
 //
-var jsonbuf: [100 * 1024]u8 = undefined;
+
+// 1MB JSON buffer
+var jsonbuf: [1024 * 1024]u8 = undefined;
 
 pub fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
     var fba = std.heap.FixedBufferAllocator.init(&jsonbuf);

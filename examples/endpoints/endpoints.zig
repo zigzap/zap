@@ -1,6 +1,7 @@
 const std = @import("std");
 const zap = @import("zap");
 const Users = @import("users.zig");
+const User = Users.User;
 
 // the Endpoints
 
@@ -21,7 +22,7 @@ pub fn init(
     endpoint = zap.SimpleEndpoint.init(.{
         .path = user_path,
         .get = getUser,
-        .post = null,
+        .post = postUser,
         .put = null,
         .delete = null,
     });
@@ -72,11 +73,11 @@ fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
 
 fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
-    var l: std.ArrayList(Users.User) = std.ArrayList(Users.User).init(alloc);
+    var l: std.ArrayList(User) = std.ArrayList(User).init(alloc);
     if (users.list(&l)) {} else |_| {
         return;
     }
-    if (zap.stringifyArrayList(Users.User, &l, .{})) |maybe_json| {
+    if (zap.stringifyArrayList(User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
         }
@@ -87,12 +88,21 @@ fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
 
 fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
-    if (r.path) |path| {
-        if (userIdFromPath(path)) |id| {
-            if (users.get(id)) |user| {
-                if (zap.stringify(user, .{})) |json| {
+    if (r.body) |body| {
+        var stream = std.json.TokenStream.init(body);
+        var maybe_user: ?User = std.json.parse(
+            User,
+            &stream,
+            .{ .allocator = alloc },
+        ) catch null;
+        if (maybe_user) |u| {
+            defer std.json.parseFree(User, u, .{ .allocator = alloc });
+            if (users.addByName(u.first_name, u.last_name)) |id| {
+                if (zap.stringify(.{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
                 }
+            } else |_| {
+                return;
             }
         }
     }
