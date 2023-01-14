@@ -9,5 +9,5 @@
     }
 } :
 pkgs.mkShell {
-    nativeBuildInputs = [ pkgs.neovim-nightly pkgs.bat ];
+    nativeBuildInputs = [ pkgs.neovim-nightly pkgs.bat pkgs.wrk];
 }
