@@ -57,12 +57,12 @@ fn userIdFromPath(path: []const u8) ?usize {
     return null;
 }
 
-pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     if (r.path) |path| {
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
-                if (Users.stringify(user, .{})) |json| {
+                if (zap.stringify(user, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             }
@@ -70,17 +70,30 @@ pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     }
 }
 
-pub fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     var l: std.ArrayList(Users.User) = std.ArrayList(Users.User).init(alloc);
     if (users.list(&l)) {} else |_| {
         return;
     }
-    if (Users.stringifyUserList(&l, .{})) |maybe_json| {
+    if (zap.stringifyArrayList(Users.User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
         }
     } else |_| {
         return;
+    }
+}
+
+fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    if (r.path) |path| {
+        if (userIdFromPath(path)) |id| {
+            if (users.get(id)) |user| {
+                if (zap.stringify(user, .{})) |json| {
+                    _ = r.sendJson(json);
+                }
+            }
+        }
     }
 }

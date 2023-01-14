@@ -8,6 +8,7 @@ pub const C = @cImport({
 });
 
 pub usingnamespace @import("endpoint.zig");
+pub usingnamespace @import("util.zig");
 
 pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
