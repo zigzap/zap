@@ -28,6 +28,9 @@ Here's what works:
   server with optional dynamic request handling
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
+- **[endpoints](examples/endpoints/)**: a simple JSON REST API example featuring
+  a `/users` endpoint for adding/deleting/displaying/updating users and a
+  `/list` endpoint returning the entire user list.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for my current
@@ -314,6 +317,52 @@ pub fn main() !void {
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 
     // start worker threads
+    zap.start(.{
+        .threads = 2,
+        .workers = 2,
+    });
+}
+```
+
+### [endpoints](examples/endpoints/)
+
+Only showing `main.zig` here:
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+const Endpoints = @import("endpoints.zig");
+
+pub fn main() !void {
+    const allocator = std.heap.page_allocator;
+    // setup listener
+    var listener = zap.SimpleEndpointListener.init(
+        allocator,
+        .{
+            .port = 3000,
+            .on_request = null,
+            .log = true,
+            .public_folder = "./examples/endpoints/html",
+        },
+    );
+
+    Endpoints.init(allocator, "/user", "/list");
+
+    // add endpoints
+    try listener.addEndpoint(Endpoints.getUserEndpoint());
+    try listener.addEndpoint(Endpoints.getUserListEndpoint());
+
+    // fake some users
+    var uid: usize = undefined;
+    uid = try Endpoints.getUsers().addByName("renerocksai", null);
+    uid = try Endpoints.getUsers().addByName("renerocksai", "your mom");
+
+    // listen
+    try listener.listen();
+
+    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+
+    // and run
     zap.start(.{
         .threads = 2,
         .workers = 2,
