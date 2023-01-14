@@ -11,6 +11,7 @@ pub fn main() !void {
             .port = 3000,
             .on_request = null,
             .log = true,
+            .public_folder = "./examples/endpoints/html",
         },
     );
 
