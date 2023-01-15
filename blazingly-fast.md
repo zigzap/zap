@@ -14,6 +14,18 @@ You can check out the scripts I used for the tests in [./wrk](wrk/).
 You can see the verbatim output of `wrk`, and some infos about the test machine
 below the code snippets.
 
+**Update**: I was intrigued comparing to a basic rust HTTP server.
+Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
+tried to go for the one in [The Rust Programming
+Language](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
+Wanting it to be of a somewhat fair comparison, I opted for the multi-threaded
+example. It didn't work out-of-the-box, but I got it to work and changed it to
+not read files but outputting a static text just like in the other examples.
+**maybe someone with rust experience** can have a look at my
+[wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
+I expected it to be faster than the basic GO example. I'll enable the
+GitHub discussions for this matter. My suspicion is the use of muteces.
+
 ![](wrk_tables.png)
 
 ### requests / sec
@@ -292,6 +304,71 @@ Running 10s test @ http://127.0.0.1:8080
 Requests/sec:   5004.06
 Transfer/sec:    649.95KB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
+
+
+
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
+    Finished release [optimized] target(s) in 0.00s
+========================================================================
+                          rust
+========================================================================
+Running 10s test @ http://127.0.0.1:7878
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.20ms    1.38ms 208.35ms   99.75%
+    Req/Sec    34.06k     2.00k   38.86k    75.25%
+  Latency Distribution
+     50%    1.32ms
+     75%    1.63ms
+     90%    1.87ms
+     99%    2.32ms
+  1356449 requests in 10.01s, 71.15MB read
+  Socket errors: connect 0, read 1356427, write 0, timeout 0
+Requests/sec: 135446.00
+Transfer/sec:      7.10MB
+
+
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
+    Finished release [optimized] target(s) in 0.00s
+========================================================================
+                          rust
+========================================================================
+Running 10s test @ http://127.0.0.1:7878
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.21ms  592.89us  10.02ms   63.64%
+    Req/Sec    32.93k     2.91k   37.94k    80.50%
+  Latency Distribution
+     50%    1.31ms
+     75%    1.64ms
+     90%    1.90ms
+     99%    2.48ms
+  1311445 requests in 10.02s, 68.79MB read
+  Socket errors: connect 0, read 1311400, write 0, timeout 0
+Requests/sec: 130904.50
+Transfer/sec:      6.87MB
+
+
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
+    Finished release [optimized] target(s) in 0.00s
+========================================================================
+                          rust
+========================================================================
+Running 10s test @ http://127.0.0.1:7878
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.26ms    2.88ms 211.74ms   99.92%
+    Req/Sec    33.92k     2.04k   38.99k    74.00%
+  Latency Distribution
+     50%    1.34ms
+     75%    1.66ms
+     90%    1.91ms
+     99%    2.38ms
+  1350527 requests in 10.02s, 70.84MB read
+  Socket errors: connect 0, read 1350474, write 0, timeout 0
+Requests/sec: 134830.39
+Transfer/sec:      7.07MB
+
 ```
 
 ## test machine

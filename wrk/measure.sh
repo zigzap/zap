@@ -31,6 +31,13 @@ if [ "$SUBJECT" = "python" ] ; then
     URL=http://127.0.0.1:8080
 fi
 
+if [ "$SUBJECT" = "rust" ] ; then
+    cd wrk/rust/hello && cargo build --release
+    ./target/release/hello &
+    PID=$!
+    URL=http://127.0.0.1:7878
+fi
+
 sleep 1
 echo "========================================================================"
 echo "                          $SUBJECT"

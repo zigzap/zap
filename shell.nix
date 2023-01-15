@@ -14,6 +14,11 @@ pkgs.mkShell {
         pkgs.bat 
         pkgs.wrk
         pkgs.python3
+        pkgs.rustc 
+        pkgs.cargo 
+        pkgs.gcc 
+        pkgs.rustfmt 
+        pkgs.clippy
     ];
 
   buildInputs = [
