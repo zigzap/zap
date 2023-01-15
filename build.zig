@@ -24,6 +24,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "serve", .src = "examples/serve/serve.zig" },
         .{ .name = "hello_json", .src = "examples/hello_json/hello_json.zig" },
         .{ .name = "endpoints", .src = "examples/endpoints/main.zig" },
+        .{ .name = "wrk", .src = "wrk/zig/main.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
@@ -63,14 +64,7 @@ pub fn build(b: *std.build.Builder) !void {
     }
 }
 
-fn logstep(msg: []const u8) void {
-    std.debug.print("=================================================\n", .{});
-    std.debug.print("== STEP :   {s}\n", .{msg});
-    std.debug.print("=================================================\n", .{});
-}
-
 pub fn ensureDeps(step: *std.build.Step) !void {
-    logstep("ENSURE DEPS");
     _ = step;
     const allocator = std.heap.page_allocator;
     ensureGit(allocator);

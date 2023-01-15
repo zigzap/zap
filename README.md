@@ -1,4 +1,4 @@
-# ⚡zap⚡ - blazingly fast backends
+# ⚡zig zap⚡ - blazingly fast backends
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
@@ -36,6 +36,25 @@ Here's what works:
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
 projects, serving thousands of concurrent clients.
+
+## ⚡blazingly fast⚡
+
+Claiming to be blazingly fast is the new black. At least, zap doesn't slow you
+down and if your server performs poorly, it's probably not exactly zap's fault.
+Zap relies on the [facil.io](https://facil.io) framework and so it can't really
+claim any performance things for itself. In this initial implementation of zap,
+I didn't care about optimizations at all.
+
+But, how fast is it? Being blazingly fast is relative. When compared with a
+simple GO HTTP server, a simple zig zap HTTP server performed about twice as
+fast - on my machine. 
+
+![](wrk_summary.png)
+
+So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
+... of reasonable performance 😎.
+
+See more details in [blazingly-fast.md](blazingly-fast.md).
 
 ## Getting started
 

@@ -9,5 +9,22 @@
     }
 } :
 pkgs.mkShell {
-    nativeBuildInputs = [ pkgs.neovim-nightly pkgs.bat pkgs.wrk];
+    nativeBuildInputs = [ 
+        pkgs.neovim-nightly 
+        pkgs.bat 
+        pkgs.wrk
+        pkgs.python3
+    ];
+
+  buildInputs = [
+    pkgs.go
+    pkgs.gotools
+    pkgs.gopls
+    # pkgs.go-outline
+    # pkgs.gocode
+    # pkgs.gopkgs
+    # pkgs.gocode-gomod
+    # pkgs.godef
+    pkgs.golint
+  ];
 }
