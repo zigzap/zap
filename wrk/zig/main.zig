@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request_minimal(r: zap.SimpleRequest) void {
-    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+    _ = r.sendBody("Hello from ZAP!!!");
 }
 
 pub fn main() !void {

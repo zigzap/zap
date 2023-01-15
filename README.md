@@ -46,8 +46,13 @@ claim any performance things for itself. In this initial implementation of zap,
 I didn't care about optimizations at all.
 
 But, how fast is it? Being blazingly fast is relative. When compared with a
-simple GO HTTP server, a simple zig zap HTTP server performed about twice as
-fast - on my machine. 
+simple GO HTTP server, a simple zig zap HTTP server performed really good on my
+machine:
+
+![](wrk_table_summary.png)
+
+- zig zag nearly 30% faster than GO
+- zig zag had over 50% more throughput than GO
 
 ![](wrk_summary.png)
 

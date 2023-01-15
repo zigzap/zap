@@ -1,7 +1,8 @@
 # ⚡blazingly fast⚡
 
 I conducted a series of quick tests, using wrk with simple HTTP servers written
-in GO and in zig zap. 
+in GO and in zig zap. I made sure that all servers only output 17 bytes of HTTP
+body.
 
 Just to get some sort of indication, I also included measurements for python
 since I used to write my REST APIs in python before creating zig zap.
@@ -13,7 +14,10 @@ You can check out the scripts I used for the tests in [./wrk](wrk/).
 You can see the verbatim output of `wrk`, and some infos about the test machine
 below the code snippets.
 
+![](wrk_tables.png)
+
 ### requests / sec
+
 ![](wrk_requests.png)
 
 ### transfer MB / sec
@@ -30,7 +34,7 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request_minimal(r: zap.SimpleRequest) void {
-    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+    _ = r.sendBody("Hello from ZAP!!!");
 }
 
 pub fn main() !void {
@@ -92,7 +96,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(bytes("HELLO FROM PYTHON!!!", "utf-8"))
+        self.wfile.write(bytes("HI FROM PYTHON!!!", "utf-8"))
 
     def log_message(self, format, *args):
         return
@@ -116,24 +120,6 @@ if __name__ == "__main__":
 wrk version: `wrk 4.1.0 [epoll] Copyright (C) 2012 Will Glozer`
 
 ```
-========================================================================
-                          zig
-========================================================================
-Running 10s test @ http://127.0.0.1:3000
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   337.49us  109.24us   4.21ms   88.64%
-    Req/Sec   157.78k     8.31k  172.93k    59.25%
-  Latency Distribution
-     50%  314.00us
-     75%  345.00us
-     90%  396.00us
-     99%  699.00us
-  6280964 requests in 10.01s, 1.13GB read
-Requests/sec: 627277.99
-Transfer/sec:    116.05MB
-
-
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
 Listening on 0.0.0.0:3000
 ========================================================================
@@ -142,38 +128,57 @@ Listening on 0.0.0.0:3000
 Running 10s test @ http://127.0.0.1:3000
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   339.50us  176.93us  12.52ms   91.23%
-    Req/Sec   158.24k     8.00k  170.45k    53.00%
-  Latency Distribution
-     50%  313.00us
-     75%  345.00us
-     90%  399.00us
-     99%  697.00us
-  6297146 requests in 10.02s, 1.14GB read
-Requests/sec: 628768.81
-Transfer/sec:    116.33MB
-
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
-Listening on 0.0.0.0:3000
-========================================================================
-                          zig
-========================================================================
-Running 10s test @ http://127.0.0.1:3000
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   344.23us  185.46us  14.44ms   89.93%
-    Req/Sec   157.56k    12.85k  171.21k    94.00%
+    Latency   331.40us  115.09us   8.56ms   91.94%
+    Req/Sec   159.51k     9.44k  175.23k    56.50%
   Latency Distribution
      50%  312.00us
-     75%  346.00us
-     90%  528.00us
-     99%  747.00us
-  6270913 requests in 10.02s, 1.13GB read
-Requests/sec: 625756.37
-Transfer/sec:    115.77MB
+     75%  341.00us
+     90%  375.00us
+     99%  681.00us
+  6348945 requests in 10.01s, 0.94GB read
+Requests/sec: 634220.13
+Transfer/sec:     96.17MB
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
 
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
+Listening on 0.0.0.0:3000
+========================================================================
+                          zig
+========================================================================
+Running 10s test @ http://127.0.0.1:3000
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   322.43us  103.25us   3.72ms   86.57%
+    Req/Sec   166.35k     2.89k  182.78k    68.00%
+  Latency Distribution
+     50%  297.00us
+     75%  330.00us
+     90%  482.00us
+     99%  657.00us
+  6619245 requests in 10.02s, 0.98GB read
+Requests/sec: 660803.71
+Transfer/sec:    100.20MB
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
 
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
+Listening on 0.0.0.0:3000
+========================================================================
+                          zig
+========================================================================
+Running 10s test @ http://127.0.0.1:3000
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   325.47us  105.86us   4.03ms   87.27%
+    Req/Sec   164.60k     4.69k  181.85k    84.75%
+  Latency Distribution
+     50%  300.00us
+     75%  333.00us
+     90%  430.00us
+     99%  667.00us
+  6549594 requests in 10.01s, 0.97GB read
+Requests/sec: 654052.56
+Transfer/sec:     99.18MB
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
 
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
 listening on 0.0.0.0:8090
@@ -183,18 +188,16 @@ listening on 0.0.0.0:8090
 Running 10s test @ http://127.0.0.1:8090/hello
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   721.60us  755.26us  14.12ms   87.95%
-    Req/Sec   123.79k     4.65k  135.57k    69.00%
+    Latency   680.63us  692.05us  12.09ms   88.04%
+    Req/Sec   126.49k     4.28k  139.26k    71.75%
   Latency Distribution
-     50%  429.00us
-     75%    0.88ms
-     90%    1.65ms
-     99%    3.63ms
-  4927352 requests in 10.02s, 629.68MB read
-Requests/sec: 491607.70
-Transfer/sec:     62.82MB
-
-
+     50%  403.00us
+     75%  822.00us
+     90%    1.52ms
+     99%    3.34ms
+  5033360 requests in 10.01s, 643.22MB read
+Requests/sec: 502584.84
+Transfer/sec:     64.23MB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
 listening on 0.0.0.0:8090
 ========================================================================
@@ -203,18 +206,16 @@ listening on 0.0.0.0:8090
 Running 10s test @ http://127.0.0.1:8090/hello
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   698.35us  707.23us  11.03ms   87.80%
-    Req/Sec   124.36k     4.27k  135.19k    69.50%
+    Latency   683.97us  695.78us  10.01ms   88.04%
+    Req/Sec   126.31k     4.34k  137.63k    65.00%
   Latency Distribution
-     50%  419.00us
-     75%    0.86ms
-     90%    1.58ms
-     99%    3.38ms
-  4948380 requests in 10.01s, 632.37MB read
-Requests/sec: 494338.77
-Transfer/sec:     63.17MB
-
-
+     50%  408.00us
+     75%  829.00us
+     90%    1.53ms
+     99%    3.34ms
+  5026848 requests in 10.01s, 642.39MB read
+Requests/sec: 502149.91
+Transfer/sec:     64.17MB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
 listening on 0.0.0.0:8090
 ========================================================================
@@ -223,19 +224,16 @@ listening on 0.0.0.0:8090
 Running 10s test @ http://127.0.0.1:8090/hello
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   700.97us  710.99us  10.38ms   87.73%
-    Req/Sec   124.38k     4.16k  135.31k    67.25%
+    Latency   688.89us  702.75us  12.70ms   88.09%
+    Req/Sec   126.06k     4.20k  138.00k    70.25%
   Latency Distribution
-     50%  419.00us
-     75%    0.86ms
-     90%    1.59ms
-     99%    3.39ms
-  4950585 requests in 10.01s, 632.65MB read
-Requests/sec: 494551.24
-Transfer/sec:     63.20MB
-
-
-
+     50%  414.00us
+     75%  836.00us
+     90%    1.54ms
+     99%    3.36ms
+  5015716 requests in 10.01s, 640.97MB read
+Requests/sec: 500968.28
+Transfer/sec:     64.02MB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
 Server started http://127.0.0.1:8080
 ========================================================================
@@ -244,19 +242,17 @@ Server started http://127.0.0.1:8080
 Running 10s test @ http://127.0.0.1:8080
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     4.55ms   57.21ms   1.66s    99.12%
-    Req/Sec     2.56k     2.55k    7.57k    57.43%
+    Latency    12.89ms  101.69ms   1.79s    97.76%
+    Req/Sec     1.83k     2.11k    7.53k    82.18%
   Latency Distribution
-     50%  216.00us
-     75%  343.00us
-     90%  371.00us
-     99%  765.00us
-  27854 requests in 10.02s, 3.61MB read
-  Socket errors: connect 0, read 27854, write 0, timeout 8
-Requests/sec:   2779.87
-Transfer/sec:    369.20KB
-
-
+     50%  215.00us
+     75%  260.00us
+     90%  363.00us
+     99%  485.31ms
+  34149 requests in 10.02s, 4.33MB read
+  Socket errors: connect 0, read 34149, write 0, timeout 15
+Requests/sec:   3407.63
+Transfer/sec:    442.60KB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
 Server started http://127.0.0.1:8080
 ========================================================================
@@ -265,19 +261,17 @@ Server started http://127.0.0.1:8080
 Running 10s test @ http://127.0.0.1:8080
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     4.08ms   58.22ms   1.66s    99.27%
-    Req/Sec     2.28k     2.13k    7.68k    50.00%
+    Latency     9.87ms   90.32ms   1.79s    98.21%
+    Req/Sec     2.16k     2.17k    7.49k    80.10%
   Latency Distribution
-     50%  226.00us
-     75%  345.00us
-     90%  374.00us
-     99%  496.00us
-  55353 requests in 10.03s, 7.18MB read
-  Socket errors: connect 0, read 55353, write 0, timeout 8
-Requests/sec:   5521.48
-Transfer/sec:    733.33KB
-
-
+     50%  234.00us
+     75%  353.00us
+     90%  378.00us
+     99%  363.73ms
+  43897 requests in 10.02s, 5.57MB read
+  Socket errors: connect 0, read 43897, write 0, timeout 14
+Requests/sec:   4379.74
+Transfer/sec:    568.85KB
 (base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
 Server started http://127.0.0.1:8080
 ========================================================================
@@ -286,17 +280,18 @@ Server started http://127.0.0.1:8080
 Running 10s test @ http://127.0.0.1:8080
   4 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     6.05ms   70.02ms   1.66s    98.94%
-    Req/Sec     2.40k     2.35k    7.43k    54.40%
+    Latency     3.98ms   51.85ms   1.66s    99.16%
+    Req/Sec     2.69k     2.58k    7.61k    51.14%
   Latency Distribution
-     50%  222.00us
-     75%  313.00us
-     90%  366.00us
-     99%  162.93ms
-  31959 requests in 10.02s, 4.15MB read
-  Socket errors: connect 0, read 31959, write 0, timeout 6
-Requests/sec:   3189.81
-Transfer/sec:    423.65KB
+     50%  234.00us
+     75%  357.00us
+     90%  381.00us
+     99%  568.00us
+  50165 requests in 10.02s, 6.36MB read
+  Socket errors: connect 0, read 50165, write 0, timeout 9
+Requests/sec:   5004.06
+Transfer/sec:    649.95KB
+(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
 ```
 
 ## test machine
