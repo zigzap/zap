@@ -1,4 +1,4 @@
-# ⚡zig zap⚡ - blazingly fast backends
+# ⚡zap⚡ - blazingly fast backends in zig
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
