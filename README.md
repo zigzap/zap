@@ -16,7 +16,7 @@ framework](https://facil.io).
 
 Here's what works:
 
-- **Super easy build process**: zag's `build.zig` fetches git sub-modules,
+- **Super easy build process**: zap's `build.zig` fetches git sub-modules,
   applies a patch to facil.io's logging for microsecond precision, builds and
   optionally runs everything.
   - _tested on Linux and macOS (arm, M1)_
@@ -49,8 +49,8 @@ But, how fast is it? Being blazingly fast is relative. When compared with a
 simple GO HTTP server, a simple zig zap HTTP server performed really good on my
 machine:
 
-- zig zag was nearly 30% faster than GO
-- zig zag had over 50% more throughput than GO
+- zig zap was nearly 30% faster than GO
+- zig zap had over 50% more throughput than GO
 
 **Update**: I was intrigued comparing to a basic rust HTTP server.
 Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
@@ -67,7 +67,7 @@ mutexes.
 
 ![](wrk_table_summary.png)
 
-![](wrk_summary.png)
+![](wrk_charts_summary.png)
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
 ... of reasonable performance 😎.
@@ -366,7 +366,7 @@ pub fn main() !void {
 
 The following only shows the GET functionality implemented on both the `/user/`
 and the `/list` endpoints. See [endpoints](examples/endpoints/) for a complete
-example, including a HTML + JavaScript frontend.
+example, including an HTML + JavaScript frontend.
 
 [`main.zig`](examples/endpoints/main.zig):
 
