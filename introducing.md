@@ -78,7 +78,7 @@ Also, there are nice and well-typed zig implementations for some of the above ex
 
 ## wrapping up - zig is WYSIWYG code
 
-I am super excited about both zig and zap's future. I am still impressed by how easy it is to integrate a C codebase into a zig project, then benefiting from and building on top of a battle-tested high-performance C code. Additionally, with zig you get C-like performance with almost Python-like comfort. And you can be sure no exception is trying to get you when you least expect it. No hidden allocations, no hidden control-flows, how cool is that? **WYSIWYG code!**
+I am super excited about both zig and zap's future. I am still impressed by how easy it is to integrate a C codebase into a zig project, then benefiting from and building on top of battle-tested high-performance C code. Additionally, with zig you get C-like performance with almost Python-like comfort. And you can be sure no exception is trying to get you when you least expect it. No hidden allocations, no hidden control-flows, how cool is that? **WYSIWYG code!**
 
 Provided that the incorporated C code is well-written and -tested, WYSIWYG even holds mostly true for combined Zig and C projects.
 
@@ -88,4 +88,4 @@ Oh, and have I mentioned Zig's built-in build system and testing framework? Thos
 
 Looking forward, I am also tempted to try adding some log-and-replay facilities as a kind of backup for when things go wrong. I wouldn't be confident to attemt such things in C because I'd view them as being too much work; too much could go wrong. But with Zig, I am rather excited about the possibilities that open up and eager to try such things.
 
-To great justice!
+For great justice!
