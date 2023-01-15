@@ -33,7 +33,6 @@ pub fn start(args: C.fio_start_args) void {
 }
 
 const ListenError = error{
-    ValueNotZeroTerminated,
     AlreadyListening,
     ListenError,
 };
@@ -99,6 +98,10 @@ pub const SimpleRequest = struct {
         // C.fiobj_free(new_fiobj_str);
     }
 
+    pub fn setStatus(self: *const Self, status: usize) void {
+        self.h.*.status = status;
+    }
+
     pub fn nextParam(self: *const Self) ?HttpParam {
         if (self.h.*.params == 0) return null;
         var key: C.FIOBJ = undefined;
@@ -158,10 +161,6 @@ pub const SimpleHttpListener = struct {
 
         if (self.settings.public_folder) |pf| {
             pfolder_len = pf.len;
-            // TODO: make sure it's 0-terminated!!!
-            // if (pf[pf.len - 1] != 0) {
-            //     return error.ValueNotZeroTerminated;
-            // }
             pfolder = pf.ptr;
         }
 
@@ -240,10 +239,6 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
 
     if (settings.public_folder) |pf| {
         pfolder_len = pf.len;
-        // TODO: make sure it's 0-terminated!!!
-        // if (pf[pf.len - 1] != 0) {
-        //     return error.ValueNotZeroTerminated;
-        // }
         pfolder = pf.ptr;
     }
     var x: C.http_settings_s = .{

@@ -3,11 +3,12 @@
 Zap is intended to become my [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
 [Flask](https://flask.palletsprojects.com) and
-[mongodb](https://www.mongodb.com), etc.
+[mongodb](https://www.mongodb.com), etc. It can be considered to be a
+microframework for web applications.
 
 What I need for that is a blazingly fast, robust HTTP server that I can use with
-zig. While facil.io supports TLS, I don't care about HTTPS. In production, I use
-[nginx](https://www.nginx.com) as a reverse proxy anyway.
+zig. While facil.io supports TLS, I don't care about HTTPS support. In
+production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 
 Zap wraps and patches [facil.io - the C web application
 framework](https://facil.io).
@@ -18,12 +19,6 @@ At the time of writing, ZAP is only a few days old and aims to be:
 - **fast**
 - **minimal**
 
-**Side-note:**
-It never ceases to amaze me how productive I can be in zig, eventhough I am
-still considering myself to be a newbie. Sometimes, it's almost like writing
-python but with all the nice speed and guarantees that zig gives you. Also, the
-C integration abilities of zig are just phenomenal! I am super excited about
-zig's future!
 
 **⚡ZAP⚡ IS SUPER ALPHA**
 
@@ -66,6 +61,13 @@ to a point where I can use it as the JSON REST API backend for real research
 projects, serving thousands of concurrent clients. Now that the endpoint example
 works, ZAP has actually become pretty usable to me.
 
+**Side-note:**
+It never ceases to amaze me how productive I can be in zig, eventhough I am
+still considering myself to be a newbie. Sometimes, it's almost like writing
+python but with all the nice speed and guarantees that zig gives you. Also, the
+C integration abilities of zig are just phenomenal! I am super excited about
+zig's future!
+
 Now, on to the guiding principles of Zap.
 
 ## robust
@@ -76,7 +78,7 @@ notable and cool HTTP server implementations written in zig out there, at the
 time of writing, most of them seem to a) depend on zig's async facilities which
 are unsupported until ca. April 2023 when async will return to the self-hosted
 compiler, and b) have not matured to a point where **I** feel safe using them in
-production. These are all my opionions and they could be totally wrong.
+production. These are just my opionions and they could be totally wrong though.
 
 However, when I conduct my next online research experiment with thousands of
 concurrent clients, I cannot afford to run into potential maturity-problems of
@@ -147,30 +149,31 @@ support TLS, I don't care about that - at least for now. Also, if you present
 also set the status code to 404, so it can be OK to spare those nanoseconds.
 Gotta go fast!
 
-Facilio comes with Mustache parsing, TLS, websockets, redis support, concurrency
-stuff, Base64 support, logging facilities, pub/sub / cluster messages API, hash
-algorithm implementations, its own memory allocator, and so forth. It is really
-an amazing project!
+Facilio comes with Mustache parsing, TLS via third-party libs, websockets, redis
+support, concurrency stuff, Base64 support, logging facilities, pub/sub /
+cluster messages API, hash algorithm implementations, its own memory allocator,
+and so forth. It is really an amazing project!
 
 On the lower level, you can use all of the above by working with `zap.C`. I'll
-zig-wrap what I need for my projects first, before adding fancy stuff.
+zig-wrap what I need for my projects first, before adding more fancy stuff.
 
 Also, there are nice and well-typed zig implementations for some of the above
-extra functionalities, and zap-wrapping them needs careful consideration. Might
-not be worth the extra effort. Performance / out-of-the-box integration might be
-arguments pro wrapping them in zap.
+extra functionalities, and zap-wrapping them needs careful consideration. E.g.
+it might not be worth the extra effort to wrap facil.io's mustache support when
+there is a good zig alternative already. Performance / out-of-the-box
+integration might be arguments pro wrapping them in zap.
 
 ## wrapping up - zig is WYSIWYG code
 
 I am super excited about both zig and zap's future. I am still impressed by how
 easy it is to integrate a C codebase into a zig project, then benefiting from
 and building on top of a battle-tested high-performance C code. Additionally,
-with zig you get C-like performance with almost Python-like comfort. And be sure
-no exception is trying to get you when you least expect it. No hidden
+with zig you get C-like performance with almost Python-like comfort. And you can
+be sure no exception is trying to get you when you least expect it. No hidden
 allocations, no hidden control-flows, how cool is that? **WYSIWYG code!**
 
 Provided that the incorporated C code is well-written and -tested, WYSIWYG even
-holds true for combined Zig and C projects.
+holds mostly true for combined Zig and C projects.
 
 You can truly build on the soulders of giants here. Mind you, it took me less
 than a week to arrive at the current state of zap where I am confident that I

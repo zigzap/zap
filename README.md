@@ -3,11 +3,12 @@
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
 [Flask](https://flask.palletsprojects.com) and
-[mongodb](https://www.mongodb.com), etc.
+[mongodb](https://www.mongodb.com), etc. It can be considered to be a
+microframework for web applications.
 
 What I need for that is a blazingly fast, robust HTTP server that I can use with
-zig. While facil.io supports TLS, I don't mind HTTPS. In production, I use
-[nginx](https://www.nginx.com) as a reverse proxy anyway.
+zig. While facil.io supports TLS, I don't care about HTTPS support. In
+production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 
 Zap wraps and patches [facil.io - the C web application
 framework](https://facil.io).
@@ -230,7 +231,7 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request(r: zap.SimpleRequest) void {
-    // TODO: send 404 response
+    r.setStatus(404);
     _ = r.sendBody("<html><body><h1>404 - File not found</h1></body></html>");
 }
 
