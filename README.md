@@ -14,6 +14,9 @@ framework](https://facil.io).
 
 **⚡ZAP⚡ IS SUPER ALPHA**
 
+_Under the hood, everything is super robust and fast. My zig wrappers are fresh,
+juicy, and alpha._
+
 Here's what works:
 
 - **Super easy build process**: zap's `build.zig` fetches git sub-modules,
@@ -42,7 +45,7 @@ projects, serving thousands of concurrent clients.
 Claiming to be blazingly fast is the new black. At least, zap doesn't slow you
 down and if your server performs poorly, it's probably not exactly zap's fault.
 Zap relies on the [facil.io](https://facil.io) framework and so it can't really
-claim any performance things for itself. In this initial implementation of zap,
+claim any performance fame for itself. In this initial implementation of zap,
 I didn't care about optimizations at all.
 
 But, how fast is it? Being blazingly fast is relative. When compared with a
@@ -82,6 +85,7 @@ $ cd zap
 $ zig build run-hello
 $ # open http://localhost:3000 in your browser
 ```
+
 ... and open [http://localhost:3000](http://locahhost:3000) in your browser.
 
 ## Using ⚡zap⚡ in your own projects 
@@ -124,7 +128,35 @@ In the `build` function, add the following before `exe.install()`:
     zap_builder.addZap(exe, "./libs/zap/") catch unreachable;
 ```
 
-From then on, you can use the zap package in your project. Check out the examples to see how to use zap.
+From then on, you can use the zap package in your project. Check out the
+examples to see how to use zap.
+
+## Contribute to ⚡zap⚡ - blazingly fast
+
+At the current time, I can only add to zap what I need for my personal and
+professional projects. While this happens **blazingly fast**, some if not all
+nice-to-have additions will have to wait. You are very welcome to help make the
+world a blazingly fast place by providing patches or pull requests, add
+documentation or examples, or interesting issues and bug reports - you'll know
+what to do when you receive your calling 👼.
+
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
+See also [introducing.md](introducing.md) for more on the state and progress of
+this project.
+
+You can also reach me on [the zig showtime discord
+server](https://discord.gg/CBzE3VMb) under the handle renerocksai
+(renerocksai#1894).
+
+## Support ⚡zap⚡ 
+
+Being blazingly fast requires a constant feed of caffeine. I usually manage to
+provide that to myself for myself. However, to support keeping the juices
+flowing and putting a smile on my face and that warm and cozy feeling into my
+heart, you can always [buy me a coffee](https://buymeacoffee.com/renerocksai)
+☕. All donations are welcomed 🙏 blazingly fast! That being said, just saying
+"hi" also works wonders with the smiles, warmth, and coziness 😊.
 
 ## Examples
 
