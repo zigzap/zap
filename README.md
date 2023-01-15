@@ -31,7 +31,7 @@ Here's what works:
 - **[endpoints](examples/endpoints/)**: a simple JSON REST API example featuring
   a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing users and a
   `/list` endpoint returning the entire user list on GET, together with a static
-  HTML frontend to play around with.
+  HTML and JavaScript frontend to play around with.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
