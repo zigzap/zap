@@ -49,6 +49,9 @@ But, how fast is it? Being blazingly fast is relative. When compared with a
 simple GO HTTP server, a simple zig zap HTTP server performed really good on my
 machine:
 
+- zig zag was nearly 30% faster than GO
+- zig zag had over 50% more throughput than GO
+
 **Update**: I was intrigued comparing to a basic rust HTTP server.
 Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
 tried to go for the one in [The Rust Programming
@@ -59,14 +62,10 @@ not read files but outputting a static text just like in the other examples.
 **maybe someone with rust experience** can have a look at my
 [wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
 I expected it to be faster than the basic GO example. I'll enable the
-GitHub discussions for this matter. My suspicion is the use of mutexes.
+GitHub discussions for this matter. My suspicion is bad performance of the
+mutexes.
 
 ![](wrk_table_summary.png)
-
-- zig zag was nearly 30% faster than GO
-- zig zag had over 50% more throughput than GO
-- let's better not talk about the rust results. I don't know what causes them.
-  Probably bad mutex performance.
 
 ![](wrk_summary.png)
 

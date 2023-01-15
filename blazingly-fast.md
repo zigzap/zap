@@ -24,7 +24,8 @@ not read files but outputting a static text just like in the other examples.
 **maybe someone with rust experience** can have a look at my
 [wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
 I expected it to be faster than the basic GO example. I'll enable the
-GitHub discussions for this matter. My suspicion is the use of mutexes .
+GitHub discussions for this matter. My suspicion is bad performance of the
+mutexes.
 
 ![](wrk_tables.png)
 
