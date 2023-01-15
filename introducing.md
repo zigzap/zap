@@ -26,7 +26,16 @@ Here's what works:
 - **[hello_json](https://github.com/renerocksai/zap/blob/master/examples/hello_json/hello_json.zig)**: serves you json dependent on HTTP path
 - **[endpoints](https://github.com/renerocksai/zap/blob/master/examples/endpoints/)**: a simple JSON REST API example featuring a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing users and a `/list` endpoint returning the entire user list on GET, together with a static HTML and JavaScript frontend to play around with.
 
-If you want to take it for a quick spin: ```shell $ git clone https://github.com/renerocksai/zap.git $ cd zap $ zig build run-hello $ # open http://localhost:3000 in your browser ``` See [the README](https://github.com/renerocksai/zap) for how easy it is to get started, how to run the examples, and how to use zap in your own projects.
+If you want to take it for a quick spin: 
+
+```shell
+$ git clone https://github.com/renerocksai/zap.git 
+$ cd zap 
+$ zig build run-hello 
+$ # open http://localhost:3000 in your browser 
+```
+
+See [the README](https://github.com/renerocksai/zap) for how easy it is to get started, how to run the examples, and how to use zap in your own projects.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap to a point where I can use it as the JSON REST API backend for real research projects, serving thousands of concurrent clients. Now that the endpoint example works, ZAP has actually become pretty usable to me.
 
