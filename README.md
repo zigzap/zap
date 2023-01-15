@@ -29,12 +29,13 @@ Here's what works:
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
 - **[endpoints](examples/endpoints/)**: a simple JSON REST API example featuring
-  a `/users` endpoint for adding/deleting/displaying/updating users and a
-  `/list` endpoint returning the entire user list.
+  a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing users and a
+  `/list` endpoint returning the entire user list on GET, together with a static
+  HTML frontend to play around with.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
-to a point where I can use it as the JSON REST API backend for my current
-research project which is likely to need to go live in the summer of 2023.
+to a point where I can use it as the JSON REST API backend for real research
+projects, serving thousands of concurrent clients.
 
 ## Getting started
 
@@ -326,6 +327,10 @@ pub fn main() !void {
 
 ### [endpoints](examples/endpoints/)
 
+The following only shows the GET functionality implemented on both the `/user/`
+and the `/list` endpoints. See [endpoints](examples/endpoints/) for a complete
+example, including a HTML + JavaScript frontend.
+
 [`main.zig`](examples/endpoints/main.zig):
 
 ```zig
@@ -377,9 +382,9 @@ pub fn main() !void {
 const std = @import("std");
 const zap = @import("zap");
 const Users = @import("users.zig");
+const User = Users.User;
 
 // the Endpoints
-
 pub const Self = @This();
 
 var alloc: std.mem.Allocator = undefined;
@@ -438,7 +443,7 @@ pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     if (r.path) |path| {
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
-                if (Users.stringify(user, .{})) |json| {
+                if (zap.stringify(user, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             }
@@ -448,11 +453,11 @@ pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
 
 pub fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
-    var l: std.ArrayList(Users.User) = std.ArrayList(Users.User).init(alloc);
+    var l: std.ArrayList(User) = std.ArrayList(User).init(alloc);
     if (users.list(&l)) {} else |_| {
         return;
     }
-    if (Users.stringifyUserList(&l, .{})) |maybe_json| {
+    if (zap.stringifyArrayList(std.ArrayList(User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
         }
