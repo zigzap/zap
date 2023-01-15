@@ -32,7 +32,17 @@
                 padding: 15px;
                 margin-top: 10px;
                 font-size: 1em;
-                width: 80%;
+                width: 400px;
+                text-align: center;
+                justify-content: center;
+            }
+            .tdform {
+                border: none;
+                border-radius: none;
+                padding: 2px;
+                margin-top: 0px;
+                font-size: 1em;
+                width: auto;
                 text-align: center;
                 justify-content: center;
             }
@@ -45,12 +55,22 @@
                 padding-top: 5px;
                 padding-bottom: 5px;
             }
+            .updatebutton {
+                background-color: #B0B0B0;
+                color: #181818;
+            }
+            .delbutton {
+                background-color: #B06060;
+                color: white;
+            }
             .center {
                 display: flex;
                 justify-content: center;
             }
             table {
                 background-color:#181818; 
+                border-radius: 12px;
+                padding: 12px;
             }
             th {
                 color: #B06060;
@@ -58,6 +78,8 @@
             }
             td {
                 color: #B0B0B0;
+            }
+            tr {
             }
         </style>
 <html>
@@ -86,16 +108,16 @@
         </div>
         <div style="padding:20px; margin-top: 1rem;">
             <label style="margin-bottom: 10px;">Log Output:</label>
-            <a id="logtoggler" onclick="toggleLog();" href="#">(hide)</a>
+            <a id="logtoggler" onclick="toggleLog();" href="#">(show)</a>
             <div class="center">
-                <textarea id="log"></textarea>
+                <textarea id="log" style="display:none"></textarea>
             </div>
         </div>
     <script>
         var eL = document.getElementById("log");
         var eLt = document.getElementById("logtoggler");
 
-        var showLog = true;
+        var showLog = false;
 
         function toggleLog() {
             if(showLog) {
@@ -156,6 +178,25 @@
             });
         }
 
+        function changeUser(id) {
+            var firstname = document.getElementById("first_" + id);
+            firstname = firstname.value;
+            const lastname = document.getElementById("last_" + id).value;
+            data = {
+                first_name: firstname,
+                last_name: lastname,
+            }
+            sendJSON(data, "/user/" + id, "PUT")
+            .then((response) => response.json())
+            .then((data) => {
+                log("SUCESS: " + JSON.stringify(data));
+                getUserList();
+            })
+            .catch((error) => {
+                log("Error posting data");
+            });
+        }
+
         function addHeaderCell(tr, text) {
             var th = document.createElement('TH');
             th.innerHTML = text;
@@ -171,7 +212,8 @@
             addHeaderCell(tr, 'id');
             addHeaderCell(tr, 'first name');
             addHeaderCell(tr, 'last name');
-            addHeaderCell(tr, 'action');
+            addHeaderCell(tr, '');
+            addHeaderCell(tr, '');
 
             console.log("showTable()");
             console.log(users);
@@ -181,16 +223,24 @@
                 var c1 = row.insertCell();
                 c1.innerHTML = users[i].id;
                 var c2 = row.insertCell();
-                c2.innerHTML = users[i].first_name;
+                c2.innerHTML = '<input id="first_' + users[i].id + '" value="' + users[i].first_name + '"></input>';
                 var c3 = row.insertCell();
-                c3.innerHTML = users[i].last_name;
+                c3.innerHTML = '<input id="last_' + users[i].id + '" value="' + users[i].last_name + '"></input>';
                 var c4 = row.insertCell();
-                c4.innerHTML = '<button type="button" onclick="deleteUser(' + users[i].id + ');">del</button>';
+                c4.innerHTML = ''
+                    + '<form class="tdform"><button  class="updatebutton" type="button" onclick="changeUser(' + users[i].id + ');">change</button></form>'
+                ;
+                var c5 = row.insertCell();
+                c5.innerHTML = '' 
+                    + '<form class="tdform"><button class="delbutton" type="button" onclick="deleteUser(' + users[i].id + ');">del</button></form>' 
+                ;
             }
             console.log("before replace");
             t.innerHTML = new_t.innerHTML;
             console.log("after replace");
         }
+
+
         function getUserList() {
             fetch("/list", { method: "GET", } )
             .then((response) => response.json())

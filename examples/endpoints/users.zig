@@ -72,6 +72,7 @@ pub fn update(
     last: ?[]const u8,
 ) bool {
     var user: ?InternalUser = self.users.get(id);
+    // we got a copy apparently, so we need to put again
     if (user) |*pUser| {
         pUser.*.firstnamelen = 0;
         pUser.*.lastnamelen = 0;
@@ -83,7 +84,12 @@ pub fn update(
             std.mem.copy(u8, pUser.lastnamebuf[0..], lastname);
             pUser.lastnamelen = lastname.len;
         }
-        return true;
+        _ = self.users.remove(id);
+        if (self.users.put(id, pUser.*)) {
+            return true;
+        } else |_| {
+            return false;
+        }
     }
     return false;
 }
