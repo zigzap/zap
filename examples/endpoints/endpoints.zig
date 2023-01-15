@@ -23,8 +23,8 @@ pub fn init(
         .path = user_path,
         .get = getUser,
         .post = postUser,
-        .put = null,
-        .delete = null,
+        .put = putUser,
+        .delete = deleteUser,
     });
     list_endpoint = zap.SimpleEndpoint.init(.{
         .path = userlist_path,
@@ -103,6 +103,66 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                 }
             } else |_| {
                 return;
+            }
+        }
+    }
+}
+
+fn putUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    if (r.path) |path| {
+        if (userIdFromPath(path)) |id| {
+            if (users.get(id)) |_| {
+                if (r.body) |body| {
+                    var stream = std.json.TokenStream.init(body);
+                    var maybe_user: ?User = std.json.parse(
+                        User,
+                        &stream,
+                        .{ .allocator = alloc },
+                    ) catch null;
+                    if (maybe_user) |u| {
+                        defer std.json.parseFree(
+                            User,
+                            u,
+                            .{ .allocator = alloc },
+                        );
+                        if (users.update(id, u.first_name, u.last_name)) {
+                            if (zap.stringify(.{
+                                .status = "OK",
+                                .id = id,
+                            }, .{})) |json| {
+                                _ = r.sendJson(json);
+                            }
+                        } else {
+                            if (zap.stringify(.{
+                                .status = "ERROR",
+                                .id = id,
+                            }, .{})) |json| {
+                                _ = r.sendJson(json);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn deleteUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    if (r.path) |path| {
+        if (userIdFromPath(path)) |id| {
+            if (users.delete(id)) {
+                if (zap.stringify(.{ .status = "OK", .id = id }, .{})) |json| {
+                    _ = r.sendJson(json);
+                }
+            } else {
+                if (zap.stringify(.{
+                    .status = "ERROR",
+                    .id = id,
+                }, .{})) |json| {
+                    _ = r.sendJson(json);
+                }
             }
         }
     }

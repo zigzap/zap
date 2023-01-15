@@ -2,6 +2,7 @@ const std = @import("std");
 
 alloc: std.mem.Allocator = undefined,
 users: std.AutoHashMap(usize, InternalUser) = undefined,
+count: usize = 0,
 
 pub const Self = @This();
 
@@ -14,6 +15,7 @@ const InternalUser = struct {
 };
 
 pub const User = struct {
+    id: usize = 0,
     first_name: []const u8,
     last_name: []const u8,
 };
@@ -28,9 +30,12 @@ pub fn init(a: std.mem.Allocator) Self {
 /// the request will be freed (and reused by facilio) when it's
 /// completed, so we take copies of the names
 pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
-    var created = try self.alloc.alloc(InternalUser, 1);
-    var user = created[0];
-    user.id = self.users.count() + 1;
+    // TODO: get rid of the temp allocation here
+    var temp = try self.alloc.alloc(InternalUser, 1);
+    defer self.alloc.free(temp);
+    var user = temp[0];
+    self.count = self.count + 1;
+    user.id = self.count;
     user.firstnamelen = 0;
     user.lastnamelen = 0;
     if (first) |firstname| {
@@ -46,16 +51,13 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
 }
 
 pub fn delete(self: *Self, id: usize) bool {
-    if (self.users.get(id)) |pUser| {
-        self.alloc.free(pUser);
-        return self.users.remove(id);
-    }
-    return false;
+    return self.users.remove(id);
 }
 
 pub fn get(self: *Self, id: usize) ?User {
     if (self.users.get(id)) |pUser| {
         return .{
+            .id = pUser.id,
             .first_name = pUser.firstnamebuf[0..pUser.firstnamelen],
             .last_name = pUser.lastnamebuf[0..pUser.lastnamelen],
         };
@@ -63,16 +65,22 @@ pub fn get(self: *Self, id: usize) ?User {
     return null;
 }
 
-pub fn update(self: *Self, id: usize, first: ?[]const u8, last: ?[]const u8) bool {
-    if (self.users.get(id)) |pUser| {
-        pUser.firstnamelen = 0;
-        pUser.lastnamelen = 0;
+pub fn update(
+    self: *Self,
+    id: usize,
+    first: ?[]const u8,
+    last: ?[]const u8,
+) bool {
+    var user: ?InternalUser = self.users.get(id);
+    if (user) |*pUser| {
+        pUser.*.firstnamelen = 0;
+        pUser.*.lastnamelen = 0;
         if (first) |firstname| {
             std.mem.copy(u8, pUser.firstnamebuf[0..], firstname);
             pUser.firstnamelen = firstname.len;
         }
         if (last) |lastname| {
-            std.mem.copy(u8, pUser.lastname[0..], lastname);
+            std.mem.copy(u8, pUser.lastnamebuf[0..], lastname);
             pUser.lastnamelen = lastname.len;
         }
         return true;
@@ -104,6 +112,7 @@ const JsonUserIterator = struct {
     pub fn next(this: *This) ?User {
         if (this.it.next()) |pUser| {
             return User{
+                .id = pUser.id,
                 .first_name = pUser.firstnamebuf[0..pUser.firstnamelen],
                 .last_name = pUser.lastnamebuf[0..pUser.lastnamelen],
             };

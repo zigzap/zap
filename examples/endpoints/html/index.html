@@ -23,6 +23,18 @@
                 border: 2px solid #cdb4db;
                 padding: 15px;
                 margin-top: 10px;
+                width: 80%;
+                height: 18rem;
+            }
+            form {
+                border: 2px solid #cdb4db;
+                border-radius: 12px;
+                padding: 15px;
+                margin-top: 10px;
+                font-size: 1em;
+                width: 80%;
+                text-align: center;
+                justify-content: center;
             }
             button {
                 background-color: #ffafcc;
@@ -37,32 +49,46 @@
                 display: flex;
                 justify-content: center;
             }
+            table {
+                background-color:#181818; 
+            }
+            th {
+                color: #B06060;
+                padding: 15px;
+            }
+            td {
+                color: #B0B0B0;
+            }
         </style>
 <html>
     <body>
         <div class="center">
-            <p><a href="/user/1">Show example user 1</a></p>
-            <p><a href="/user/2">Show example user 2</a></p>
-            <p><a href="/list">Show ALL users</a></p>
+            <form >
+                <div>
+                    <label>First name:</label><br>
+                    <input id="first_name"></input>
+                </div>
+                <div>
+                    <label>Last name:</label><br>
+                    <input id="last_name"></input>
+                </div>
+                <div >
+                    <button type="button" onclick="onNewUser();">Add new user!</button>
+                </div>
+            </form>
         </div>
-        <form style="text-align:center">
-            <div>
-                <label>First name:</label><br>
-                <input id="first_name"></input>
-            </div>
-            <div>
-                <label>Last name:</label><br>
-                <input id="last_name"></input>
-            </div>
-            <div class="center">
-                <button type="button" onclick="onNewUser();">Add new user!</button>
-            </div>
-        </form>
+        <div class="center">
+            <table id="usertable">
+            </table>
+        </div>
+        <div class="center">
+            <p><a href="/list">Show JSON for all users</a></p>
+        </div>
         <div style="padding:20px; margin-top: 1rem;">
             <label style="margin-bottom: 10px;">Log Output:</label>
             <a id="logtoggler" onclick="toggleLog();" href="#">(hide)</a>
             <div class="center">
-                <textarea id="log" style="width:80%; height: 18rem; display:block;"></textarea>
+                <textarea id="log"></textarea>
             </div>
         </div>
     <script>
@@ -87,11 +113,11 @@
             eL.scrollTop = eL.scrollHeight;
         }
 
-        function sendJSON(data, slug) {
+        function sendJSON(data, slug, method="POST") {
             json = JSON.stringify(data);
             log("SENDING: " + json);
             const response = fetch(slug, {
-                method: "POST",
+                method: method,
                 body: json,
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8"
@@ -107,14 +133,80 @@
                 first_name: first_name,
                 last_name: last_name,
             }
-            sendJSON(data, "/user")
+            sendJSON(data, "/user", "POST")
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));
+                getUserList();
             })
             .catch((error) => {
                 log("Error posting data");
-            });}
+            });
+        }
+
+        function deleteUser(id) {
+            fetch("/user/" + id, { method: "DELETE", } )
+            .then((response) => response.json())
+            .then((data) => {
+                log("SUCESS: " + JSON.stringify(data));
+                getUserList();
+            })
+            .catch((error) => {
+                log("Error posting data");
+            });
+        }
+
+        function addHeaderCell(tr, text) {
+            var th = document.createElement('TH');
+            th.innerHTML = text;
+            tr.appendChild(th);
+        }
+
+        function showTable(users) {
+            var t = document.getElementById("usertable");
+            var new_t = document.createElement("TABLE");
+            var header = new_t.createTHead();
+            var tr = header.insertRow();
+            // insertCell creates TD, we want TH
+            addHeaderCell(tr, 'id');
+            addHeaderCell(tr, 'first name');
+            addHeaderCell(tr, 'last name');
+            addHeaderCell(tr, 'action');
+
+            console.log("showTable()");
+            console.log(users);
+            // add the data rows
+            for(var i=0; i<users.length; i++) {
+                var row = new_t.insertRow();
+                var c1 = row.insertCell();
+                c1.innerHTML = users[i].id;
+                var c2 = row.insertCell();
+                c2.innerHTML = users[i].first_name;
+                var c3 = row.insertCell();
+                c3.innerHTML = users[i].last_name;
+                var c4 = row.insertCell();
+                c4.innerHTML = '<button type="button" onclick="deleteUser(' + users[i].id + ');">del</button>';
+            }
+            console.log("before replace");
+            t.innerHTML = new_t.innerHTML;
+            console.log("after replace");
+        }
+        function getUserList() {
+            fetch("/list", { method: "GET", } )
+            .then((response) => response.json())
+            .then((data) => {
+                log("SUCESS: " + JSON.stringify(data));
+                showTable(data);
+            })
+            .catch((error) => {
+                log("Error posting data");
+            });
+        }
+
+        function init() {
+            getUserList();
+        }
+        init();
     </script>
     </body>
 </html>
