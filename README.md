@@ -51,7 +51,7 @@ machine:
 
 ![](wrk_table_summary.png)
 
-- zig zag nearly 30% faster than GO
+- zig zag was nearly 30% faster than GO
 - zig zag had over 50% more throughput than GO
 
 ![](wrk_summary.png)
