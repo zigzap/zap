@@ -68,6 +68,7 @@ pub fn ensureDeps(step: *std.build.Step) !void {
     _ = step;
     const allocator = std.heap.page_allocator;
     ensureGit(allocator);
+    ensureGitHook(allocator);
     try ensureSubmodule(allocator, "src/deps/facilio");
     try ensurePatch(allocator, "src/deps/facilio", "../0001-microsecond-logging.patch");
     ensureMake(allocator);
@@ -127,7 +128,7 @@ fn ensureGit(allocator: std.mem.Allocator) void {
         .allocator = allocator,
         .argv = &.{ "git", "--version" },
     }) catch { // e.g. FileNotFound
-        std.log.err("mach: error: 'git --version' failed. Is git not installed?", .{});
+        std.log.err("error: 'git --version' failed. Is git not installed?", .{});
         std.process.exit(1);
     };
     defer {
@@ -135,9 +136,23 @@ fn ensureGit(allocator: std.mem.Allocator) void {
         allocator.free(result.stdout);
     }
     if (result.term.Exited != 0) {
-        std.log.err("mach: error: 'git --version' failed. Is git not installed?", .{});
+        std.log.err("error: 'git --version' failed. Is git not installed?", .{});
         std.process.exit(1);
     }
+}
+
+pub fn ensureGitHook(allocator: std.mem.Allocator) void {
+    var child = std.ChildProcess.init(
+        &.{ "cp", "precommit-hook.sh", ".git/hooks/pre-commit" },
+        allocator,
+    );
+    child.cwd = sdkPath("/");
+    child.stderr = std.io.getStdErr();
+    child.stdout = std.io.getStdOut();
+    _ = child.spawnAndWait() catch {
+        std.log.err("Warning: unable to install git precommit-hook ", .{});
+        return;
+    };
 }
 
 fn ensureSubmodule(allocator: std.mem.Allocator, path: []const u8) !void {
