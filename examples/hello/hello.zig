@@ -20,7 +20,7 @@ pub fn main() !void {
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
         .on_request = on_request_verbose,
-        .log = false,
+        .log = true,
         .max_clients = 100000,
     });
     try listener.listen();
