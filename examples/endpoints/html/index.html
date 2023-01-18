@@ -104,7 +104,7 @@
             </table>
         </div>
         <div class="center">
-            <p><a href="/list">Show JSON for all users</a></p>
+            <p><a href="/users">Show JSON for all users</a></p>
         </div>
         <div style="padding:20px; margin-top: 1rem;">
             <label style="margin-bottom: 10px;">Log Output:</label>
@@ -155,7 +155,7 @@
                 first_name: first_name,
                 last_name: last_name,
             }
-            sendJSON(data, "/user", "POST")
+            sendJSON(data, "/users", "POST")
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));
@@ -167,7 +167,7 @@
         }
 
         function deleteUser(id) {
-            fetch("/user/" + id, { method: "DELETE", } )
+            fetch("/users/" + id, { method: "DELETE", } )
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));
@@ -186,7 +186,7 @@
                 first_name: firstname,
                 last_name: lastname,
             }
-            sendJSON(data, "/user/" + id, "PUT")
+            sendJSON(data, "/users/" + id, "PUT")
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));
@@ -242,7 +242,7 @@
 
 
         function getUserList() {
-            fetch("/list", { method: "GET", } )
+            fetch("/users", { method: "GET", } )
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));

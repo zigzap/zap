@@ -15,11 +15,10 @@ pub fn main() !void {
         },
     );
 
-    Endpoints.init(allocator, "/user", "/list");
+    Endpoints.init(allocator, "/users");
 
-    // add endpoints
+    // add endpoint
     try listener.addEndpoint(Endpoints.getUserEndpoint());
-    try listener.addEndpoint(Endpoints.getUserListEndpoint());
 
     // fake some users
     var uid: usize = undefined;

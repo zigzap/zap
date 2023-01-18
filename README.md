@@ -33,9 +33,8 @@ Here's what works:
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
 - **[endpoints](examples/endpoints/)**: a simple JSON REST API example featuring
-  a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing users and a
-  `/list` endpoint returning the entire user list on GET, together with a static
-  HTML and JavaScript frontend to play around with.
+  a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing
+  users, together with a static HTML and JavaScript frontend to play with.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
@@ -421,11 +420,10 @@ pub fn main() !void {
         },
     );
 
-    Endpoints.init(allocator, "/user", "/list");
+    Endpoints.init(allocator, "/users");
 
-    // add endpoints
+    // add endpoint
     try listener.addEndpoint(Endpoints.getUserEndpoint());
-    try listener.addEndpoint(Endpoints.getUserListEndpoint());
 
     // fake some users
     var uid: usize = undefined;
@@ -454,34 +452,26 @@ const zap = @import("zap");
 const Users = @import("users.zig");
 const User = Users.User;
 
-// the Endpoints
+// the Endpoint
+
 pub const Self = @This();
 
 var alloc: std.mem.Allocator = undefined;
 var endpoint: zap.SimpleEndpoint = undefined;
-var list_endpoint: zap.SimpleEndpoint = undefined;
 var users: Users = undefined;
 
 pub fn init(
     a: std.mem.Allocator,
     user_path: []const u8,
-    userlist_path: []const u8,
 ) void {
     users = Users.init(a);
     alloc = a;
     endpoint = zap.SimpleEndpoint.init(.{
         .path = user_path,
         .get = getUser,
-        .post = null,
-        .put = null,
-        .delete = null,
-    });
-    list_endpoint = zap.SimpleEndpoint.init(.{
-        .path = userlist_path,
-        .get = listUsers,
-        .post = null,
-        .put = null,
-        .delete = null,
+        .post = postUser,
+        .put = putUser,
+        .delete = deleteUser,
     });
 }
 
@@ -491,10 +481,6 @@ pub fn getUsers() *Users {
 
 pub fn getUserEndpoint() *zap.SimpleEndpoint {
     return &endpoint;
-}
-
-pub fn getUserListEndpoint() *zap.SimpleEndpoint {
-    return &list_endpoint;
 }
 
 fn userIdFromPath(path: []const u8) ?usize {
@@ -508,9 +494,12 @@ fn userIdFromPath(path: []const u8) ?usize {
     return null;
 }
 
-pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
-    _ = e;
+fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     if (r.path) |path| {
+        // /users
+        if (path.len == e.settings.path.len) {
+            return listUsers(e, r);
+        }
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
                 if (zap.stringify(user, .{})) |json| {
@@ -521,13 +510,13 @@ pub fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     }
 }
 
-pub fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     var l: std.ArrayList(User) = std.ArrayList(User).init(alloc);
     if (users.list(&l)) {} else |_| {
         return;
     }
-    if (zap.stringifyArrayList(std.ArrayList(User, &l, .{})) |maybe_json| {
+    if (zap.stringifyArrayList(User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
         }
@@ -535,5 +524,7 @@ pub fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         return;
     }
 }
+
+// ...
 ```
 
