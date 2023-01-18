@@ -439,7 +439,7 @@ pub fn main() !void {
     // and run
     zap.start(.{
         .threads = 2,
-        .workers = 2,
+        .workers = 1, // to stay in process; users list shared between threads
     });
 }
 ```

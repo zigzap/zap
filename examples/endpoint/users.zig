@@ -2,6 +2,7 @@ const std = @import("std");
 
 alloc: std.mem.Allocator = undefined,
 users: std.AutoHashMap(usize, InternalUser) = undefined,
+lock: std.Thread.Mutex = undefined,
 count: usize = 0,
 
 pub const Self = @This();
@@ -24,6 +25,7 @@ pub fn init(a: std.mem.Allocator) Self {
     return .{
         .alloc = a,
         .users = std.AutoHashMap(usize, InternalUser).init(a),
+        .lock = std.Thread.Mutex{},
     };
 }
 
@@ -46,15 +48,24 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
         std.mem.copy(u8, user.lastnamebuf[0..], lastname);
         user.lastnamelen = lastname.len;
     }
+
+    // We lock only on insertion, deletion, and listing
+    self.lock.lock();
+    defer self.lock.unlock();
     try self.users.put(user.id, user);
     return user.id;
 }
 
 pub fn delete(self: *Self, id: usize) bool {
+    // We lock only on insertion, deletion, and listing
+    self.lock.lock();
+    defer self.lock.unlock();
     return self.users.remove(id);
 }
 
 pub fn get(self: *Self, id: usize) ?User {
+    // we don't care about locking here, as our usage-pattern is unlikely to
+    // get a user by id that is not known yet
     if (self.users.get(id)) |pUser| {
         return .{
             .id = pUser.id,
@@ -71,6 +82,7 @@ pub fn update(
     first: ?[]const u8,
     last: ?[]const u8,
 ) bool {
+    // we don't care about locking here
     var user: ?InternalUser = self.users.get(id);
     // we got a copy apparently, so we need to put again
     if (user) |*pUser| {
@@ -96,6 +108,9 @@ pub fn update(
 
 // populate the list
 pub fn list(self: *Self, out: *std.ArrayList(User)) !void {
+    // We lock only on insertion, deletion, and listing
+    self.lock.lock();
+    defer self.lock.unlock();
     var it = JsonUserIterator.init(&self.users);
     while (it.next()) |user| {
         try out.append(user);
