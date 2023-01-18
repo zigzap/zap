@@ -32,7 +32,7 @@ Here's what works:
   server with optional dynamic request handling
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
-- **[endpoints](examples/endpoints/)**: a simple JSON REST API example featuring
+- **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring
   a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing
   users, together with a static HTML and JavaScript frontend to play with.
 
@@ -394,18 +394,19 @@ pub fn main() !void {
 }
 ```
 
-### [endpoints](examples/endpoints/)
+### [endpoint](examples/endpoint/)
 
-The following only shows the GET functionality implemented on both the `/user/`
-and the `/list` endpoints. See [endpoints](examples/endpoints/) for a complete
+The following only shows the GET functionality implemented on the `/users/`
+See [endpoint](examples/endpoint/) for a complete
 example, including an HTML + JavaScript frontend.
 
-[`main.zig`](examples/endpoints/main.zig):
+[`main.zig`](examples/endpoint/main.zig):
 
 ```zig
+
 const std = @import("std");
 const zap = @import("zap");
-const Endpoints = @import("endpoints.zig");
+const Endpoint = @import("endpoint.zig");
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -416,19 +417,19 @@ pub fn main() !void {
             .port = 3000,
             .on_request = null,
             .log = true,
-            .public_folder = "./examples/endpoints/html",
+            .public_folder = "./examples/endpoint/html",
         },
     );
 
-    Endpoints.init(allocator, "/users");
+    Endpoint.init(allocator, "/users");
 
     // add endpoint
-    try listener.addEndpoint(Endpoints.getUserEndpoint());
+    try listener.addEndpoint(Endpoint.getUserEndpoint());
 
     // fake some users
     var uid: usize = undefined;
-    uid = try Endpoints.getUsers().addByName("renerocksai", null);
-    uid = try Endpoints.getUsers().addByName("renerocksai", "your mom");
+    uid = try Endpoint.getUsers().addByName("renerocksai", null);
+    uid = try Endpoint.getUsers().addByName("renerocksai", "your mom");
 
     // listen
     try listener.listen();
@@ -444,7 +445,7 @@ pub fn main() !void {
 ```
 
 
-[`endpoints.zig`](examples/endpoints/endpoints.zig):
+[`endpoint.zig`](examples/endpoint/endpoint.zig):
 
 ```zig
 const std = @import("std");

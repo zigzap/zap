@@ -24,7 +24,7 @@ Here's what works:
 - **[routes](https://github.com/renerocksai/zap/blob/master/examples/routes/routes.zig)**: a super easy example dispatching on the HTTP path 
 - **[serve](https://github.com/renerocksai/zap/blob/master/examples/serve/serve.zig)**: the traditional static web server with optional dynamic request handling
 - **[hello_json](https://github.com/renerocksai/zap/blob/master/examples/hello_json/hello_json.zig)**: serves you json dependent on HTTP path
-- **[endpoints](https://github.com/renerocksai/zap/blob/master/examples/endpoints/)**: a simple JSON REST API example featuring a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing users and a `/list` endpoint returning the entire user list on GET, together with a static HTML and JavaScript frontend to play around with.
+- **[endpoint](https://github.com/renerocksai/zap/blob/master/examples/endpoint/)**: a simple JSON REST API example featuring a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing users, together with a static HTML and JavaScript frontend to play around with.
 
 If you want to take it for a quick spin: 
 

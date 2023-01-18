@@ -1,6 +1,6 @@
 const std = @import("std");
 const zap = @import("zap");
-const Endpoints = @import("endpoints.zig");
+const Endpoint = @import("endpoint.zig");
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -11,19 +11,19 @@ pub fn main() !void {
             .port = 3000,
             .on_request = null,
             .log = true,
-            .public_folder = "./examples/endpoints/html",
+            .public_folder = "./examples/endpoint/html",
         },
     );
 
-    Endpoints.init(allocator, "/users");
+    Endpoint.init(allocator, "/users");
 
     // add endpoint
-    try listener.addEndpoint(Endpoints.getUserEndpoint());
+    try listener.addEndpoint(Endpoint.getUserEndpoint());
 
     // fake some users
     var uid: usize = undefined;
-    uid = try Endpoints.getUsers().addByName("renerocksai", null);
-    uid = try Endpoints.getUsers().addByName("renerocksai", "your mom");
+    uid = try Endpoint.getUsers().addByName("renerocksai", null);
+    uid = try Endpoint.getUsers().addByName("renerocksai", "your mom");
 
     // listen
     try listener.listen();
