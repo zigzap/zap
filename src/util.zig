@@ -87,10 +87,10 @@ pub fn stringifyAlloc(
     a: std.mem.Allocator,
     value: anytype,
     options: std.json.StringifyOptions,
-) ?[]const u8 {
+) ?std.ArrayList(u8) {
     var string = std.ArrayList(u8).init(a);
     if (std.json.stringify(value, options, string.writer())) {
-        return string.items;
+        return string;
     } else |_| { // error
         return null;
     }
@@ -102,7 +102,7 @@ pub fn stringifyArrayListAlloc(
     comptime T: anytype,
     list: *std.ArrayList(T),
     options: std.json.StringifyOptions,
-) !?[]const u8 {
+) !?std.ArrayList(u8) {
     var string = std.ArrayList(u8).init(a);
     var writer = string.writer();
     try writer.writeByte('[');
@@ -113,5 +113,5 @@ pub fn stringifyArrayListAlloc(
         try std.json.stringify(user, options, string.writer());
     }
     try writer.writeByte(']');
-    return string.items;
+    return string;
 }
