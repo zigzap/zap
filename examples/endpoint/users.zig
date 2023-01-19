@@ -36,8 +36,6 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
     var temp = try self.alloc.alloc(InternalUser, 1);
     defer self.alloc.free(temp);
     var user = temp[0];
-    self.count = self.count + 1;
-    user.id = self.count;
     user.firstnamelen = 0;
     user.lastnamelen = 0;
     if (first) |firstname| {
@@ -52,6 +50,8 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
     // We lock only on insertion, deletion, and listing
     self.lock.lock();
     defer self.lock.unlock();
+    self.count = self.count + 1;
+    user.id = self.count;
     try self.users.put(user.id, user);
     return user.id;
 }
