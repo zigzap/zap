@@ -142,6 +142,16 @@ fn ensureGit(allocator: std.mem.Allocator) void {
 }
 
 pub fn ensureGitHook(allocator: std.mem.Allocator) void {
+    // only check if we ourselves are not part of a submodule
+    var cwd = std.fs.cwd().openDir(sdkPath("/"), .{}) catch return;
+    defer cwd.close();
+    const dotgit = cwd.statFile(".git") catch return;
+    if (dotgit.kind == .File) {
+        // we are checked out as a submodule. No point in trying to install
+        // a hook
+        return;
+    }
+
     var child = std.ChildProcess.init(
         &.{ "cp", "precommit-hook.sh", ".git/hooks/pre-commit" },
         allocator,
