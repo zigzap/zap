@@ -3,7 +3,10 @@ const zap = @import("zap");
 const Endpoint = @import("endpoint.zig");
 
 pub fn main() !void {
-    const allocator = std.heap.page_allocator;
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .thread_safe = true,
+    }){};
+    var allocator = gpa.allocator();
     // setup listener
     var listener = zap.SimpleEndpointListener.init(
         allocator,

@@ -11,6 +11,9 @@ var alloc: std.mem.Allocator = undefined;
 var endpoint: zap.SimpleEndpoint = undefined;
 var users: Users = undefined;
 
+// 100MB of json buffer
+var jsonbuf: [100 * 1024 * 1024]u8 = undefined;
+
 pub fn init(
     a: std.mem.Allocator,
     user_path: []const u8,
@@ -53,7 +56,7 @@ fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         }
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
-                if (zap.stringify(user, .{})) |json| {
+                if (zap.stringifyBuf(&jsonbuf, user, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             }
@@ -67,7 +70,7 @@ fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     if (users.list(&l)) {} else |_| {
         return;
     }
-    if (zap.stringifyArrayList(User, &l, .{})) |maybe_json| {
+    if (zap.stringifyArrayListBuf(&jsonbuf, User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
         }
@@ -88,7 +91,7 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         if (maybe_user) |u| {
             defer std.json.parseFree(User, u, .{ .allocator = alloc });
             if (users.addByName(u.first_name, u.last_name)) |id| {
-                if (zap.stringify(.{ .status = "OK", .id = id }, .{})) |json| {
+                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             } else |_| {
@@ -117,14 +120,14 @@ fn putUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                             .{ .allocator = alloc },
                         );
                         if (users.update(id, u.first_name, u.last_name)) {
-                            if (zap.stringify(.{
+                            if (zap.stringifyBuf(&jsonbuf, .{
                                 .status = "OK",
                                 .id = id,
                             }, .{})) |json| {
                                 _ = r.sendJson(json);
                             }
                         } else {
-                            if (zap.stringify(.{
+                            if (zap.stringifyBuf(&jsonbuf, .{
                                 .status = "ERROR",
                                 .id = id,
                             }, .{})) |json| {
@@ -143,11 +146,11 @@ fn deleteUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     if (r.path) |path| {
         if (userIdFromPath(path)) |id| {
             if (users.delete(id)) {
-                if (zap.stringify(.{ .status = "OK", .id = id }, .{})) |json| {
+                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
                 }
             } else {
-                if (zap.stringify(.{
+                if (zap.stringifyBuf(&jsonbuf, .{
                     .status = "ERROR",
                     .id = id,
                 }, .{})) |json| {

@@ -32,10 +32,7 @@ pub fn init(a: std.mem.Allocator) Self {
 // the request will be freed (and its mem reused by facilio) when it's
 // completed, so we take copies of the names
 pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
-    // TODO: get rid of the temp allocation here
-    var temp = try self.alloc.alloc(InternalUser, 1);
-    defer self.alloc.free(temp);
-    var user = temp[0];
+    var user: InternalUser = undefined;
     user.firstnamelen = 0;
     user.lastnamelen = 0;
     if (first) |firstname| {
@@ -66,7 +63,7 @@ pub fn delete(self: *Self, id: usize) bool {
 pub fn get(self: *Self, id: usize) ?User {
     // we don't care about locking here, as our usage-pattern is unlikely to
     // get a user by id that is not known yet
-    if (self.users.get(id)) |pUser| {
+    if (self.users.getPtr(id)) |pUser| {
         return .{
             .id = pUser.id,
             .first_name = pUser.firstnamebuf[0..pUser.firstnamelen],
@@ -83,11 +80,9 @@ pub fn update(
     last: ?[]const u8,
 ) bool {
     // we don't care about locking here
-    var user: ?InternalUser = self.users.get(id);
-    // we got a copy apparently, so we need to put again
-    if (user) |*pUser| {
-        pUser.*.firstnamelen = 0;
-        pUser.*.lastnamelen = 0;
+    if (self.users.getPtr(id)) |pUser| {
+        pUser.firstnamelen = 0;
+        pUser.lastnamelen = 0;
         if (first) |firstname| {
             std.mem.copy(u8, pUser.firstnamebuf[0..], firstname);
             pUser.firstnamelen = firstname.len;
@@ -95,12 +90,6 @@ pub fn update(
         if (last) |lastname| {
             std.mem.copy(u8, pUser.lastnamebuf[0..], lastname);
             pUser.lastnamelen = lastname.len;
-        }
-        _ = self.users.remove(id);
-        if (self.users.put(id, pUser.*)) {
-            return true;
-        } else |_| {
-            return false;
         }
     }
     return false;

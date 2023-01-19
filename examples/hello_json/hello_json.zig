@@ -18,8 +18,9 @@ fn on_request(r: zap.SimpleRequest) void {
         const user_id: usize = @intCast(usize, the_path[6] - 0x30);
         const user = users.get(user_id);
 
+        var buf: [100]u8 = undefined;
         var json_to_send: []const u8 = undefined;
-        if (stringify(user, .{})) |json| {
+        if (zap.stringifyBuf(&buf, user, .{})) |json| {
             json_to_send = json;
         } else {
             json_to_send = "null";
@@ -37,17 +38,6 @@ fn setupUserData(a: std.mem.Allocator) !void {
     users = UserMap.init(a);
     try users.put(1, .{ .first_name = "renerocksai" });
     try users.put(2, .{ .first_name = "Your", .last_name = "Mom" });
-}
-
-var buf: [100]u8 = undefined;
-fn stringify(value: anytype, options: std.json.StringifyOptions) ?[]const u8 {
-    var fba = std.heap.FixedBufferAllocator.init(&buf);
-    var string = std.ArrayList(u8).init(fba.allocator());
-    if (std.json.stringify(value, options, string.writer())) {
-        return string.items;
-    } else |_| { // error
-        return null;
-    }
 }
 
 pub fn main() !void {
