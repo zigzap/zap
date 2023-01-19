@@ -11,9 +11,6 @@ var alloc: std.mem.Allocator = undefined;
 var endpoint: zap.SimpleEndpoint = undefined;
 var users: Users = undefined;
 
-// 100MB of json buffer
-var jsonbuf: [100 * 1024 * 1024]u8 = undefined;
-
 pub fn init(
     a: std.mem.Allocator,
     user_path: []const u8,
@@ -54,6 +51,7 @@ fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         if (path.len == e.settings.path.len) {
             return listUsers(e, r);
         }
+        var jsonbuf: [256]u8 = undefined;
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
                 if (zap.stringifyBuf(&jsonbuf, user, .{})) |json| {
@@ -70,6 +68,8 @@ fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     if (users.list(&l)) {} else |_| {
         return;
     }
+    // attention: if you add too many users, this will not be enough
+    var jsonbuf: [1024 * 1024]u8 = undefined;
     if (zap.stringifyArrayListBuf(&jsonbuf, User, &l, .{})) |maybe_json| {
         if (maybe_json) |json| {
             _ = r.sendJson(json);
@@ -91,6 +91,7 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         if (maybe_user) |u| {
             defer std.json.parseFree(User, u, .{ .allocator = alloc });
             if (users.addByName(u.first_name, u.last_name)) |id| {
+                var jsonbuf: [128]u8 = undefined;
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
                 }
@@ -119,6 +120,7 @@ fn putUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                             u,
                             .{ .allocator = alloc },
                         );
+                        var jsonbuf: [128]u8 = undefined;
                         if (users.update(id, u.first_name, u.last_name)) {
                             if (zap.stringifyBuf(&jsonbuf, .{
                                 .status = "OK",
@@ -145,6 +147,7 @@ fn deleteUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     if (r.path) |path| {
         if (userIdFromPath(path)) |id| {
+            var jsonbuf: [128]u8 = undefined;
             if (users.delete(id)) {
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
