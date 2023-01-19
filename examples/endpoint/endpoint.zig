@@ -75,8 +75,9 @@ fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     var maybe_json: ?[]const u8 = null;
     var maybe_free: ?std.ArrayList(u8) = null;
     // if (users.count > 0) {
-    if (users.count > 20000) {
-        // if > 20000 users, 1MB might not be enough for json
+    if (users.count > 6000) {
+        // if > 6000 users, 1MB might not be enough for json
+        // ca 45 bytes of JSON overhead + 2 * 64 bytes of data
         if (zap.stringifyArrayListAlloc(alloc, User, &l, .{}) catch null) |string| {
             maybe_free = string;
             maybe_json = string.items;

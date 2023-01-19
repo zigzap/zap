@@ -125,6 +125,7 @@ pub const SimpleHttpListenerSettings = struct {
     on_request: ?SimpleHttpRequestFn,
     public_folder: ?[]const u8 = null,
     max_clients: ?isize = null,
+    max_body_size: ?usize = null,
     timeout: ?u8 = null,
     log: bool = false,
 };
@@ -173,7 +174,7 @@ pub const SimpleHttpListener = struct {
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
             .max_header_size = 32 * 1024,
-            .max_body_size = 50 * 1024 * 1024,
+            .max_body_size = self.settings.max_body_size orelse 50 * 1024 * 1024,
             .max_clients = self.settings.max_clients orelse 100,
             .tls = null,
             .reserved1 = 0,
