@@ -49,12 +49,11 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
     // We lock only on insertion, deletion, and listing
     self.lock.lock();
     defer self.lock.unlock();
-    self.count = self.count + 1;
-    user.id = self.count;
+    user.id = self.count + 1;
     if (self.users.put(user.id, user)) {
+        self.count += 1;
         return user.id;
     } else |err| {
-        self.count -= 1;
         std.debug.print("addByName error: {}\n", .{err});
         // make sure we pass on the error
         return err;
