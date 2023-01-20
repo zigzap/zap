@@ -83,35 +83,21 @@ pub fn stringifyArrayListBuf(
 }
 
 /// provide your own allocator, NOT mutex-protected
-pub fn stringifyAlloc(
-    a: std.mem.Allocator,
-    value: anytype,
-    options: std.json.StringifyOptions,
-) ?std.ArrayList(u8) {
-    var string = std.ArrayList(u8).init(a);
-    if (std.json.stringify(value, options, string.writer())) {
-        return string;
-    } else |_| { // error
-        return null;
-    }
-}
-
-/// provide your own allocator, NOT mutex-protected
 pub fn stringifyArrayListAlloc(
     a: std.mem.Allocator,
     comptime T: anytype,
     list: *std.ArrayList(T),
     options: std.json.StringifyOptions,
-) !?std.ArrayList(u8) {
+) ![]const u8 {
     var string = std.ArrayList(u8).init(a);
     var writer = string.writer();
     try writer.writeByte('[');
     var first: bool = true;
-    for (list.items) |user| {
+    for (list.items) |item| {
         if (!first) try writer.writeByte(',');
         first = false;
-        try std.json.stringify(user, options, string.writer());
+        try std.json.stringify(item, options, string.writer());
     }
     try writer.writeByte(']');
-    return string;
+    return string.toOwnedSlice();
 }
