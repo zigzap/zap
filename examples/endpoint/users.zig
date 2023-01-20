@@ -122,6 +122,7 @@ pub fn toJSON(self: *Self) ![]const u8 {
     var l: std.ArrayList(User) = std.ArrayList(User).init(self.alloc);
     defer l.deinit();
 
+    // the potential race condition is fixed by jsonifying with the mutex locked
     var it = JsonUserIteratorWithRaceCondition.init(&self.users);
     while (it.next()) |user| {
         try l.append(user);
@@ -152,7 +153,7 @@ pub fn listWithRaceCondition(self: *Self, out: *std.ArrayList(User)) !void {
     //    causing it to GROW -> realloc -> all slices get invalidated!
     //
     // So, to mitigate that, either:
-    // - listing and converting to JSON must become one locked operation
+    // - [x] listing and converting to JSON must become one locked operation
     // - or: the iterator must make copies of the strings
     self.lock.lock();
     defer self.lock.unlock();
