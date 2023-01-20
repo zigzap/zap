@@ -7,6 +7,7 @@ pub fn main() !void {
         .thread_safe = true,
     }){};
     var allocator = gpa.allocator();
+
     // setup listener
     var listener = zap.SimpleEndpointListener.init(
         allocator,
@@ -14,7 +15,9 @@ pub fn main() !void {
             .port = 3000,
             .on_request = null,
             .log = true,
-            .public_folder = "./examples/endpoint/html",
+            .public_folder = "examples/endpoint/html",
+            .max_clients = 100000,
+            .max_body_size = 100 * 1024 * 1024,
         },
     );
 
@@ -35,7 +38,7 @@ pub fn main() !void {
 
     // and run
     zap.start(.{
-        .threads = 2,
-        .workers = 1, // to stay in-process, users list shared between threads
+        .threads = 2000,
+        .workers = 1,
     });
 }

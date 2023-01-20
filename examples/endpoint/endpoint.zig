@@ -65,31 +65,11 @@ fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
 fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
 
-    // 1MB json buffer
-    var jsonbuf: [1024 * 1024]u8 = undefined;
-
-    var l: std.ArrayList(User) = std.ArrayList(User).init(alloc);
-    if (users.list(&l)) {} else |_| {
-        return;
-    }
-    var maybe_json: ?[]const u8 = null;
-    var maybe_free: ?std.ArrayList(u8) = null;
-    // if (users.count > 0) {
-    if (users.count > 6000) {
-        // if > 6000 users, 1MB might not be enough for json
-        // ca 45 bytes of JSON overhead + 2 * 64 bytes of data
-        if (zap.stringifyArrayListAlloc(alloc, User, &l, .{}) catch null) |string| {
-            maybe_free = string;
-            maybe_json = string.items;
-        }
-    } else {
-        maybe_json = zap.stringifyArrayListBuf(&jsonbuf, User, &l, .{}) catch null;
-    }
-    if (maybe_json) |json| {
+    if (users.toJSON()) |json| {
         _ = r.sendJson(json);
-    }
-    if (maybe_free) |free| {
-        free.deinit();
+        alloc.free(json);
+    } else |err| {
+        std.debug.print("LIST error: {}\n", .{err});
     }
 }
 
@@ -105,7 +85,8 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     _ = r.sendJson(json);
                 }
-            } else |_| {
+            } else |err| {
+                std.debug.print("ADDING error: {}\n", .{err});
                 return;
             }
         }
