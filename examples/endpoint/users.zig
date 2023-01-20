@@ -1,5 +1,4 @@
 const std = @import("std");
-const zap = @import("zap");
 
 alloc: std.mem.Allocator = undefined,
 users: std.AutoHashMap(usize, InternalUser) = undefined,
@@ -129,7 +128,7 @@ pub fn toJSON(self: *Self) ![]const u8 {
     }
     std.debug.assert(self.users.count() == l.items.len);
     std.debug.assert(self.count == l.items.len);
-    return zap.stringifyArrayListAlloc(self.alloc, User, &l, .{});
+    return std.json.stringifyAlloc(self.alloc, l.items, .{});
 }
 
 //
