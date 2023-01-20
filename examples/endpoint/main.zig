@@ -39,6 +39,11 @@ pub fn main() !void {
     // and run
     zap.start(.{
         .threads = 2000,
+        // IMPORTANT! It is crucial to only have a single worker for this example to work!
+        // Multiple workers would have multiple copies of the users hashmap.
+        //
+        // Since zap is quite fast, you can do A LOT with a single worker.
+        // Try it with `zig build run-endpoint -Drelease-fast`
         .workers = 1,
     });
 }
