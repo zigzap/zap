@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request(r: zap.SimpleRequest) void {
-    r.setStatus(404);
+    r.setStatus(.not_found);
     _ = r.sendBody("<html><body><h1>404 - File not found</h1></body></html>");
 }
 

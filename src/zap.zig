@@ -9,6 +9,9 @@ pub const C = @cImport({
 
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
+pub usingnamespace @import("http.zig");
+
+const _module = @This();
 
 pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
@@ -98,8 +101,12 @@ pub const SimpleRequest = struct {
         // C.fiobj_free(new_fiobj_str);
     }
 
-    pub fn setStatus(self: *const Self, status: usize) void {
+    pub fn setStatusNumeric(self: *const Self, status: usize) void {
         self.h.*.status = status;
+    }
+
+    pub fn setStatus(self: *const Self, status: _module.StatusCode) void {
+        self.h.*.status = @intCast(usize, @enumToInt(status));
     }
 
     pub fn nextParam(self: *const Self) ?HttpParam {
