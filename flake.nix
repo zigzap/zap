@@ -29,7 +29,7 @@
       # Other overlays
       (final: prev: {
         zigpkgs = inputs.zig.packages.${prev.system};
-        neovim-nightly = inputs.neovim-flake.packages.${prev.system}.neovim;
+        neovim-nightly-pkgs = inputs.neovim-flake.packages.${prev.system};
       })
     ];
 
@@ -42,7 +42,7 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            neovim-nightly
+            neovim-nightly-pkgs.neovim
             zigpkgs.master
             bat
             wrk
