@@ -57,6 +57,19 @@
             pkgs.gopls
             pkgs.golint
           ];
+
+          buildInputs = with pkgs; [
+            # we need a version of bash capable of being interactive
+            # as opposed to a bash just used for building this flake 
+            # in non-interactive mode
+            bashInteractive 
+          ];
+
+          shellHook = ''
+            # once we set SHELL to point to the interactive bash, neovim will 
+            # launch the correct $SHELL in its :terminal 
+            export SHELL=${pkgs.bashInteractive}/bin/bash
+          '';
         };
 
         # For compatibility with older versions of the `nix` binary
