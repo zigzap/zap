@@ -83,6 +83,14 @@ pub const SimpleRequest = struct {
         });
     }
 
+    pub fn setContentTypeFromPath(self: *const Self) void {
+        _ = C.fiobj_hash_set(
+            self.h.*.private_data.out_headers,
+            C.HTTP_HEADER_CONTENT_TYPE,
+            C.http_mimetype_find2(self.h.*.path),
+        );
+    }
+
     pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) void {
         const hname: C.fio_str_info_s = .{
             .data = toCharPtr(name),
