@@ -1,15 +1,10 @@
 const std = @import("std");
 
-const zap = std.build.Pkg{
-    .name = "zap",
-    .source = std.build.FileSource{ .path = "src/zap.zig" },
-};
-
 pub fn build(b: *std.build.Builder) !void {
-
+    const target = b.standardTargetOptions(.{});
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
     var ensure_step = b.step("deps", "ensure external dependencies");
     ensure_step.makeFn = ensureDeps;
@@ -46,9 +41,14 @@ pub fn build(b: *std.build.Builder) !void {
         const example_run_step = b.step(ex_run_stepname, ex_run_stepdesc);
         const example_step = b.step(ex_name, ex_build_desc);
 
-        var example = b.addExecutable(ex_name, ex_src);
-        example.setBuildMode(mode);
-        example.addPackage(zap);
+        var example = b.addExecutable(.{
+            .name = ex_name,
+            .root_source_file = .{ .path = ex_src },
+            .target = target,
+            .optimize = optimize,
+        });
+        const zap_module = b.createModule(.{ .source_file = .{ .path = "src/zap.zig" } });
+        example.addModule("zap", zap_module);
         try addFacilio(example, "./");
 
         const example_run = example.run();
@@ -75,13 +75,12 @@ pub fn ensureDeps(step: *std.build.Step) !void {
     try makeFacilioLibdump(allocator);
 }
 
-pub fn addFacilio(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void {
-    var b = exe.builder;
+pub fn addFacilio(exe: *std.build.CompileStep, comptime p: [*]const u8) !void {
     exe.linkLibC();
 
     // Generate flags
     var flags = std.ArrayList([]const u8).init(std.heap.page_allocator);
-    if (b.is_release) try flags.append("-Os");
+    if (exe.optimize != .Debug) try flags.append("-Os");
     try flags.append("-Wno-return-type-c-linkage");
     try flags.append("-fno-sanitize=undefined");
     try flags.append("-DFIO_OVERRIDE_MALLOC");
@@ -107,7 +106,7 @@ pub fn addFacilio(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void 
     }, flags.items);
 }
 
-pub fn addZap(exe: *std.build.LibExeObjStep, comptime p: [*]const u8) !void {
+pub fn addZap(exe: *std.build.CompileStep, comptime p: [*]const u8) !void {
     try addFacilio(exe, p);
     var b = exe.builder;
     var ensure_step = b.step("zap-deps", "ensure zap's dependencies");
