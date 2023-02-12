@@ -62,15 +62,13 @@ pub fn build(b: *std.build.Builder) !void {
         });
 
         example.linkLibrary(facil_dep.artifact("facil.io"));
+
         example.addModule("zap", zap_module);
 
         const example_run = example.run();
         example_run_step.dependOn(&example_run.step);
 
         // install the artifact - depending on the "example"
-        // only after the ensure step
-        // the step invoked via `zig build example` on the installed exe which
-        // itself depends on the "ensure" step
         const example_build_step = b.addInstallArtifact(example);
         example_step.dependOn(&example_build_step.step);
     }
