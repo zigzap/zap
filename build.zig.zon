@@ -4,8 +4,8 @@
 
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://github.com/renerocksai/facil.io/archive/1b2fce7e46128c526880bce28e9ce68cd1e23ce2.tar.gz",
-            .hash = "1220b1eb9d016ad6c82ea2840acce19726152eec1193f615399170528f160c8c1003",
+            .url = "https://github.com/renerocksai/facil.io/archive/e49f2bb79bcfaabebc80df770bc9295b808f4d22.tar.gz",
+            .hash = "1220542d21851b6ff0decaa664f2df25251cb8f65a20a2d1ea5d8b039096c3ff641b",
         }
     }
 }
