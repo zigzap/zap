@@ -20,9 +20,8 @@ juicy, and alpha._
 
 Here's what works:
 
-- **Super easy build process**: zap's `build.zig` fetches git sub-modules,
-  applies a patch to facil.io's logging for microsecond precision, builds and
-  optionally runs everything.
+- **Super easy build process**: zap's `build.zig` now uses the up-and-coming
+  zig package manager for its C-dependencies, no git submodules anymore.
   - _tested on Linux and macOS (arm, M1)_
 - **[hello](examples/hello/hello.zig)**: welcomes you with some static
   HTML
@@ -100,32 +99,46 @@ $ git init
 
 With an existing zig project, adding zap to it is easy:
 
-1. Add zap as a git submodule 
+1. Add zap to your `build.zig.zon` 
 2. Add zap to your `build.zig` 
 
-To add zap as a git submodule:
-
-```shell 
-$ mkdir libs
-$ git submodule add https://github.com/renerocksai/zap.git libs/zap
-```
-
-Then, add the following at the top of your `build.zig`:
-
-```zig
-const zap_builder = @import("./libs/zap/build.zig");
-
-const zap = std.build.Pkg{
-    .name = "zap",
-    .source = std.build.FileSource{ .path = "./libs/zap/src/zap.zig" },
-};
-```
-
-In the `build` function, add the following before `exe.install()`:
+To add zap to `build.zig.zon`:
 
 ```zig 
-    exe.addPackage(zap);
-    zap_builder.addZap(exe, "./libs/zap/") catch unreachable;
+.{
+    .name = "myapp",
+    .version = "0.0.1",
+
+    .dependencies = .{
+        .zap = .{
+            .url = "https://github.com/renerocksai/zap/archive/db6496cd7afc6bac50da563936021ee28f591dc1.tar.gz",
+            .hash = "12203791cdbf4ebc2692bbd2ce790fedbc2e7295eec3efd7812621aa35a5ce83767a",
+        },
+        .@"facil.io" = .{
+            .url = "https://github.com/renerocksai/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
+            .hash = "12209d3b552145f24431e5a2e6a4ad59ceaa9656f7fba8af7a8aa704a8784a79f55d",
+        }
+    }
+}
+```
+
+Note: change the URLs to the latest commit of `zap` and `facil.io` (my fork).
+
+Then, add the following at the top of your `build.zig`'s `build` function, add
+the following before `exe.install()`:
+
+```zig 
+    const zap = b.dependency("zap", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.addModule("zap", zap.module("zap"));
+
+    const facil_dep = b.dependency("facil.io", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.linkLibrary(facil_dep.artifact("facil.io"));
 ```
 
 From then on, you can use the zap package in your project. Check out the
