@@ -1,0 +1,11 @@
+.{
+	.name = "zap",
+	.version = "0.0.1",
+
+    .dependencies = .{
+		.@"facil.io" = .{
+			.url = "https://github.com/qbradley/facil.io/archive/f5a5a0fa28950f78d0bae251e146ae7a6b0ab869.tar.gz",
+			.hash = "1220c0ce15fbedd7b5fb3de54f467473585ef5ba9b2db0c37e547a5c1ebc9ce80372",
+		}
+	}
+}
