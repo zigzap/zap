@@ -94,8 +94,14 @@ If you don't have an existing zig project, create one like this:
 ```shell 
 $ mkdir zaptest && cd zaptest
 $ zig init-exe
-$ git init 
+$ git init      ## (optional)
 ```
+**Note 1**: Zap is developed with zig master (0.11.0-dev.1602+d976b4e4a at the
+time of writing). This version of zig has the package management features in
+place that are used in the following instructions. Nix users are lucky; you can
+use the existing `flake.nix` and run `nix develop` to get a development shell
+providing zig, and also all dependencies to build the and run the GO, python, 
+and rust examples for the `wrk` performance tests.
 
 With an existing zig project, adding zap to it is easy:
 
@@ -122,10 +128,13 @@ To add zap to `build.zig.zon`:
 }
 ```
 
-Note: change the URLs to the latest commit of `zap` and `facil.io` (my fork).
+**Note 2**: change the URLs to the latest commit of `zap` and `facil.io`
+respectively (my fork). The latter is unlikely to change; but `zap` is likely to
+change more frequently.
 
-Then, add the following at the top of your `build.zig`'s `build` function, add
-the following before `exe.install()`:
+
+Then, in your `build.zig`'s `build` function, add the following before
+`exe.install()`:
 
 ```zig 
     const zap = b.dependency("zap", .{
@@ -222,7 +231,7 @@ pub fn main() !void {
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
-        .log = false,
+        .log = true,
     });
     try listener.listen();
 
