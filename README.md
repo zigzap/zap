@@ -1,4 +1,8 @@
+
+
 # ⚡zap⚡ - blazingly fast backends in zig
+
+
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
@@ -79,7 +83,7 @@ See more details in [blazingly-fast.md](blazingly-fast.md).
 ## Getting started
 
 ```shell
-$ git clone https://github.com/renerocksai/zap.git
+$ git clone https://github.com/zigzap/zap.git
 $ cd zap 
 $ zig build run-hello
 $ # open http://localhost:3000 in your browser
@@ -117,11 +121,11 @@ To add zap to `build.zig.zon`:
 
     .dependencies = .{
         .zap = .{
-            .url = "https://github.com/renerocksai/zap/archive/db6496cd7afc6bac50da563936021ee28f591dc1.tar.gz",
+            .url = "https://github.com/zigzap/zap/archive/db6496cd7afc6bac50da563936021ee28f591dc1.tar.gz",
             .hash = "12203791cdbf4ebc2692bbd2ce790fedbc2e7295eec3efd7812621aa35a5ce83767a",
         },
         .@"facil.io" = .{
-            .url = "https://github.com/renerocksai/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
+            .url = "https://github.com/zigzap/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
             .hash = "12209d3b552145f24431e5a2e6a4ad59ceaa9656f7fba8af7a8aa704a8784a79f55d",
         }
     }

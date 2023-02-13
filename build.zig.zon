@@ -4,7 +4,7 @@
 
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://github.com/renerocksai/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
+            .url = "https://github.com/zigzap/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
             .hash = "12209d3b552145f24431e5a2e6a4ad59ceaa9656f7fba8af7a8aa704a8784a79f55d",
         }
     }
