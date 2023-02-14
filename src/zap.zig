@@ -35,17 +35,17 @@ pub fn start(args: C.fio_start_args) void {
     C.fio_start(args);
 }
 
-const ListenError = error{
+pub const ListenError = error{
     AlreadyListening,
     ListenError,
 };
 
-const HttpParam = struct {
+pub const HttpParam = struct {
     key: []const u8,
     value: []const u8,
 };
 
-const ContentType = enum {
+pub const ContentType = enum {
     TEXT,
     HTML,
     JSON,
