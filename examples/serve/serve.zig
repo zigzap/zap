@@ -10,7 +10,7 @@ pub fn main() !void {
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
-        .public_folder = std.mem.span("examples/serve"),
+        .public_folder = "examples/serve",
         .log = true,
     });
     try listener.listen();

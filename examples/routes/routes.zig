@@ -33,7 +33,7 @@ fn dynamic_site(r: zap.SimpleRequest) void {
         "<html><body><h1>Hello # {d} from DYNAMIC ZAP!!!</h1></body></html>",
         .{dynamic_counter},
     ) catch "ERROR";
-    _ = r.sendBody(std.mem.span(filled_buf));
+    _ = r.sendBody(filled_buf);
 }
 
 fn setup_routes(a: std.mem.Allocator) !void {
