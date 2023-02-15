@@ -10,6 +10,7 @@ pub const C = @cImport({
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
+pub usingnamespace @import("mustache.zig");
 
 const _module = @This();
 
