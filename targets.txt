@@ -5,3 +5,4 @@ serve
 hello_json
 endpoint
 wrk
+mustache

@@ -12,25 +12,9 @@ pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 
+const util = @import("util.zig");
+
 const _module = @This();
-
-pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
-    if (o == 0) return null;
-    const x: C.fio_str_info_s = C.fiobj_obj2cstr(o);
-    return std.mem.span(x.data);
-}
-
-pub fn str2fio(s: []const u8) C.fio_str_info_s {
-    return .{
-        .data = toCharPtr(s),
-        .len = s.len,
-        .capa = s.len,
-    };
-}
-
-fn toCharPtr(s: []const u8) [*c]u8 {
-    return @intToPtr([*c]u8, @ptrToInt(s.ptr));
-}
 
 pub fn start(args: C.fio_start_args) void {
     C.fio_start(args);
@@ -94,12 +78,12 @@ pub const SimpleRequest = struct {
 
     pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) void {
         const hname: C.fio_str_info_s = .{
-            .data = toCharPtr(name),
+            .data = util.toCharPtr(name),
             .len = name.len,
             .capa = name.len,
         };
         const vname: C.fio_str_info_s = .{
-            .data = toCharPtr(value),
+            .data = util.toCharPtr(value),
             .len = value.len,
             .capa = value.len,
         };
@@ -126,8 +110,8 @@ pub const SimpleRequest = struct {
             return null;
         }
         return HttpParam{
-            .key = fio2str(key).?,
-            .value = fio2str(value).?,
+            .key = util.fio2str(key).?,
+            .value = util.fio2str(value).?,
         };
     }
 };
@@ -162,10 +146,10 @@ pub const SimpleHttpListener = struct {
     pub fn theOneAndOnlyRequestCallBack(r: [*c]C.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
             var req: SimpleRequest = .{
-                .path = fio2str(r.*.path),
-                .query = fio2str(r.*.query),
-                .body = fio2str(r.*.body),
-                .method = fio2str(r.*.method),
+                .path = util.fio2str(r.*.path),
+                .query = util.fio2str(r.*.query),
+                .body = util.fio2str(r.*.body),
+                .method = util.fio2str(r.*.method),
                 .h = r,
             };
             l.settings.on_request.?(req);

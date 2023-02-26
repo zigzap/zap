@@ -33,6 +33,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "hello_json", .src = "examples/hello_json/hello_json.zig" },
         .{ .name = "endpoint", .src = "examples/endpoint/main.zig" },
         .{ .name = "wrk", .src = "wrk/zig/main.zig" },
+        .{ .name = "mustache", .src = "examples/mustache/mustache.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;

@@ -1,5 +1,28 @@
 const std = @import("std");
 
+pub const C = @cImport({
+    @cInclude("http.h");
+    @cInclude("fio.h");
+});
+
+pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
+    if (o == 0) return null;
+    const x: C.fio_str_info_s = C.fiobj_obj2cstr(o);
+    return std.mem.span(x.data);
+}
+
+pub fn str2fio(s: []const u8) C.fio_str_info_s {
+    return .{
+        .data = toCharPtr(s),
+        .len = s.len,
+        .capa = s.len,
+    };
+}
+
+fn toCharPtr(s: []const u8) [*c]u8 {
+    return @intToPtr([*c]u8, @ptrToInt(s.ptr));
+}
+
 //
 // JSON helpers
 //
