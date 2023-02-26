@@ -19,7 +19,7 @@ pub fn str2fio(s: []const u8) C.fio_str_info_s {
     };
 }
 
-fn toCharPtr(s: []const u8) [*c]u8 {
+pub fn toCharPtr(s: []const u8) [*c]u8 {
     return @intToPtr([*c]u8, @ptrToInt(s.ptr));
 }
 
