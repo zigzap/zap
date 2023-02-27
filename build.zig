@@ -22,6 +22,15 @@ pub fn build(b: *std.build.Builder) !void {
     // facil.io dependency with the module?
     try b.modules.put(b.dupe("zap"), zap_module);
 
+    const facil_lib = b.addStaticLibrary(.{
+        .name = "facil.io",
+        .target = target,
+        .optimize = optimize,
+    });
+
+    facil_lib.linkLibrary(facil_dep.artifact("facil.io"));
+    facil_lib.install();
+
     inline for ([_]struct {
         name: []const u8,
         src: []const u8,
