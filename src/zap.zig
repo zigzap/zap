@@ -2,11 +2,9 @@
 // or maybe let's just make it zap directly...
 
 const std = @import("std");
-pub const C = @cImport({
-    @cInclude("http.h");
-    @cInclude("fio.h");
-});
+const fio = @import("fio.zig");
 
+pub usingnamespace @import("fio.zig");
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
@@ -16,8 +14,8 @@ const util = @import("util.zig");
 
 const _module = @This();
 
-pub fn start(args: C.fio_start_args) void {
-    C.fio_start(args);
+pub fn start(args: fio.fio_start_args) void {
+    fio.fio_start(args);
 }
 
 pub const ListenError = error{
@@ -41,12 +39,12 @@ pub const SimpleRequest = struct {
     query: ?[]const u8,
     body: ?[]const u8,
     method: ?[]const u8,
-    h: [*c]C.http_s,
+    h: [*c]fio.http_s,
 
     const Self = @This();
 
     pub fn sendBody(self: *const Self, body: []const u8) c_int {
-        return C.http_send_body(self.h, @intToPtr(
+        return fio.http_send_body(self.h, @intToPtr(
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
@@ -54,7 +52,7 @@ pub const SimpleRequest = struct {
 
     pub fn sendJson(self: *const Self, json: []const u8) c_int {
         self.setContentType(.JSON);
-        return C.http_send_body(self.h, @intToPtr(
+        return fio.http_send_body(self.h, @intToPtr(
             *anyopaque,
             @ptrToInt(json.ptr),
         ), json.len);
@@ -69,29 +67,29 @@ pub const SimpleRequest = struct {
     }
 
     pub fn setContentTypeFromPath(self: *const Self) void {
-        _ = C.fiobj_hash_set(
+        _ = fio.fiobj_hash_set(
             self.h.*.private_data.out_headers,
-            C.HTTP_HEADER_CONTENT_TYPE,
-            C.http_mimetype_find2(self.h.*.path),
+            fio.HTTP_HEADER_CONTENT_TYPE,
+            fio.http_mimetype_find2(self.h.*.path),
         );
     }
 
     pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) void {
-        const hname: C.fio_str_info_s = .{
+        const hname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(name),
             .len = name.len,
             .capa = name.len,
         };
-        const vname: C.fio_str_info_s = .{
+        const vname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(value),
             .len = value.len,
             .capa = value.len,
         };
-        _ = C.http_set_header2(self.h, hname, vname);
+        _ = fio.http_set_header2(self.h, hname, vname);
 
         // Note to self:
-        // const new_fiobj_str = C.fiobj_str_new(name.ptr, name.len);
-        // C.fiobj_free(new_fiobj_str);
+        // const new_fiobj_str = fio.fiobj_str_new(name.ptr, name.len);
+        // fio.fiobj_free(new_fiobj_str);
     }
 
     pub fn setStatusNumeric(self: *const Self, status: usize) void {
@@ -104,9 +102,9 @@ pub const SimpleRequest = struct {
 
     pub fn nextParam(self: *const Self) ?HttpParam {
         if (self.h.*.params == 0) return null;
-        var key: C.FIOBJ = undefined;
-        const value = C.fiobj_hash_pop(self.h.*.params, &key);
-        if (value == C.FIOBJ_INVALID) {
+        var key: fio.FIOBJ = undefined;
+        const value = fio.fiobj_hash_pop(self.h.*.params, &key);
+        if (value == fio.FIOBJ_INVALID) {
             return null;
         }
         return HttpParam{
@@ -116,7 +114,7 @@ pub const SimpleRequest = struct {
     }
 };
 
-pub const HttpRequestFn = *const fn (r: [*c]C.http_s) callconv(.C) void;
+pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;
 
 pub const SimpleHttpListenerSettings = struct {
@@ -143,7 +141,7 @@ pub const SimpleHttpListener = struct {
     }
 
     // we could make it dynamic by passing a SimpleHttpListener via udata
-    pub fn theOneAndOnlyRequestCallBack(r: [*c]C.http_s) callconv(.C) void {
+    pub fn theOneAndOnlyRequestCallBack(r: [*c]fio.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
             var req: SimpleRequest = .{
                 .path = util.fio2str(r.*.path),
@@ -165,7 +163,7 @@ pub const SimpleHttpListener = struct {
             pfolder = pf.ptr;
         }
 
-        var x: C.http_settings_s = .{
+        var x: fio.http_settings_s = .{
             .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
             .on_upgrade = null,
             .on_response = null,
@@ -198,7 +196,7 @@ pub const SimpleHttpListener = struct {
         //     const result = try bufPrint(buf, fmt ++ "\x00", args);
         //     return result[0 .. result.len - 1 :0];
         // }
-        if (C.http_listen(printed_port.ptr, self.settings.interface, x) == -1) {
+        if (fio.http_listen(printed_port.ptr, self.settings.interface, x) == -1) {
             return error.ListenError;
         }
 
@@ -207,7 +205,7 @@ pub const SimpleHttpListener = struct {
         // the SimpleHttpRequestFn will check if this is null and not process
         // the request if it isn't set. hence, if started under full load, the
         // first request(s) might not be serviced, as long as it takes from
-        // C.http_listen() to here
+        // fio.http_listen() to here
         Self.the_one_and_only_listener = self;
     }
 };
@@ -216,10 +214,10 @@ pub const SimpleHttpListener = struct {
 // lower level listening
 //
 pub const ListenSettings = struct {
-    on_request: ?*const fn ([*c]C.http_s) callconv(.C) void = null,
-    on_upgrade: ?*const fn ([*c]C.http_s, [*c]u8, usize) callconv(.C) void = null,
-    on_response: ?*const fn ([*c]C.http_s) callconv(.C) void = null,
-    on_finish: ?*const fn ([*c]C.struct_http_settings_s) callconv(.C) void = null,
+    on_request: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
+    on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
+    on_response: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
+    on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
     public_folder: ?[]const u8 = null,
     max_header_size: usize = 32 * 1024,
     max_body_size: usize = 50 * 1024 * 1024,
@@ -242,7 +240,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
         pfolder_len = pf.len;
         pfolder = pf.ptr;
     }
-    var x: C.http_settings_s = .{
+    var x: fio.http_settings_s = .{
         .on_request = settings.on_request,
         .on_upgrade = settings.on_upgrade,
         .on_response = settings.on_response,
@@ -268,14 +266,14 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
     // std.debug.print("X\n", .{});
     std.time.sleep(500 * 1000 * 1000);
 
-    if (C.http_listen(port, interface, x) == -1) {
+    if (fio.http_listen(port, interface, x) == -1) {
         return error.ListenError;
     }
 }
 
 // lower level sendBody
-pub fn sendBody(request: [*c]C.http_s, body: []const u8) void {
-    _ = C.http_send_body(request, @intToPtr(
+pub fn sendBody(request: [*c]fio.http_s, body: []const u8) void {
+    _ = fio.http_send_body(request, @intToPtr(
         *anyopaque,
         @ptrToInt(body.ptr),
     ), body.len);

@@ -3,17 +3,17 @@
 // easier / possible / more zig-like
 
 const std = @import("std");
+const fio = @import("fio.zig");
 const util = @import("util.zig");
 
-pub const FIOBJ = usize;
 pub const struct_mustache_s = opaque {};
 pub const enum_mustache_error_en = c_uint;
 pub const mustache_error_en = enum_mustache_error_en;
 
 pub const mustache_s = struct_mustache_s;
 pub extern fn fiobj_mustache_new(args: MustacheLoadArgs) ?*mustache_s;
-pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
-pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
+pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
+pub extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
 pub extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 
 pub const MustacheLoadArgs = extern struct {
@@ -76,29 +76,11 @@ pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
 // pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
-pub extern fn fiobj_hash_new() FIOBJ;
-pub extern fn fiobj_hash_set(hash: FIOBJ, key: FIOBJ, obj: FIOBJ) c_int;
-pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
-pub extern fn fiobj_float_new(num: f64) FIOBJ;
-pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
-pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
-pub const FIOBJ_T_TRUE: c_int = 22;
-pub const FIOBJ_T_FALSE: c_int = 38;
-pub fn fiobj_true() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_TRUE));
-}
-pub fn fiobj_false() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_FALSE));
-}
-pub extern fn fiobj_ary_new2(capa: usize) FIOBJ;
-pub extern fn fiobj_str_new(str: [*c]const u8, len: usize) FIOBJ;
-pub extern fn fiobj_str_buf(capa: usize) FIOBJ;
-
 const MustacheBuildResult = struct {
-    fiobj_result: FIOBJ = 0,
+    fiobj_result: fio.FIOBJ = 0,
 
     pub fn deinit(m: *const MustacheBuildResult) void {
-        fiobj_free_wrapped(m.fiobj_result);
+        fio.fiobj_free_wrapped(m.fiobj_result);
     }
 
     pub fn str(m: *const MustacheBuildResult) ?[]const u8 {
@@ -121,17 +103,17 @@ pub fn MustacheBuild(mustache: *Mustache, data: anytype) MustacheBuildResult {
 
 pub fn fiobjectify(
     value: anytype,
-) FIOBJ {
+) fio.FIOBJ {
     const T = @TypeOf(value);
     switch (@typeInfo(T)) {
         .Float, .ComptimeFloat => {
-            return fiobj_float_new(value);
+            return fio.fiobj_float_new(value);
         },
         .Int, .ComptimeInt => {
-            return fiobj_num_new_bignum(value);
+            return fio.fiobj_num_new_bignum(value);
         },
         .Bool => {
-            return if (value) fiobj_true() else fiobj_false();
+            return if (value) fio.fiobj_true() else fio.fiobj_false();
         },
         .Null => {
             return 0;
@@ -144,7 +126,7 @@ pub fn fiobjectify(
             }
         },
         .Enum => {
-            return fiobj_num_new_bignum(@enumToInt(value));
+            return fio.fiobj_num_new_bignum(@enumToInt(value));
         },
         .Union => {
             const info = @typeInfo(T).Union;
@@ -160,21 +142,21 @@ pub fn fiobjectify(
         },
         .Struct => |S| {
             // create a new fio hashmap
-            var m = fiobj_hash_new();
+            var m = fio.fiobj_hash_new();
             // std.debug.print("new struct\n", .{});
             inline for (S.fields) |Field| {
                 // don't include void fields
                 if (Field.type == void) continue;
 
                 // std.debug.print("    new field: {s}\n", .{Field.name});
-                const fname = fiobj_str_new(util.toCharPtr(Field.name), Field.name.len);
+                const fname = fio.fiobj_str_new(util.toCharPtr(Field.name), Field.name.len);
                 // std.debug.print("    fiobj name : {any}\n", .{fname});
                 const v = @field(value, Field.name);
                 // std.debug.print("    value: {any}\n", .{v});
                 const fvalue = fiobjectify(v);
                 // std.debug.print("    fiobj value: {any}\n", .{fvalue});
-                _ = fiobj_hash_set(m, fname, fvalue);
-                fiobj_free_wrapped(fname);
+                _ = fio.fiobj_hash_set(m, fname, fvalue);
+                fio.fiobj_free_wrapped(fname);
             }
             return m;
         },
@@ -194,13 +176,13 @@ pub fn fiobjectify(
             .Slice => {
                 // std.debug.print("new slice\n", .{});
                 if (ptr_info.child == u8 and std.unicode.utf8ValidateSlice(value)) {
-                    return fiobj_str_new(util.toCharPtr(value), value.len);
+                    return fio.fiobj_str_new(util.toCharPtr(value), value.len);
                 }
 
-                var arr = fiobj_ary_new2(value.len);
+                var arr = fio.fiobj_ary_new2(value.len);
                 for (value) |x| {
                     const v = fiobjectify(x);
-                    fiobj_ary_push(arr, v);
+                    fio.fiobj_ary_push(arr, v);
                 }
                 return arr;
             },
