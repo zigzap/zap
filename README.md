@@ -38,6 +38,9 @@ Here's what works:
 - **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring
   a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing
   users, together with a static HTML and JavaScript frontend to play with.
+- **[mustache](examples/mustache/)**: a simple example using
+  [mustache](https://mustache.github.io/) templating.
+
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
