@@ -11,18 +11,18 @@ fn on_request_verbose(r: zap.SimpleRequest) void {
     }
     const template = "{{=<< >>=}}* Users:\r\n<<#users>><<id>>. <<& name>> (<<name>>)\r\n<</users>>\r\nNested: <<& nested.item >>.";
     const p = zap.MustacheNew(template) catch return;
+    defer zap.MustacheFree(p);
     const User = struct {
         name: []const u8,
         id: isize,
     };
-    std.debug.print("{*}\n", .{p});
-    if (zap.MustacheBuild(p, .{
+    const ret = zap.MustacheBuild(p, .{
         .users = [_]User{
-            User{
+            .{
                 .name = "Rene",
                 .id = 1,
             },
-            User{
+            .{
                 .name = "Caro",
                 .id = 6,
             },
@@ -30,11 +30,13 @@ fn on_request_verbose(r: zap.SimpleRequest) void {
         .nested = .{
             .item = "nesting works",
         },
-    })) |s| {
+    });
+    defer ret.deinit();
+    if (ret.str()) |s| {
         std.debug.print("{s}\n", .{s});
         _ = r.sendBody(s);
     }
-    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+    _ = r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>");
 }
 
 fn on_request_minimal(r: zap.SimpleRequest) void {

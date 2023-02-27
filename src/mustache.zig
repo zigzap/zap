@@ -2,11 +2,6 @@
 // (see http://facil.io/0.7.x/fiobj_mustache)
 // easier / possible / more zig-like
 
-// const C = @cImport({
-//     @cInclude("mustache_parser.h");
-//     @cInclude("fiobj_mustache.h");
-// });
-
 const std = @import("std");
 const util = @import("util.zig");
 
@@ -48,15 +43,9 @@ pub const MustacheError = error{
 };
 
 // pub extern fn fiobj_mustache_load(filename: fio_str_info_s) ?*mustache_s;
-
-// implement these: fiobj_mustache.c
-// pub extern fn fiobj_mustache_new(args: mustache_load_args_s) ?*mustache_s;
-// pub extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
-// pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
 pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
-    // pub fn MustacheNew(data: []const u8) !*Mustache {
     var err: mustache_error_en = undefined;
     var args: MustacheLoadArgs = .{
         .filename = null,
@@ -88,14 +77,11 @@ pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
 pub extern fn fiobj_hash_new() FIOBJ;
-pub extern fn fiobj_free(arg_o: FIOBJ) callconv(.C) void;
 pub extern fn fiobj_hash_set(hash: FIOBJ, key: FIOBJ, obj: FIOBJ) c_int;
 pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
 pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
-
-// pub extern fn fiobj_num_new(num: isize) callconv(.C) FIOBJ;
-
+pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
 pub const FIOBJ_T_TRUE: c_int = 22;
 pub const FIOBJ_T_FALSE: c_int = 38;
 pub fn fiobj_true() callconv(.C) FIOBJ {
@@ -108,50 +94,29 @@ pub extern fn fiobj_ary_new2(capa: usize) FIOBJ;
 pub extern fn fiobj_str_new(str: [*c]const u8, len: usize) FIOBJ;
 pub extern fn fiobj_str_buf(capa: usize) FIOBJ;
 
+const MustacheBuildResult = struct {
+    fiobj_result: FIOBJ = 0,
+
+    pub fn deinit(m: *const MustacheBuildResult) void {
+        fiobj_free_wrapped(m.fiobj_result);
+    }
+
+    pub fn str(m: *const MustacheBuildResult) ?[]const u8 {
+        return util.fio2str(m.fiobj_result);
+    }
+};
+
 // this build is slow because it needs to translate to a FIOBJ data
 // object FIOBJ_T_HASH
-pub fn MustacheBuild(mustache: *Mustache, data: anytype) ?[]const u8 {
-
-    // FIOBJ data = fiobj_hash_new();
-    // FIOBJ key = fiobj_str_new("users", 5);
-    // FIOBJ ary = fiobj_ary_new2(4);
-    // fiobj_hash_set(data, key, ary);
-    // fiobj_free(key);
-    // for (int i = 0; i < 4; ++i) {
-    //   FIOBJ id = fiobj_str_buf(4);
-    //   fiobj_str_write_i(id, i);
-    //   FIOBJ name = fiobj_str_buf(4);
-    //   fiobj_str_write(name, "User ", 5);
-    //   fiobj_str_write_i(name, i);
-    //   FIOBJ usr = fiobj_hash_new2(2);
-    //   key = fiobj_str_new("id", 2);
-    //   fiobj_hash_set(usr, key, id);
-    //   fiobj_free(key);
-    //   key = fiobj_str_new("name", 4);
-    //   fiobj_hash_set(usr, key, name);
-    //   fiobj_free(key);
-    //   fiobj_ary_push(ary, usr);
-    // }
-    // key = fiobj_str_new("nested", 6);
-    // ary = fiobj_hash_new2(2);
-    // fiobj_hash_set(data, key, ary);
-    // fiobj_free(key);
-    // key = fiobj_str_new("item", 4);
-    // fiobj_hash_set(ary, key, fiobj_str_new("dot notation success", 20));
-    // fiobj_free(key);
-
+pub fn MustacheBuild(mustache: *Mustache, data: anytype) MustacheBuildResult {
     const T = @TypeOf(data);
     if (@typeInfo(T) != .Struct) {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");
     }
 
-    // std.debug.print("data: ", .{});
     const fiobj_data = fiobjectify(data);
-    // std.debug.print("{any}\n", .{fiobj_data});
 
-    // TODO: fiobj_free everything
-    var ret = fiobj_mustache_build(mustache, fiobj_data);
-    return util.fio2str(ret);
+    return .{ .fiobj_result = fiobj_mustache_build(mustache, fiobj_data) };
 }
 
 pub fn fiobjectify(
@@ -209,6 +174,7 @@ pub fn fiobjectify(
                 const fvalue = fiobjectify(v);
                 // std.debug.print("    fiobj value: {any}\n", .{fvalue});
                 _ = fiobj_hash_set(m, fname, fvalue);
+                fiobj_free_wrapped(fname);
             }
             return m;
         },
@@ -250,7 +216,6 @@ pub fn fiobjectify(
     unreachable;
 }
 
-// pub extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 pub fn MustacheFree(m: ?*Mustache) void {
     fiobj_mustache_free(m);
 }

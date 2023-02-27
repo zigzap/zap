@@ -1,17 +1,17 @@
 const std = @import("std");
 
-pub const C = @cImport({
+pub const Cutil = @cImport({
     @cInclude("http.h");
     @cInclude("fio.h");
 });
 
-pub fn fio2str(o: C.FIOBJ) ?[]const u8 {
+pub fn fio2str(o: Cutil.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
-    const x: C.fio_str_info_s = C.fiobj_obj2cstr(o);
+    const x: Cutil.fio_str_info_s = Cutil.fiobj_obj2cstr(o);
     return std.mem.span(x.data);
 }
 
-pub fn str2fio(s: []const u8) C.fio_str_info_s {
+pub fn str2fio(s: []const u8) Cutil.fio_str_info_s {
     return .{
         .data = toCharPtr(s),
         .len = s.len,
