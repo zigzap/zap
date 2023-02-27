@@ -1,14 +1,7 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request_verbose(r: zap.SimpleRequest) void {
-    if (r.path) |the_path| {
-        std.debug.print("PATH: {s}\n", .{the_path});
-    }
-
-    if (r.query) |the_query| {
-        std.debug.print("QUERY: {s}\n", .{the_query});
-    }
+fn on_request(r: zap.SimpleRequest) void {
     const template = "{{=<< >>=}}* Users:\r\n<<#users>><<id>>. <<& name>> (<<name>>)\r\n<</users>>\r\nNested: <<& nested.item >>.";
     const p = zap.MustacheNew(template) catch return;
     defer zap.MustacheFree(p);
@@ -33,20 +26,16 @@ fn on_request_verbose(r: zap.SimpleRequest) void {
     });
     defer ret.deinit();
     if (ret.str()) |s| {
-        std.debug.print("{s}\n", .{s});
         _ = r.sendBody(s);
+    } else {
+        _ = r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>");
     }
-    _ = r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>");
-}
-
-fn on_request_minimal(r: zap.SimpleRequest) void {
-    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
 pub fn main() !void {
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,
-        .on_request = on_request_verbose,
+        .on_request = on_request,
         .log = true,
         .max_clients = 100000,
     });
