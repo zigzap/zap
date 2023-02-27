@@ -124,21 +124,14 @@ To add zap to `build.zig.zon`:
 
     .dependencies = .{
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/db6496cd7afc6bac50da563936021ee28f591dc1.tar.gz",
-            .hash = "12203791cdbf4ebc2692bbd2ce790fedbc2e7295eec3efd7812621aa35a5ce83767a",
-        },
-        .@"facil.io" = .{
-            .url = "https://github.com/zigzap/facil.io/archive/2c04cd1949328dd62fe5d262b9cc930e54392ab8.tar.gz",
-            .hash = "12209d3b552145f24431e5a2e6a4ad59ceaa9656f7fba8af7a8aa704a8784a79f55d",
+            .url = "https://github.com/zigzap/zap/archive/cd48038ae6dec7d3c54efdf780ccf5946691379f.tar.gz",
+            .hash = "1220e0648ff7ba063ec0c4381efcf051eea20675f373ad87faac0688140fc400c16f",
         }
     }
 }
 ```
 
-**Note 2**: change the URLs to the latest commit of `zap` and `facil.io`
-respectively (my fork). The latter is unlikely to change; but `zap` is likely to
-change more frequently.
-
+**Note 2**: change the URL to the latest commit of `zap`!
 
 Then, in your `build.zig`'s `build` function, add the following before
 `exe.install()`:
@@ -149,12 +142,7 @@ Then, in your `build.zig`'s `build` function, add the following before
         .optimize = optimize,
     });
     exe.addModule("zap", zap.module("zap"));
-
-    const facil_dep = b.dependency("facil.io", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    exe.linkLibrary(facil_dep.artifact("facil.io"));
+    exe.linkLibrary(zap.artifact("facil.io"));
 ```
 
 From then on, you can use the zap package in your project. Check out the
