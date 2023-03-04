@@ -10,11 +10,31 @@ pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 
+pub const Log = @import("log.zig");
+
 const util = @import("util.zig");
 
 const _module = @This();
 
+// TODO: replace with comptime debug logger like in log.zig
+var _debug: bool = false;
+
 pub fn start(args: fio.fio_start_args) void {
+    fio.fio_start(args);
+}
+
+pub fn debug(comptime fmt: []const u8, args: anytype) void {
+    if (_debug) {
+        std.debug.print("[zap] - " ++ fmt, args);
+    }
+}
+
+pub fn enableDebugLog() void {
+    _debug = true;
+}
+
+pub fn startWithLogging(args: fio.fio_start_args) void {
+    debug = true;
     fio.fio_start(args);
 }
 
@@ -44,10 +64,12 @@ pub const SimpleRequest = struct {
     const Self = @This();
 
     pub fn sendBody(self: *const Self, body: []const u8) c_int {
-        return fio.http_send_body(self.h, @intToPtr(
+        const ret = fio.http_send_body(self.h, @intToPtr(
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
+        debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
+        return ret;
     }
 
     pub fn sendJson(self: *const Self, json: []const u8) c_int {
@@ -59,11 +81,28 @@ pub const SimpleRequest = struct {
     }
 
     pub fn setContentType(self: *const Self, c: ContentType) void {
-        self.setHeader("content-type", switch (c) {
+        const s = switch (c) {
             .TEXT => "text/plain",
             .JSON => "application/json",
             else => "text/html",
-        });
+        };
+        debug("setting content-type to {s}\n", .{s});
+        self.setHeader("content-type", s);
+    }
+
+    /// shows how to use the logger
+    pub fn setContentTypeWithLogger(
+        self: *const Self,
+        c: ContentType,
+        logger: *const Log,
+    ) void {
+        const s = switch (c) {
+            .TEXT => "text/plain",
+            .JSON => "application/json",
+            else => "text/html",
+        };
+        logger.log("setting content-type to {s}\n", .{s});
+        self.setHeader("content-type", s);
     }
 
     pub fn setContentTypeFromPath(self: *const Self) void {
@@ -80,12 +119,16 @@ pub const SimpleRequest = struct {
             .len = name.len,
             .capa = name.len,
         };
+
+        debug("setHeader: hname = {}\n", .{hname});
         const vname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(value),
             .len = value.len,
             .capa = value.len,
         };
-        _ = fio.http_set_header2(self.h, hname, vname);
+        debug("setHeader: vname = {}\n", .{vname});
+        const ret = fio.http_set_header2(self.h, hname, vname);
+        debug("setHeader: ret = {}\n", .{ret});
 
         // Note to self:
         // const new_fiobj_str = fio.fiobj_str_new(name.ptr, name.len);
@@ -159,6 +202,7 @@ pub const SimpleHttpListener = struct {
         var pfolder_len: usize = 0;
 
         if (self.settings.public_folder) |pf| {
+            debug("SimpleHttpListener.listen(): public folder is {s}\n", .{pf});
             pfolder_len = pf.len;
             pfolder = pf.ptr;
         }
@@ -273,8 +317,9 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
 
 // lower level sendBody
 pub fn sendBody(request: [*c]fio.http_s, body: []const u8) void {
-    _ = fio.http_send_body(request, @intToPtr(
+    const ret = fio.http_send_body(request, @intToPtr(
         *anyopaque,
         @ptrToInt(body.ptr),
     ), body.len);
+    debug("sendBody(): ret = {}\n", .{ret});
 }

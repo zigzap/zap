@@ -25,6 +25,7 @@ fn on_request(r: zap.SimpleRequest) void {
         },
     });
     defer ret.deinit();
+    r.setContentType(.TEXT);
     if (ret.str()) |s| {
         _ = r.sendBody(s);
     } else {
@@ -40,6 +41,9 @@ pub fn main() !void {
         .max_clients = 100000,
     });
     try listener.listen();
+
+    zap.enableDebugLog();
+    zap.debug("ZAP debug logging is on\n", .{});
 
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 
