@@ -45,6 +45,10 @@ pub fn main() !void {
     zap.enableDebugLog();
     zap.debug("ZAP debug logging is on\n", .{});
 
+    // we can also use facilio logging
+    zap.Log.fio_set_log_level(zap.Log.fio_log_level_debug);
+    zap.Log.fio_log_debug("ZAP debug logging is on\n");
+
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 
     // start worker threads

@@ -1,11 +1,11 @@
 .{
     .name = "zap",
-    .version = "0.0.2",
+    .version = "0.0.3",
 
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://github.com/zigzap/facil.io/archive/6b19a580df3cf1baeac47b369823c5a3e22c660c.tar.gz",
-            .hash = "122025ad890e99fc225fd9bbd9fba6d8dacf7f0aec23e4a32a9b0a205de894ffe1f5",
+            .url = "https://github.com/zigzap/facil.io/archive/3eaa3f5b99b52b71b4417887ae4cc90969705375.tar.gz",
+            .hash = "122056df3447d08179bd0160b0c3776f7bef6182d80ffd01955020cbae5f7305a9cc",
         }
     }
 }
