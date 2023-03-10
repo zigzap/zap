@@ -72,22 +72,23 @@ pub const SimpleRequest = struct {
         return ret;
     }
 
-    pub fn sendJson(self: *const Self, json: []const u8) c_int {
-        self.setContentType(.JSON);
-        return fio.http_send_body(self.h, @intToPtr(
-            *anyopaque,
-            @ptrToInt(json.ptr),
-        ), json.len);
+    pub fn sendJson(self: *const Self, json: []const u8) !c_int {
+        if (self.setContentType(.JSON)) {
+            return fio.http_send_body(self.h, @intToPtr(
+                *anyopaque,
+                @ptrToInt(json.ptr),
+            ), json.len);
+        } else return error{ERR_CONTENT_TYPE};
     }
 
-    pub fn setContentType(self: *const Self, c: ContentType) void {
+    pub fn setContentType(self: *const Self, c: ContentType) bool {
         const s = switch (c) {
             .TEXT => "text/plain",
             .JSON => "application/json",
             else => "text/html",
         };
         debug("setting content-type to {s}\n", .{s});
-        self.setHeader("content-type", s);
+        return self.setHeader("content-type", s);
     }
 
     /// shows how to use the logger
@@ -113,7 +114,7 @@ pub const SimpleRequest = struct {
         );
     }
 
-    pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) void {
+    pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) bool {
         const hname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(name),
             .len = name.len,
@@ -133,6 +134,8 @@ pub const SimpleRequest = struct {
         // Note to self:
         // const new_fiobj_str = fio.fiobj_str_new(name.ptr, name.len);
         // fio.fiobj_free(new_fiobj_str);
+
+        return ret == 0;
     }
 
     pub fn setStatusNumeric(self: *const Self, status: usize) void {
