@@ -25,11 +25,11 @@ fn on_request(r: zap.SimpleRequest) void {
         },
     });
     defer ret.deinit();
-    r.setContentType(.TEXT);
+    r.setContentType(.TEXT) catch return;
     if (ret.str()) |s| {
-        _ = r.sendBody(s);
+        r.sendBody(s) catch return;
     } else {
-        _ = r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>");
+        r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>") catch return;
     }
 }
 

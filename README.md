@@ -219,7 +219,7 @@ fn on_request(r: zap.SimpleRequest) void {
     if (r.query) |the_query| {
         std.debug.print("QUERY: {s}\n", .{the_query});
     }
-    _ = r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
+    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
 }
 
 pub fn main() !void {

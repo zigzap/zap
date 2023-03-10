@@ -55,7 +55,7 @@ fn getUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         if (userIdFromPath(path)) |id| {
             if (users.get(id)) |user| {
                 if (zap.stringifyBuf(&jsonbuf, user, .{})) |json| {
-                    _ = r.sendJson(json);
+                    r.sendJson(json) catch return;
                 }
             }
         }
@@ -66,8 +66,8 @@ fn listUsers(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
 
     if (users.toJSON()) |json| {
-        _ = r.sendJson(json);
-        alloc.free(json);
+        defer alloc.free(json);
+        r.sendJson(json) catch return;
     } else |err| {
         std.debug.print("LIST error: {}\n", .{err});
     }
@@ -83,7 +83,7 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
             if (users.addByName(u.first_name, u.last_name)) |id| {
                 var jsonbuf: [128]u8 = undefined;
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    _ = r.sendJson(json);
+                    r.sendJson(json) catch return;
                 }
             } else |err| {
                 std.debug.print("ADDING error: {}\n", .{err});
@@ -106,11 +106,11 @@ fn putUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                         var jsonbuf: [128]u8 = undefined;
                         if (users.update(id, u.first_name, u.last_name)) {
                             if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                                _ = r.sendJson(json);
+                                r.sendJson(json) catch return;
                             }
                         } else {
                             if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                                _ = r.sendJson(json);
+                                r.sendJson(json) catch return;
                             }
                         }
                     }
@@ -127,11 +127,11 @@ fn deleteUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
             var jsonbuf: [128]u8 = undefined;
             if (users.delete(id)) {
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    _ = r.sendJson(json);
+                    r.sendJson(json) catch return;
                 }
             } else {
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                    _ = r.sendJson(json);
+                    r.sendJson(json) catch return;
                 }
             }
         }

@@ -43,6 +43,12 @@ pub const ListenError = error{
     ListenError,
 };
 
+pub const HttpError = error{
+    HttpSendBody,
+    HttpSetContentType,
+    HttpSetHeader,
+};
+
 pub const HttpParam = struct {
     key: []const u8,
     value: []const u8,
@@ -63,25 +69,25 @@ pub const SimpleRequest = struct {
 
     const Self = @This();
 
-    pub fn sendBody(self: *const Self, body: []const u8) c_int {
+    pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
         const ret = fio.http_send_body(self.h, @intToPtr(
             *anyopaque,
             @ptrToInt(body.ptr),
         ), body.len);
         debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
-        return ret;
+        if (ret == -1) return error.HttpSendBody;
     }
 
-    pub fn sendJson(self: *const Self, json: []const u8) !c_int {
+    pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
         if (self.setContentType(.JSON)) {
-            return fio.http_send_body(self.h, @intToPtr(
+            if (fio.http_send_body(self.h, @intToPtr(
                 *anyopaque,
                 @ptrToInt(json.ptr),
-            ), json.len);
-        } else return error{ERR_CONTENT_TYPE};
+            ), json.len) != 0) return error.HttpSendBody;
+        } else |err| return err;
     }
 
-    pub fn setContentType(self: *const Self, c: ContentType) bool {
+    pub fn setContentType(self: *const Self, c: ContentType) HttpError!void {
         const s = switch (c) {
             .TEXT => "text/plain",
             .JSON => "application/json",
@@ -96,25 +102,28 @@ pub const SimpleRequest = struct {
         self: *const Self,
         c: ContentType,
         logger: *const Log,
-    ) void {
+    ) HttpError!void {
         const s = switch (c) {
             .TEXT => "text/plain",
             .JSON => "application/json",
             else => "text/html",
         };
         logger.log("setting content-type to {s}\n", .{s});
-        self.setHeader("content-type", s);
+        return self.setHeader("content-type", s);
     }
 
-    pub fn setContentTypeFromPath(self: *const Self) void {
-        _ = fio.fiobj_hash_set(
+    pub fn setContentTypeFromPath(self: *const Self) !void {
+        const t = fio.http_mimetype_find2(self.h.*.path);
+        if (fio.is_invalid(t) == 1) return error.HttpSetContentType;
+        const ret = fio.fiobj_hash_set(
             self.h.*.private_data.out_headers,
             fio.HTTP_HEADER_CONTENT_TYPE,
-            fio.http_mimetype_find2(self.h.*.path),
+            t,
         );
+        if (ret == -1) return error.HttpSetContentType;
     }
 
-    pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) bool {
+    pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
         const hname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(name),
             .len = name.len,
@@ -135,7 +144,8 @@ pub const SimpleRequest = struct {
         // const new_fiobj_str = fio.fiobj_str_new(name.ptr, name.len);
         // fio.fiobj_free(new_fiobj_str);
 
-        return ret == 0;
+        if (ret == 0) return;
+        return error.HttpSetHeader;
     }
 
     pub fn setStatusNumeric(self: *const Self, status: usize) void {
@@ -319,10 +329,11 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
 }
 
 // lower level sendBody
-pub fn sendBody(request: [*c]fio.http_s, body: []const u8) void {
+pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
     const ret = fio.http_send_body(request, @intToPtr(
         *anyopaque,
         @ptrToInt(body.ptr),
     ), body.len);
     debug("sendBody(): ret = {}\n", .{ret});
+    if (ret != -1) return error.HttpSendBody;
 }

@@ -1,4 +1,5 @@
 pub const FIOBJ = usize;
+pub extern fn is_invalid(o: FIOBJ) c_int;
 pub const fio_url_s = extern struct {
     scheme: fio_str_info_s,
     user: fio_str_info_s,

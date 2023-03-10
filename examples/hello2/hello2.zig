@@ -13,8 +13,8 @@ fn on_request(r: zap.SimpleRequest) void {
         std.debug.print(">> BODY: {s}\n", .{the_body});
     }
 
-    r.setContentTypeFromPath();
-    _ = r.sendBody(
+    r.setContentTypeFromPath() catch return;
+    r.sendBody(
         \\ <html><body>
         \\   <h1>Hello from ZAP!!!</h1>
         \\   <form action="/" method="post">
@@ -25,7 +25,7 @@ fn on_request(r: zap.SimpleRequest) void {
         \\     <button>Send</button>
         \\   </form>
         \\ </body></html>
-    );
+    ) catch return;
 }
 
 pub fn main() !void {

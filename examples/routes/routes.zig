@@ -10,18 +10,18 @@ fn dispatch_routes(r: zap.SimpleRequest) void {
         }
     }
     // or default: present menu
-    _ = r.sendBody(
+    r.sendBody(
         \\ <html>
         \\   <body>
         \\     <p><a href="/static">static</a></p>
         \\     <p><a href="/dynamic">dynamic</a></p>
         \\   </body>
         \\ </html>
-    );
+    ) catch return;
 }
 
 fn static_site(r: zap.SimpleRequest) void {
-    _ = r.sendBody("<html><body><h1>Hello from STATIC ZAP!</h1></body></html>");
+    r.sendBody("<html><body><h1>Hello from STATIC ZAP!</h1></body></html>") catch return;
 }
 
 var dynamic_counter: i32 = 0;
@@ -33,7 +33,7 @@ fn dynamic_site(r: zap.SimpleRequest) void {
         "<html><body><h1>Hello # {d} from DYNAMIC ZAP!!!</h1></body></html>",
         .{dynamic_counter},
     ) catch "ERROR";
-    _ = r.sendBody(filled_buf);
+    r.sendBody(filled_buf) catch return;
 }
 
 fn setup_routes(a: std.mem.Allocator) !void {

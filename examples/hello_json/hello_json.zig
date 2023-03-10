@@ -26,8 +26,8 @@ fn on_request(r: zap.SimpleRequest) void {
             json_to_send = "null";
         }
         std.debug.print("<< json: {s}\n", .{json_to_send});
-        r.setContentType(.JSON);
-        _ = r.sendBody(json_to_send);
+        r.setContentType(.JSON) catch return;
+        r.sendBody(json_to_send) catch return;
     }
 }
 
