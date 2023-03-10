@@ -79,8 +79,12 @@ pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
 const MustacheBuildResult = struct {
     fiobj_result: fio.FIOBJ = 0,
 
+    /// holds the context converted into a fiobj, used in build
+    fiobj_context: fio.FIOBJ = 0,
+
     pub fn deinit(m: *const MustacheBuildResult) void {
         fio.fiobj_free_wrapped(m.fiobj_result);
+        fio.fiobj_free_wrapped(m.fiobj_context);
     }
 
     pub fn str(m: *const MustacheBuildResult) ?[]const u8 {
@@ -96,9 +100,11 @@ pub fn MustacheBuild(mustache: *Mustache, data: anytype) MustacheBuildResult {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");
     }
 
-    const fiobj_data = fiobjectify(data);
+    var result: MustacheBuildResult = .{};
 
-    return .{ .fiobj_result = fiobj_mustache_build(mustache, fiobj_data) };
+    result.fiobj_context = fiobjectify(data);
+    result.fiobj_result = fiobj_mustache_build(mustache, result.fiobj_context);
+    return result;
 }
 
 pub fn fiobjectify(
