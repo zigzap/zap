@@ -138,6 +138,12 @@ pub const SimpleRequest = struct {
         };
         debug("setHeader: vname = {}\n", .{vname});
         const ret = fio.http_set_header2(self.h, hname, vname);
+
+        // FIXME without the following if, we get errors in release builds
+        // at least we don't have to log unconditionally
+        if (ret == -1) {
+            std.debug.print("***************** zap.zig:145\n", .{});
+        }
         debug("setHeader: ret = {}\n", .{ret});
 
         // Note to self:

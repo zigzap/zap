@@ -25,11 +25,14 @@ fn on_request(r: zap.SimpleRequest) void {
         },
     });
     defer ret.deinit();
-    r.setContentType(.TEXT) catch return;
-    if (ret.str()) |s| {
-        r.sendBody(s) catch return;
-    } else {
-        r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>") catch return;
+    if (r.setContentType(.TEXT)) {
+        if (ret.str()) |s| {
+            r.sendBody(s) catch return;
+        } else {
+            r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>") catch return;
+        }
+    } else |err| {
+        std.debug.print("Error while setting content type: {}\n", .{err});
     }
 }
 
@@ -42,12 +45,12 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    zap.enableDebugLog();
-    zap.debug("ZAP debug logging is on\n", .{});
+    // zap.enableDebugLog();
+    // zap.debug("ZAP debug logging is on\n", .{});
 
     // we can also use facilio logging
-    zap.Log.fio_set_log_level(zap.Log.fio_log_level_debug);
-    zap.Log.fio_log_debug("ZAP debug logging is on\n");
+    // zap.Log.fio_set_log_level(zap.Log.fio_log_level_debug);
+    // zap.Log.fio_log_debug("hello from fio\n");
 
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 
