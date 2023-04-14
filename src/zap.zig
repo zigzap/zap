@@ -123,6 +123,12 @@ pub const SimpleRequest = struct {
         if (ret == -1) return error.HttpSetContentType;
     }
 
+    pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
+        const hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);
+        defer fio.fiobj_free_wrapped(hname);
+        return util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));
+    }
+
     pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
         const hname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(name),

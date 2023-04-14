@@ -7,6 +7,12 @@ fn on_request(r: zap.SimpleRequest) void {
     const qm = if (r.query) |_| "?" else "";
     const qq = r.query orelse "";
 
+    // curl -H "special-header: hello" http://localhost:3000
+    if (r.getHeader("special-header")) |clstr| {
+        std.debug.print(">> Special Header: {s}\n", .{clstr});
+    } else {
+        std.debug.print(">> Special Header: <unknown>\n", .{});
+    }
     std.debug.print(">> {s} {s}{s}{s}\n", .{ m, p, qm, qq });
 
     if (r.body) |the_body| {
@@ -41,6 +47,6 @@ pub fn main() !void {
     // start worker threads
     zap.start(.{
         .threads = 2,
-        .workers = 2,
+        .workers = 1,
     });
 }

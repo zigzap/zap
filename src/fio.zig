@@ -76,6 +76,7 @@ pub extern fn http_send_body(h: [*c]http_s, data: ?*anyopaque, length: usize) c_
 
 pub extern fn fiobj_hash_new() FIOBJ;
 pub extern fn fiobj_hash_set(hash: FIOBJ, key: FIOBJ, obj: FIOBJ) c_int;
+pub extern fn fiobj_hash_get(hash: FIOBJ, key: FIOBJ) FIOBJ;
 pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
 pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
