@@ -86,8 +86,8 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn get(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                // TODO: return 401
-                std.debug.print("401\n", .{});
+                r.setStatus(.unauthorized);
+                r.sendBody("UNAUTHORIZED") catch return;
                 return;
             }
             // auth successful
@@ -98,8 +98,8 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn post(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                // TODO: return 401
-                std.debug.print("401\n", .{});
+                r.setStatus(.unauthorized);
+                r.sendBody("UNAUTHORIZED") catch return;
                 return;
             }
             // auth successful
@@ -110,8 +110,8 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn put(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                // todo: return 401
-                std.debug.print("401\n", .{});
+                r.setStatus(.unauthorized);
+                r.sendBody("UNAUTHORIZED") catch return;
                 return;
             }
             // auth successful
@@ -122,8 +122,8 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn delete(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                // todo: return 401
-                std.debug.print("401\n", .{});
+                r.setStatus(.unauthorized);
+                r.sendBody("UNAUTHORIZED") catch return;
                 return;
             }
             // auth successful
