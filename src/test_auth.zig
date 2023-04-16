@@ -164,11 +164,13 @@ test "BearerAuthSingle authenticateRequest" {
     var ep = Endpoints.SimpleEndpoint.init(.{ .path = "/test", .get = endpoint_http_get });
 
     // create authenticator
-    var authenticator = try Authenticators.BearerAuthSingle.init(a, token, null);
+    const Authenticator = Authenticators.BearerAuthSingle;
+    var authenticator = try Authenticator.init(a, token, null);
     defer authenticator.deinit();
 
     // create authenticating endpoint
-    var auth_ep = Endpoints.AuthenticatingEndpoint(@TypeOf(authenticator)).init(&ep, &authenticator);
+    const BearerAuthEndpoint = Endpoints.AuthenticatingEndpoint(Authenticator);
+    var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
 
     try listener.addEndpoint(auth_ep.getEndpoint());
 
