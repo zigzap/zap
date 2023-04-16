@@ -61,7 +61,7 @@ const BasicAuthStrategy = enum {
 /// WWW-Authenticate: Basic realm="this"
 ///
 /// T : any kind of map that implements get([]const u8) -> []const u8
-pub fn BasicAuth(Lookup: type, kind: BasicAuthStrategy) type {
+pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
     return struct {
         // kind: BasicAuthStrategy,
         allocator: std.mem.Allocator,
@@ -100,10 +100,8 @@ pub fn BasicAuth(Lookup: type, kind: BasicAuthStrategy) type {
 
         /// Use this to just look up if the base64-encoded auth_header exists in lookup
         pub fn authenticateToken68(self: *Self, auth_header: []const u8) bool {
-            _ = auth_header;
-            _ = self;
-            // TODO
-            return false;
+            const token = auth_header[AuthScheme.Basic.str().len..];
+            return self.lookup.*.contains(token);
         }
 
         // dispatch based on kind
@@ -115,7 +113,7 @@ pub fn BasicAuth(Lookup: type, kind: BasicAuthStrategy) type {
             }
         }
         pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) bool {
-            if (extractAuthHeader(.Bearer, r)) |auth_header| {
+            if (extractAuthHeader(.Basic, r)) |auth_header| {
                 return self.authenticate(auth_header);
             }
             return false;
