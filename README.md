@@ -40,6 +40,8 @@ Here's what works:
   users, together with a static HTML and JavaScript frontend to play with.
 - **[mustache](examples/mustache/)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
+- **[endpoint authentication](examples/endpoint_auth/)**: a simple authenticated
+  endpoint. Read more about authentication [here](./doc/authentication.md)
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
