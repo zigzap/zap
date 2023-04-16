@@ -1,7 +1,7 @@
 const std = @import("std");
 const zap = @import("zap.zig");
 
-const AuthScheme = enum {
+pub const AuthScheme = enum {
     Basic,
     Bearer,
 
@@ -12,10 +12,17 @@ const AuthScheme = enum {
         };
     }
 
-    pub fn headerFieldStr(self: AuthScheme) []const u8 {
+    pub fn headerFieldStrFio(self: AuthScheme) []const u8 {
         return switch (self) {
             .Basic => "authentication",
             .Bearer => "authorization",
+        };
+    }
+
+    pub fn headerFieldStrHeader(self: AuthScheme) [:0]const u8 {
+        return switch (self) {
+            .Basic => "Authentication",
+            .Bearer => "Authorization",
         };
     }
 };
@@ -29,8 +36,8 @@ pub fn checkAuthHeader(scheme: AuthScheme, auth_header: []const u8) bool {
 
 pub fn extractAuthHeader(scheme: AuthScheme, r: *const zap.SimpleRequest) ?[]const u8 {
     return switch (scheme) {
-        .Basic => |b| r.getHeader(b.headerFieldStr()),
-        .Bearer => |b| r.getHeader(b.headerFieldStr()),
+        .Basic => |b| r.getHeader(b.headerFieldStrFio()),
+        .Bearer => |b| r.getHeader(b.headerFieldStrFio()),
     };
 }
 

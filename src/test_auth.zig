@@ -51,7 +51,7 @@ fn endpoint_http_get(e: *Endpoints.SimpleEndpoint, r: zap.SimpleRequest) void {
 }
 
 //
-// http client code
+// http client code for in-process sending of http request
 //
 fn setHeader(h: [*c]fio.http_s, name: []const u8, value: []const u8) !void {
     const hname: fio.fio_str_info_s = .{
@@ -99,6 +99,7 @@ fn sendRequest() void {
 }
 
 fn on_response(r: [*c]fio.http_s) callconv(.C) void {
+    // the first time around, we need to complete the request. E.g. set headers.
     if (r.*.status_str == zap.FIOBJ_INVALID) {
         setHeader(r, "Authorization", "Bearer ABCDEFG") catch return;
         zap.http_finish(r);
@@ -120,17 +121,30 @@ test "BearerAuthSingle authenticateRequest" {
     const a = std.testing.allocator;
     const token = "ABCDEFG";
 
-    // spawn curl process before we start facilio threads
-    // unfortunately, this doesn't work: facilio doesn't start up if we spawn a child process
-    // var p = std.ChildProcess.init(&.{ "bash", "-c", "sleep 10; curl -H \"Authorization: Bearer\"" ++ token ++ " http://localhost:3000/test -v" }, a);
+    //
+    // Unfortunately, spawning a child process confuses facilio:
+    //
+    // 1. attempt: spawn curl process before we start facilio threads
+    // this doesn't work: facilio doesn't start up if we spawn a child process
+    // var p = std.ChildProcess.init(&.{
+    //     "bash",
+    //     "-c",
+    //     "sleep 10; curl -H \"Authorization: Bearer\"" ++ token ++ " http://localhost:3000/test -v",
+    // }, a);
     // try p.spawn();
 
+    // 2. attempt:
     // our custom client doesn't work either
-    // var p = std.ChildProcess.init(&.{ "bash", "-c", "sleep 3; ./zig-out/bin/http_client &" }, a);
+    // var p = std.ChildProcess.init(&.{
+    //     "bash",
+    //     "-c",
+    //     "sleep 3; ./zig-out/bin/http_client &",
+    // }, a);
     // try p.spawn();
     // std.debug.print("done spawning\n", .{});
 
-    // this doesn't work either because facilio wants to be either server or client, gets confused doing it this way
+    // 3. attempt: sending the request in-process
+    // this doesn't work either because facilio wants to be either server or client, gets confused, at least when we're doing it this way
     // sendRequest();
 
     // setup listener
