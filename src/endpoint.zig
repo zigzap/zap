@@ -13,6 +13,8 @@ pub const SimpleEndpointSettings = struct {
     post: ?RequestFn = null,
     put: ?RequestFn = null,
     delete: ?RequestFn = null,
+    /// only applicable to AuthenticatingEndpoint
+    unauthorized: ?RequestFn = null,
 };
 
 pub const SimpleEndpoint = struct {
@@ -28,6 +30,7 @@ pub const SimpleEndpoint = struct {
                 .post = s.post orelse &nop,
                 .put = s.put orelse &nop,
                 .delete = s.delete orelse &nop,
+                .unauthorized = s.unauthorized orelse &nop,
             },
         };
     }
@@ -71,6 +74,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                     .post = if (e.settings.post != null) post else null,
                     .put = if (e.settings.put != null) put else null,
                     .delete = if (e.settings.delete != null) delete else null,
+                    .unauthorized = e.settings.unauthorized,
                 }),
             };
         }
@@ -86,9 +90,14 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn get(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                r.setStatus(.unauthorized);
-                r.sendBody("UNAUTHORIZED") catch return;
-                return;
+                if (e.settings.unauthorized) |foo| {
+                    foo(e, r);
+                    return;
+                } else {
+                    r.setStatus(.unauthorized);
+                    r.sendBody("UNAUTHORIZED") catch return;
+                    return;
+                }
             }
             // auth successful
             authEp.endpoint.settings.get.?(e, r);
@@ -98,9 +107,14 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn post(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                r.setStatus(.unauthorized);
-                r.sendBody("UNAUTHORIZED") catch return;
-                return;
+                if (e.settings.unauthorized) |foo| {
+                    foo(e, r);
+                    return;
+                } else {
+                    r.setStatus(.unauthorized);
+                    r.sendBody("UNAUTHORIZED") catch return;
+                    return;
+                }
             }
             // auth successful
             authEp.endpoint.settings.post.?(e, r);
@@ -110,9 +124,14 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn put(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                r.setStatus(.unauthorized);
-                r.sendBody("UNAUTHORIZED") catch return;
-                return;
+                if (e.settings.unauthorized) |foo| {
+                    foo(e, r);
+                    return;
+                } else {
+                    r.setStatus(.unauthorized);
+                    r.sendBody("UNAUTHORIZED") catch return;
+                    return;
+                }
             }
             // auth successful
             authEp.endpoint.settings.put.?(e, r);
@@ -122,9 +141,14 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         pub fn delete(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
-                r.setStatus(.unauthorized);
-                r.sendBody("UNAUTHORIZED") catch return;
-                return;
+                if (e.settings.unauthorized) |foo| {
+                    foo(e, r);
+                    return;
+                } else {
+                    r.setStatus(.unauthorized);
+                    r.sendBody("UNAUTHORIZED") catch return;
+                    return;
+                }
             }
             // auth successful
             authEp.endpoint.settings.delete.?(e, r);
