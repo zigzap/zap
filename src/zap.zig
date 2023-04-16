@@ -189,6 +189,7 @@ pub const SimpleHttpListenerSettings = struct {
     port: usize,
     interface: [*c]const u8 = null,
     on_request: ?SimpleHttpRequestFn,
+    on_response: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
     public_folder: ?[]const u8 = null,
     max_clients: ?isize = null,
     max_body_size: ?usize = null,
@@ -235,7 +236,7 @@ pub const SimpleHttpListener = struct {
         var x: fio.http_settings_s = .{
             .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
             .on_upgrade = null,
-            .on_response = null,
+            .on_response = self.settings.on_response,
             .on_finish = null,
             .udata = null,
             .public_folder = pfolder,
@@ -312,7 +313,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
     var x: fio.http_settings_s = .{
         .on_request = settings.on_request,
         .on_upgrade = settings.on_upgrade,
-        .on_response = settings.on_response,
+        .on_response = settings.on_response orelse null,
         .on_finish = settings.on_finish,
         .udata = null,
         .public_folder = pfolder,

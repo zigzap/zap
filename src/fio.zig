@@ -17,6 +17,7 @@ pub const struct_fio_start_args = extern struct {
 };
 pub const fio_start_args = struct_fio_start_args;
 pub extern fn fio_start(args: struct_fio_start_args) void;
+pub extern fn fio_stop() void;
 const struct_unnamed_37 = extern struct {
     vtbl: ?*anyopaque,
     flag: usize,

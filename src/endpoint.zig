@@ -1,5 +1,7 @@
 const std = @import("std");
 const zap = @import("zap.zig");
+const auth = @import("http_auth.zig");
+
 const Request = zap.SimpleRequest;
 const ListenerSettings = zap.SimpleHttpListenerSettings;
 const Listener = zap.SimpleHttpListener;
@@ -49,6 +51,87 @@ pub const SimpleEndpoint = struct {
     }
 };
 
+/// Wrap an endpoint with an authenticator
+pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
+    return struct {
+        authenticator: *Authenticator,
+        endpoint: *SimpleEndpoint,
+        auth_endpoint: SimpleEndpoint,
+        const Self = @This();
+
+        pub fn init(e: *SimpleEndpoint, authenticator: *Authenticator) Self {
+            return .{
+                .authenticator = authenticator,
+                .endpoint = e,
+                .auth_endpoint = SimpleEndpoint.init(.{
+                    .path = e.settings.path,
+                    // we override only the set ones. the other ones
+                    // are set to null anyway -> will be nopped out
+                    .get = if (e.settings.get != null) get else null,
+                    .post = if (e.settings.post != null) post else null,
+                    .put = if (e.settings.put != null) put else null,
+                    .delete = if (e.settings.delete != null) delete else null,
+                }),
+            };
+        }
+
+        /// get the auth endpoint struct so we can be stored in the listener
+        /// when the listener calls the auth_endpoint, onRequest will have
+        /// access to all of us via fieldParentPtr
+        pub fn getEndpoint(self: *Self) *SimpleEndpoint {
+            return &self.auth_endpoint;
+        }
+
+        /// here, the auth_endpoint will be passed in
+        pub fn get(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
+            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            if (authEp.authenticator.authenticateRequest(&r) == false) {
+                // TODO: return 401
+                std.debug.print("401\n", .{});
+                return;
+            }
+            // auth successful
+            authEp.endpoint.settings.get.?(e, r);
+        }
+
+        /// here, the auth_endpoint will be passed in
+        pub fn post(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
+            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            if (authEp.authenticator.authenticateRequest(&r) == false) {
+                // TODO: return 401
+                std.debug.print("401\n", .{});
+                return;
+            }
+            // auth successful
+            authEp.endpoint.settings.post.?(e, r);
+        }
+
+        /// here, the auth_endpoint will be passed in
+        pub fn put(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
+            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            if (authEp.authenticator.authenticateRequest(&r) == false) {
+                // todo: return 401
+                std.debug.print("401\n", .{});
+                return;
+            }
+            // auth successful
+            authEp.endpoint.settings.put.?(e, r);
+        }
+
+        /// here, the auth_endpoint will be passed in
+        pub fn delete(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
+            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            if (authEp.authenticator.authenticateRequest(&r) == false) {
+                // todo: return 401
+                std.debug.print("401\n", .{});
+                return;
+            }
+            // auth successful
+            authEp.endpoint.settings.delete.?(e, r);
+        }
+    };
+}
+
 pub const EndpointListenerError = error{
     EndpointPathShadowError,
 };
@@ -72,6 +155,11 @@ pub const SimpleEndpointListener = struct {
             .listener = Listener.init(ls),
             .allocator = a,
         };
+    }
+
+    pub fn deinit(self: *Self) void {
+        _ = self;
+        endpoints.deinit();
     }
 
     pub fn listen(self: *SimpleEndpointListener) !void {
