@@ -196,12 +196,15 @@ const zap = @import("zap");
 const a = std.heap.page_allocator;
 const token = "ABCDEFG";
 
+const HTTP_RESPONSE: []const u8 =
+    \\ <html><body>
+    \\   Hello from ZAP!!!
+    \\ </body></html>
+
 // authenticated requests go here
 fn endpoint_http_get(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     r.sendBody(HTTP_RESPONSE) catch return;
-    received_response = HTTP_RESPONSE;
-    zap.fio_stop();
 }
 
 // just for fun, we also catch the unauthorized callback
@@ -209,9 +212,6 @@ fn endpoint_http_unauthorized(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void
     _ = e;
     r.setStatus(.unauthorized);
     r.sendBody("UNAUTHORIZED ACCESS") catch return;
-    std.debug.print("\nunauthorized\n", .{});
-    received_response = "UNAUTHORIZED";
-    zap.fio_stop();
 }
 
 
