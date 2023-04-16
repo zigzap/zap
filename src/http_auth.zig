@@ -92,9 +92,31 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
 
         /// Use this to decode the auth_header into user:pass, lookup pass in lookup
         pub fn authenticateUserPass(self: *Self, auth_header: []const u8) bool {
-            _ = auth_header;
-            _ = self;
-            // TODO
+            const encoded = auth_header[AuthScheme.Basic.str().len..];
+            const decoder = std.base64.standard.Decoder;
+            var buffer: [0x100]u8 = undefined;
+            if (decoder.calcSizeForSlice(encoded)) |decoded_size| {
+                if (decoded_size >= buffer.len) {
+                    return false;
+                }
+                var decoded = buffer[0..decoded_size];
+                decoder.decode(decoded, encoded) catch return false;
+                // we have decoded
+                // we can split
+                var it = std.mem.split(u8, decoded, ":");
+                const user = it.next();
+                const pass = it.next();
+                if (user == null or pass == null) {
+                    return false;
+                }
+                // now, do the lookup
+                const actual_pw = self.lookup.*.get(user.?);
+                if (actual_pw) |pw| {
+                    return std.mem.eql(u8, pass.?, pw);
+                }
+            } else |_| {
+                // can't calc slice size --> fallthrough to return false
+            }
             return false;
         }
 
