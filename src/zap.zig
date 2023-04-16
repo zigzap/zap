@@ -9,6 +9,7 @@ pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
+pub usingnamespace @import("http_auth.zig");
 
 pub const Log = @import("log.zig");
 

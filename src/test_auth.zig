@@ -23,12 +23,13 @@ test "BearerAuthMulti authenticate" {
     const a = std.testing.allocator;
     const token = "hello, world";
 
-    var map = std.StringHashMap(void).init(a); // set
-    defer map.deinit();
+    const Set = std.StringHashMap(void);
+    var set = Set.init(a); // set
+    defer set.deinit();
 
-    try map.put(token, {});
+    try set.put(token, {});
 
-    var auth = try Authenticators.BearerAuthMulti(@TypeOf(map)).init(a, &map, null);
+    var auth = try Authenticators.BearerAuthMulti(Set).init(a, &set, null);
     defer auth.deinit();
 
     // invalid auth header
@@ -65,7 +66,7 @@ test "BasicAuth UserPass" {
 
     // create a set of User -> Pass entries
     const Map = std.StringHashMap([]const u8);
-    var map = Map.init(a); // set
+    var map = Map.init(a);
     defer map.deinit();
 
     // create user / pass entry
@@ -287,6 +288,61 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
         .unauthorized = endpoint_http_unauthorized,
     });
 
+    const Set = std.StringHashMap(void);
+    var set = Set.init(a); // set
+    defer set.deinit();
+
+    // insert auth tokens
+    try set.put(token, {});
+
+    const Authenticator = Authenticators.BearerAuthMulti(Set);
+    var authenticator = try Authenticator.init(a, &set, null);
+    defer authenticator.deinit();
+
+    // create authenticating endpoint
+    const BearerAuthEndpoint = Endpoints.AuthenticatingEndpoint(Authenticator);
+    var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
+
+    try listener.addEndpoint(auth_ep.getEndpoint());
+
+    listener.listen() catch {};
+    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
+    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Bearer invalid", .{});
+
+    // start worker threads
+    zap.start(.{
+        .threads = 1,
+        .workers = 0,
+    });
+
+    try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
+}
+
+test "BearerAuthMulti authenticateRequest OK" {
+    const a = std.testing.allocator;
+    const token = "ABCDEFG";
+
+    // setup listener
+    var listener = zap.SimpleEndpointListener.init(
+        a,
+        .{
+            .port = 3000,
+            .on_request = null,
+            .log = false,
+            .max_clients = 10,
+            .max_body_size = 1 * 1024,
+        },
+    );
+    defer listener.deinit();
+
+    // create mini endpoint
+    var ep = Endpoints.SimpleEndpoint.init(.{
+        .path = "/test",
+        .get = endpoint_http_get,
+        .unauthorized = endpoint_http_unauthorized,
+    });
+
     // create authenticator
     const Authenticator = Authenticators.BearerAuthSingle;
     var authenticator = try Authenticator.init(a, token, null);
@@ -300,8 +356,8 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-    std.debug.print("Please run the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Bearer invalid", .{});
+    std.debug.print("Waiting for the following:\n", .{});
+    std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\n", .{});
 
     // start worker threads
     zap.start(.{
@@ -309,7 +365,56 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
         .workers = 0,
     });
 
-    try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
+    try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
+}
+
+test "BearerAuthMulti authenticateRequest test-unauthorized" {
+    const a = std.testing.allocator;
+    const token = "invalid";
+
+    // setup listener
+    var listener = zap.SimpleEndpointListener.init(
+        a,
+        .{
+            .port = 3000,
+            .on_request = null,
+            .log = false,
+            .max_clients = 10,
+            .max_body_size = 1 * 1024,
+        },
+    );
+    defer listener.deinit();
+
+    // create mini endpoint
+    var ep = Endpoints.SimpleEndpoint.init(.{
+        .path = "/test",
+        .get = endpoint_http_get,
+        .unauthorized = endpoint_http_unauthorized,
+    });
+
+    // create authenticator
+    const Authenticator = Authenticators.BearerAuthSingle;
+    var authenticator = try Authenticator.init(a, token, null);
+    defer authenticator.deinit();
+
+    // create authenticating endpoint
+    const BearerAuthEndpoint = Endpoints.AuthenticatingEndpoint(Authenticator);
+    var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
+
+    try listener.addEndpoint(auth_ep.getEndpoint());
+
+    listener.listen() catch {};
+    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
+    std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\n", .{});
+
+    // start worker threads
+    zap.start(.{
+        .threads = 1,
+        .workers = 0,
+    });
+
+    try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
 }
 
 test "BasicAuth Token68 authenticateRequest" {
@@ -354,7 +459,7 @@ test "BasicAuth Token68 authenticateRequest" {
 
     listener.listen() catch {};
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-    std.debug.print("Please run the following:\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
     std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ token, .{});
 
     // start worker threads
@@ -408,7 +513,7 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-    std.debug.print("Please run the following:\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
     std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ "invalid", .{});
 
     // start worker threads
@@ -445,7 +550,7 @@ test "BasicAuth UserPass authenticateRequest" {
 
     // create a set of User -> Pass entries
     const Map = std.StringHashMap([]const u8);
-    var map = Map.init(a); // set
+    var map = Map.init(a);
     defer map.deinit();
 
     // create user / pass entry
@@ -473,7 +578,7 @@ test "BasicAuth UserPass authenticateRequest" {
 
     listener.listen() catch {};
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-    std.debug.print("Please run the following:\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
     std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}\n", .{encoded});
 
     // start worker threads
@@ -510,7 +615,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
 
     // create a set of User -> Pass entries
     const Map = std.StringHashMap([]const u8);
-    var map = Map.init(a); // set
+    var map = Map.init(a);
     defer map.deinit();
 
     // create user / pass entry
@@ -538,7 +643,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-    std.debug.print("Please run the following:\n", .{});
+    std.debug.print("Waiting for the following:\n", .{});
     std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}-invalid\n", .{encoded});
 
     // start worker threads

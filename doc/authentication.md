@@ -1,0 +1,253 @@
+# Authentication
+
+Zap supports both Basic and Bearer authentication. 
+
+For convenience, Authenticator types exist that can authenticate requests.
+
+Zap also provides an `AuthenticatingEndpoint` endpoint-wrapper.
+
+Have a look at the tests: [here](../src/test_auth.zig)
+
+The following describes the Authenticator types. All of them provide the
+`authenticateRequest()` function, which takes a `zap.SimpleRequest` and returns
+a bool value whether it could be authenticated or not.
+
+Further down, we show how to use the Authenticators, and also the
+`AuthenticatingEndpoint`.
+
+## Basic Authentication
+
+The `zap.BasicAuth` Authenticator accepts 2 comptime values:
+
+- `Lookup`: either a map to look up passwords for users or a set to lookup
+  base64 encoded tokens (user:pass -> base64-encode = token)
+- `kind` : 
+    - `UserPass` : decode the authentication header, split into user and
+      password, then lookup the password in the provided map and compare it.
+    - `Token68` : don't bother decoding, the 'lookup' set is filled with
+      base64-encoded tokens, so a fast lookup is enough.
+
+Maps passed in as `Lookup` type must support `get([]const u8)`, and sets must
+support `contains([]const u8)`.
+
+## Bearer Authentication
+
+The `zap.BearerAuthSingle` Authenticator is a convenience-authenticator that
+takes a single auth token. If all you need is to protect your prototype with a
+token, this is the one you want to use.
+
+`zap.BearerAuthMulti` accepts a map (`Lookup`) that needs to support
+`contains([]const u8)`.
+
+## Request Authentication
+
+Here we describe how to authenticate requests from within your `on_request`
+callback.
+
+### Single-Token Bearer Authentication
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+const allocator = std.heap.page_allocator;
+const token = "hello, world";
+
+var auth = try zap.BearerAuthSingle.init(allocator, token, null);
+defer auth.deinit();
+
+
+fn on_request(r: zap.SimpleRequest) void {
+    if(authenticator.authenticateRequest(r)) {
+        r.sendBody(
+            \\ <html><body>
+            \\   <h1>Hello from ZAP!!!</h1>
+            \\ </body></html>
+        ) catch return;
+    } else {
+        r.setStatus(.unauthorized);
+        r.sendBody("UNAUTHORIZED") catch return;
+    }
+}
+```
+
+### Multi-Token Bearer Authentication
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+const allocator = std.heap.page_allocator;
+const token = "hello, world";
+
+const Set = std.StringHashMap(void);
+var set = Set.init(allocator); // set
+defer set.deinit();
+
+// insert auth tokens
+try set.put(token, {});
+
+var auth = try zap.BearerAuthMulti(Set).init(allocator, &set, null);
+defer auth.deinit();
+
+
+fn on_request(r: zap.SimpleRequest) void {
+    if(authenticator.authenticateRequest(r)) {
+        r.sendBody(
+            \\ <html><body>
+            \\   <h1>Hello from ZAP!!!</h1>
+            \\ </body></html>
+        ) catch return;
+    } else {
+        r.setStatus(.unauthorized);
+        r.sendBody("UNAUTHORIZED") catch return;
+    }
+}
+```
+
+### UserPass Basic Authentication
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+const allocator = std.heap.page_allocator;
+
+// create a set of User -> Pass entries
+const Map = std.StringHashMap([]const u8);
+var map = Map.init(allocator);
+defer map.deinit();
+
+// create user / pass entry
+const user = "Alladdin";
+const pass = "opensesame";
+try map.put(user, pass);
+
+// create authenticator
+const Authenticator = zap.BasicAuth(Map, .UserPass);
+var auth = try Authenticator.init(a, &map, null);
+defer auth.deinit();
+
+
+fn on_request(r: zap.SimpleRequest) void {
+    if(authenticator.authenticateRequest(r)) {
+        r.sendBody(
+            \\ <html><body>
+            \\   <h1>Hello from ZAP!!!</h1>
+            \\ </body></html>
+        ) catch return;
+    } else {
+        r.setStatus(.unauthorized);
+        r.sendBody("UNAUTHORIZED") catch return;
+    }
+}
+```
+
+
+### Token68 Basic Authentication
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+const allocator = std.heap.page_allocator;
+const token = "QWxhZGRpbjpvcGVuIHNlc2FtZQ==";
+
+// create a set of Token68 entries
+const Set = std.StringHashMap(void);
+var set = Set.init(allocator); // set
+defer set.deinit();
+try set.put(token, {});
+
+// create authenticator
+const Authenticator = zap.BasicAuth(Set, .Token68);
+var auth = try Authenticator.init(allocator, &set, null);
+defer auth.deinit();
+
+
+fn on_request(r: zap.SimpleRequest) void {
+    if(authenticator.authenticateRequest(r)) {
+        r.sendBody(
+            \\ <html><body>
+            \\   <h1>Hello from ZAP!!!</h1>
+            \\ </body></html>
+        ) catch return;
+    } else {
+        r.setStatus(.unauthorized);
+        r.sendBody("UNAUTHORIZED") catch return;
+    }
+}
+```
+
+## AuthenticatingEndpoint
+
+Here, we only show using one of the Authenticator types. See the tests for more
+examples.
+
+The `AuthenticatingEndpoint` honors `.unauthorized` in the endpoint settings, where you can pass in a callback to deal with unauthorized requests. If you leave it to `null`, the endpoint will automatically reply with a `401 - Unauthorized` response.
+
+The example below should make clear how to wrap an endpoint into an
+`AuthenticatingEndpoint`:
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+const a = std.heap.page_allocator;
+const token = "ABCDEFG";
+
+// authenticated requests go here
+fn endpoint_http_get(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    r.sendBody(HTTP_RESPONSE) catch return;
+    received_response = HTTP_RESPONSE;
+    zap.fio_stop();
+}
+
+// just for fun, we also catch the unauthorized callback
+fn endpoint_http_unauthorized(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    r.setStatus(.unauthorized);
+    r.sendBody("UNAUTHORIZED ACCESS") catch return;
+    std.debug.print("\nunauthorized\n", .{});
+    received_response = "UNAUTHORIZED";
+    zap.fio_stop();
+}
+
+
+// setup listener
+var listener = zap.SimpleEndpointListener.init(
+    a,
+    .{
+        .port = 3000,
+        .on_request = null,
+        .log = false,
+        .max_clients = 10,
+        .max_body_size = 1 * 1024,
+    },
+);
+defer listener.deinit();
+
+// create mini endpoint
+var ep = zap.SimpleEndpoint.init(.{
+    .path = "/test",
+    .get = endpoint_http_get,
+    .unauthorized = endpoint_http_unauthorized,
+});
+
+// create authenticator
+const Authenticator = zap.BearerAuthSingle;
+var authenticator = try Authenticator.init(a, token, null);
+defer authenticator.deinit();
+
+// create authenticating endpoint
+const BearerAuthEndpoint = zap.AuthenticatingEndpoint(Authenticator);
+var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
+
+try listener.addEndpoint(auth_ep.getEndpoint());
+
+listener.listen() catch {};
+std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+```
+
+

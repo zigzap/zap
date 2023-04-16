@@ -204,10 +204,10 @@ pub const BearerAuthSingle = struct {
 /// Errors:
 /// HTTP/1.1 401 Unauthorized
 /// WWW-Authenticate: Bearer realm="example", error="invalid_token", error_description="..."
-pub fn BearerAuthMulti(comptime T: type) type {
+pub fn BearerAuthMulti(comptime Lookup: type) type {
     return struct {
         allocator: std.mem.Allocator,
-        lookup: *T,
+        lookup: *Lookup,
         realm: ?[]const u8,
 
         const Self = @This();
@@ -215,7 +215,7 @@ pub fn BearerAuthMulti(comptime T: type) type {
         /// Creates a BasicAuth. `lookup` must implement `.get([]const u8) -> []const u8`
         /// to look up tokens
         /// if realm is provided (not null), a copy is taken -> call deinit() to clean up
-        pub fn init(allocator: std.mem.Allocator, lookup: *T, realm: ?[]const u8) !Self {
+        pub fn init(allocator: std.mem.Allocator, lookup: *Lookup, realm: ?[]const u8) !Self {
             return .{
                 .allocator = allocator,
                 .lookup = lookup,

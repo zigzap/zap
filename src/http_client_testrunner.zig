@@ -2,6 +2,8 @@ const std = @import("std");
 
 pub fn main() !void {
     const a = std.heap.page_allocator;
+
+    // Bearer Single
     var p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
         "http://127.0.0.1:3000/test",
@@ -22,6 +24,28 @@ pub fn main() !void {
 
     std.time.sleep(3 * std.time.ns_per_s);
 
+    // Bearer Multi
+    p = std.ChildProcess.init(&.{
+        "./zig-out/bin/http_client",
+        "http://127.0.0.1:3000/test",
+        "Bearer",
+        "ABCDEFG",
+    }, a);
+    _ = try p.spawnAndWait();
+
+    std.time.sleep(3 * std.time.ns_per_s);
+
+    p = std.ChildProcess.init(&.{
+        "./zig-out/bin/http_client",
+        "http://127.0.0.1:3000/test",
+        "Bearer",
+        "invalid",
+    }, a);
+    _ = try p.spawnAndWait();
+
+    std.time.sleep(3 * std.time.ns_per_s);
+
+    // Basic
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
         "http://127.0.0.1:3000/test",
