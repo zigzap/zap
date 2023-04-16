@@ -83,7 +83,12 @@ pub fn build(b: *std.build.Builder) !void {
         example_step.dependOn(&example_build_step.step);
     }
 
-    // http client for internal testing
+    //
+    // TOOLS & TESTING
+    //
+
+    // authenticating http client for internal testing
+    //
     var http_client_exe = b.addExecutable(.{
         .name = "http_client",
         .root_source_file = .{ .path = "./src/http_client.zig" },
@@ -96,7 +101,8 @@ pub fn build(b: *std.build.Builder) !void {
     const http_client_build_step = b.addInstallArtifact(http_client_exe);
     http_client_step.dependOn(&http_client_build_step.step);
 
-    // http client for internal testing
+    // test runner for auth tests
+    //
     var http_client_runner_exe = b.addExecutable(.{
         .name = "http_client_runner",
         .root_source_file = .{ .path = "./src/http_client_testrunner.zig" },
@@ -111,6 +117,7 @@ pub fn build(b: *std.build.Builder) !void {
     http_client_runner_exe.step.dependOn(&http_client_build_step.step);
 
     // tests
+    //
     const exe_tests = b.addTest(.{
         .root_source_file = .{ .path = "src/test_auth.zig" },
         .target = target,
@@ -120,9 +127,6 @@ pub fn build(b: *std.build.Builder) !void {
     exe_tests.addModule("zap", zap_module);
     exe_tests.step.dependOn(&http_client_runner_build_step.step);
 
-    // Similar to creating the run step earlier, this exposes a `test` step to
-    // the `zig build --help` menu, providing a way for the user to request
-    // running the unit tests.
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&exe_tests.step);
 }
