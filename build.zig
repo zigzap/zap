@@ -96,6 +96,20 @@ pub fn build(b: *std.build.Builder) !void {
     const http_client_build_step = b.addInstallArtifact(http_client_exe);
     http_client_step.dependOn(&http_client_build_step.step);
 
+    // http client for internal testing
+    var http_client_runner_exe = b.addExecutable(.{
+        .name = "http_client_runner",
+        .root_source_file = .{ .path = "./src/http_client_testrunner.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    var http_client_runner_step = b.step("http_client_runner", "Build the http_client test runner for internal testing");
+    http_client_runner_exe.linkLibrary(facil_dep.artifact("facil.io"));
+    http_client_runner_exe.addModule("zap", zap_module);
+    const http_client_runner_build_step = b.addInstallArtifact(http_client_runner_exe);
+    http_client_runner_step.dependOn(&http_client_runner_build_step.step);
+    http_client_runner_exe.step.dependOn(&http_client_build_step.step);
+
     // tests
     const exe_tests = b.addTest(.{
         .root_source_file = .{ .path = "src/test_auth.zig" },
@@ -104,7 +118,7 @@ pub fn build(b: *std.build.Builder) !void {
     });
     exe_tests.linkLibrary(facil_dep.artifact("facil.io"));
     exe_tests.addModule("zap", zap_module);
-    exe_tests.step.dependOn(&http_client_build_step.step);
+    exe_tests.step.dependOn(&http_client_runner_build_step.step);
 
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the user to request
