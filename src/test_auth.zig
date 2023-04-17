@@ -108,6 +108,7 @@ fn endpoint_http_get(e: *Endpoints.SimpleEndpoint, r: zap.SimpleRequest) void {
     _ = e;
     r.sendBody(HTTP_RESPONSE) catch return;
     received_response = HTTP_RESPONSE;
+    std.time.sleep(1 * std.time.ns_per_s);
     zap.fio_stop();
 }
 
@@ -117,6 +118,7 @@ fn endpoint_http_unauthorized(e: *Endpoints.SimpleEndpoint, r: zap.SimpleRequest
     r.sendBody("UNAUTHORIZED ACCESS") catch return;
     std.debug.print("\nunauthorized\n", .{});
     received_response = "UNAUTHORIZED";
+    std.time.sleep(1 * std.time.ns_per_s);
     zap.fio_stop();
 }
 

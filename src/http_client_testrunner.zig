@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const seconds_between_steps: usize = 3;
+
 pub fn main() !void {
     const a = std.heap.page_allocator;
 
@@ -12,7 +14,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
@@ -22,7 +24,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     // Bearer Multi
     p = std.ChildProcess.init(&.{
@@ -33,7 +35,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
@@ -43,7 +45,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     // Basic
     p = std.ChildProcess.init(&.{
@@ -54,7 +56,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
@@ -64,7 +66,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
@@ -74,7 +76,7 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    std.time.sleep(3 * std.time.ns_per_s);
+    std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 
     p = std.ChildProcess.init(&.{
         "./zig-out/bin/http_client",
@@ -84,5 +86,5 @@ pub fn main() !void {
     }, a);
     _ = try p.spawnAndWait();
 
-    // std.time.sleep(3 * std.time.ns_per_s);
+    // std.time.sleep(seconds_between_steps * std.time.ns_per_s);
 }
