@@ -119,15 +119,15 @@ pub fn build(b: *std.build.Builder) !void {
 
     // tests
     //
-    const exe_tests = b.addTest(.{
+    const auth_tests = b.addTest(.{
         .root_source_file = .{ .path = "src/test_auth.zig" },
         .target = target,
         .optimize = optimize,
     });
-    exe_tests.linkLibrary(facil_dep.artifact("facil.io"));
-    exe_tests.addModule("zap", zap_module);
-    exe_tests.step.dependOn(&http_client_runner_build_step.step);
+    auth_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    auth_tests.addModule("zap", zap_module);
+    auth_tests.step.dependOn(&http_client_runner_build_step.step);
 
     const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&exe_tests.step);
+    test_step.dependOn(&auth_tests.step);
 }
