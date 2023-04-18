@@ -21,15 +21,15 @@ pub fn main() !void {
         },
     );
 
-    Endpoint.init(allocator, "/users");
+    var endpoint = Endpoint.init(allocator, "/users");
 
     // add endpoint
-    try listener.addEndpoint(Endpoint.getUserEndpoint());
+    try listener.addEndpoint(endpoint.getUserEndpoint());
 
     // fake some users
     var uid: usize = undefined;
-    uid = try Endpoint.getUsers().addByName("renerocksai", null);
-    uid = try Endpoint.getUsers().addByName("renerocksai", "your mom");
+    uid = try endpoint.getUsers().addByName("renerocksai", null);
+    uid = try endpoint.getUsers().addByName("renerocksai", "your mom");
 
     // listen
     try listener.listen();
