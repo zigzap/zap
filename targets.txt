@@ -6,3 +6,4 @@ hello_json
 endpoint
 wrk
 mustache
+endpoint_auth
