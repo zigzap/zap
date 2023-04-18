@@ -12,7 +12,7 @@ if [ "$SUBJECT" = "" ] ; then
 fi
 
 if [ "$SUBJECT" = "zig" ] ; then
-    zig build -Drelease-fast wrk > /dev/null
+    zig build -Doptimize=ReleaseFast wrk > /dev/null
     ./zig-out/bin/wrk &
     PID=$!
     URL=http://127.0.0.1:3000
