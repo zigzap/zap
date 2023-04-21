@@ -134,22 +134,6 @@ To add zap to `build.zig.zon`:
 }
 ```
 
-**Note 2**: You can change the URL above to the latest commit of `zap`. You can
-always check zap's [build.zig.zon](./build.zig.zon) file to check what the
-latest version of zap is. If you do change the `.url` field, you will get an
-error like this at the next attempt to `zig build`:
-
-``` 
-.../build.zig.zon:8:21: error: hash mismatch: 
-expected: 12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049, 
-found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424 
-.hash = "12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049",
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-```
-
-With the new URL, the old hash in the `build.zig` is no longer valid. You need
-to take the hash value displayed after `found: ` as the `.hash` value in
-`build.zig.zon`.
 
 Then, in your `build.zig`'s `build` function, add the following before
 `exe.install()`:
@@ -165,6 +149,38 @@ Then, in your `build.zig`'s `build` function, add the following before
 
 From then on, you can use the zap package in your project. Check out the
 examples to see how to use zap.
+
+
+## Updating your project to the latest version of zap
+
+You can change the URL to zap in your `build.zig.zon` 
+
+- to the latest commit of `zap`
+- or to one of the tagged versions, e.g. `0.0.9`
+
+Go to [to the tags page](https://github.com/zigzap/zap/tags) to view all
+available tagged versions of zap. From there, right click on the `tar.gz` link
+to copy the URL to put into your `build.zig.zon`.
+
+After changing the `.url` field, you will get an error like this at the next
+attempt to `zig build`:
+
+``` 
+.../build.zig.zon:8:21: error: hash mismatch: 
+expected: 12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049, 
+found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424 
+.hash = "12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049",
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+```
+
+**Note:** If you don't get this error, clean your global zig cache: `rm -fr
+~/.cache/zig`.
+
+With the new URL, the old hash in the `build.zig.zon` is no longer valid. You
+need to take the hash value displayed after `found: ` in the error message as
+the `.hash` value in `build.zig.zon`.
+
+I'll try to make this easier with GitHub releases, providing URL and hash there.
 
 ## Contribute to ⚡zap⚡ - blazingly fast
 
