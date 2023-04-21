@@ -134,7 +134,6 @@ To add zap to `build.zig.zon`:
 }
 ```
 
-
 Then, in your `build.zig`'s `build` function, add the following before
 `exe.install()`:
 
@@ -155,8 +154,21 @@ examples to see how to use zap.
 
 You can change the URL to zap in your `build.zig.zon` 
 
-- to the latest commit of `zap`
+- easiest: use a tagged release
 - or to one of the tagged versions, e.g. `0.0.9`
+- or to the latest commit of `zap`
+
+### Using a tagged release
+
+Go to the [release page](https://github.com/zigzap/zap/releases). Every release
+will state its version number and also provide instructions for changing
+`build.zig.zon` and `build.zig`.
+
+**Note:** I noticed, for Zap version updates to work with the version of Zig I'm
+currently using, I have to erase Zig's global cache after updating my
+`build.zig.zon`: `rm -fr ~/.cache/zig` 
+
+### Using a tagged version
 
 Go to [to the tags page](https://github.com/zigzap/zap/tags) to view all
 available tagged versions of zap. From there, right click on the `tar.gz` link
@@ -180,7 +192,17 @@ With the new URL, the old hash in the `build.zig.zon` is no longer valid. You
 need to take the hash value displayed after `found: ` in the error message as
 the `.hash` value in `build.zig.zon`.
 
-I'll try to make this easier with GitHub releases, providing URL and hash there.
+
+### Using an arbitrary (last) commit
+
+Use the same workflow as above for tags, excpept for the URL, use this schema:
+
+```zig
+.url = "https://github.com/zigzap/zap/archive/[COMMIT-HASH].tar.gz",
+```
+
+Replace `[COMMIT-HASH]` with the full commit hash as provided, e.g. by `git
+log`.
 
 ## Contribute to ⚡zap⚡ - blazingly fast
 
