@@ -29,6 +29,10 @@ pub fn init(a: std.mem.Allocator) Self {
     };
 }
 
+pub fn deinit(self: *Self) void {
+    self.users.deinit();
+}
+
 // the request will be freed (and its mem reused by facilio) when it's
 // completed, so we take copies of the names
 pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {

@@ -28,6 +28,10 @@ pub fn init(
     };
 }
 
+pub fn deinit(self: *Self) void {
+    self.users.deinit();
+}
+
 pub fn getUsers(self: *Self) *Users {
     return &self.users;
 }

@@ -160,9 +160,6 @@ pub const EndpointListenerError = error{
     EndpointPathShadowError,
 };
 
-// var endpoints: std.StringHashMap(*SimpleEndpoint) = undefined;
-var endpoints: std.ArrayList(*SimpleEndpoint) = undefined;
-
 // NOTE: We switch on path.startsWith -> so use endpoints with distinctly
 // starting names!!
 pub const SimpleEndpointListener = struct {
@@ -171,10 +168,15 @@ pub const SimpleEndpointListener = struct {
 
     const Self = @This();
 
+    /// static struct member endpoints
+    var endpoints: std.ArrayList(*SimpleEndpoint) = undefined;
+
     pub fn init(a: std.mem.Allocator, l: ListenerSettings) Self {
-        var ls = l;
-        ls.on_request = onRequest;
         endpoints = std.ArrayList(*SimpleEndpoint).init(a);
+
+        var ls = l; // take copy of listener settings
+        ls.on_request = onRequest;
+
         return .{
             .listener = Listener.init(ls),
             .allocator = a,
@@ -186,11 +188,11 @@ pub const SimpleEndpointListener = struct {
         endpoints.deinit();
     }
 
-    pub fn listen(self: *SimpleEndpointListener) !void {
+    pub fn listen(self: *Self) !void {
         try self.listener.listen();
     }
 
-    pub fn addEndpoint(self: *SimpleEndpointListener, e: *SimpleEndpoint) !void {
+    pub fn addEndpoint(self: *Self, e: *SimpleEndpoint) !void {
         _ = self;
         for (endpoints.items) |other| {
             if (std.mem.startsWith(

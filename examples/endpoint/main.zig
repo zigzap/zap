@@ -20,8 +20,10 @@ pub fn main() !void {
             .max_body_size = 100 * 1024 * 1024,
         },
     );
+    defer listener.deinit();
 
     var endpoint = Endpoint.init(allocator, "/users");
+    defer endpoint.deinit();
 
     // add endpoint
     try listener.addEndpoint(endpoint.getUserEndpoint());
