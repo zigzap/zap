@@ -126,14 +126,30 @@ To add zap to `build.zig.zon`:
 
     .dependencies = .{
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/cd48038ae6dec7d3c54efdf780ccf5946691379f.tar.gz",
-            .hash = "1220e0648ff7ba063ec0c4381efcf051eea20675f373ad87faac0688140fc400c16f",
+            // zap 0.0.8
+            .url = "https://github.com/zigzap/zap/archive/b197fb5ff7f46d2ab2dde893e81985ef3188973f.tar.gz",
+            .hash = "1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424",
         }
     }
 }
 ```
 
-**Note 2**: change the URL to the latest commit of `zap`!
+**Note 2**: You can change the URL above to the latest commit of `zap`. You can
+always check zap's [build.zig.zon](./build.zig.zon) file to check what the
+latest version of zap is. If you do change the `.url` field, you will get an
+error like this at the next attempt to `zig build`:
+
+``` 
+.../build.zig.zon:8:21: error: hash mismatch: 
+expected: 12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049, 
+found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424 
+.hash = "12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049",
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+```
+
+With the new URL, the old hash in the `build.zig` is no longer valid. You need
+to take the hash value displayed after `found: ` as the `.hash` value in
+`build.zig.zon`.
 
 Then, in your `build.zig`'s `build` function, add the following before
 `exe.install()`:
