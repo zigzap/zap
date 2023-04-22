@@ -125,10 +125,10 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
+        // zap 0.0.11
         .zap = .{
-            // zap 0.0.9
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.9.tar.gz",
-            .hash = "122037f519825a7fa26fd0be936eb638789b8bf208741ce7aa64e42ea4deefed3529",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.11.tar.gz",
+            .hash = "12201e0b2a2a7b034f0dd70326aeb9e23630f802be2d07d2ccede7c9629db0f71737",
         }
     }
 }
@@ -148,6 +148,21 @@ Then, in your `build.zig`'s `build` function, add the following before
 
 From then on, you can use the zap package in your project. Check out the
 examples to see how to use zap.
+
+### Please note: latest zig master
+
+Latest zig-master has problems handling the recent GitHub 
+redirects to `codeload.github.com`. My work-around for this is as follows:
+
+```console
+$ wget https://github.com/zigzap/zap/archive/refs/tags/release-0.0.11.tar.gz
+$ python -m http.server 
+```
+
+This hosts the downloaded tar file on
+`http://localhost:8000/release-0.0.11.tar.gz`, so use this in the `.url` field
+in `build.zig.zon` until the problem is fixed. After the first `zig build`, you
+can stop the python http server with <kbd>CTRL</kbd>+<kbd>C</kbd>.
 
 
 ## Updating your project to the latest version of zap
