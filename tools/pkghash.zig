@@ -196,7 +196,11 @@ pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
         }
     }
 
-    defer gpa.free(git_tag.?);
+    errdefer {
+        if (git_tag) |g| {
+            gpa.free(g);
+        }
+    }
 
     const hash = blk: {
         const result = try gitFileList(gpa, cwd_absolute_path);
@@ -221,6 +225,9 @@ pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
         try std_out.writeAll("\n");
     } else {
         try renderTemplate(gpa, git_tag.?, template_filn.?, digest_slice);
+    }
+    if (git_tag) |g| {
+        gpa.free(g);
     }
 }
 
