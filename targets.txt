@@ -7,3 +7,4 @@ endpoint
 wrk
 mustache
 endpoint_auth
+pkghash

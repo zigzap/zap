@@ -29,9 +29,12 @@ pub fn build(b: *std.build.Builder) !void {
     });
 
     facil_lib.linkLibrary(facil_dep.artifact("facil.io"));
-    // facil_lib.install();
-    const unused_facil_install_step = b.addInstallArtifact(facil_lib);
-    _ = unused_facil_install_step;
+
+    // we install the facil dependency, just to see what it's like
+    // zig build with the default (install) step will install it
+    facil_lib.installLibraryHeaders(facil_dep.artifact("facil.io"));
+    const facil_install_step = b.addInstallArtifact(facil_lib);
+    b.getInstallStep().dependOn(&facil_install_step.step);
 
     inline for ([_]struct {
         name: []const u8,
@@ -89,36 +92,6 @@ pub fn build(b: *std.build.Builder) !void {
     //
     // TOOLS & TESTING
     //
-
-    // authenticating http client for internal testing
-    // (facil.io based, not used anymore)
-    //
-    var http_client_exe = b.addExecutable(.{
-        .name = "http_client",
-        .root_source_file = .{ .path = "./src/http_client.zig" },
-        .target = target,
-        .optimize = optimize,
-    });
-    var http_client_step = b.step("http_client", "Build the http_client for internal testing");
-    http_client_exe.linkLibrary(facil_dep.artifact("facil.io"));
-    http_client_exe.addModule("zap", zap_module);
-    const http_client_build_step = b.addInstallArtifact(http_client_exe);
-    http_client_step.dependOn(&http_client_build_step.step);
-
-    // test runner for auth tests
-    //
-    var http_client_runner_exe = b.addExecutable(.{
-        .name = "http_client_runner",
-        .root_source_file = .{ .path = "./src/http_client_testrunner.zig" },
-        .target = target,
-        .optimize = optimize,
-    });
-    var http_client_runner_step = b.step("http_client_runner", "Build the http_client test runner for internal testing");
-    http_client_runner_exe.linkLibrary(facil_dep.artifact("facil.io"));
-    http_client_runner_exe.addModule("zap", zap_module);
-    const http_client_runner_build_step = b.addInstallArtifact(http_client_runner_exe);
-    http_client_runner_step.dependOn(&http_client_runner_build_step.step);
-    http_client_runner_exe.step.dependOn(&http_client_build_step.step);
 
     // tests
     //
