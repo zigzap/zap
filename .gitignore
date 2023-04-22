@@ -1,2 +1,5 @@
 zig-out/
 zig-cache/
+*.tar.gz
+flake.lock.bak
+tmp/
