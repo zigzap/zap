@@ -619,4 +619,6 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
+
+    std.debug.print("\n\nFINISHED!", .{});
 }

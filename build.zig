@@ -129,12 +129,17 @@ pub fn build(b: *std.build.Builder) !void {
     });
     auth_tests.linkLibrary(facil_dep.artifact("facil.io"));
     auth_tests.addModule("zap", zap_module);
-    auth_tests.step.dependOn(&http_client_runner_build_step.step);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
+    // TODO: for some reason, tests aren't run more than once unless
+    //       dependencies have changed.
+    //       So, for now, we just force the exe to be built, so in order that
+    //       we can call it again when needed.
+    const install_auth_tests = b.addInstallArtifact(auth_tests);
 
-    const test_step = b.step("test", "Run unit tests");
+    const test_step = b.step("test", "Run unit tests [REMOVE zig-cache!]");
     test_step.dependOn(&run_auth_tests.step);
+    test_step.dependOn(&install_auth_tests.step);
 
     // pkghash
     //
