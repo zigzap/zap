@@ -154,15 +154,35 @@ examples to see how to use zap.
 Latest zig-master has problems handling the recent GitHub 
 redirects to `codeload.github.com`. My work-around for this is as follows:
 
+Change your `build.zig.zon` zap dependency to localhost:
+
+```zig
+.{
+    .name = "My example project",
+    .version = "0.0.1",
+
+    .dependencies = .{
+        // zap release-0.0.11-localhost
+        .zap = .{
+            .url = "http://127.0.0.1:8000/release-0.0.11-localhost.tar.gz",
+            .hash = "122072531b7983335abffa3f9e66cc7f3153e4a697d3c332ed3811495eb1c75ab3f0",
+        }
+    }
+}
+```
+
 ```console
-$ wget https://github.com/zigzap/zap/archive/refs/tags/release-0.0.11.tar.gz
+$ # get dependency required by zap
+$ wget https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.7.tar.gz
+$ # get zap itself
+$ wget https://github.com/zigzap/zap/archive/refs/tags/release-0.0.11-localhost.tar.gz
+$ # start a http server on port 8000
 $ python -m http.server 
 ```
 
-This hosts the downloaded tar file on
-`http://localhost:8000/release-0.0.11.tar.gz`, so use this in the `.url` field
-in `build.zig.zon` until the problem is fixed. After the first `zig build`, you
-can stop the python http server with <kbd>CTRL</kbd>+<kbd>C</kbd>.
+This hosts the downloaded dependencies locally on port 8000. After the first
+`zig build`, you can stop the python http server with
+<kbd>CTRL</kbd>+<kbd>C</kbd>.
 
 
 ## Updating your project to the latest version of zap
