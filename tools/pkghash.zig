@@ -13,6 +13,9 @@ const Manifest = @import("Manifest.zig");
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
 
+/// 1MB git output
+const MAX_GIT_OUTPUT = 1024 * 1024;
+
 pub fn fatal(comptime format: []const u8, args: anytype) noreturn {
     std.log.err(format, args);
     process.exit(1);
@@ -26,29 +29,94 @@ pub fn main() !void {
     const arena = arena_instance.allocator();
 
     const args = try process.argsAlloc(arena);
+
+    const command_arg = args[0];
+    _ = command_arg;
+
+    if (args.len > 1) {
+        const arg1 = args[1];
+        if (mem.eql(u8, arg1, "-h") or mem.eql(u8, arg1, "--help")) {
+            const stdout = io.getStdOut().writer();
+            try stdout.writeAll(usage_pkg);
+            return;
+        }
+        if (mem.eql(u8, arg1, "-g") or mem.eql(u8, arg1, "--git")) {
+            try cmdPkgGit(gpa, args);
+            return;
+        }
+    }
+
     try cmdPkg(gpa, arena, args);
 }
+
 pub const usage_pkg =
-    \\Usage: zig pkg [command] [options]
+    \\Usage: pkghash [options]
     \\
     \\Options: 
     \\  -h --help           Print this help and exit.
+    \\  -g --git            Use git ls-files
     \\
-    \\Sub-options for [hash]:
+    \\Sub-options: 
     \\  --allow-directory : calc hash even if no build.zig is present
     \\  
 ;
 
+pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
+    const result = try std.ChildProcess.exec(.{
+        .allocator = gpa,
+        .argv = &.{
+            "git",
+            "-C",
+            pkg_dir,
+            "ls-files",
+        },
+        .cwd = pkg_dir,
+        // cwd_dir: ?fs.Dir = null,
+        // env_map: ?*const EnvMap = null,
+        // max_output_bytes: usize = 50 * 1024,
+        // expand_arg0: Arg0Expand = .no_expand,
+    });
+    defer gpa.free(result.stderr);
+    const retcode = switch (result.term) {
+        .Exited => |exitcode| exitcode,
+        else => return error.GitError,
+    };
+    if (retcode != 0) return error.GitError;
+
+    return result.stdout;
+}
+
+pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
+    if (args.len == 0) fatal("Expected at least one argument.\n", .{});
+
+    const cwd = std.fs.cwd();
+
+    const hash = blk: {
+        const cwd_absolute_path = try cwd.realpathAlloc(gpa, ".");
+        defer gpa.free(cwd_absolute_path);
+
+        const result = try gitFileList(gpa, cwd_absolute_path);
+        defer gpa.free(result);
+
+        var thread_pool: ThreadPool = undefined;
+        try thread_pool.init(.{ .allocator = gpa });
+        defer thread_pool.deinit();
+
+        break :blk try computePackageHashForFileList(
+            &thread_pool,
+            cwd,
+            result,
+        );
+    };
+
+    const std_out = std.io.getStdOut();
+    const digest = Manifest.hexDigest(hash);
+    try std_out.writeAll(digest[0..]);
+    try std_out.writeAll("\n");
+}
+
 pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void {
     _ = arena;
-    if (args.len == 0) fatal("Expected at least one argument.\n", .{});
-    const command_arg = args[0];
-
-    if (mem.eql(u8, command_arg, "-h") or mem.eql(u8, command_arg, "--help")) {
-        const stdout = io.getStdOut().writer();
-        try stdout.writeAll(usage_pkg);
-        return;
-    }
 
     const cwd = std.fs.cwd();
 
@@ -213,6 +281,64 @@ pub fn computePackageHashExcludingDirectories(
             try thread_pool.spawn(workerHashFile, .{ pkg_dir.dir, hashed_file, &wait_group });
 
             try all_files.append(hashed_file);
+        }
+    }
+
+    std.sort.sort(*HashedFile, all_files.items, {}, HashedFile.lessThan);
+
+    var hasher = Manifest.Hash.init(.{});
+    var any_failures = false;
+    for (all_files.items) |hashed_file| {
+        hashed_file.failure catch |err| {
+            any_failures = true;
+            std.log.err("unable to hash '{s}': {s}", .{ hashed_file.fs_path, @errorName(err) });
+        };
+        // std.debug.print("{s} : {s}\n", .{ hashed_file.normalized_path, Manifest.hexDigest(hashed_file.hash) });
+        hasher.update(&hashed_file.hash);
+    }
+    if (any_failures) return error.PackageHashUnavailable;
+    return hasher.finalResult();
+}
+
+pub fn computePackageHashForFileList(
+    thread_pool: *ThreadPool,
+    pkg_dir: fs.Dir,
+    file_list: []const u8,
+) ![Manifest.Hash.digest_length]u8 {
+    const gpa = thread_pool.allocator;
+
+    // We'll use an arena allocator for the path name strings since they all
+    // need to be in memory for sorting.
+    var arena_instance = std.heap.ArenaAllocator.init(gpa);
+    defer arena_instance.deinit();
+    const arena = arena_instance.allocator();
+
+    // Collect all files, recursively, then sort.
+    var all_files = std.ArrayList(*HashedFile).init(gpa);
+    defer all_files.deinit();
+    {
+        // The final hash will be a hash of each file hashed independently. This
+        // allows hashing in parallel.
+        var wait_group: WaitGroup = .{};
+        defer wait_group.wait();
+
+        var it = std.mem.split(u8, file_list, "\n");
+
+        while (it.next()) |entry| {
+            if (entry.len > 0) {
+                const hashed_file = try arena.create(HashedFile);
+                const fs_path = try arena.dupe(u8, entry);
+                hashed_file.* = .{
+                    .fs_path = fs_path,
+                    .normalized_path = try normalizePath(arena, fs_path),
+                    .hash = undefined, // to be populated by the worker
+                    .failure = undefined, // to be populated by the worker
+                };
+                wait_group.start();
+                try thread_pool.spawn(workerHashFile, .{ pkg_dir, hashed_file, &wait_group });
+
+                try all_files.append(hashed_file);
+            }
         }
     }
 
