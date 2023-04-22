@@ -14,7 +14,7 @@ const Manifest = @import("Manifest.zig");
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
 
 /// 1MB git output
-const MAX_GIT_OUTPUT = 1024 * 1024;
+const MAX_TEMPLATE_SIZE = 1024 * 1024;
 
 pub fn fatal(comptime format: []const u8, args: anytype) noreturn {
     std.log.err(format, args);
@@ -36,8 +36,7 @@ pub fn main() !void {
     if (args.len > 1) {
         const arg1 = args[1];
         if (mem.eql(u8, arg1, "-h") or mem.eql(u8, arg1, "--help")) {
-            const stdout = io.getStdOut().writer();
-            try stdout.writeAll(usage_pkg);
+            try showHelp();
             return;
         }
         if (mem.eql(u8, arg1, "-g") or mem.eql(u8, arg1, "--git")) {
@@ -49,6 +48,11 @@ pub fn main() !void {
     try cmdPkg(gpa, arena, args);
 }
 
+fn showHelp() !void {
+    const stdout = io.getStdOut().writer();
+    try stdout.writeAll(usage_pkg);
+}
+
 pub const usage_pkg =
     \\Usage: pkghash [options]
     \\
@@ -58,7 +62,12 @@ pub const usage_pkg =
     \\
     \\Sub-options: 
     \\  --allow-directory : calc hash even if no build.zig is present
-    \\  
+    \\                      applies in no-git mode only
+    \\
+    \\Sub-options for --git: 
+    \\  NOTE                 : if used, BOTH sub-options must be provided!
+    \\  --tag=<tag>          : specify git tag to use in template
+    \\  --template=<file.md> : specify markdown template to render
 ;
 
 pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
@@ -89,6 +98,57 @@ pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
 pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
     if (args.len == 0) fatal("Expected at least one argument.\n", .{});
 
+    var do_render_template = false;
+    var template_filn: ?[]const u8 = null;
+    var git_tag: ?[]const u8 = null;
+
+    const arg_tag = "--tag=";
+    const arg_template = "--template=";
+    for (args) |arg| {
+        if (std.mem.startsWith(u8, arg, arg_tag)) {
+            if (arg.len > arg_tag.len) {
+                git_tag = arg[arg_tag.len..];
+                do_render_template = true;
+            } else {
+                std.debug.print(
+                    \\Error: --tag=... requires a tag after the =
+                , .{});
+                try showHelp();
+                return;
+            }
+        }
+
+        if (std.mem.startsWith(u8, arg, arg_template)) {
+            if (arg.len > arg_template.len) {
+                template_filn = arg[arg_template.len..];
+                do_render_template = true;
+            } else {
+                std.debug.print(
+                    \\Error: --template=... requires a filename after the =
+                , .{});
+                try showHelp();
+                return;
+            }
+        }
+    }
+    if (do_render_template) {
+        if (template_filn == null) {
+            std.debug.print(
+                \\Error: if --tag=... is provided, --template= must be provided, too!
+                \\Use -h for help
+            , .{});
+            try showHelp();
+            return;
+        }
+        if (git_tag == null) {
+            std.debug.print(
+                \\Error: if --template=... is provided, --tag= must be provided, too!
+                \\Use -h for help
+            , .{});
+            try showHelp();
+            return;
+        }
+    }
     const cwd = std.fs.cwd();
 
     const hash = blk: {
@@ -111,8 +171,24 @@ pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
 
     const std_out = std.io.getStdOut();
     const digest = Manifest.hexDigest(hash);
-    try std_out.writeAll(digest[0..]);
-    try std_out.writeAll("\n");
+    const digest_slice = digest[0..];
+    if (!do_render_template) {
+        try std_out.writeAll(digest_slice);
+        try std_out.writeAll("\n");
+    } else {
+        try renderTemplate(gpa, git_tag.?, template_filn.?, digest_slice);
+    }
+}
+
+fn renderTemplate(gpa: std.mem.Allocator, tag: []const u8, template: []const u8, hash: []const u8) !void {
+    const contents = try std.fs.cwd().readFileAlloc(gpa, template, MAX_TEMPLATE_SIZE);
+    defer gpa.free(contents);
+    const s1 = try std.mem.replaceOwned(u8, gpa, contents, "{tag}", tag);
+    defer gpa.free(s1);
+    const s2 = try std.mem.replaceOwned(u8, gpa, s1, "{hash}", hash);
+    defer gpa.free(s2);
+
+    std.debug.print("{s}\n", .{s2});
 }
 
 pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void {
