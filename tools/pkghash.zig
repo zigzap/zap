@@ -65,10 +65,36 @@ pub const usage_pkg =
     \\                      applies in no-git mode only
     \\
     \\Sub-options for --git: 
-    \\  NOTE                 : if used, BOTH sub-options must be provided!
     \\  --tag=<tag>          : specify git tag to use in template
+    \\                         defaults to tag pointing to HEAD
     \\  --template=<file.md> : specify markdown template to render
 ;
+
+pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
+    const result = try std.ChildProcess.exec(.{
+        .allocator = gpa,
+        .argv = &.{
+            "git",
+            "-C",
+            pkg_dir,
+            "tag",
+            "--contains=HEAD",
+        },
+        .cwd = pkg_dir,
+        // cwd_dir: ?fs.Dir = null,
+        // env_map: ?*const EnvMap = null,
+        // max_output_bytes: usize = 50 * 1024,
+        // expand_arg0: Arg0Expand = .no_expand,
+    });
+    defer gpa.free(result.stderr);
+    const retcode = switch (result.term) {
+        .Exited => |exitcode| exitcode,
+        else => return error.GitError,
+    };
+    if (retcode != 0) return error.GitError;
+
+    return result.stdout;
+}
 
 pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
     const result = try std.ChildProcess.exec(.{
@@ -98,6 +124,10 @@ pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
 pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
     if (args.len == 0) fatal("Expected at least one argument.\n", .{});
 
+    const cwd = std.fs.cwd();
+    const cwd_absolute_path = try cwd.realpathAlloc(gpa, ".");
+    defer gpa.free(cwd_absolute_path);
+
     var do_render_template = false;
     var template_filn: ?[]const u8 = null;
     var git_tag: ?[]const u8 = null;
@@ -107,7 +137,7 @@ pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
     for (args) |arg| {
         if (std.mem.startsWith(u8, arg, arg_tag)) {
             if (arg.len > arg_tag.len) {
-                git_tag = arg[arg_tag.len..];
+                git_tag = try gpa.dupe(u8, arg[arg_tag.len..]);
                 do_render_template = true;
             } else {
                 std.debug.print(
@@ -141,20 +171,34 @@ pub fn cmdPkgGit(gpa: Allocator, args: []const []const u8) !void {
             return;
         }
         if (git_tag == null) {
-            std.debug.print(
-                \\Error: if --template=... is provided, --tag= must be provided, too!
-                \\Use -h for help
-            , .{});
-            try showHelp();
-            return;
+            // try to get the latest tag
+            if (gitLatestTag(gpa, cwd_absolute_path)) |tag_slice| {
+                // strip \n
+                defer gpa.free(tag_slice);
+                if (tag_slice.len > 1) {
+                    git_tag = try gpa.dupe(u8, tag_slice[0 .. tag_slice.len - 1]);
+                } else {
+                    std.debug.print(
+                        \\Error: could not deduce git tag! Provide --tag=
+                        \\Use -h for help
+                    , .{});
+                    try showHelp();
+                    return;
+                }
+            } else |_| {
+                std.debug.print(
+                    \\Error: if --template=... is provided, --tag= must be provided, too!
+                    \\Use -h for help
+                , .{});
+                try showHelp();
+                return;
+            }
         }
     }
-    const cwd = std.fs.cwd();
+
+    defer gpa.free(git_tag.?);
 
     const hash = blk: {
-        const cwd_absolute_path = try cwd.realpathAlloc(gpa, ".");
-        defer gpa.free(cwd_absolute_path);
-
         const result = try gitFileList(gpa, cwd_absolute_path);
         defer gpa.free(result);
 
