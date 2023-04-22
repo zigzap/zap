@@ -4,8 +4,16 @@
 
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://github.com/zigzap/facil.io/archive/64a3fb6d66225d3ff6194e84623eb9d48bc3b6fb.tar.gz",
-            .hash = "1220da26a9450eb75ecdb93b5dd3dabfea53053734cb68c748f0426d445179bc7c92",
+            // temp workaround until zig's fetch is fixed, supporting GH's redirects 
+            .url = "http://localhost:8000/zap-0.0.7.tar.gz",
+
+            // this is how it should be:
+            //.url = "https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.7.tar.gz",
+            .hash = "1220d03e0579bbb726efb8224ea289b26227bc421158b45c1b16a60b31bfa400ab33",
+            // our tool says:
+            //.hash = "1220bbc4738c846f3253ae98e1848514f2ed1f02ecc1c7a62076b6508f449e9b5f66",
+
+
         }
     }
 }

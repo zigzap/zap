@@ -122,66 +122,44 @@ fn endpoint_http_unauthorized(e: *Endpoints.SimpleEndpoint, r: zap.SimpleRequest
 //
 // http client code for in-process sending of http request
 //
-fn setHeader(h: [*c]fio.http_s, name: []const u8, value: []const u8) !void {
-    const hname: fio.fio_str_info_s = .{
-        .data = util.toCharPtr(name),
-        .len = name.len,
-        .capa = name.len,
-    };
 
-    const vname: fio.fio_str_info_s = .{
-        .data = util.toCharPtr(value),
-        .len = value.len,
-        .capa = value.len,
-    };
-    const ret = fio.http_set_header2(h, hname, vname);
+const ClientAuthReqHeaderFields = struct {
+    auth: Authenticators.AuthScheme,
+    token: []const u8,
+};
 
-    if (ret == 0) return;
-    return zap.HttpError.HttpSetHeader;
-}
+fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !void {
+    const uri = try std.Uri.parse(url);
 
-fn sendRequest() void {
-    const ret = zap.http_connect("http://127.0.0.1:3000/test", null, .{
-        .on_response = on_response,
-        .on_request = null,
-        .on_upgrade = null,
-        .on_finish = null,
-        .udata = null,
-        .public_folder = null,
-        .public_folder_length = 0,
-        .max_header_size = 32 * 1024,
-        .max_body_size = 500 * 1024,
-        .max_clients = 1,
-        .tls = null,
-        .reserved1 = 0,
-        .reserved2 = 0,
-        .reserved3 = 0,
-        .ws_max_msg_size = 0,
-        .timeout = 5,
-        .ws_timeout = 0,
-        .log = 0,
-        .is_client = 1,
-    });
-    // _ = ret;
-    std.debug.print("\nret = {d}\n", .{ret});
-    zap.fio_start(.{ .threads = 1, .workers = 1 });
-}
+    var h = std.http.Headers{ .allocator = a };
+    defer h.deinit();
 
-fn on_response(r: [*c]fio.http_s) callconv(.C) void {
-    // the first time around, we need to complete the request. E.g. set headers.
-    if (r.*.status_str == zap.FIOBJ_INVALID) {
-        setHeader(r, "Authorization", "Bearer ABCDEFG") catch return;
-        zap.http_finish(r);
-        return;
+    if (auth) |auth_fields| {
+        const authstring = try std.fmt.allocPrint(a, "{s}{s}", .{ auth_fields.auth.str(), auth_fields.token });
+        defer a.free(authstring);
+        try h.append(auth_fields.auth.headerFieldStrHeader(), authstring);
     }
-    const response = zap.http_req2str(r);
-    if (zap.fio2str(response)) |body| {
-        std.debug.print("{s}\n", .{body});
-    } else {
-        std.debug.print("Oops\n", .{});
-    }
+
+    var http_client: std.http.Client = .{ .allocator = a };
+    defer http_client.deinit();
+
+    var req = try http_client.request(.GET, uri, h, .{});
+    defer req.deinit();
+
+    try req.start();
+    try req.do();
+    // var br = std.io.bufferedReaderSize(std.crypto.tls.max_ciphertext_record_len, req.reader());
+    // var buffer: [1024]u8 = undefined;
+    // we know we won't receive a lot
+    // const len = try br.reader().readAll(&buffer);
+    // std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
     zap.fio_stop();
 }
+
+fn makeRequestThread(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, url, auth });
+}
+
 //
 // end of http client code
 //
@@ -189,32 +167,6 @@ fn on_response(r: [*c]fio.http_s) callconv(.C) void {
 test "BearerAuthSingle authenticateRequest OK" {
     const a = std.testing.allocator;
     const token = "ABCDEFG";
-
-    //
-    // Unfortunately, spawning a child process confuses facilio:
-    //
-    // 1. attempt: spawn curl process before we start facilio threads
-    // this doesn't work: facilio doesn't start up if we spawn a child process
-    // var p = std.ChildProcess.init(&.{
-    //     "bash",
-    //     "-c",
-    //     "sleep 10; curl -H \"Authorization: Bearer\"" ++ token ++ " http://localhost:3000/test -v",
-    // }, a);
-    // try p.spawn();
-
-    // 2. attempt:
-    // our custom client doesn't work either
-    // var p = std.ChildProcess.init(&.{
-    //     "bash",
-    //     "-c",
-    //     "sleep 3; ./zig-out/bin/http_client &",
-    // }, a);
-    // try p.spawn();
-    // std.debug.print("done spawning\n", .{});
-
-    // 3. attempt: sending the request in-process
-    // this doesn't work either because facilio wants to be either server or client, gets confused, at least when we're doing it this way
-    // sendRequest();
 
     // setup listener
     var listener = zap.SimpleEndpointListener.init(
@@ -248,10 +200,13 @@ test "BearerAuthSingle authenticateRequest OK" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("\n\n*******************************************\n", .{});
-    std.debug.print("\n\nPlease run the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client_runner\n", .{});
-    std.debug.print("\n\n*******************************************\n", .{});
+    // std.debug.print("\n\n*******************************************\n", .{});
+    // std.debug.print("\n\nPlease run the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client_runner\n", .{});
+    // std.debug.print("\n\n*******************************************\n", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -304,8 +259,11 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Bearer invalid\r", .{});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Bearer invalid\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -352,8 +310,11 @@ test "BearerAuthMulti authenticateRequest OK" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\r", .{});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer " ++ token ++ "\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -400,8 +361,11 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\r", .{});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -453,8 +417,11 @@ test "BasicAuth Token68 authenticateRequest" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ token ++ "\r", .{});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ token ++ "\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = token });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -506,8 +473,11 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ "invalid\r", .{});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ "invalid\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -569,8 +539,11 @@ test "BasicAuth UserPass authenticateRequest" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}\r", .{encoded});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}\r", .{encoded});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = encoded });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{
@@ -619,6 +592,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     var encoder = std.base64.url_safe.Encoder;
     var buffer: [256]u8 = undefined;
     const encoded = encoder.encode(&buffer, token);
+    _ = encoded;
 
     // create authenticator
     const Authenticator = Authenticators.BasicAuth(Map, .UserPass);
@@ -632,8 +606,11 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     try listener.addEndpoint(auth_ep.getEndpoint());
 
     listener.listen() catch {};
-    std.debug.print("Waiting for the following:\n", .{});
-    std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}-invalid\r", .{encoded});
+    // std.debug.print("Waiting for the following:\n", .{});
+    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic invalid\r", .{});
+
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
+    defer thread.join();
 
     // start worker threads
     zap.start(.{

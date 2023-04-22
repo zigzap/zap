@@ -29,7 +29,9 @@ pub fn build(b: *std.build.Builder) !void {
     });
 
     facil_lib.linkLibrary(facil_dep.artifact("facil.io"));
-    facil_lib.install();
+    // facil_lib.install();
+    const unused_facil_install_step = b.addInstallArtifact(facil_lib);
+    _ = unused_facil_install_step;
 
     inline for ([_]struct {
         name: []const u8,
@@ -73,10 +75,10 @@ pub fn build(b: *std.build.Builder) !void {
         });
 
         example.linkLibrary(facil_dep.artifact("facil.io"));
-
         example.addModule("zap", zap_module);
 
-        const example_run = example.run();
+        // const example_run = example.run();
+        const example_run = b.addRunArtifact(example);
         example_run_step.dependOn(&example_run.step);
 
         // install the artifact - depending on the "example"
@@ -89,6 +91,7 @@ pub fn build(b: *std.build.Builder) !void {
     //
 
     // authenticating http client for internal testing
+    // (facil.io based, not used anymore)
     //
     var http_client_exe = b.addExecutable(.{
         .name = "http_client",
@@ -128,6 +131,20 @@ pub fn build(b: *std.build.Builder) !void {
     auth_tests.addModule("zap", zap_module);
     auth_tests.step.dependOn(&http_client_runner_build_step.step);
 
+    const run_auth_tests = b.addRunArtifact(auth_tests);
+
     const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&auth_tests.step);
+    test_step.dependOn(&run_auth_tests.step);
+
+    // pkghash
+    //
+    var pkghash_exe = b.addExecutable(.{
+        .name = "pkghash",
+        .root_source_file = .{ .path = "./tools/pkghash.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    var pkghash_step = b.step("pkghash", "Build pkghash");
+    const pkghash_build_step = b.addInstallArtifact(pkghash_exe);
+    pkghash_step.dependOn(&pkghash_build_step.step);
 }
