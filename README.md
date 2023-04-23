@@ -151,8 +151,10 @@ examples to see how to use zap.
 
 ### Please note: latest zig master
 
-Latest zig-master has problems handling the recent GitHub 
-redirects to `codeload.github.com`. My work-around for this is as follows:
+Latest zig-master has problems handling the recent GitHub redirects to
+`codeload.github.com`. Check if this issue still persists
+[here](https://github.com/ziglang/zig/issues/15419). My work-around for this is
+as follows:
 
 Change your `build.zig.zon` zap dependency to localhost:
 
@@ -181,8 +183,7 @@ $ python -m http.server
 ```
 
 This hosts the downloaded dependencies locally on port 8000. After the first
-`zig build`, you can stop the python http server with
-<kbd>CTRL</kbd>+<kbd>C</kbd>.
+`zig build`, you can stop the python http server with <kbd>CTRL</kbd>+<kbd>C</kbd>.
 
 
 ## Updating your project to the latest version of zap
