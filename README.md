@@ -200,10 +200,6 @@ Go to the [release page](https://github.com/zigzap/zap/releases). Every release
 will state its version number and also provide instructions for changing
 `build.zig.zon` and `build.zig`.
 
-**Note:** I noticed, for Zap version updates to work with the version of Zig I'm
-currently using, I have to erase Zig's global cache after updating my
-`build.zig.zon`: `rm -fr ~/.cache/zig` 
-
 ### Using a tagged version
 
 Go to [to the tags page](https://github.com/zigzap/zap/tags) to view all
