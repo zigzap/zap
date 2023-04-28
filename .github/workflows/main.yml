@@ -27,8 +27,10 @@ jobs:
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: master
-      - name: Check formatting
-        run: zig fmt --check .
+      - name: Check zig version
+        run: zig version
+      # - name: Check formatting -- craps out on build.zig.zon, doesn't let us --exclude it
+      #   run: zig fmt --check .
       - name: Build simple endpoint example
         run: zig build endpoint
       - name: Build tests
