@@ -1,7 +1,33 @@
 #!/usr/bin/env bash
 tag=$1
-if [ "$tag" == "" ] ; then 
-    echo provide tag
-    exit 1
+override=$2
+
+if [ "$tag" == "--override" ] ; then 
+    override=$tag
+    tag=""
 fi
+
+if [ "$tag" == "" ] ; then 
+    tag=$(git rev-parse --abbrev-ref HEAD)
+    echo "Warning: no tag provided, using: >> $tag <<"
+fi
+
+
 git archive --format=tar.gz -o ${tag}.tar.gz --prefix=zap-$tag/ HEAD
+
+if [ git diff --quiet ] ; then
+    ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
+else
+    if [ "$override" == "--override" ] ; then
+        ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
+    else
+        echo "WARNING: GIT WORKING TREE IS DIRTY!"
+        echo "If you want to get zig hash anyway, run:"
+        echo "./zig-out/bin/pkghash -g"
+        echo "or, with full-blown release-notes:"
+        echo "./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md"
+        echo ""
+        echo "To skip this message and do the pkghash thing anyway, supply the"
+        echo "--override parameter"
+    fi
+fi
