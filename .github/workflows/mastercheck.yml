@@ -14,23 +14,16 @@ jobs:
   ci:
     strategy:
       matrix:
-        # platform: [ubuntu-latest, windows-latest]
+        # platform: [ubuntu-latest, windows-latest, macos-latest]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
-      #- name: Setup Linux dependencies
-      #  if: runner.os == 'Linux'
-      #  run: |
-      #    sudo apt-get update
-      #    sudo apt-get install libgtk-3-dev
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: master
       - name: Check zig version
         run: zig version
-      # - name: Check formatting -- craps out on build.zig.zon, doesn't let us --exclude it
-      #   run: zig fmt --check .
       - name: Build simple endpoint example
         run: zig build endpoint
       - name: Build tests
