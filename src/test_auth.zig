@@ -147,7 +147,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
     defer req.deinit();
 
     try req.start();
-    try req.do();
+    try req.wait();
     // var br = std.io.bufferedReaderSize(std.crypto.tls.max_ciphertext_record_len, req.reader());
     // var buffer: [1024]u8 = undefined;
     // we know we won't receive a lot
@@ -619,6 +619,4 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
-
-    std.debug.print("\n\nFINISHED!", .{});
 }
