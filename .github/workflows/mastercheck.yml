@@ -1,4 +1,4 @@
-name: CI & nightly Zig check
+name: Works with Zig master
 on: 
   push:
     branches:
