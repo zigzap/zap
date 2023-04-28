@@ -1,0 +1,35 @@
+name: CI & nightly Zig check
+on: 
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  
+jobs:
+  ci:
+    strategy:
+      matrix:
+        # platform: [ubuntu-latest, windows-latest]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      #- name: Setup Linux dependencies
+      #  if: runner.os == 'Linux'
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install libgtk-3-dev
+      - uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master
+      - name: Check formatting
+        run: zig fmt --check .
+      - name: Build simple endpoint example
+        run: zig build endpoint
+      - name: Build tests
+        run: zig build test
