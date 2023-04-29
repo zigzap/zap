@@ -31,11 +31,24 @@ if [ "$SUBJECT" = "python" ] ; then
     URL=http://127.0.0.1:8080
 fi
 
+if [ "$SUBJECT" = "sanic" ] ; then
+    python wrk/sanic/sanic-app.py &
+    PID=$!
+    URL=http://127.0.0.1:8000
+fi
+
 if [ "$SUBJECT" = "rust" ] ; then
     cd wrk/rust/hello && cargo build --release
     ./target/release/hello &
     PID=$!
     URL=http://127.0.0.1:7878
+fi
+
+if [ "$SUBJECT" = "axum" ] ; then
+    cd wrk/axum/hello-axum && cargo build --release
+    ./target/release/hello-axum &
+    PID=$!
+    URL=http://127.0.0.1:3000
 fi
 
 sleep 1

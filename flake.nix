@@ -47,6 +47,7 @@
             bat
             wrk
             python39
+            python39Packages.sanic
             pkgs.rustc 
             pkgs.cargo 
             pkgs.gcc 

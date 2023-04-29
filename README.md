@@ -63,18 +63,22 @@ machine:
 - zig zap was nearly 30% faster than GO
 - zig zap had over 50% more throughput than GO
 
-**Update**: I was intrigued comparing to a basic rust HTTP server.
+**Elephant in the room**: I was intrigued comparing to a basic rust HTTP server.
 Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
 tried to go for the one in [The Rust Programming
 Language](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
 Wanting it to be of a somewhat fair comparison, I opted for the multi-threaded
 example. It didn't work out-of-the-box, but I got it to work and changed it to
 not read files but outputting a static text just like in the other examples.
-**maybe someone with rust experience** can have a look at my
+**Maybe someone with rust experience** can have a look at my
 [wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
 I expected it to be faster than the basic GO example. I'll enable the
 GitHub discussions for this matter. My suspicion is bad performance of the
 mutexes.
+
+**Update**: Thanks to @felipetrz, I got to test against more realistic Python
+and Rust examples. Both python `sanic` and rust `axum` were easy enough to
+integrate.
 
 ![](wrk_table_summary.png)
 
