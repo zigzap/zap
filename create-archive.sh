@@ -15,7 +15,9 @@ fi
 
 git archive --format=tar.gz -o ${tag}.tar.gz --prefix=zap-$tag/ HEAD
 
-if [ git diff --quiet ] ; then
+git diff --quiet 
+
+if [ $? -ne 0 ] ; then
     if [ "$override" == "--override" ] ; then
         ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
     else
