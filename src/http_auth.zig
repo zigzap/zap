@@ -170,10 +170,16 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
         pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) bool {
             zap.debug("AUTHENTICATE REQUEST\n", .{});
             if (extractAuthHeader(.Basic, r)) |auth_header| {
-                zap.debug("Auth Header found!\n", .{});
+                zap.debug("Authentication Header found!\n", .{});
                 return self.authenticate(auth_header);
+            } else {
+                // try with .Authorization
+                if (extractAuthHeader(.Bearer, r)) |auth_header| {
+                    zap.debug("Authorization Header found!\n", .{});
+                    return self.authenticate(auth_header);
+                }
             }
-            zap.debug("NO Auth Header found!\n", .{});
+            zap.debug("NO fitting Auth Header found!\n", .{});
             return false;
         }
     };
