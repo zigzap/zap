@@ -16,8 +16,6 @@ fi
 git archive --format=tar.gz -o ${tag}.tar.gz --prefix=zap-$tag/ HEAD
 
 if [ git diff --quiet ] ; then
-    ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
-else
     if [ "$override" == "--override" ] ; then
         ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
     else
@@ -30,4 +28,6 @@ else
         echo "To skip this message and do the pkghash thing anyway, supply the"
         echo "--override parameter"
     fi
+else
+    ./zig-out/bin/pkghash -g --tag=$tag --template=doc/release-template.md
 fi
