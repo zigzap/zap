@@ -18,6 +18,13 @@ if [ "$SUBJECT" = "zig" ] ; then
     URL=http://127.0.0.1:3000
 fi
 
+if [ "$SUBJECT" = "zigstd" ] ; then
+    zig build -Doptimize=ReleaseFast wrk_zigstd > /dev/null
+    ./zig-out/bin/wrk_zigstd &
+    PID=$!
+    URL=http://127.0.0.1:3000
+fi
+
 if [ "$SUBJECT" = "go" ] ; then
     cd wrk/go && go build main.go 
     ./main &

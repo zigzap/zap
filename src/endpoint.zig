@@ -91,7 +91,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
                 if (e.settings.unauthorized) |foo| {
-                    foo(e, r);
+                    foo(authEp.endpoint, r);
                     return;
                 } else {
                     r.setStatus(.unauthorized);
@@ -100,7 +100,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                 }
             }
             // auth successful
-            authEp.endpoint.settings.get.?(e, r);
+            authEp.endpoint.settings.get.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
@@ -108,7 +108,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
                 if (e.settings.unauthorized) |foo| {
-                    foo(e, r);
+                    foo(authEp.endpoint, r);
                     return;
                 } else {
                     r.setStatus(.unauthorized);
@@ -117,7 +117,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                 }
             }
             // auth successful
-            authEp.endpoint.settings.post.?(e, r);
+            authEp.endpoint.settings.post.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
@@ -125,7 +125,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
                 if (e.settings.unauthorized) |foo| {
-                    foo(e, r);
+                    foo(authEp.endpoint, r);
                     return;
                 } else {
                     r.setStatus(.unauthorized);
@@ -134,7 +134,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                 }
             }
             // auth successful
-            authEp.endpoint.settings.put.?(e, r);
+            authEp.endpoint.settings.put.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
@@ -142,7 +142,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
             if (authEp.authenticator.authenticateRequest(&r) == false) {
                 if (e.settings.unauthorized) |foo| {
-                    foo(e, r);
+                    foo(authEp.endpoint, r);
                     return;
                 } else {
                     r.setStatus(.unauthorized);
@@ -151,7 +151,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                 }
             }
             // auth successful
-            authEp.endpoint.settings.delete.?(e, r);
+            authEp.endpoint.settings.delete.?(authEp.endpoint, r);
         }
     };
 }

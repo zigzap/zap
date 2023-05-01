@@ -92,31 +92,63 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
 
         /// Use this to decode the auth_header into user:pass, lookup pass in lookup
         pub fn authenticateUserPass(self: *Self, auth_header: []const u8) bool {
+            zap.debug("AuthenticateUserPass\n", .{});
             const encoded = auth_header[AuthScheme.Basic.str().len..];
             const decoder = std.base64.standard.Decoder;
             var buffer: [0x100]u8 = undefined;
             if (decoder.calcSizeForSlice(encoded)) |decoded_size| {
                 if (decoded_size >= buffer.len) {
+                    zap.debug(
+                        "ERROR: UserPassAuth: decoded_size {d} >= buffer.len {d}\n",
+                        .{ decoded_size, buffer.len },
+                    );
                     return false;
                 }
                 var decoded = buffer[0..decoded_size];
-                decoder.decode(decoded, encoded) catch return false;
+                decoder.decode(decoded, encoded) catch |err| {
+                    zap.debug(
+                        "ERROR: UserPassAuth: unable to decode `{s}`: {any}\n",
+                        .{ encoded, err },
+                    );
+                    return false;
+                };
                 // we have decoded
                 // we can split
                 var it = std.mem.split(u8, decoded, ":");
                 const user = it.next();
                 const pass = it.next();
                 if (user == null or pass == null) {
+                    zap.debug(
+                        "ERROR: UserPassAuth: user {any} or pass {any} is null\n",
+                        .{ user, pass },
+                    );
                     return false;
                 }
                 // now, do the lookup
                 const actual_pw = self.lookup.*.get(user.?);
                 if (actual_pw) |pw| {
-                    return std.mem.eql(u8, pass.?, pw);
+                    const ret = std.mem.eql(u8, pass.?, pw);
+                    zap.debug(
+                        "INFO: UserPassAuth for user `{s}`: `{s}` == pass `{s}` = {}\n",
+                        .{ user.?, pw, pass.?, ret },
+                    );
+                    return ret;
+                } else {
+                    zap.debug(
+                        "ERROR: UserPassAuth: user `{s}` not found in map of size {d}!\n",
+                        .{ user.?, self.lookup.*.count() },
+                    );
+                    return false;
                 }
-            } else |_| {
+            } else |err| {
                 // can't calc slice size --> fallthrough to return false
+                zap.debug(
+                    "ERROR: UserPassAuth: cannot calc slize size for encoded `{s}`: {any} \n",
+                    .{ encoded, err },
+                );
+                return false;
             }
+            zap.debug("UNREACHABLE\n", .{});
             return false;
         }
 
@@ -128,6 +160,7 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
 
         // dispatch based on kind
         pub fn authenticate(self: *Self, auth_header: []const u8) bool {
+            zap.debug("AUTHENTICATE\n", .{});
             // switch (self.kind) {
             switch (kind) {
                 .UserPass => return self.authenticateUserPass(auth_header),
@@ -135,9 +168,12 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
             }
         }
         pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) bool {
+            zap.debug("AUTHENTICATE REQUEST\n", .{});
             if (extractAuthHeader(.Basic, r)) |auth_header| {
+                zap.debug("Auth Header found!\n", .{});
                 return self.authenticate(auth_header);
             }
+            zap.debug("NO Auth Header found!\n", .{});
             return false;
         }
     };
