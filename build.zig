@@ -51,6 +51,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "mustache", .src = "examples/mustache/mustache.zig" },
         .{ .name = "endpoint_auth", .src = "examples/endpoint_auth/endpoint_auth.zig" },
         .{ .name = "http_params", .src = "examples/http_params/http_params.zig" },
+        .{ .name = "cookies", .src = "examples/cookies/cookies.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;

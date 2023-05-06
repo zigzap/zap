@@ -38,12 +38,14 @@ Here's what works:
 - **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring
   a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing
   users, together with a static HTML and JavaScript frontend to play with.
-- **[mustache](examples/mustache/)**: a simple example using
+- **[mustache](examples/mustache/mustache.zig)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
-- **[endpoint authentication](examples/endpoint_auth/)**: a simple authenticated
+- **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a simple authenticated
   endpoint. Read more about authentication [here](./doc/authentication.md).
-- **[http parameters](examples/http_parameters/)**: a simple example sending
+- **[http parameters](examples/http_parameters/http_params.zig)**: a simple example sending
   itself query parameters of all supported types.
+- **[cookies](examples/cookies/cookies.zig)**: a simple example sending
+  itself a cookie and responding with a session cookie.
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap

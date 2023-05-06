@@ -50,6 +50,7 @@ pub const HttpError = error{
     HttpSetHeader,
     HttpParseBody,
     HttpIterParams,
+    SetCookie,
 };
 
 pub const ContentType = enum {
@@ -180,15 +181,51 @@ pub const SimpleRequest = struct {
     ///
     /// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()
     pub fn parseQuery(self: *const Self) void {
-        return fio.http_parse_query(self.h);
+        fio.http_parse_query(self.h);
     }
 
-    /// not implemented.
-    pub fn parseCookies() !void {}
+    pub fn parseCookies(self: *const Self, url_encoded: bool) void {
+        fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
+    }
 
-    /// not implemented.
-    pub fn getCookie(name: []const u8) ?[]const u8 {
-        _ = name;
+    // Set a response cookie
+    pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
+        var c: fio.http_cookie_args_s = .{
+            .name = util.toCharPtr(args.name),
+            .name_len = @intCast(isize, args.name.len),
+            .value = util.toCharPtr(args.value),
+            .value_len = @intCast(isize, args.value.len),
+            .domain = if (args.domain) |p| util.toCharPtr(p) else null,
+            .domain_len = if (args.domain) |p| @intCast(isize, p.len) else 0,
+            .path = if (args.path) |p| util.toCharPtr(p) else null,
+            .path_len = if (args.path) |p| @intCast(isize, p.len) else 0,
+            .max_age = args.max_age_s,
+            .secure = if (args.secure) 1 else 0,
+            .http_only = if (args.http_only) 1 else 0,
+        };
+        if (fio.http_set_cookie(self.h, c) == -1) {
+            return error.SetCookie;
+        }
+    }
+
+    /// Returns named cookie. Works like getParamStr()
+    pub fn getCookieStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
+        if (self.h.*.cookies == 0) return null;
+        const key = fio.fiobj_str_new(name.ptr, name.len);
+        defer fio.fiobj_free_wrapped(key);
+        const value = fio.fiobj_hash_get(self.h.*.cookies, key);
+        if (value == fio.FIOBJ_INVALID) {
+            return null;
+        }
+        return try util.fio2strAllocOrNot(value, a, always_alloc);
+    }
+
+    /// Returns the number of parameters after parsing.
+    ///
+    /// Parse with parseCookies()
+    pub fn getCookiesCount(self: *const Self) isize {
+        if (self.h.*.cookies == 0) return 0;
+        return fio.fiobj_obj2num(self.h.*.cookies);
     }
 
     /// Returns the number of parameters after parsing.
@@ -197,6 +234,32 @@ pub const SimpleRequest = struct {
     pub fn getParamCount(self: *const Self) isize {
         if (self.h.*.params == 0) return 0;
         return fio.fiobj_obj2num(self.h.*.params);
+    }
+
+    /// Same as parametersToOwnedStrList() but for cookies
+    pub fn cookiesToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
+        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @intCast(usize, self.getCookiesCount()));
+        var context: _parametersToOwnedStrSliceContext = .{
+            .params = &params,
+            .allocator = a,
+            .always_alloc = always_alloc,
+        };
+        const howmany = fio.fiobj_each1(self.h.*.cookies, 0, _each_nextParamStr, &context);
+        if (howmany != self.getCookiesCount()) {
+            return error.HttpIterParams;
+        }
+        return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    }
+
+    /// Same as parametersToOwnedList() but for cookies
+    pub fn cookiesToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
+        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @intCast(usize, self.getCookiesCount()));
+        var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
+        const howmany = fio.fiobj_each1(self.h.*.cookies, 0, _each_nextParam, &context);
+        if (howmany != self.getCookiesCount()) {
+            return error.HttpIterParams;
+        }
+        return .{ .items = try params.toOwnedSlice(), .allocator = a };
     }
 
     /// Returns the query / body parameters as key/value pairs, as strings.
@@ -418,6 +481,17 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
         else => .{ .Unsupported = null },
     };
 }
+
+pub const CookieArgs = struct {
+    name: []const u8,
+    value: []const u8,
+    domain: ?[]const u8 = null,
+    path: ?[]const u8 = null,
+    /// max age in seconds. 0 -> session
+    max_age_s: c_int = 0,
+    secure: bool = true,
+    http_only: bool = true,
+};
 
 pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;

@@ -67,6 +67,47 @@ pub const http_s = extern struct {
     body: FIOBJ,
     udata: ?*anyopaque,
 }; // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/http.h:153:12: warning: struct demoted to opaque type - has bitfield
+
+// typedef struct {
+//   /** The cookie's name (Symbol). */
+//   const char *name;
+//   /** The cookie's value (leave blank to delete cookie). */
+//   const char *value;
+//   /** The cookie's domain (optional). */
+//   const char *domain;
+//   /** The cookie's path (optional). */
+//   const char *path;
+//   /** The cookie name's size in bytes or a terminating NUL will be assumed.*/
+//   size_t name_len;
+//   /** The cookie value's size in bytes or a terminating NUL will be assumed.*/
+//   size_t value_len;
+//   /** The cookie domain's size in bytes or a terminating NUL will be assumed.*/
+//   size_t domain_len;
+//   /** The cookie path's size in bytes or a terminating NULL will be assumed.*/
+//   size_t path_len;
+//   /** Max Age (how long should the cookie persist), in seconds (0 == session).*/
+//   int max_age;
+//   /** Limit cookie to secure connections.*/
+//   unsigned secure : 1;
+//   /** Limit cookie to HTTP (intended to prevent javascript access/hijacking).*/
+//   unsigned http_only : 1;
+// } http_cookie_args_s;
+
+pub const http_cookie_args_s = extern struct {
+    name: [*c]u8,
+    value: [*c]u8,
+    domain: [*c]u8,
+    path: [*c]u8,
+    name_len: isize,
+    value_len: isize,
+    domain_len: isize,
+    path_len: isize,
+    /// in seconds
+    max_age: c_int,
+    secure: c_uint,
+    http_only: c_uint,
+};
+
 pub const struct_fio_str_info_s = extern struct {
     capa: usize,
     len: usize,
@@ -289,7 +330,8 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     }
     return fiobj_type_vtable(o).*.to_str.?(o);
 }
-pub const http_cookie_args_s = opaque {};
+// pub const http_cookie_args_s = opaque {};
+
 pub extern fn http_set_header(h: [*c]http_s, name: FIOBJ, value: FIOBJ) c_int;
 pub extern fn http_set_header2(h: [*c]http_s, name: fio_str_info_s, value: fio_str_info_s) c_int;
 pub extern fn http_set_cookie(h: [*c]http_s, http_cookie_args_s) c_int;

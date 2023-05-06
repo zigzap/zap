@@ -1,13 +1,9 @@
 .{
     .name = "zap",
-    .version = "0.0.14",
+    .version = "0.0.15",
 
     .dependencies = .{
         .@"facil.io" = .{
-            // temp workaround until zig's fetch is fixed, supporting GH's redirects 
-            // .url = "http://localhost:8000/zap-0.0.7.tar.gz",
-
-            // this is how it should be:
             .url = "https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.7.tar.gz",
             .hash = "1220d03e0579bbb726efb8224ea289b26227bc421158b45c1b16a60b31bfa400ab33",
 
