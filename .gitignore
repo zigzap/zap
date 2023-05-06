@@ -6,3 +6,4 @@ tmp/
 **/target/*
 **/__pycache__/*
 wrk/go/main
+scratch

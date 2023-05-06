@@ -1,9 +1,13 @@
 const std = @import("std");
-const Authenticators = @import("http_auth.zig");
-const zap = @import("zap.zig");
-const Endpoints = @import("endpoint.zig");
-const fio = @import("fio.zig");
-const util = @import("util.zig");
+const zap = @import("zap");
+// const Authenticators = @import("http_auth.zig");
+const Authenticators = zap;
+const Endpoints = zap;
+// const Endpoints = @import("endpoint.zig");
+const fio = zap;
+// const fio = @import("fio.zig");
+const util = zap;
+// const util = @import("util.zig");
 
 test "BearerAuthSingle authenticate" {
     const a = std.testing.allocator;

@@ -48,11 +48,8 @@ pub const HttpError = error{
     HttpSendBody,
     HttpSetContentType,
     HttpSetHeader,
-};
-
-pub const HttpParam = struct {
-    key: []const u8,
-    value: []const u8,
+    HttpParseBody,
+    HttpIterParams,
 };
 
 pub const ContentType = enum {
@@ -153,10 +150,6 @@ pub const SimpleRequest = struct {
         }
         debug("setHeader: ret = {}\n", .{ret});
 
-        // Note to self:
-        // const new_fiobj_str = fio.fiobj_str_new(name.ptr, name.len);
-        // fio.fiobj_free(new_fiobj_str);
-
         if (ret == 0) return;
         return error.HttpSetHeader;
     }
@@ -169,19 +162,262 @@ pub const SimpleRequest = struct {
         self.h.*.status = @intCast(usize, @enumToInt(status));
     }
 
-    pub fn nextParam(self: *const Self) ?HttpParam {
+    /// Attempts to decode the request's body.
+    /// This should be called BEFORE parseQuery
+    /// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()
+    ///
+    /// Supported body types:
+    /// - application/x-www-form-urlencoded
+    /// - application/json
+    /// - multipart/form-data
+    pub fn parseBody(self: *const Self) HttpError!void {
+        if (fio.http_parse_body(self.h) == -1) return error.HttpParseBody;
+    }
+
+    /// Parses the query part of an HTTP request
+    /// This should be called AFTER parseBody(), just in case the body is a JSON
+    /// object that doesn't have a hash map at its root.
+    ///
+    /// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()
+    pub fn parseQuery(self: *const Self) void {
+        return fio.http_parse_query(self.h);
+    }
+
+    /// not implemented.
+    pub fn parseCookies() !void {}
+
+    /// not implemented.
+    pub fn getCookie(name: []const u8) ?[]const u8 {
+        _ = name;
+    }
+
+    /// Returns the number of parameters after parsing.
+    ///
+    /// Parse with parseBody() and / or parseQuery()
+    pub fn getParamCount(self: *const Self) isize {
+        if (self.h.*.params == 0) return 0;
+        return fio.fiobj_obj2num(self.h.*.params);
+    }
+
+    /// Returns the query / body parameters as key/value pairs, as strings.
+    /// Supported param types that will be converted:
+    ///
+    /// - Bool
+    /// - Int
+    /// - Float
+    /// - String
+    ///
+    /// At the moment, no fio ARRAYs are supported as well as HASH maps.
+    /// So, for JSON body payloads: parse the body instead.
+    ///
+    /// Requires parseBody() and/or parseQuery() have been called.
+    /// Returned list needs to be deinited.
+    pub fn parametersToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
+        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @intCast(usize, self.getParamCount()));
+        var context: _parametersToOwnedStrSliceContext = .{
+            .params = &params,
+            .allocator = a,
+            .always_alloc = always_alloc,
+        };
+        const howmany = fio.fiobj_each1(self.h.*.params, 0, _each_nextParamStr, &context);
+        if (howmany != self.getParamCount()) {
+            return error.HttpIterParams;
+        }
+        return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    }
+
+    const _parametersToOwnedStrSliceContext = struct {
+        allocator: std.mem.Allocator,
+        params: *std.ArrayList(HttpParamStrKV),
+        last_error: ?anyerror = null,
+        always_alloc: bool,
+    };
+
+    fn _each_nextParamStr(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
+        const ctx: *_parametersToOwnedStrSliceContext = @ptrCast(*_parametersToOwnedStrSliceContext, @alignCast(@alignOf(*_parametersToOwnedStrSliceContext), context));
+        // this is thread-safe, guaranteed by fio
+        var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        ctx.params.append(.{
+            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.always_alloc) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+            .value = util.fio2strAllocOrNot(fiobj_value, ctx.allocator, ctx.always_alloc) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+        }) catch |err| {
+            // what to do?
+            // signal the caller that an error occured by returning -1
+            // also, set the error
+            ctx.last_error = err;
+            return -1;
+        };
+        return 0;
+    }
+
+    /// Returns the query / body parameters as key/value pairs
+    /// Supported param types that will be converted:
+    ///
+    /// - Bool
+    /// - Int
+    /// - Float
+    /// - String
+    ///
+    /// At the moment, no fio ARRAYs are supported as well as HASH maps.
+    /// So, for JSON body payloads: parse the body instead.
+    ///
+    /// Requires parseBody() and/or parseQuery() have been called.
+    /// Returned slice needs to be freed.
+    pub fn parametersToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
+        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @intCast(usize, self.getParamCount()));
+        var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
+        const howmany = fio.fiobj_each1(self.h.*.params, 0, _each_nextParam, &context);
+        if (howmany != self.getParamCount()) {
+            return error.HttpIterParams;
+        }
+        return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    }
+
+    const _parametersToOwnedSliceContext = struct {
+        params: *std.ArrayList(HttpParamKV),
+        last_error: ?anyerror = null,
+        allocator: std.mem.Allocator,
+        dupe_strings: bool,
+    };
+
+    fn _each_nextParam(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
+        const ctx: *_parametersToOwnedSliceContext = @ptrCast(*_parametersToOwnedSliceContext, @alignCast(@alignOf(*_parametersToOwnedSliceContext), context));
+        // this is thread-safe, guaranteed by fio
+        var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        ctx.params.append(.{
+            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.dupe_strings) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+            .value = Fiobj2HttpParam(fiobj_value, ctx.allocator, ctx.dupe_strings) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+        }) catch |err| {
+            // what to do?
+            // signal the caller that an error occured by returning -1
+            // also, set the error
+            ctx.last_error = err;
+            return -1;
+        };
+        return 0;
+    }
+
+    /// get named parameter as string
+    /// Supported param types that will be converted:
+    ///
+    /// - Bool
+    /// - Int
+    /// - Float
+    /// - String
+    ///
+    /// At the moment, no fio ARRAYs are supported as well as HASH maps.
+    /// So, for JSON body payloads: parse the body instead.
+    ///
+    /// Requires parseBody() and/or parseQuery() have been called.
+    /// The returned string needs to be deinited with .deinit()
+    pub fn getParamStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
         if (self.h.*.params == 0) return null;
-        var key: fio.FIOBJ = undefined;
-        const value = fio.fiobj_hash_pop(self.h.*.params, &key);
+        const key = fio.fiobj_str_new(name.ptr, name.len);
+        defer fio.fiobj_free_wrapped(key);
+        const value = fio.fiobj_hash_get(self.h.*.params, key);
         if (value == fio.FIOBJ_INVALID) {
             return null;
         }
-        return HttpParam{
-            .key = util.fio2str(key).?,
-            .value = util.fio2str(value).?,
-        };
+        return try util.fio2strAllocOrNot(value, a, always_alloc);
     }
 };
+
+/// Key value pair of strings from HTTP parameters
+pub const HttpParamStrKV = struct {
+    key: util.FreeOrNot,
+    value: util.FreeOrNot,
+    pub fn deinit(self: *@This()) void {
+        self.key.deinit();
+        self.value.deinit();
+    }
+};
+
+pub const HttpParamStrKVList = struct {
+    items: []HttpParamStrKV,
+    allocator: std.mem.Allocator,
+    pub fn deinit(self: *@This()) void {
+        for (self.items) |*item| {
+            item.deinit();
+        }
+        self.allocator.free(self.items);
+    }
+};
+
+pub const HttpParamKVList = struct {
+    items: []HttpParamKV,
+    allocator: std.mem.Allocator,
+    pub fn deinit(self: *const @This()) void {
+        for (self.items) |*item| {
+            item.deinit();
+        }
+        self.allocator.free(self.items);
+    }
+};
+
+pub const HttpParamValueType = enum {
+    // Null,
+    Bool,
+    Int,
+    Float,
+    String,
+    Unsupported,
+    Unsupported_Hash,
+    Unsupported_Array,
+};
+
+pub const HttpParam = union(HttpParamValueType) {
+    Bool: bool,
+    Int: isize,
+    Float: f64,
+    /// we don't do writable strings here
+    String: util.FreeOrNot,
+    /// value will always be null
+    Unsupported: ?void,
+    /// value will always be null
+    Unsupported_Hash: ?void,
+    /// value will always be null
+    Unsupported_Array: ?void,
+};
+
+pub const HttpParamKV = struct {
+    key: util.FreeOrNot,
+    value: ?HttpParam,
+    pub fn deinit(self: *@This()) void {
+        self.key.deinit();
+        if (self.value) |p| {
+            switch (p) {
+                .String => |*s| s.deinit(),
+                else => {},
+            }
+        }
+    }
+};
+
+pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
+    return switch (fio.fiobj_type(o)) {
+        fio.FIOBJ_T_NULL => null,
+        fio.FIOBJ_T_TRUE => .{ .Bool = true },
+        fio.FIOBJ_T_FALSE => .{ .Bool = false },
+        fio.FIOBJ_T_NUMBER => .{ .Int = fio.fiobj_obj2num(o) },
+        fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
+        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(o, a, dupe_string) },
+        fio.FIOBJ_T_ARRAY => .{ .Unsupported_Array = null },
+        fio.FIOBJ_T_HASH => .{ .Unsupported_Hash = null },
+        else => .{ .Unsupported = null },
+    };
+}
 
 pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;

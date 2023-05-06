@@ -74,10 +74,22 @@ pub const struct_fio_str_info_s = extern struct {
 };
 pub const fio_str_info_s = struct_fio_str_info_s;
 pub extern fn http_send_body(h: [*c]http_s, data: ?*anyopaque, length: usize) c_int;
+pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, arg_arg: ?*anyopaque) callconv(.C) usize {
+    var o = arg_o;
+    var start_at = arg_start_at;
+    var task = arg_task;
+    var arg = arg_arg;
+    if ((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
+    return 0;
+}
 
 pub extern fn fiobj_hash_new() FIOBJ;
 pub extern fn fiobj_hash_set(hash: FIOBJ, key: FIOBJ, obj: FIOBJ) c_int;
 pub extern fn fiobj_hash_get(hash: FIOBJ, key: FIOBJ) FIOBJ;
+pub extern fn fiobj_hash_pop(hash: FIOBJ, key: [*c]FIOBJ) FIOBJ;
+pub extern fn fiobj_hash_count(hash: FIOBJ) usize;
+pub extern fn fiobj_hash_key_in_loop() FIOBJ;
+pub extern fn fiobj_hash_haskey(hash: FIOBJ, key: FIOBJ) c_int;
 pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
 pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
@@ -210,6 +222,22 @@ pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtabl
     }
     return null;
 }
+
+pub fn fiobj_obj2num(o: FIOBJ) callconv(.C) isize {
+    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) {
+        const sign: usize = if ((o & ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) != 0) ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1)) else @bitCast(c_ulong, @as(c_long, @as(c_int, 0)));
+        return @bitCast(isize, ((o & (~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) >> @intCast(@import("std").math.Log2Int(c_ulong), 1)) | sign);
+    }
+    if (!(o != 0) or !(((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) return @bitCast(isize, @as(c_long, @boolToInt(o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)))));
+    return fiobj_type_vtable(o).*.to_i.?(o);
+}
+pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
+    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @intToFloat(f64, fiobj_obj2num(o));
+    // the below doesn't parse and we don't support ints here anyway
+    // if (!(o != 0) or ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return @intToFloat(f64, o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));
+    return fiobj_type_vtable(o).*.to_f.?(o);
+}
+
 pub extern fn fio_ltocstr(c_long) fio_str_info_s;
 pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     if (!(o != 0)) {

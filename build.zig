@@ -50,6 +50,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "wrk_zigstd", .src = "wrk/zigstd/main.zig" },
         .{ .name = "mustache", .src = "examples/mustache/mustache.zig" },
         .{ .name = "endpoint_auth", .src = "examples/endpoint_auth/endpoint_auth.zig" },
+        .{ .name = "http_params", .src = "examples/http_params/http_params.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
@@ -93,11 +94,20 @@ pub fn build(b: *std.build.Builder) !void {
     //
     // TOOLS & TESTING
     //
+    // n.b.: tests run in parallel, so we need all tests that use the network
+    //       to run sequentially, since zap doesn't like to be started multiple
+    //       times on different threads
+    //
+    // TODO: for some reason, tests aren't run more than once unless
+    //       dependencies have changed.
+    //       So, for now, we just force the exe to be built, so in order that
+    //       we can call it again when needed.
 
-    // tests
+    // authentication tests
     //
     const auth_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/test_auth.zig" },
+        .name = "auth_tests",
+        .root_source_file = .{ .path = "src/tests/test_auth.zig" },
         .target = target,
         .optimize = optimize,
     });
@@ -105,15 +115,33 @@ pub fn build(b: *std.build.Builder) !void {
     auth_tests.addModule("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
+    const install_auth_tests = b.addInstallArtifact(auth_tests);
+
+    // http paramters (qyery, body) tests
+    const httpparams_tests = b.addTest(.{
+        .name = "http_params_tests",
+        .root_source_file = .{ .path = "src/tests/test_http_params.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
+    httpparams_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    httpparams_tests.addModule("zap", zap_module);
+    const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
     // TODO: for some reason, tests aren't run more than once unless
     //       dependencies have changed.
     //       So, for now, we just force the exe to be built, so in order that
     //       we can call it again when needed.
-    const install_auth_tests = b.addInstallArtifact(auth_tests);
+    const install_httpparams_tests = b.addInstallArtifact(httpparams_tests);
 
-    const test_step = b.step("test", "Run unit tests [REMOVE zig-cache!]");
-    test_step.dependOn(&run_auth_tests.step);
-    test_step.dependOn(&install_auth_tests.step);
+    // test commands
+    const run_auth_test_step = b.step("test-authentication", "Run auth unit tests [REMOVE zig-cache!]");
+    run_auth_test_step.dependOn(&run_auth_tests.step);
+    run_auth_test_step.dependOn(&install_auth_tests.step);
+
+    const run_httpparams_test_step = b.step("test-httpparams", "Run http param unit tests [REMOVE zig-cache!]");
+    run_httpparams_test_step.dependOn(&run_httpparams_tests.step);
+    run_httpparams_test_step.dependOn(&install_httpparams_tests.step);
 
     // pkghash
     //

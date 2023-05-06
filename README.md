@@ -41,7 +41,9 @@ Here's what works:
 - **[mustache](examples/mustache/)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
 - **[endpoint authentication](examples/endpoint_auth/)**: a simple authenticated
-  endpoint. Read more about authentication [here](./doc/authentication.md)
+  endpoint. Read more about authentication [here](./doc/authentication.md).
+- **[http parameters](examples/http_parameters/)**: a simple example sending
+  itself query parameters of all supported types.
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap

@@ -1,6 +1,9 @@
 const std = @import("std");
 const fio = @import("fio.zig");
 
+/// note: since this is called from within request functions, we don't make
+/// copies. Also, we return temp memory from fio. -> don't hold on to it outside
+/// of a request function
 pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
     const x: fio.fio_str_info_s = fio.fiobj_obj2cstr(o);
@@ -9,6 +12,32 @@ pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     return std.mem.span(x.data);
 }
 
+pub const FreeOrNot = struct {
+    str: []const u8,
+    freeme: bool,
+    allocator: ?std.mem.Allocator = null,
+
+    pub fn deinit(self: *const @This()) void {
+        if (self.freeme) {
+            self.allocator.?.free(self.str);
+        }
+    }
+};
+
+pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool) !FreeOrNot {
+    if (o == 0) return .{ .str = "null", .freeme = false };
+    if (o == fio.FIOBJ_INVALID) return .{ .str = "null", .freeme = false };
+    return switch (fio.fiobj_type(o)) {
+        fio.FIOBJ_T_TRUE => .{ .str = "true", .freeme = false },
+        fio.FIOBJ_T_FALSE => .{ .str = "false", .freeme = false },
+        // according to fio2str above, the orelse should never happen
+        fio.FIOBJ_T_NUMBER => .{ .str = try a.dupe(u8, fio2str(o) orelse "null"), .freeme = true, .allocator = a },
+        fio.FIOBJ_T_FLOAT => .{ .str = try a.dupe(u8, fio2str(o) orelse "null"), .freeme = true, .allocator = a },
+        // the string comes out of the request, so it is safe to not make a copy
+        fio.FIOBJ_T_STRING => .{ .str = if (always_alloc) try a.dupe(u8, fio2str(o) orelse "") else fio2str(o) orelse "", .freeme = if (always_alloc) true else false, .allocator = a },
+        else => .{ .str = "null", .freeme = false },
+    };
+}
 pub fn str2fio(s: []const u8) fio.fio_str_info_s {
     return .{
         .data = toCharPtr(s),
