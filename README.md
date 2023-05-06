@@ -42,7 +42,7 @@ Here's what works:
   [mustache](https://mustache.github.io/) templating.
 - **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a simple authenticated
   endpoint. Read more about authentication [here](./doc/authentication.md).
-- **[http parameters](examples/http_parameters/http_params.zig)**: a simple example sending
+- **[http parameters](examples/http_params/http_params.zig)**: a simple example sending
   itself query parameters of all supported types.
 - **[cookies](examples/cookies/cookies.zig)**: a simple example sending
   itself a cookie and responding with a session cookie.
@@ -133,10 +133,10 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap release-0.0.14
+        // zap release-0.0.15
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.14.tar.gz",
-            .hash = "1220adff3eec2ad33ff97d6fe6ad23d796cc52a7d0e290f3b909847e09362df3e242",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.15.tar.gz",
+            .hash = "122023067e213715ef87bee4d9ad9707fda028e2f9c7fbe30c28d635acdf6490a651",
         }
     }
 }
