@@ -89,69 +89,77 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
         /// here, the auth_endpoint will be passed in
         pub fn get(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
-            if (authEp.authenticator.authenticateRequest(&r) == false) {
-                if (e.settings.unauthorized) |foo| {
-                    foo(authEp.endpoint, r);
-                    return;
-                } else {
-                    r.setStatus(.unauthorized);
-                    r.sendBody("UNAUTHORIZED") catch return;
-                    return;
-                }
+            switch (authEp.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => {
+                    if (e.settings.unauthorized) |unauthorized| {
+                        unauthorized(authEp.endpoint, r);
+                        return;
+                    } else {
+                        r.setStatus(.unauthorized);
+                        r.sendBody("UNAUTHORIZED") catch return;
+                        return;
+                    }
+                },
+                .AuthOK => authEp.endpoint.settings.get.?(authEp.endpoint, r),
+                .Handled => {},
             }
-            // auth successful
-            authEp.endpoint.settings.get.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
         pub fn post(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
-            if (authEp.authenticator.authenticateRequest(&r) == false) {
-                if (e.settings.unauthorized) |foo| {
-                    foo(authEp.endpoint, r);
-                    return;
-                } else {
-                    r.setStatus(.unauthorized);
-                    r.sendBody("UNAUTHORIZED") catch return;
-                    return;
-                }
+            switch (authEp.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => {
+                    if (e.settings.unauthorized) |unauthorized| {
+                        unauthorized(authEp.endpoint, r);
+                        return;
+                    } else {
+                        r.setStatus(.unauthorized);
+                        r.sendBody("UNAUTHORIZED") catch return;
+                        return;
+                    }
+                },
+                .AuthOK => authEp.endpoint.settings.post.?(authEp.endpoint, r),
+                .Handled => {},
             }
-            // auth successful
-            authEp.endpoint.settings.post.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
         pub fn put(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
-            if (authEp.authenticator.authenticateRequest(&r) == false) {
-                if (e.settings.unauthorized) |foo| {
-                    foo(authEp.endpoint, r);
-                    return;
-                } else {
-                    r.setStatus(.unauthorized);
-                    r.sendBody("UNAUTHORIZED") catch return;
-                    return;
-                }
+            switch (authEp.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => {
+                    if (e.settings.unauthorized) |unauthorized| {
+                        unauthorized(authEp.endpoint, r);
+                        return;
+                    } else {
+                        r.setStatus(.unauthorized);
+                        r.sendBody("UNAUTHORIZED") catch return;
+                        return;
+                    }
+                },
+                .AuthOK => authEp.endpoint.settings.put.?(authEp.endpoint, r),
+                .Handled => {},
             }
-            // auth successful
-            authEp.endpoint.settings.put.?(authEp.endpoint, r);
         }
 
         /// here, the auth_endpoint will be passed in
         pub fn delete(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
             const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
-            if (authEp.authenticator.authenticateRequest(&r) == false) {
-                if (e.settings.unauthorized) |foo| {
-                    foo(authEp.endpoint, r);
-                    return;
-                } else {
-                    r.setStatus(.unauthorized);
-                    r.sendBody("UNAUTHORIZED") catch return;
-                    return;
-                }
+            switch (authEp.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => {
+                    if (e.settings.unauthorized) |unauthorized| {
+                        unauthorized(authEp.endpoint, r);
+                        return;
+                    } else {
+                        r.setStatus(.unauthorized);
+                        r.sendBody("UNAUTHORIZED") catch return;
+                        return;
+                    }
+                },
+                .AuthOK => authEp.endpoint.settings.delete.?(authEp.endpoint, r),
+                .Handled => {},
             }
-            // auth successful
-            authEp.endpoint.settings.delete.?(authEp.endpoint, r);
         }
     };
 }

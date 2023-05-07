@@ -17,10 +17,10 @@ test "BearerAuthSingle authenticate" {
     defer auth.deinit();
 
     // invalid auth header
-    try std.testing.expectEqual(auth.authenticate("wrong header"), false);
-    try std.testing.expectEqual(auth.authenticate("Bearer wrong-token"), false);
+    try std.testing.expectEqual(auth.authenticate("wrong header"), .AuthFailed);
+    try std.testing.expectEqual(auth.authenticate("Bearer wrong-token"), .AuthFailed);
     // ok
-    try std.testing.expectEqual(auth.authenticate("Bearer " ++ token), true);
+    try std.testing.expectEqual(auth.authenticate("Bearer " ++ token), .AuthOK);
 }
 
 test "BearerAuthMulti authenticate" {
@@ -37,10 +37,10 @@ test "BearerAuthMulti authenticate" {
     defer auth.deinit();
 
     // invalid auth header
-    try std.testing.expectEqual(auth.authenticate("wrong header"), false);
-    try std.testing.expectEqual(auth.authenticate("Bearer wrong-token"), false);
+    try std.testing.expectEqual(auth.authenticate("wrong header"), .AuthFailed);
+    try std.testing.expectEqual(auth.authenticate("Bearer wrong-token"), .AuthFailed);
     // ok
-    try std.testing.expectEqual(auth.authenticate("Bearer " ++ token), true);
+    try std.testing.expectEqual(auth.authenticate("Bearer " ++ token), .AuthOK);
 }
 
 test "BasicAuth Token68" {
@@ -59,10 +59,10 @@ test "BasicAuth Token68" {
     defer auth.deinit();
 
     // invalid auth header
-    try std.testing.expectEqual(auth.authenticate("wrong header"), false);
-    try std.testing.expectEqual(auth.authenticate("Basic wrong-token"), false);
+    try std.testing.expectEqual(auth.authenticate("wrong header"), .AuthFailed);
+    try std.testing.expectEqual(auth.authenticate("Basic wrong-token"), .AuthFailed);
     // ok
-    try std.testing.expectEqual(auth.authenticate("Basic " ++ token), true);
+    try std.testing.expectEqual(auth.authenticate("Basic " ++ token), .AuthOK);
 }
 
 test "BasicAuth UserPass" {
@@ -90,13 +90,13 @@ test "BasicAuth UserPass" {
     defer auth.deinit();
 
     // invalid auth header
-    try std.testing.expectEqual(auth.authenticate("wrong header"), false);
-    try std.testing.expectEqual(auth.authenticate("Basic wrong-token"), false);
+    try std.testing.expectEqual(auth.authenticate("wrong header"), .AuthFailed);
+    try std.testing.expectEqual(auth.authenticate("Basic wrong-token"), .AuthFailed);
     // ok
     const expected = try std.fmt.allocPrint(a, "Basic {s}", .{encoded});
 
     defer a.free(expected);
-    try std.testing.expectEqual(auth.authenticate(expected), true);
+    try std.testing.expectEqual(auth.authenticate(expected), .AuthOK);
 }
 
 const HTTP_RESPONSE: []const u8 =
