@@ -114,7 +114,7 @@ $ mkdir zaptest && cd zaptest
 $ zig init-exe
 $ git init      ## (optional)
 ```
-**Note 1**: Zap is developed with zig master (0.11.0-dev.1602+d976b4e4a at the
+**Note 1**: Zap is developed with zig master (0.11.0-dev.2985+3f3b1a680 at the
 time of writing). This version of zig has the package management features in
 place that are used in the following instructions. Nix users are lucky; you can
 use the existing `flake.nix` and run `nix develop` to get a development shell
