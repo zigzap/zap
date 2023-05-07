@@ -22,10 +22,22 @@ jobs:
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: wget
+        uses: wei/wget@v1
+        with:
+          args: https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.8.tar.gz
       - name: Check zig version
         run: zig version
+      - name: hack build.zig.zon
+        run: |
+          mv build.zig.zon build.zig.zon.moved && mv build.zig.zon.localhost build.zig.zon && python -m http.server &
+          sleep 3
+          zig build
       - name: Build simple endpoint example
-        run: zig build hello --verbose
+        run: zig build endpoint --verbose
       - name: Build authentication tests
         run: zig build test-authentication
       - name: Build http parameter tests
