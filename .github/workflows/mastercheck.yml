@@ -25,7 +25,7 @@ jobs:
       - name: Check zig version
         run: zig version
       - name: Build simple endpoint example
-        run: zig build endpoint
+        run: zig build endpoint --verbose
       - name: Build authentication tests
         run: zig build test-authentication
       - name: Build http parameter tests
