@@ -5,7 +5,8 @@ const WebSockets = zap.WebSockets;
 const Context = struct {
     userName: []const u8,
     channel: []const u8,
-    // we need to hold on to them and just re-use them for every incoming connection
+    // we need to hold on to them and just re-use them for every incoming
+    // connection
     subscribeArgs: WebsocketHandler.SubscribeArgs,
     settings: WebsocketHandler.WebSocketSettings,
 };
@@ -21,7 +22,11 @@ const ContextManager = struct {
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator, channelName: []const u8, usernamePrefix: []const u8) Self {
+    pub fn init(
+        allocator: std.mem.Allocator,
+        channelName: []const u8,
+        usernamePrefix: []const u8,
+    ) Self {
         return .{
             .allocator = allocator,
             .channel = channelName,
@@ -42,7 +47,11 @@ const ContextManager = struct {
         defer self.lock.unlock();
 
         var ctx = try self.allocator.create(Context);
-        var userName = try std.fmt.allocPrint(self.allocator, "{s}{d}", .{ self.usernamePrefix, self.contexts.items.len });
+        var userName = try std.fmt.allocPrint(
+            self.allocator,
+            "{s}{d}",
+            .{ self.usernamePrefix, self.contexts.items.len },
+        );
         ctx.* = .{
             .userName = userName,
             .channel = self.channel,
@@ -77,7 +86,11 @@ fn on_open_websocket(context: ?*Context, handle: WebSockets.WsHandle) void {
 
         // say hello
         var buf: [128]u8 = undefined;
-        const message = std.fmt.bufPrint(&buf, "{s} joined the chat.", .{ctx.userName}) catch unreachable;
+        const message = std.fmt.bufPrint(
+            &buf,
+            "{s} joined the chat.",
+            .{ctx.userName},
+        ) catch unreachable;
 
         // send notification to all others
         WebsocketHandler.publish(.{ .channel = ctx.channel, .message = message });
@@ -90,24 +103,59 @@ fn on_close_websocket(context: ?*Context, uuid: isize) void {
     if (context) |ctx| {
         // say goodbye
         var buf: [128]u8 = undefined;
-        const message = std.fmt.bufPrint(&buf, "{s} left the chat.", .{ctx.userName}) catch unreachable;
+        const message = std.fmt.bufPrint(
+            &buf,
+            "{s} left the chat.",
+            .{ctx.userName},
+        ) catch unreachable;
 
         // send notification to all others
         WebsocketHandler.publish(.{ .channel = ctx.channel, .message = message });
         std.log.info("websocket closed: {s}", .{message});
     }
 }
-fn handle_websocket_message(context: ?*Context, handle: WebSockets.WsHandle, message: []const u8, is_text: bool) void {
+fn handle_websocket_message(
+    context: ?*Context,
+    handle: WebSockets.WsHandle,
+    message: []const u8,
+    is_text: bool,
+) void {
     _ = is_text;
     _ = handle;
     if (context) |ctx| {
-        // say goodbye
-        var buf: [128]u8 = undefined;
-        const chat_message = std.fmt.bufPrint(&buf, "{s}: {s}", .{ ctx.userName, message }) catch unreachable;
+        // send message
+        const buflen = 128; // arbitrary len
+        var buf: [buflen]u8 = undefined;
 
-        // send notification to all others
-        WebsocketHandler.publish(.{ .channel = ctx.channel, .message = chat_message });
-        std.log.info("{s}", .{chat_message});
+        const format_string = "{s}: {s}";
+        const fmt_string_extra_len = 2; // ": " between the two strings
+        //
+        const max_msg_len = buflen - ctx.userName.len - fmt_string_extra_len;
+        if (max_msg_len > 0) {
+            // there is space for the message, because the user name + format
+            // string extra do not exceed the buffer now, let's check: do we
+            // need to trim the message?
+            var trimmed_message: []const u8 = message;
+            if (message.len > max_msg_len) {
+                trimmed_message = message[0..max_msg_len];
+            }
+            const chat_message = std.fmt.bufPrint(
+                &buf,
+                format_string,
+                .{ ctx.userName, trimmed_message },
+            ) catch unreachable;
+
+            // send notification to all others
+            WebsocketHandler.publish(
+                .{ .channel = ctx.channel, .message = chat_message },
+            );
+            std.log.info("{s}", .{chat_message});
+        } else {
+            std.log.warn(
+                "Username is very long, cannot deal with that size: {d}",
+                .{ctx.userName.len},
+            );
+        }
     }
 }
 
@@ -116,13 +164,17 @@ fn handle_websocket_message(context: ?*Context, handle: WebSockets.WsHandle, mes
 //
 fn on_request(r: zap.SimpleRequest) void {
     r.setHeader("Server", "zap.example") catch unreachable;
-    r.sendBody("<html><body><h1>This is a simple Websocket chatroom example</h1></body></html>") catch return;
+    r.sendBody(
+        \\ <html><body>
+        \\ <h1>This is a simple Websocket chatroom example</h1>
+        \\ </body></html>
+    ) catch return;
 }
 
 fn on_upgrade(r: zap.SimpleRequest, target_protocol: []const u8) void {
     // make sure we're talking the right protocol
     if (!std.mem.eql(u8, target_protocol, "websocket")) {
-        std.log.warn("received illegal target protocol: {s}", .{target_protocol});
+        std.log.warn("received illegal protocol: {s}", .{target_protocol});
         r.setStatus(.bad_request);
         r.sendBody("400 - BAD REQUEST") catch unreachable;
         return;
@@ -143,7 +195,6 @@ fn on_upgrade(r: zap.SimpleRequest, target_protocol: []const u8) void {
 var GlobalContextManager: ContextManager = undefined;
 
 const WebsocketHandler = WebSockets.Handler(Context);
-var handler_instance: WebsocketHandler = .{};
 
 // here we go
 pub fn main() !void {

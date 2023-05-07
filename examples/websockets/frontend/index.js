@@ -3,6 +3,7 @@
 var chatContainer = document.getElementById("chat-container");
 var promptInput = document.getElementById("prompt-input");
 var sendButton = document.getElementById("send-button");
+var statusBar = document.getElementById("statusBar");
 
 // var ws; 
 
@@ -61,8 +62,17 @@ init();
 
 var ws = new WebSocket("ws://localhost:3010/chat");
 ws.onmessage = function(e) { addBotMessage(e.data); return false;};
-ws.onclose = function(e) { console.log("closed"); };
-ws.onopen = function(e) { /*e.target.send("Yo!");*/ return false;};
+ws.onclose = function(e) { 
+    statusBar.className = "status-bar";
+    statusBar.classList.add("status-busy");
+    statusBar.innerHTML = "Disconnected";
+};
+
+ws.onopen = function(e) { 
+    statusBar.className = "status-bar";
+    statusBar.classList.add("status-thinking");
+    statusBar.innerHTML = "Connected";
+};
 
 
 
