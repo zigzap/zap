@@ -46,6 +46,8 @@ Here's what works:
   itself query parameters of all supported types.
 - **[cookies](examples/cookies/cookies.zig)**: a simple example sending
   itself a cookie and responding with a session cookie.
+- **[websockets](examples/websockets/websockets.zig)**: a simple websockets chat 
+for the browser.
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap

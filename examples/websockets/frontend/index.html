@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="showdown.min.js"></script>
+
+    <title>ZAP-Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #cd0f0d;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            /* height: 500px; */
+            height: calc(100vh - 260px);
+            margin-top: 2rem;
+            overflow-y: auto;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            /* font-size: 1.2rem; */
+        }
+
+        .bot {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: #cd0f0d;;
+            color: white;
+        }
+
+        .busy-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 0px;
+            left: 0;
+            right: 0;
+            background-color: #f0f0f0;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-bottom: 0.8rem;
+            padding-top: 1rem;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+            /* box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); */
+        }
+
+        .input-container input {
+            flex-grow: 1;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #cd0f0d;
+            outline: none;
+            /* font-size: 1.2rem; */
+        }
+
+        .input-container button {
+            background-color: #cd0f0d;;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-container button:hover {
+            background-color: #A20000;
+        }
+
+        .status-bar {
+            background-color: #8B0000;
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            position: fixed;
+            /*   bottom: 60px;   */
+            left: 0;
+            right: 0;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+            /* border-top-left-radius: 10px; */
+            /* border-top-right-radius: 10px; */
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-online {
+            /* Green, MediumSeaGreen */
+            background-color: #3CB371;
+        }
+        .status-busy {
+            /* Blue, DodgerBlue */
+            background-color: #1E90FF;
+        }
+        .status-thinking {
+            /* Light Gray, LightSlateGray */
+            background-color: #778899;
+        }
+        .status-offline {
+            /* Red, Tomato */
+            background-color: #FF6347;
+        }
+        .status-warning {
+            /* Yellow, Goldenrod */
+            background-color: #DAA520;
+        }
+        .status-error {
+            /* Dark-Red, Firebrick */
+            background-color: #B22222;
+        }
+
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>ZAP-Chat</h1>
+            </header>
+            <div class="chat-container" id="chat-container">
+                <!-- ... -->
+
+                <!-- ... -->
+            </div>
+
+
+            <div class="input-container">
+                <input id="prompt-input" type="text" placeholder="Type your message...">
+                <button id="send-button">Send</button>
+            </div>
+
+        </div>
+
+        <!-- Load the script and start executing -->
+        <script>
+            var header = document.getElementById('header');
+            var scriptTag = document.createElement("script");
+            scriptTag.src = "index.js?version=0";
+            scriptTag.type = "module";
+            document.head.appendChild(scriptTag);
+        </script>
+    </body>
+</html>

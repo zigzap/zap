@@ -362,6 +362,32 @@ pub const websocket_settings_s = extern struct {
     on_close: ?*const fn (isize, ?*anyopaque) callconv(.C) void,
     udata: ?*anyopaque,
 };
+
+// struct websocket_subscribe_s_zigcompat {
+//   ws_s *ws;
+//   fio_str_info_s channel;
+//   void (*on_message)(ws_s *ws, fio_str_info_s channel, fio_str_info_s msg, void *udata);
+//   void (*on_unsubscribe)(void *udata);
+//   void *udata;
+//   fio_match_fn match;
+//   unsigned char force_binary;
+//   unsigned char force_text;
+// };
+
+pub const websocket_subscribe_s_zigcompat = extern struct {
+    ws: ?*ws_s,
+    channel: fio_str_info_s,
+    on_message: ?*const fn (?*ws_s, fio_str_info_s, fio_str_info_s, ?*anyopaque) callconv(.C) void,
+    on_unsubscribe: ?*const fn (?*anyopaque) callconv(.C) void,
+    udata: ?*anyopaque,
+    match: fio_match_fn,
+    force_binary: u8,
+    force_text: u8,
+};
+
+/// 0 on failure
+pub extern fn websocket_subscribe_zigcompat(websocket_subscribe_s_zigcompat) callconv(.C) usize;
+
 pub extern fn http_upgrade2ws(http: [*c]http_s, websocket_settings_s) c_int;
 pub extern fn websocket_connect(url: [*c]const u8, settings: websocket_settings_s) c_int;
 pub extern fn websocket_attach(uuid: isize, http_settings: [*c]http_settings_s, args: [*c]websocket_settings_s, data: ?*anyopaque, length: usize) void;
@@ -375,6 +401,19 @@ pub const struct_websocket_subscribe_s = opaque {};
 pub extern fn websocket_subscribe(args: struct_websocket_subscribe_s) usize;
 pub extern fn websocket_unsubscribe(ws: ?*ws_s, subscription_id: usize) void;
 pub extern fn websocket_optimize4broadcasts(@"type": isize, enable: c_int) void;
+
+pub extern fn fio_publish(args: fio_publish_args_s) void;
+pub const fio_publish_args_s = struct_fio_publish_args_s;
+pub const struct_fio_publish_args_s = extern struct {
+    engine: ?*anyopaque = null,
+    // we don't support engines other than default
+    // engine: [*c]const fio_pubsub_engine_s,
+    filter: i32 = 0,
+    channel: fio_str_info_s,
+    message: fio_str_info_s,
+    is_json: u8,
+};
+
 pub const http_sse_s = struct_http_sse_s;
 pub const struct_http_sse_s = extern struct {
     on_open: ?*const fn ([*c]http_sse_s) callconv(.C) void,

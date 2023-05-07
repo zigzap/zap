@@ -10,6 +10,7 @@ pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 pub usingnamespace @import("http_auth.zig");
+pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
 
@@ -496,16 +497,32 @@ pub const CookieArgs = struct {
 pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;
 
+/// websocket connection upgrade
+/// fn(request, targetstring)
+pub const SimpleHttpUpgradeFn = *const fn (r: SimpleRequest, target_protocol: []const u8) void;
+
+/// http finish, called when zap finishes. You get your udata back in the
+/// struct.
+pub const SimpleHttpFinishSettings = [*c]fio.struct_http_settings_s;
+pub const SimpleHttpFinishFn = *const fn (SimpleHttpFinishSettings) void;
+
 pub const SimpleHttpListenerSettings = struct {
     port: usize,
     interface: [*c]const u8 = null,
     on_request: ?SimpleHttpRequestFn,
-    on_response: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
+    on_response: ?SimpleHttpRequestFn = null,
+    on_upgrade: ?SimpleHttpUpgradeFn = null,
+    on_finish: ?SimpleHttpFinishFn = null,
+    // provide any pointer in there for "user data". it will be passed pack in
+    // on_finish()'s copy of the struct_http_settings_s
+    udata: ?*anyopaque = null,
     public_folder: ?[]const u8 = null,
     max_clients: ?isize = null,
     max_body_size: ?usize = null,
     timeout: ?u8 = null,
     log: bool = false,
+    ws_timeout: u8 = 40,
+    ws_max_msg_size: usize = 262144,
 };
 
 pub const SimpleHttpListener = struct {
@@ -519,6 +536,9 @@ pub const SimpleHttpListener = struct {
             .settings = settings,
         };
     }
+
+    // on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
+    // on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
 
     // we could make it dynamic by passing a SimpleHttpListener via udata
     pub fn theOneAndOnlyRequestCallBack(r: [*c]fio.http_s) callconv(.C) void {
@@ -534,6 +554,39 @@ pub const SimpleHttpListener = struct {
         }
     }
 
+    pub fn theOneAndOnlyResponseCallBack(r: [*c]fio.http_s) callconv(.C) void {
+        if (the_one_and_only_listener) |l| {
+            var req: SimpleRequest = .{
+                .path = util.fio2str(r.*.path),
+                .query = util.fio2str(r.*.query),
+                .body = util.fio2str(r.*.body),
+                .method = util.fio2str(r.*.method),
+                .h = r,
+            };
+            l.settings.on_response.?(req);
+        }
+    }
+
+    pub fn theOneAndOnlyUpgradeCallBack(r: [*c]fio.http_s, target: [*c]u8, target_len: usize) callconv(.C) void {
+        if (the_one_and_only_listener) |l| {
+            var req: SimpleRequest = .{
+                .path = util.fio2str(r.*.path),
+                .query = util.fio2str(r.*.query),
+                .body = util.fio2str(r.*.body),
+                .method = util.fio2str(r.*.method),
+                .h = r,
+            };
+            var zigtarget: []u8 = target[0..target_len];
+            l.settings.on_upgrade.?(req, zigtarget);
+        }
+    }
+
+    pub fn theOneAndOnlyFinishCallBack(s: [*c]fio.struct_http_settings_s) callconv(.C) void {
+        if (the_one_and_only_listener) |l| {
+            l.settings.on_finish.?(s);
+        }
+    }
+
     pub fn listen(self: *Self) !void {
         var pfolder: [*c]const u8 = null;
         var pfolder_len: usize = 0;
@@ -546,22 +599,23 @@ pub const SimpleHttpListener = struct {
 
         var x: fio.http_settings_s = .{
             .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
-            .on_upgrade = null,
-            .on_response = self.settings.on_response,
-            .on_finish = null,
+            .on_upgrade = if (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack else null,
+            .on_response = if (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack else null,
+            .on_finish = if (self.settings.on_finish) |_| Self.theOneAndOnlyFinishCallBack else null,
             .udata = null,
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
             .max_header_size = 32 * 1024,
             .max_body_size = self.settings.max_body_size orelse 50 * 1024 * 1024,
-            .max_clients = self.settings.max_clients orelse 100,
+            // fio provides good default:
+            .max_clients = self.settings.max_clients orelse 0,
             .tls = null,
             .reserved1 = 0,
             .reserved2 = 0,
             .reserved3 = 0,
             .ws_max_msg_size = 0,
             .timeout = self.settings.timeout orelse 5,
-            .ws_timeout = 0,
+            .ws_timeout = self.settings.ws_timeout,
             .log = if (self.settings.log) 1 else 0,
             .is_client = 0,
         };
@@ -624,7 +678,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
     var x: fio.http_settings_s = .{
         .on_request = settings.on_request,
         .on_upgrade = settings.on_upgrade,
-        .on_response = settings.on_response orelse null,
+        .on_response = settings.on_response,
         .on_finish = settings.on_finish,
         .udata = null,
         .public_folder = pfolder,
@@ -636,7 +690,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
         .reserved1 = 0,
         .reserved2 = 0,
         .reserved3 = 0,
-        .ws_max_msg_size = 0,
+        .ws_max_msg_size = settings.ws_max_msg_size,
         .timeout = settings.keepalive_timeout_s,
         .ws_timeout = 0,
         .log = if (settings.log) 1 else 0,
