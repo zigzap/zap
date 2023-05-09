@@ -143,13 +143,13 @@ pub const SimpleRequest = struct {
             .capa = name.len,
         };
 
-        debug("setHeader: hname = {}\n", .{hname});
+        debug("setHeader: hname = {s}\n", .{name});
         const vname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(value),
             .len = value.len,
             .capa = value.len,
         };
-        debug("setHeader: vname = {}\n", .{vname});
+        debug("setHeader: vname = {s}\n", .{value});
         const ret = fio.http_set_header2(self.h, hname, vname);
 
         // FIXME without the following if, we get errors in release builds
