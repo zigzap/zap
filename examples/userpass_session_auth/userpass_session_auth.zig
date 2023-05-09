@@ -52,7 +52,7 @@ fn on_request(r: zap.SimpleRequest) void {
         .Handled => {
             // the authenticator handled the entire request for us. probably
             // a redirect to the login page
-            std.log.info("Authenticator handled it", .{});
+            std.log.info("Auth FAILED -> authenticator handled it", .{});
             return;
         },
         .AuthFailed => unreachable,
