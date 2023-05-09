@@ -47,6 +47,10 @@ Here's what works:
 - **[cookies](examples/cookies/cookies.zig)**: a simple example sending
   itself a cookie and responding with a session cookie.
 - **[websockets](examples/websockets/)**: a simple websockets chat for the browser.
+- **[Username/Password Session Authentication](./examples/userpass_session_auth/)**:
+  A convenience authenticator that redirects un-authenticated requests to a
+  login page and sends cookies containing session tokens based on
+  username/password pairs transmitted via POST request.
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap

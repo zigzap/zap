@@ -97,6 +97,13 @@ pub const SimpleRequest = struct {
         return self.setHeader("content-type", s);
     }
 
+    // redirect to path with status code 302 by default
+    pub fn redirectTo(self: *const Self, path: []const u8, code: ?_module.StatusCode) HttpError!void {
+        self.setStatus(if (code) |status| status else .found);
+        try self.setHeader("Location", path);
+        try self.sendBody("moved");
+    }
+
     /// shows how to use the logger
     pub fn setContentTypeWithLogger(
         self: *const Self,

@@ -7,4 +7,9 @@ endpoint
 wrk
 mustache
 endpoint_auth
+http_params
 pkghash
+cookies
+websockets
+userpass_session
+

@@ -53,6 +53,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "http_params", .src = "examples/http_params/http_params.zig" },
         .{ .name = "cookies", .src = "examples/cookies/cookies.zig" },
         .{ .name = "websockets", .src = "examples/websockets/websockets.zig" },
+        .{ .name = "userpass_session", .src = "examples/userpass_session_auth/userpass_session_auth.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
