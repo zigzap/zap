@@ -137,6 +137,23 @@ pub fn build(b: *std.build.Builder) !void {
     //       we can call it again when needed.
     const install_httpparams_tests = b.addInstallArtifact(httpparams_tests);
 
+    // http paramters (qyery, body) tests
+    const sendfile_tests = b.addTest(.{
+        .name = "sendfile_tests",
+        .root_source_file = .{ .path = "src/tests/test_sendfile.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
+    sendfile_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    sendfile_tests.addModule("zap", zap_module);
+    const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
+    // TODO: for some reason, tests aren't run more than once unless
+    //       dependencies have changed.
+    //       So, for now, we just force the exe to be built, so in order that
+    //       we can call it again when needed.
+    const install_sendfile_tests = b.addInstallArtifact(sendfile_tests);
+
     // test commands
     const run_auth_test_step = b.step("test-authentication", "Run auth unit tests [REMOVE zig-cache!]");
     run_auth_test_step.dependOn(&run_auth_tests.step);
@@ -145,6 +162,10 @@ pub fn build(b: *std.build.Builder) !void {
     const run_httpparams_test_step = b.step("test-httpparams", "Run http param unit tests [REMOVE zig-cache!]");
     run_httpparams_test_step.dependOn(&run_httpparams_tests.step);
     run_httpparams_test_step.dependOn(&install_httpparams_tests.step);
+
+    const run_sendfile_test_step = b.step("test-sendfile", "Run http param unit tests [REMOVE zig-cache!]");
+    run_sendfile_test_step.dependOn(&run_sendfile_tests.step);
+    run_sendfile_test_step.dependOn(&install_sendfile_tests.step);
 
     // pkghash
     //

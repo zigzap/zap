@@ -52,6 +52,7 @@ pub const HttpError = error{
     HttpParseBody,
     HttpIterParams,
     SetCookie,
+    SendFile,
 };
 
 pub const ContentType = enum {
@@ -169,6 +170,21 @@ pub const SimpleRequest = struct {
 
     pub fn setStatus(self: *const Self, status: _module.StatusCode) void {
         self.h.*.status = @intCast(usize, @enumToInt(status));
+    }
+
+    /// Sends a file if present in the filesystem orelse returns an error.
+    ///
+    /// - efficiently sends a file using gzip compression
+    /// - also handles range requests if `Range` or `If-Range` headers are present in the request.
+    /// - sends the response headers and the specified file (the response's body).
+    ///
+    /// On success, the `self.h` handle will be consumed and invalid.
+    /// On error, the handle will still be valid and should be used to send an error response
+    ///
+    /// Important: sets last-modified and cache-control headers with a max-age value of 1 hour!
+    pub fn sendFile(self: *const Self, file_path: []const u8) !void {
+        if (fio.http_sendfile2(self.h, util.toCharPtr(file_path), file_path.len, null, 0) != 0)
+            return error.SendFile;
     }
 
     /// Attempts to decode the request's body.
