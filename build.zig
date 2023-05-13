@@ -54,6 +54,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "cookies", .src = "examples/cookies/cookies.zig" },
         .{ .name = "websockets", .src = "examples/websockets/websockets.zig" },
         .{ .name = "userpass_session", .src = "examples/userpass_session_auth/userpass_session_auth.zig" },
+        .{ .name = "sendfile", .src = "examples/sendfile/sendfile.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
@@ -148,10 +149,6 @@ pub fn build(b: *std.build.Builder) !void {
     sendfile_tests.linkLibrary(facil_dep.artifact("facil.io"));
     sendfile_tests.addModule("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
-    // TODO: for some reason, tests aren't run more than once unless
-    //       dependencies have changed.
-    //       So, for now, we just force the exe to be built, so in order that
-    //       we can call it again when needed.
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests);
 
     // test commands

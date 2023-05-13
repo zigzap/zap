@@ -12,4 +12,5 @@ pkghash
 cookies
 websockets
 userpass_session
+sendfile
 

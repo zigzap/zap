@@ -33,6 +33,8 @@ Here's what works:
   dispatching on the HTTP path 
 - **[serve](examples/serve/serve.zig)**: the traditional static web
   server with optional dynamic request handling
+- **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
+  a file, honoring compression headers, etc.
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
 - **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring
