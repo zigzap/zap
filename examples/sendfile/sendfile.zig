@@ -17,6 +17,9 @@ pub fn on_request(r: zap.SimpleRequest) void {
     // On error, the handle will still be valid and should be used to send an error response
     //
     // Important: sets last-modified and cache-control headers with a max-age value of 1 hour!
+
+    // In this example, we disable caching
+    r.setHeader("Cache-Control", "no-cache") catch unreachable;
     if (r.sendFile("examples/sendfile/testfile.txt")) {} else |err| {
         std.log.err("Unable to send file: {any}", .{err});
     }

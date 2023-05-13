@@ -182,6 +182,7 @@ pub const SimpleRequest = struct {
     /// On error, the handle will still be valid and should be used to send an error response
     ///
     /// Important: sets last-modified and cache-control headers with a max-age value of 1 hour!
+    /// You can override that by setting those headers yourself, e.g.: setHeader("Cache-Control", "no-cache")
     pub fn sendFile(self: *const Self, file_path: []const u8) !void {
         if (fio.http_sendfile2(self.h, util.toCharPtr(file_path), file_path.len, null, 0) != 0)
             return error.SendFile;
