@@ -4,7 +4,7 @@
 
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://127.0.0.1:8000/zap-0.0.8.tar.gz",
+            .url = "http://127.0.0.1:8000/zap-0.0.8.tar.gz",
             .hash = "122071fcc675e114941331726291ca1f0c0c33751d992782c6abf1f0f2ddddc5734d",
         }
     }
