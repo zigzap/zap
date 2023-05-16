@@ -13,7 +13,7 @@ that points you directly to where the exception happened, plus a stack-trace.
 Wouldn't that be handy? Wouldn't that be a good idea to also make ZAP behave
 that way?
 
-My argument is: NO.
+My argument is: NO. Not unconditionally like this. 
 
 Let me elaborate: First, ZAP the library cannot know what YOU want to do in case
 of an error. If some `on_request()` returns an error, ZAP would only be able to
@@ -29,21 +29,21 @@ So you assume, the conditions of running your code will never really cause it to
 fail. But you're wrong. And you might not notice it until your code is deployed
 to production.
 
-So, if `on_request()` were to be able to return an error, you'd be able to just
-use `try std.fs.do_file_magic();` in your `on_request()`, expecting it to never
-fail anyway. You run your code locally, test it in your browser or your test
-suite or whatever, and deem it fine to put into production. But on your server,
-the file system magic has the magic property of failing for every 1000th request
-where `do_file_magic()` returns `RandomMagicErrorThatLooksSuperUnlikely`. What's
+So, if `on_request()` were able to return an error, you'd be able to just use
+`try std.fs.do_file_magic();` in your `on_request()`, expecting it to never fail
+anyway. You run your code locally, test it in your browser or your test suite or
+whatever, and deem it fine for production. But on your server, the file system
+magic has the magic property of failing for every 1000th request where
+`do_file_magic()` returns `RandomMagicErrorThatLooksSuperUnlikely`. What's
 worse, you don't notice it via mere code inspection in the source easily since
 it's a transient error caused by a call to `try do_internal_magic()` deeply
 "hidden" somewhere inside of `do_file_magic()`.
 
-Since ZAP's standard error behavior would be to just log it, YOU would probably
-not notice it unless you'd monitor your logs carefully. If ZAP's standard error
-behavior were to return an error response to the client, you'd eventually
-hear from a user that your code has a bug. Which would be a shame. Because it
-could have been avoided easily.
+If ZAP's standard error behavior would be to just log it, YOU would probably not
+notice it unless you'd monitor your logs carefully. If ZAP's standard error
+behavior were to return an error response to the client, you'd eventually hear
+from a user that your code has a bug in line XXX of file YYY. Which would be a
+shame. Because it could have been avoided easily.
 
 You think that if you had known the magical random error was even an option, you
 would probably have put something in place to deal with it. Instead, you let
