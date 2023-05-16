@@ -130,7 +130,8 @@ providing zig, and also all dependencies to build the and run the GO, python,
 and rust examples for the `wrk` performance tests.
 
 **Note 2**: Current ZIG master has a nasty TLS bug which prevents it from
-downloading from GitHub. See the release notes of
+downloading from GitHub. See [this doc](./doc/build-localhost.md) or the release
+notes of
 [release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost)
 for a workaround.
 
@@ -156,8 +157,10 @@ To add zap to `build.zig.zon`:
 }
 ```
 
-**!!!PLEASE NOTE!!!** Current ZIG master has a bug in fetching archives from GitHub.
-Please see the release notes of [release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost) for a workaround.
+**!!!PLEASE NOTE!!!** Current ZIG master has a bug in fetching archives from
+GitHub. Please see [this doc](./doc/build-localhost.md) or the release notes of
+[release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost)
+for a workaround.
 
 Then, in your `build.zig`'s `build` function, add the following before
 `b.installArtifact(exe)``:
