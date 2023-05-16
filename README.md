@@ -17,6 +17,11 @@ production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 Zap wraps and patches [facil.io - the C web application
 framework](https://facil.io).
 
+---
+<center><h3>Join us <a href="https://discord.gg/MNqmDy5F">on Discord</a>!</h3></center>
+
+---
+
 **⚡ZAP⚡ IS SUPER ALPHA**
 
 _Under the hood, everything is super robust and fast. My zig wrappers are fresh,
@@ -58,6 +63,7 @@ Here's what works:
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
 projects, serving thousands of concurrent clients.
+
 
 ## ⚡blazingly fast⚡
 
