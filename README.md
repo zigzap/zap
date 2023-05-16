@@ -2,7 +2,7 @@
 
 # ⚡zap⚡ - blazingly fast backends in zig
 
-![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg)
+![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) ![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
@@ -17,10 +17,6 @@ production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 Zap wraps and patches [facil.io - the C web application
 framework](https://facil.io).
 
----
-<center><h3>Join us <a href="https://discord.gg/MNqmDy5F">on Discord</a>!</h3></center>
-
----
 
 **⚡ZAP⚡ IS SUPER ALPHA**
 
