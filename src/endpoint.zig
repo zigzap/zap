@@ -178,13 +178,14 @@ pub const SimpleEndpointListener = struct {
 
     /// static struct member endpoints
     var endpoints: std.ArrayList(*SimpleEndpoint) = undefined;
+    var on_request: ?zap.SimpleHttpRequestFn = null;
 
     pub fn init(a: std.mem.Allocator, l: ListenerSettings) Self {
         endpoints = std.ArrayList(*SimpleEndpoint).init(a);
 
         var ls = l; // take copy of listener settings
         ls.on_request = onRequest;
-
+        on_request = l.on_request;
         return .{
             .listener = Listener.init(ls),
             .allocator = a,
@@ -226,6 +227,9 @@ pub const SimpleEndpointListener = struct {
                     return;
                 }
             }
+        }
+        if (on_request) |foo| {
+            foo(r);
         }
     }
 };
