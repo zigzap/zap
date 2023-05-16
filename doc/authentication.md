@@ -4,7 +4,7 @@ Zap supports both Basic and Bearer authentication which are based on HTTP
 headers.
 
 For a cookie-based ("session token", not to mistake for "session cookie")
-authentication, see the [UserPassSessionAuth](../src/http_auth.zig#L312) and its
+authentication, see the [UserPassSessionAuth](../src/http_auth.zig#L319) and its
 [example](../examples/userpass_session_auth/).
 
 For convenience, Authenticator types exist that can authenticate requests.
