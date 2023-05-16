@@ -23,6 +23,7 @@ pub fn init(
             .get = getUser,
             .post = postUser,
             .put = putUser,
+            .patch = putUser,
             .delete = deleteUser,
         }),
     };

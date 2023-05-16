@@ -174,26 +174,25 @@
                 getUserList();
             })
             .catch((error) => {
-                log("Error posting data");
+                log("Error deleting data");
             });
         }
 
         function changeUser(id) {
-            var firstname = document.getElementById("first_" + id);
-            firstname = firstname.value;
+            const firstname = document.getElementById("first_" + id).value;
             const lastname = document.getElementById("last_" + id).value;
             data = {
                 first_name: firstname,
                 last_name: lastname,
             }
-            sendJSON(data, "/users/" + id, "PUT")
+            sendJSON(data, "/users/" + id, "PATCH")
             .then((response) => response.json())
             .then((data) => {
                 log("SUCESS: " + JSON.stringify(data));
                 getUserList();
             })
             .catch((error) => {
-                log("Error posting data");
+                log("Error updating data");
             });
         }
 
@@ -249,7 +248,7 @@
                 showTable(data);
             })
             .catch((error) => {
-                log("Error posting data");
+                log("Error fetching data");
             });
         }
 
