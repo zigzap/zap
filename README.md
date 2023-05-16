@@ -122,12 +122,17 @@ $ mkdir zaptest && cd zaptest
 $ zig init-exe
 $ git init      ## (optional)
 ```
-**Note 1**: Zap is developed with zig master (0.11.0-dev.2985+3f3b1a680 at the
+**Note 1**: Zap is developed with zig master (0.11.0-dev.3132+465272921 at the
 time of writing). This version of zig has the package management features in
 place that are used in the following instructions. Nix users are lucky; you can
 use the existing `flake.nix` and run `nix develop` to get a development shell
 providing zig, and also all dependencies to build the and run the GO, python, 
 and rust examples for the `wrk` performance tests.
+
+**Note 2**: Current ZIG master has a nasty TLS bug which prevents it from
+downloading from GitHub. See the release notes of
+[release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost)
+for a workaround.
 
 With an existing zig project, adding zap to it is easy:
 
@@ -142,14 +147,17 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-            // zap release-0.0.19
+        // zap release-0.0.20
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.19.tar.gz",
-            .hash = "1220e8618ae2240e22e1e01c3f5f8c95f70291cd5ca98c92bdfb86b01e81a9d0314b",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.20.tar.gz",
+            .hash = "12200772b594bc50bbdc18b14aa3c7461991a33179f9c254de05eb34d214662971da",
         }
     }
 }
 ```
+
+**!!!PLEASE NOTE!!!** Current ZIG master has a bug in fetching archives from GitHub.
+Please see the release notes of [release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost) for a workaround.
 
 Then, in your `build.zig`'s `build` function, add the following before
 `b.installArtifact(exe)``:
