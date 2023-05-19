@@ -55,6 +55,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "websockets", .src = "examples/websockets/websockets.zig" },
         .{ .name = "userpass_session", .src = "examples/userpass_session_auth/userpass_session_auth.zig" },
         .{ .name = "sendfile", .src = "examples/sendfile/sendfile.zig" },
+        .{ .name = "middleware", .src = "examples/middleware/middleware.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;

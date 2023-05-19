@@ -10,6 +10,7 @@ pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 pub usingnamespace @import("http_auth.zig");
+pub const Middleware = @import("middleware.zig");
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
@@ -556,6 +557,7 @@ pub const SimpleHttpListener = struct {
     var the_one_and_only_listener: ?*SimpleHttpListener = null;
 
     pub fn init(settings: SimpleHttpListenerSettings) Self {
+        std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
         };
@@ -574,7 +576,11 @@ pub const SimpleHttpListener = struct {
                 .method = util.fio2str(r.*.method),
                 .h = r,
             };
-            l.settings.on_request.?(req);
+            std.debug.assert(l.settings.on_request != null);
+            if (l.settings.on_request) |on_request| {
+                // l.settings.on_request.?(req);
+                on_request(req);
+            }
         }
     }
 
@@ -655,7 +661,8 @@ pub const SimpleHttpListener = struct {
         //     const result = try bufPrint(buf, fmt ++ "\x00", args);
         //     return result[0 .. result.len - 1 :0];
         // }
-        if (fio.http_listen(printed_port.ptr, self.settings.interface, x) == -1) {
+        var ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);
+        if (ret == -1) {
             return error.ListenError;
         }
 
