@@ -37,7 +37,7 @@ pub fn MixContexts(comptime context_tuple: anytype) type {
     });
 }
 
-/// ContextType must implement .init(zap.SimpleRequest)
+/// Your middleware components need to contain a handler
 pub fn Handler(comptime ContextType: anytype) type {
     return struct {
         other_handler: ?*Self = null,
@@ -57,6 +57,8 @@ pub fn Handler(comptime ContextType: anytype) type {
         }
 
         // example for handling request
+        // which you can use in your components, e.g.:
+        // return self.handler.handleOther(r, context);
         pub fn handleOther(self: *Self, r: zap.SimpleRequest, context: *ContextType) bool {
             // in structs embedding a handler, we'd @fieldParentPtr the first
             // param to get to the real self
@@ -98,7 +100,6 @@ pub fn Listener(comptime ContextType: anytype) type {
 
         /// initialize the middleware handler
         /// the passed in settings must have on_request set to null
-        ///
         pub fn init(settings: zap.SimpleHttpListenerSettings, initial_handler: *Handler(ContextType), request_alloc: ?RequestAllocatorFn) Error!Self {
             // override on_request with ourselves
             if (settings.on_request != null) {
@@ -121,6 +122,9 @@ pub fn Listener(comptime ContextType: anytype) type {
         }
 
         // this is just a reference implementation
+        // but it's actually used obviously. Create your own listener if you
+        // want different behavior.
+        // Didn't want to make this a callback
         pub fn onRequest(r: zap.SimpleRequest) void {
             // we are the 1st handler in the chain, so we create a context
             var context: ContextType = .{};
