@@ -126,18 +126,13 @@ $ mkdir zaptest && cd zaptest
 $ zig init-exe
 $ git init      ## (optional)
 ```
-**Note 1**: Zap is developed with zig master (0.11.0-dev.3132+465272921 at the
-time of writing). This version of zig has the package management features in
-place that are used in the following instructions. Nix users are lucky; you can
-use the existing `flake.nix` and run `nix develop` to get a development shell
-providing zig, and also all dependencies to build the and run the GO, python, 
-and rust examples for the `wrk` performance tests.
-
-**Note 2**: Current ZIG master has a nasty TLS bug which prevents it from
-downloading from GitHub. See [this doc](./doc/build-localhost.md) or the release
-notes of
-[release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost)
-for a workaround.
+**Note 1**: Zap is developed with zig master. This version of zig has the
+package management features in place that are used in the following
+instructions. Nix users are lucky; you can use the existing `flake.nix` and run
+`nix develop` to get a development shell providing zig, and also all
+dependencies to build the and run the GO, python, and rust examples for the
+`wrk` performance tests. For mere building, `nix develop .#build` will only
+fetch zig master.
 
 With an existing zig project, adding zap to it is easy:
 
@@ -152,19 +147,14 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap release-0.0.21
+        // zap release-0.0.22
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.21.tar.gz",
-            .hash = "12202384c46e9e2059fb5082c61c42aae2421edff233cb8cecef682114cbbabf7197",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.22.tar.gz",
+            .hash = "12204761c4f94997c3bd26f420cf9060541c0c09514370dc129e04b35e58d9f3ae71",
         }
     }
 }
 ```
-
-**!!!PLEASE NOTE!!!** Current ZIG master has a bug in fetching archives from
-GitHub. Please see [this doc](./doc/build-localhost.md) or the release notes of
-[release-0.0.20-localhost](https://github.com/zigzap/zap/releases/tag/release-0.0.20-localhost)
-for a workaround.
 
 Then, in your `build.zig`'s `build` function, add the following before
 `b.installArtifact(exe)``:
@@ -213,7 +203,7 @@ found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424
 ```
 
 **Note:** If you don't get this error, clean your global zig cache: `rm -fr
-~/.cache/zig`.
+~/.cache/zig`. This shouldn't happen with current zig master anymore.
 
 With the new URL, the old hash in the `build.zig.zon` is no longer valid. You
 need to take the hash value displayed after `found: ` in the error message as
