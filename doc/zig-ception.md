@@ -22,10 +22,10 @@ struct - and a `session` field of type `?SessionMiddleWare.Session`.
 
 So `MixContexts` accepts a **tuple** of structs that each contain a
 `name` field and a `type` field. As a hack, we support the `?` in the name to
-indicate we want to the resulting struct field to be an optional.
+indicate we want the resulting struct field to be an optional.
 
 A **tuple** means that we can "mix" as many structs as we like. Not just two
-like in above example.
+like in the example above.
 
 `MixContexts` inspects the passed-in `type` fields and **composes a new struct
 type at comptime**! Have a look at its [source code](../src/middleware.zig).
