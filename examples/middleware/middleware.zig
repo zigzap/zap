@@ -88,7 +88,7 @@ const UserMiddleWare = struct {
     }
 };
 
-// Example session middleware: puts user info into the context
+// Example session middleware: puts session info into the context
 const SessionMiddleWare = struct {
     handler: Handler,
 
@@ -130,7 +130,7 @@ const SessionMiddleWare = struct {
     }
 };
 
-// Example html middleware: handles the request
+// Example html middleware: handles the request and sends a response
 const HtmlMiddleWare = struct {
     handler: Handler,
 
