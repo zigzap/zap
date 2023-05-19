@@ -61,6 +61,11 @@ when the order of your chain of components isn't perfect yet. 😉
 Have a look at an excerpt of the example:
 
 ```zig
+// create a combined context struct
+const Context = zap.Middleware.MixContexts(.{
+    .{ .name = "?user", .type = UserMiddleWare.User },
+    .{ .name = "?session", .type = SessionMiddleWare.Session },
+});
 
 // we create a Handler type based on our Context
 const Handler = zap.Middleware.Handler(Context);
