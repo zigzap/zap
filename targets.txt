@@ -5,6 +5,7 @@ serve
 hello_json
 endpoint
 wrk
+wrk_zigstd
 mustache
 endpoint_auth
 http_params

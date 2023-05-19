@@ -1,20 +1,29 @@
 const std = @import("std");
 
 pub fn main() !void {
-    const allocator = std.heap.page_allocator;
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .thread_safe = true,
+    }){};
+    var allocator = gpa.allocator();
+
     var server = std.http.Server.init(allocator, .{
         .reuse_address = true,
     });
     defer server.deinit();
+
     const address = try std.net.Address.parseIp("127.0.0.1", 3000);
     try server.listen(address);
+
     const max_header_size = 8192;
 
     while (true) {
-        var res = try server.accept(.{ .dynamic = max_header_size });
-        const start_time = std.time.nanoTimestamp();
+        var res = try server.accept(.{
+            .allocator = allocator,
+            .header_strategy = .{ .dynamic = max_header_size },
+        });
+        // const start_time = std.time.nanoTimestamp();
         defer res.deinit();
-        defer res.reset();
+        defer _ = res.reset();
         try res.wait();
 
         const server_body: []const u8 = "HI FROM ZIG STD!\n";
@@ -27,8 +36,8 @@ pub fn main() !void {
         _ = try res.readAll(&buf);
         _ = try res.writer().writeAll(server_body);
         try res.finish();
-        const end_time = std.time.nanoTimestamp();
-        const diff = end_time - start_time;
-        std.debug.print("{d}\n", .{diff});
+        // const end_time = std.time.nanoTimestamp();
+        // const diff = end_time - start_time;
+        // std.debug.print("{d}\n", .{diff});
     }
 }
