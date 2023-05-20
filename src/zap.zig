@@ -69,7 +69,47 @@ pub const SimpleRequest = struct {
     method: ?[]const u8,
     h: [*c]fio.http_s,
 
+    /// NEVER touch this field!!!!
+    /// if you absolutely MUST, then you may provide context here
+    /// via setUserContext and getUserContext
+    _user_context: *UserContext,
+    /// NEVER touch this field!!!!
+    /// use markAsFinished() and isFinished() instead
+    /// this is a hack: the listener will put a pointer to this into the udata
+    /// field of `h`. So copies of the SimpleRequest will all have way to the
+    /// same instance of this field.
+    _is_finished_request_global: bool,
+    /// NEVER touch this field!!!!
+    /// this is part of the hack.
+    _is_finished: *bool = undefined,
+
+    const UserContext = struct {
+        user_context: ?*anyopaque = null,
+    };
+
     const Self = @This();
+
+    pub fn markAsFinished(self: *const Self, finished: bool) void {
+        // we might be a copy
+        self._is_finished.* = finished;
+    }
+
+    pub fn isFinished(self: *const Self) bool {
+        // we might be a copy
+        return self._is_finished.*;
+    }
+
+    pub fn setUserContext(self: *const Self, context: *anyopaque) void {
+        self._user_context.*.user_context = context;
+    }
+
+    pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
+        if (self._user_context.*.user_context) |ptr| {
+            return @ptrCast(*Context, @alignCast(@alignOf(*Context), ptr));
+        } else {
+            return null;
+        }
+    }
 
     pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
         const ret = fio.http_send_body(self.h, @intToPtr(
@@ -78,6 +118,7 @@ pub const SimpleRequest = struct {
         ), body.len);
         debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
         if (ret == -1) return error.HttpSendBody;
+        self.markAsFinished(true);
     }
 
     pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
@@ -86,6 +127,7 @@ pub const SimpleRequest = struct {
                 *anyopaque,
                 @ptrToInt(json.ptr),
             ), json.len) != 0) return error.HttpSendBody;
+            self.markAsFinished(true);
         } else |err| return err;
     }
 
@@ -104,6 +146,7 @@ pub const SimpleRequest = struct {
         self.setStatus(if (code) |status| status else .found);
         try self.setHeader("Location", path);
         try self.sendBody("moved");
+        self.markAsFinished(true);
     }
 
     /// shows how to use the logger
@@ -187,6 +230,7 @@ pub const SimpleRequest = struct {
     pub fn sendFile(self: *const Self, file_path: []const u8) !void {
         if (fio.http_sendfile2(self.h, util.toCharPtr(file_path), file_path.len, null, 0) != 0)
             return error.SendFile;
+        self.markAsFinished(true);
     }
 
     /// Attempts to decode the request's body.
@@ -575,7 +619,15 @@ pub const SimpleHttpListener = struct {
                 .body = util.fio2str(r.*.body),
                 .method = util.fio2str(r.*.method),
                 .h = r,
+                ._is_finished_request_global = false,
+                ._user_context = undefined,
             };
+            req._is_finished = &req._is_finished_request_global;
+
+            var user_context: SimpleRequest.UserContext = .{};
+            req._user_context = &user_context;
+
+            req.markAsFinished(false);
             std.debug.assert(l.settings.on_request != null);
             if (l.settings.on_request) |on_request| {
                 // l.settings.on_request.?(req);
@@ -592,7 +644,14 @@ pub const SimpleHttpListener = struct {
                 .body = util.fio2str(r.*.body),
                 .method = util.fio2str(r.*.method),
                 .h = r,
+                ._is_finished_request_global = false,
+                ._user_context = undefined,
             };
+            req._is_finished = &req._is_finished_request_global;
+
+            var user_context: SimpleRequest.UserContext = .{};
+            req._user_context = &user_context;
+
             l.settings.on_response.?(req);
         }
     }
@@ -605,8 +664,15 @@ pub const SimpleHttpListener = struct {
                 .body = util.fio2str(r.*.body),
                 .method = util.fio2str(r.*.method),
                 .h = r,
+                ._is_finished_request_global = false,
+                ._user_context = undefined,
             };
             var zigtarget: []u8 = target[0..target_len];
+            req._is_finished = &req._is_finished_request_global;
+
+            var user_context: SimpleRequest.UserContext = .{};
+            req._user_context = &user_context;
+
             l.settings.on_upgrade.?(req, zigtarget);
         }
     }

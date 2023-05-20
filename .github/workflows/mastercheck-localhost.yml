@@ -1,13 +1,13 @@
-name: Works with Zig master
+name: Works with Zig master (localhost patch)
 on: 
-  push:
-    branches:
-    - master
-  pull_request:
-    branches:
-    - master
-  schedule:
-    - cron: "0 0 * * *"
+  # push:
+  #   branches:
+  #   - master
+  # pull_request:
+  #   branches:
+  #   - master
+  # schedule:
+  #   - cron: "0 0 * * *"
   workflow_dispatch:
   
 jobs:
@@ -22,8 +22,20 @@ jobs:
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: wget
+        uses: wei/wget@v1
+        with:
+          args: https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.8.tar.gz
       - name: Check zig version
         run: zig version
+      - name: hack build.zig.zon
+        run: |
+          mv build.zig.zon build.zig.zon.moved && mv build.zig.zon.localhost build.zig.zon && python -m http.server &
+          sleep 3
+          zig build
       - name: Build all examples
         run: ./build_all.sh
       - name: Run authentication tests
@@ -32,3 +44,4 @@ jobs:
         run: zig build test-httpparams
       - name: Run sendfile tests
         run: zig build test-sendfile
+

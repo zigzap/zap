@@ -9,9 +9,7 @@ authentication, see the [UserPassSessionAuth](../src/http_auth.zig#L319) and its
 
 For convenience, Authenticator types exist that can authenticate requests.
 
-Zap also provides an `AuthenticatingEndpoint` endpoint-wrapper.
-
-Have a look at the tests: [here](../src/test_auth.zig)
+Zap also provides an `AuthenticatingEndpoint` endpoint-wrapper. Have a look at the [example](../examples/endpoint_auth) and the [tests](../src/tests/test_auth.zig).
 
 The following describes the Authenticator types. All of them provide the
 `authenticateRequest()` function, which takes a `zap.SimpleRequest` and returns

@@ -15,3 +15,4 @@ websockets
 userpass_session
 sendfile
 middleware
+middleware_with_endpoint

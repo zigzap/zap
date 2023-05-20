@@ -58,6 +58,8 @@ Here's what works:
   request handlers in middleware style. Provide custom context structs, totally
   type-safe, using **[ZIG-CEPTION](doc/zig-ception.md)**. If you come from GO
   this might appeal to you.
+- **[MIDDLEWARE with endpoint support](examples/middleware_with_endpoint/middleware_with_endpoint.zig)**: Same as the example above, but this time we use an endpoint at the end of the chain, by wrapping it via `zap.Middleware.EndpointHandler`. Mixing endpoints in your middleware chain allows for usage of Zap's authenticated endpoints and your custom endpoints. Since Endpoints use a simpler API, you have to use `r.setUserContext()` and `r.getUserContext()` with the request if you want to access the middleware context from a wrapped endpoint. Since this mechanism uses an `*anyopaque` pointer underneath (to not break the Endpoint API), it is less type-safe than `zap.Middleware`'s use of contexts.
+- **Per Request Contexts** : With the introduction of `setContext()` and `getContext()`, you can, of course use those two in projects that don't use `zap.SimpleEndpoint` or `zap.Middleware`, too, if you really, really, absolutely don't find another way to solve your context problem. **We recommend using a `zap.SimpleEndpoint`** inside of a struct that can provide all the context you need **instead**. You get access to your struct in the callbacks via the `@fieldParentPtr()` trick that is used extensively in Zap's examples, like the [endpoint example](examples/endpoint/endpoint.zig).
 
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
@@ -147,10 +149,10 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap release-0.0.22
+        // zap release-0.0.23
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.22.tar.gz",
-            .hash = "12204761c4f94997c3bd26f420cf9060541c0c09514370dc129e04b35e58d9f3ae71",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.23.tar.gz",
+            .hash = "1220175a7495f41889208349fedd6a35e96d8e413e5cd23b9b875e40d176bad459e1",
         }
     }
 }
