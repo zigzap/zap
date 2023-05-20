@@ -29,27 +29,14 @@ const Context = zap.Middleware.MixContexts(.{
 const Handler = zap.Middleware.Handler(Context);
 
 //
-// ZIG-CEPTION!!!
-//
-// Note how amazing zig is:
-// - we create the "mixed" context based on the both middleware structs
-// - we create the handler based on this context
-// - we create the middleware structs based on the handler
-//     - which needs the context
-//     - which needs the middleware structs
-//     - ZIG-CEPTION!
-
 // Example user middleware: puts user info into the context
+//
 const UserMiddleWare = struct {
     handler: Handler,
 
     const Self = @This();
 
     // Just some arbitrary struct we want in the per-request context
-    // note: it MUST have all default values!!!
-    // note: it MUST have all default values!!!
-    // note: it MUST have all default values!!!
-    // note: it MUST have all default values!!!
     // This is so that it can be constructed via .{}
     // as we can't expect the listener to know how to initialize our context structs
     const User = struct {
@@ -88,7 +75,9 @@ const UserMiddleWare = struct {
     }
 };
 
+//
 // Example session middleware: puts session info into the context
+//
 const SessionMiddleWare = struct {
     handler: Handler,
 
@@ -130,51 +119,71 @@ const SessionMiddleWare = struct {
     }
 };
 
-// Example html middleware: handles the request and sends a response
-const HtmlMiddleWare = struct {
-    handler: Handler,
-
+//
+// !!!! ENDPOINT !!!
+//
+// We define an endpoint as we usually would.
+// NO ROUTING IS PERFORMED
+// as we are just going to wrap it in a bunch of Middleware components
+// and therefore NOT using an endpoint listener that would the routing for us
+//
+// Hence, the endpoint should check r.path in its on_request to check wether
+// it is adressed or not.
+//
+// N.B. the EndpointHandler checks if the endpoint turned the request into
+// "finished" state, e.g. by sending anything. If the endpoint didn't finish the
+// request, the EndpointHandler will pass the request on to the next handler in
+// the chain if there is one. See also the EndpointHandler's `breakOnFinish`
+// parameter.
+//
+const HtmlEndpoint = struct {
+    endpoint: zap.SimpleEndpoint = undefined,
     const Self = @This();
 
-    pub fn init(other: ?*Handler) Self {
+    pub fn init() Self {
         return .{
-            .handler = Handler.init(onRequest, other),
+            .endpoint = zap.SimpleEndpoint.init(.{
+                .path = "/doesn'tmatter",
+                .get = get,
+            }),
         };
     }
 
-    // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
-        return &self.handler;
+    pub fn getEndpoint(self: *Self) *zap.SimpleEndpoint {
+        return &self.endpoint;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
-
-        // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+    pub fn get(ep: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+        var self = @fieldParentPtr(Self, "endpoint", ep);
         _ = self;
-
-        std.debug.print("\n\nHtmlMiddleware: handling request with context: {any}\n\n", .{context});
 
         var buf: [1024]u8 = undefined;
         var userFound: bool = false;
         var sessionFound: bool = false;
-        if (context.user) |user| {
-            userFound = true;
-            if (context.session) |session| {
-                sessionFound = true;
 
-                std.debug.assert(r.isFinished() == false);
-                const message = std.fmt.bufPrint(&buf, "User: {s} / {s}, Session: {s} / {s}", .{
-                    user.name,
-                    user.email,
-                    session.info,
-                    session.token,
-                }) catch unreachable;
-                r.setContentType(.TEXT) catch unreachable;
-                r.sendBody(message) catch unreachable;
-                std.debug.assert(r.isFinished() == true);
-                return true;
+        // the EndpointHandler set this for us!
+        // we got middleware context!!!
+        const maybe_context: ?*Context = r.getUserContext(Context);
+        if (maybe_context) |context| {
+            std.debug.print("\n\nHtmlEndpoint: handling request with context: {any}\n\n", .{context});
+
+            if (context.user) |user| {
+                userFound = true;
+                if (context.session) |session| {
+                    sessionFound = true;
+
+                    std.debug.assert(r.isFinished() == false);
+                    const message = std.fmt.bufPrint(&buf, "User: {s} / {s}, Session: {s} / {s}", .{
+                        user.name,
+                        user.email,
+                        session.info,
+                        session.token,
+                    }) catch unreachable;
+                    r.setContentType(.TEXT) catch unreachable;
+                    r.sendBody(message) catch unreachable;
+                    std.debug.assert(r.isFinished() == true);
+                    return;
+                }
             }
         }
 
@@ -182,7 +191,7 @@ const HtmlMiddleWare = struct {
 
         r.setContentType(.TEXT) catch unreachable;
         r.sendBody(message) catch unreachable;
-        return true;
+        return;
     }
 };
 
@@ -193,8 +202,15 @@ pub fn main() !void {
     var allocator = gpa.allocator();
     SharedAllocator.init(allocator);
 
-    // we create our HTML middleware component that handles the request
-    var htmlHandler = HtmlMiddleWare.init(null);
+    // create the endpoint
+    var htmlEndpoint = HtmlEndpoint.init();
+
+    // we wrap the endpoint with a middleware handler
+    var htmlHandler = zap.Middleware.EndpointHandler(Handler, Context).init(
+        htmlEndpoint.getEndpoint(), // the endpoint
+        null, // no other handler (we are the last in the chain)
+        true, // break on finish. See EndpointHandler for this. Not applicable here.
+    );
 
     // we wrap it in the session Middleware component
     var sessionHandler = SessionMiddleWare.init(htmlHandler.getHandler());

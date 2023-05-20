@@ -66,7 +66,9 @@ pub const http_s = extern struct {
     params: FIOBJ,
     body: FIOBJ,
     udata: ?*anyopaque,
-}; // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/http.h:153:12: warning: struct demoted to opaque type - has bitfield
+};
+
+// zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/http.h:153:12: warning: struct demoted to opaque type - has bitfield
 
 // typedef struct {
 //   /** The cookie's name (Symbol). */

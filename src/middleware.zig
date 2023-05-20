@@ -80,6 +80,42 @@ pub fn Handler(comptime ContextType: anytype) type {
     };
 }
 
+/// A convenience handler for artibrary zap.SimpleEndpoint
+pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
+    return struct {
+        handler: HandlerType,
+        endpoint: *zap.SimpleEndpoint,
+        breakOnFinish: bool,
+
+        const Self = @This();
+
+        pub fn init(endpoint: *zap.SimpleEndpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
+            return .{
+                .handler = HandlerType.init(onRequest, other),
+                .endpoint = endpoint,
+                .breakOnFinish = breakOnFinish,
+            };
+        }
+
+        // we need the handler as a common interface to chain stuff
+        pub fn getHandler(self: *Self) *HandlerType {
+            return &self.handler;
+        }
+
+        pub fn onRequest(handler: *HandlerType, r: zap.SimpleRequest, context: *ContextType) bool {
+            var self = @fieldParentPtr(Self, "handler", handler);
+            r.setUserContext(context);
+            self.endpoint.onRequest(r);
+
+            // if the request was handled by the endpoint, we may break the chain here
+            if (r.isFinished() and self.breakOnFinish) {
+                return true;
+            }
+            return self.handler.handleOther(r, context);
+        }
+    };
+}
+
 pub const Error = error{
     InitOnRequestIsNotNull,
 };
