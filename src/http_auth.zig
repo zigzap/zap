@@ -408,7 +408,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 if (r.setCookie(.{
                     .name = self.settings.cookieName,
                     .value = "invalid",
-                    .max_age_s = self.settings.cookieMaxAge,
+                    .max_age_s = -1,
                 })) {
                     zap.debug("logout ok\n", .{});
                 } else |err| {
@@ -424,7 +424,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             if (r.setCookie(.{
                 .name = self.settings.cookieName,
                 .value = "invalid",
-                .max_age_s = self.settings.cookieMaxAge,
+                .max_age_s = -1,
             })) {
                 zap.debug("logout ok\n", .{});
             } else |err| {
