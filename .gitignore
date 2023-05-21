@@ -7,3 +7,4 @@ tmp/
 **/__pycache__/*
 wrk/go/main
 scratch
+**/.mypy_cache/*

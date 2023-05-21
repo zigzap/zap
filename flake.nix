@@ -48,6 +48,8 @@
             wrk
             python39
             python39Packages.sanic
+            poetry
+            poetry
             pkgs.rustc 
             pkgs.cargo 
             pkgs.gcc 
