@@ -239,7 +239,7 @@ fn renderTemplate(gpa: std.mem.Allocator, tag: []const u8, template: []const u8,
     const s2 = try std.mem.replaceOwned(u8, gpa, s1, "{hash}", hash);
     defer gpa.free(s2);
 
-    std.debug.print("{s}\n", .{s2});
+    try std.io.getStdOut().writer().writeAll(s2);
 }
 
 pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void {

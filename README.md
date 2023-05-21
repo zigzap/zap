@@ -31,7 +31,7 @@ Here's what works:
 - **[hello](examples/hello/hello.zig)**: welcomes you with some static
   HTML
 - **[routes](examples/routes/routes.zig)**: a super easy example
-  dispatching on the HTTP path 
+  dispatching on the HTTP path
 - **[serve](examples/serve/serve.zig)**: the traditional static web
   server with optional dynamic request handling
 - **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
@@ -112,18 +112,18 @@ See more details in [blazingly-fast.md](blazingly-fast.md).
 
 ```shell
 $ git clone https://github.com/zigzap/zap.git
-$ cd zap 
+$ cd zap
 $ zig build run-hello
 $ # open http://localhost:3000 in your browser
 ```
 
 ... and open [http://localhost:3000](http://locahhost:3000) in your browser.
 
-## Using ⚡zap⚡ in your own projects 
+## Using ⚡zap⚡ in your own projects
 
 If you don't have an existing zig project, create one like this:
 
-```shell 
+```shell
 $ mkdir zaptest && cd zaptest
 $ zig init-exe
 $ git init      ## (optional)
@@ -138,30 +138,33 @@ fetch zig master.
 
 With an existing zig project, adding zap to it is easy:
 
-1. Add zap to your `build.zig.zon` 
-2. Add zap to your `build.zig` 
+1. Add zap to your `build.zig.zon`
+2. Add zap to your `build.zig`
 
 To add zap to `build.zig.zon`:
 
-```zig 
+<!-- INSERT_DEP_BEGIN -->
+```zig
 .{
-    .name = "myapp",
+    .name = "My example project",
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap release-0.0.24
+        // zap release-0.0.23
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.24.tar.gz",
-            .hash = "1220f520fcdd4b3adbca918deeb42f512f7ef4a827680eea8af9abc64b90ed7a5e78",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/release-0.0.23.tar.gz",
+            .hash = "122001f1a749bdeba74be3e89f60730aa630c5e706eba1d7f91e225a87429005cffc",
         }
     }
 }
 ```
 
+<!-- INSERT_DEP_END -->
+
 Then, in your `build.zig`'s `build` function, add the following before
 `b.installArtifact(exe)``:
 
-```zig 
+```zig
     const zap = b.dependency("zap", .{
         .target = target,
         .optimize = optimize,
@@ -175,7 +178,7 @@ examples to see how to use zap.
 
 ## Updating your project to the latest version of zap
 
-You can change the URL to zap in your `build.zig.zon` 
+You can change the URL to zap in your `build.zig.zon`
 
 - easiest: use a tagged release
 - or to one of the tagged versions, e.g. `0.0.9`
@@ -196,12 +199,12 @@ to copy the URL to put into your `build.zig.zon`.
 After changing the `.url` field, you will get an error like this at the next
 attempt to `zig build`:
 
-``` 
-.../build.zig.zon:8:21: error: hash mismatch: 
-expected: 12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049, 
-found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424 
+```
+.../build.zig.zon:8:21: error: hash mismatch:
+expected: 12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049,
+found: 1220f4ea8be4a85716ae1362d34c077dca10f10d1baf9196fc890e658c56f78b7424
 .hash = "12205fd0b60720fb2a40d82118ee75c15cb5589bb9faf901c8a39a93551dd6253049",
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
 
 **Note:** If you don't get this error, clean your global zig cache: `rm -fr
@@ -243,7 +246,7 @@ You can also reach me on [the zig showtime discord
 server](https://discord.gg/CBzE3VMb) under the handle renerocksai
 (renerocksai#1894).
 
-## Support ⚡zap⚡ 
+## Support ⚡zap⚡
 
 Being blazingly fast requires a constant feed of caffeine. I usually manage to
 provide that to myself for myself. However, to support keeping the juices
@@ -265,8 +268,8 @@ $ ./zig-out/bin/[EXAMPLE]
 
 Example: building and running the hello example:
 
-```shell 
-$ zig build hello 
+```shell
+$ zig build hello
 $ ./zig-out/bin/hello
 ```
 
@@ -316,4 +319,3 @@ pub fn main() !void {
     });
 }
 ```
-
