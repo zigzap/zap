@@ -167,6 +167,7 @@ pub fn build(b: *std.build.Builder) !void {
     run_sendfile_test_step.dependOn(&run_sendfile_tests.step);
     run_sendfile_test_step.dependOn(&install_sendfile_tests.step);
 
+    //
     // pkghash
     //
     var pkghash_exe = b.addExecutable(.{
@@ -178,4 +179,17 @@ pub fn build(b: *std.build.Builder) !void {
     var pkghash_step = b.step("pkghash", "Build pkghash");
     const pkghash_build_step = b.addInstallArtifact(pkghash_exe);
     pkghash_step.dependOn(&pkghash_build_step.step);
+
+    //
+    // announceybot
+    //
+    var announceybot_exe = b.addExecutable(.{
+        .name = "announceybot",
+        .root_source_file = .{ .path = "./tools/announceybot.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    var announceybot_step = b.step("announceybot", "Build announceybot");
+    const announceybot_build_step = b.addInstallArtifact(announceybot_exe);
+    announceybot_step.dependOn(&announceybot_build_step.step);
 }

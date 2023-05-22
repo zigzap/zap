@@ -2,7 +2,7 @@
 
 ## Updates
 
-{{UPDATES}}
+{annotation}
 
 ## Using it
 
