@@ -25,7 +25,7 @@ def get_tag_annotation(tagname):
 
 def get_replacement():
     ret = subprocess.run([
-        "./zig-out/bin/pkghash",
+        "./tools/pkghash",
         "-g", f"--tag={TAG_NAME}",
         "--template=./tools/announceybot/release-dep-update-template.md",
         ], capture_output=True)

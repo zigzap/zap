@@ -28,13 +28,13 @@ jobs:
       run: |
         echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
 
-    - uses: goto-bus-stop/setup-zig@v2
-      with:
-        version: master
-    - name: Check zig version
-      run: zig version
-    - name: Build pkghash tool
-      run: zig build pkghash
+    # - uses: goto-bus-stop/setup-zig@v2
+    #   with:
+    #     version: master
+    # - name: Check zig version
+    #   run: zig version
+    # - name: Build pkghash tool
+    #   run: zig build pkghash
 
     - name: Generate release notes
       id: release_notes
