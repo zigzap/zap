@@ -51,10 +51,11 @@ jobs:
     - name: Commit and push if it has changed
       run: |
         git diff
+        git checkout master
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -am "Update README"
-        git push
+        git push origin master
 
     - name: Create Release
       id: create_release
