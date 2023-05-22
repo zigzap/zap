@@ -10,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions: 
-      id-token: read|write
-      contents: read|write
+      id-token: write
+      contents: write
 
     steps:
     - name: Checkout code
