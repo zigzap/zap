@@ -1,4 +1,4 @@
-name: Create Release, update README, send announcement
+name: Check out git annotated tag stuff
 
 
 on:
