@@ -44,7 +44,7 @@ jobs:
     - name: Generate release notes
       id: release_notes
       run: |
-        echo "::set-output name=notes::$(python tools/announceybot/generate_releasenotes.py "${{ steps.tag.outputs.version }}")"
+        python tools/announceybot/generate_releasenotes.py "${{ steps.tag.outputs.version }}" > relnotes.md
 
     - name: Create Release
       id: create_release
@@ -54,7 +54,9 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ steps.tag.outputs.version }} # Remove 'refs/tags/' from the tag name
-        body: ${{ steps.release_notes.outputs.notes }} # Use the release notes from the output of the previous step
+        # body: ${{ steps.release_notes.outputs.notes }} # Use the release notes from the output of the previous step
+        body_path: relnotes.md
+        prerelease: true
 
     - name: Announce Release
       env:
