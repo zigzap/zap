@@ -99,6 +99,8 @@ pub const SimpleRequest = struct {
         return self._is_finished.*;
     }
 
+    /// if you absolutely must, you can set any context here
+    // (note, this line is linked to from the readme)
     pub fn setUserContext(self: *const Self, context: *anyopaque) void {
         self._user_context.*.user_context = context;
     }
@@ -109,6 +111,30 @@ pub const SimpleRequest = struct {
         } else {
             return null;
         }
+    }
+
+    pub fn sendError(self: *const Self, err: anyerror, errorcode_num: usize) void {
+        // TODO: query accept headers
+        if (self._internal_sendError(err, errorcode_num)) {
+            return;
+        } else |_| {
+            self.sendBody(@errorName(err)) catch return;
+        }
+    }
+    pub fn _internal_sendError(self: *const Self, err: anyerror, errorcode_num: usize) !void {
+        // TODO: query accept headers
+        // TODO: let's hope 20k is enough. Maybe just really allocate here
+        self.h.*.status = errorcode_num;
+        var buf: [20 * 1024]u8 = undefined;
+        var fba = std.heap.FixedBufferAllocator.init(&buf);
+        var string = std.ArrayList(u8).init(fba.allocator());
+        var writer = string.writer();
+        try writer.print("ERROR: {any}\n\n", .{err});
+
+        var debugInfo = try std.debug.getSelfDebugInfo();
+        var ttyConfig: std.debug.TTY.Config = .no_color;
+        try std.debug.writeCurrentStackTrace(writer, debugInfo, ttyConfig, null);
+        try self.sendBody(string.items);
     }
 
     pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {

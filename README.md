@@ -25,42 +25,63 @@ juicy, and alpha._
 
 Here's what works:
 
-- **Super easy build process**: zap's `build.zig` now uses the up-and-coming
-  zig package manager for its C-dependencies, no git submodules anymore.
+- **Super easy build process**: zap's `build.zig` now uses the up-and-coming zig
+  package manager for its C-dependencies, no git submodules anymore.
   - _tested on Linux and macOS (arm, M1)_
-- **[hello](examples/hello/hello.zig)**: welcomes you with some static
-  HTML
-- **[routes](examples/routes/routes.zig)**: a super easy example
-  dispatching on the HTTP path
-- **[serve](examples/serve/serve.zig)**: the traditional static web
-  server with optional dynamic request handling
+- **[hello](examples/hello/hello.zig)**: welcomes you with some static HTML
+- **[routes](examples/routes/routes.zig)**: a super easy example dispatching on
+  the HTTP path
+- **[serve](examples/serve/serve.zig)**: the traditional static web server with
+  optional dynamic request handling
 - **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
   a file, honoring compression headers, etc.
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
-- **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring
-  a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing
-  users, together with a static HTML and JavaScript frontend to play with.
+- **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring a
+  `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing users,
+  together with a static HTML and JavaScript frontend to play with.
 - **[mustache](examples/mustache/mustache.zig)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
-- **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a simple authenticated
-  endpoint. Read more about authentication [here](./doc/authentication.md).
-- **[http parameters](examples/http_params/http_params.zig)**: a simple example sending
-  itself query parameters of all supported types.
-- **[cookies](examples/cookies/cookies.zig)**: a simple example sending
-  itself a cookie and responding with a session cookie.
-- **[websockets](examples/websockets/)**: a simple websockets chat for the browser.
-- **[Username/Password Session Authentication](./examples/userpass_session_auth/)**:
-  A convenience authenticator that redirects un-authenticated requests to a
-  login page and sends cookies containing session tokens based on
-  username/password pairs transmitted via POST request.
+- **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a
+  simple authenticated endpoint. Read more about authentication
+  [here](./doc/authentication.md).
+- **[http parameters](examples/http_params/http_params.zig)**: a simple example
+  sending itself query parameters of all supported types.
+- **[cookies](examples/cookies/cookies.zig)**: a simple example sending itself a
+  cookie and responding with a session cookie.
+- **[websockets](examples/websockets/)**: a simple websockets chat for the
+  browser.
+- **[Username/Password Session
+  Authentication](./examples/userpass_session_auth/)**: A convenience
+  authenticator that redirects un-authenticated requests to a login page and
+  sends cookies containing session tokens based on username/password pairs
+  transmitted via POST request.
 - **[MIDDLEWARE support](examples/middleware/middleware.zig)**: chain together
   request handlers in middleware style. Provide custom context structs, totally
   type-safe, using **[ZIG-CEPTION](doc/zig-ception.md)**. If you come from GO
   this might appeal to you.
-- **[MIDDLEWARE with endpoint support](examples/middleware_with_endpoint/middleware_with_endpoint.zig)**: Same as the example above, but this time we use an endpoint at the end of the chain, by wrapping it via `zap.Middleware.EndpointHandler`. Mixing endpoints in your middleware chain allows for usage of Zap's authenticated endpoints and your custom endpoints. Since Endpoints use a simpler API, you have to use `r.setUserContext()` and `r.getUserContext()` with the request if you want to access the middleware context from a wrapped endpoint. Since this mechanism uses an `*anyopaque` pointer underneath (to not break the Endpoint API), it is less type-safe than `zap.Middleware`'s use of contexts.
-- **Per Request Contexts** : With the introduction of `setContext()` and `getContext()`, you can, of course use those two in projects that don't use `zap.SimpleEndpoint` or `zap.Middleware`, too, if you really, really, absolutely don't find another way to solve your context problem. **We recommend using a `zap.SimpleEndpoint`** inside of a struct that can provide all the context you need **instead**. You get access to your struct in the callbacks via the `@fieldParentPtr()` trick that is used extensively in Zap's examples, like the [endpoint example](examples/endpoint/endpoint.zig).
-
+- **[MIDDLEWARE with endpoint
+  support](examples/middleware_with_endpoint/middleware_with_endpoint.zig)**:
+  Same as the example above, but this time we use an endpoint at the end of the
+  chain, by wrapping it via `zap.Middleware.EndpointHandler`. Mixing endpoints
+  in your middleware chain allows for usage of Zap's authenticated endpoints and
+  your custom endpoints. Since Endpoints use a simpler API, you have to use
+  `r.setUserContext()` and `r.getUserContext()` with the request if you want to
+  access the middleware context from a wrapped endpoint. Since this mechanism
+  uses an `*anyopaque` pointer underneath (to not break the Endpoint API), it is
+  less type-safe than `zap.Middleware`'s use of contexts.
+- [**Per Request Contexts**](./src/zap.zig#L102) : With the introduction of
+  `setUserContext()` and `getUserContext()`, you can, of course use those two in
+  projects that don't use `zap.SimpleEndpoint` or `zap.Middleware`, too, if you
+  really, really, absolutely don't find another way to solve your context
+  problem. **We recommend using a `zap.SimpleEndpoint`** inside of a struct that
+  can provide all the context you need **instead**. You get access to your
+  struct in the callbacks via the `@fieldParentPtr()` trick that is used
+  extensively in Zap's examples, like the [endpoint
+  example](examples/endpoint/endpoint.zig).
+- [**Error Trace Responses**](./examples/senderror/senderror.zig): You can now
+  call `r.sendError(err, status_code)` when you catch an error and a stack trace
+  will be returned to the client / browser.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
