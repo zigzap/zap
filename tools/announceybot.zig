@@ -5,6 +5,7 @@ const Manifest = @import("Manifest.zig");
 const README_PATH = "README.md";
 const README_UPDATE_TEMPLATE = @embedFile("./announceybot/release-dep-update-template.md");
 const RELEASE_NOTES_TEMPLATE = @embedFile("./announceybot/release-note-template.md");
+const RELEASE_ANNOUNCEMENT_TEMPLATE = @embedFile("./announceybot/release-announcement-template.md");
 
 fn usage() void {
     const message =
@@ -160,7 +161,6 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     var req = try http_client.request(.POST, uri, h, .{});
     defer req.deinit();
 
-    std.debug.print("Message length: {}\n", .{message_json.len});
     req.transfer_encoding = .chunked;
 
     // connect, send request
@@ -174,7 +174,6 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     try req.wait();
     var buffer: [1024]u8 = undefined;
     _ = try req.readAll(&buffer);
-    std.debug.print("RESPONSE:\n{s}\n", .{buffer});
 }
 
 fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const u8) !void {
@@ -309,13 +308,36 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
         var part_string = std.ArrayList(u8).init(fba.allocator());
         defer part_string.deinit();
         try std.json.stringify(.{ .content = part }, .{}, part_string.writer());
-        std.debug.print("\nSENDING PART {}: {s}\n", .{ it, part_string.items });
+        std.debug.print("SENDING PART {} / {}: ... ", .{ it, chunks.items.len });
         try sendToDiscordPart(allocator, url, part_string.items);
+        std.debug.print("done!\n", .{});
         it += 1;
     }
 }
 
 fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
+    const annotation = try get_tag_annotation(allocator, tag);
+    defer allocator.free(annotation);
+    const hash = try getPkgHash(allocator);
+    defer allocator.free(hash);
+
+    const announcement = try renderTemplate(allocator, RELEASE_ANNOUNCEMENT_TEMPLATE, .{
+        .tag = tag,
+        .hash = hash,
+        .annotation = annotation,
+    });
+
+    // std.debug.print("{s}\n", .{announcement});
+    defer allocator.free(announcement);
+    const url = try std.process.getEnvVarOwned(allocator, "WEBHOOK_URL");
+    defer allocator.free(url);
+    sendToDiscord(allocator, url, announcement) catch |err| {
+        std.debug.print("HTTP ERROR: {any}\n", .{err});
+        std.os.exit(1);
+    };
+}
+
+fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
     const annotation = try get_tag_annotation(allocator, tag);
     defer allocator.free(annotation);
     const hash = try getPkgHash(allocator);
@@ -327,17 +349,7 @@ fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
         .annotation = annotation,
     });
     defer allocator.free(release_notes);
-    const url = try std.process.getEnvVarOwned(allocator, "WEBHOOK_URL");
-    defer allocator.free(url);
-    try sendToDiscord(allocator, url, release_notes);
-    // sendToDiscord(allocator, url, release_notes) catch |err| {
-    //     std.debug.print("HTTP ERROR: {any}\n", .{err});
-    // };
-}
-
-fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
-    _ = allocator;
-    _ = tag;
+    try std.io.getStdOut().writeAll(release_notes);
 }
 fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
     _ = allocator;

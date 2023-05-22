@@ -34,8 +34,7 @@ Here is a complete `build.zig.zon` example:
 
 ```
 
-Then, in your `build.zig`'s `build` function, add the following before
-`exe.install()`:
+Then, in your `build.zig`'s `build` function, add the following before `exe.install()`:
 
 ```zig 
     const zap = b.dependency("zap", .{
