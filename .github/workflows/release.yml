@@ -1,0 +1,66 @@
+name: Create Release, update README, send announceybot
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install discord-webhook GitPython
+
+    - name: Set tag name
+      id: tag
+      run: |
+        echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
+
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        echo "::set-output name=notes::$(python tools/announceybot/generate_releasenotes.py "${{ steps.tag.outputs.version }}")"
+
+    - name: Run script to update README
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag.outputs.version }}
+      run: |
+        python tools/announceybot/update_readme.py "${TAG_NAME}"
+
+    - name: Commit and push if it has changed
+      run: |
+        git diff
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Update README"
+        git push
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.tag.outputs.version }} # Remove 'refs/tags/' from the tag name
+        body: ${{ steps.release_notes.outputs.notes }} # Use the release notes from the output of the previous step
+
+    - name: Announce Release
+      env:
+        TAG_NAME: ${{ steps.tag.outputs.version }}
+        WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        python tools/announceybot/announceybot.py "${TAG_NAME}"

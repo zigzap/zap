@@ -36,7 +36,9 @@ def get_replacement():
 if __name__ == '__main__':
     annotation = get_tag_annotation(TAG_NAME)
     zon_update = get_replacement()
-    message = f'''# New release {TAG_NAME}!
+    message = f'''# TEST-RUN TEST-RUN TEST-RUN
+
+    # New release {TAG_NAME}!
 
 ## Updates
 
