@@ -1,6 +1,5 @@
 import sys
 import os
-from git import Repo
 import subprocess
 
 TAG_NAME = os.getenv("TAG_NAME", sys.argv[1])
