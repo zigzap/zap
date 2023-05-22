@@ -1,10 +1,11 @@
-name: Create Release, update README, send announceybot
+name: Create Release, update README, send announcement
 
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,16 +17,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install discord-webhook 
 
     - name: Set tag name
       id: tag
@@ -44,7 +35,7 @@ jobs:
     - name: Generate release notes
       id: release_notes
       run: |
-        python tools/announceybot/generate_releasenotes.py "${{ steps.tag.outputs.version }}" > relnotes.md
+        tools/announceybot.exe release-notes "${{ steps.tag.outputs.version }}" > relnotes.md
 
     - name: Create Release
       id: create_release
@@ -62,7 +53,7 @@ jobs:
         TAG_NAME: ${{ steps.tag.outputs.version }}
         WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       run: |
-        python tools/announceybot/announceybot.py "${TAG_NAME}"
+        tools/announceybot.exe announce "${TAG_NAME}"
 
 
     # README update
@@ -76,7 +67,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag.outputs.version }}
       run: |
-        python tools/announceybot/update_readme.py "${TAG_NAME}"
+        tools/announceybot.exe update-readme "${TAG_NAME}"
 
     - name: Commit and push if it has changed
       run: |
