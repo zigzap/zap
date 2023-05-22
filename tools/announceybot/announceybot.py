@@ -53,6 +53,6 @@ Modify your `build.zig.zon` like this:
 
 '''
     message += zon_update + "\n"
-    message += 'See the [release page](https://github.com/zigzap/zap/releases/'
-    message += f'{TAG_NAME}) for more information!'
+    message += 'See the release page: https://github.com/zigzap/zap/releases/'
+    message += f'{TAG_NAME} for more information!'
     send_to_discord(message)
