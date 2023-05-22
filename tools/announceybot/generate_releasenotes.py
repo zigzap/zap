@@ -7,9 +7,14 @@ TAG_NAME = os.getenv("TAG_NAME", sys.argv[1])
 
 
 def get_tag_annotation(tagname):
-    repo = Repo('.')
-    tag = repo.tags[tagname]
-    return tag.tag.message
+    ret = subprocess.run([
+        "git",
+        "-l", 
+        "--format='%(contents)'",
+        f"{TAG_NAME}",
+        ], capture_output=True)
+    text = ret.stdout.decode("utf-8")
+    return text
 
 
 def get_replacement():

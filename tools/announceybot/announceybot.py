@@ -1,7 +1,6 @@
 import sys
 import os
 from discord_webhook import DiscordWebhook
-from git import Repo
 import subprocess
 
 URL = os.getenv("WEBHOOK_URL")
@@ -18,9 +17,14 @@ def send_to_discord(message):
 
 
 def get_tag_annotation(tagname):
-    repo = Repo('.')
-    tag = repo.tags[tagname]
-    return tag.tag.message
+    ret = subprocess.run([
+        "git",
+        "-l", 
+        "--format='%(contents)'",
+        f"{TAG_NAME}",
+        ], capture_output=True)
+    text = ret.stdout.decode("utf-8")
+    return text
 
 
 def get_replacement():

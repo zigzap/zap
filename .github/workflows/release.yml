@@ -21,13 +21,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install discord-webhook GitPython
+        pip install discord-webhook 
 
     - name: Set tag name
       id: tag
       run: |
         echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
 
+    # we don't build it, we provide it in ./tools
     # - uses: goto-bus-stop/setup-zig@v2
     #   with:
     #     version: master
