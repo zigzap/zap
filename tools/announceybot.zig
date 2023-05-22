@@ -20,7 +20,7 @@ fn usage() void {
         \\
         \\    announce     : announce release in #announce discord channel
         \\                   expects the discord webhook URL in the env var
-        \\                   named `DISCORD_WEBHOOK_URL`
+        \\                   named `WEBHOOK_URL`
         \\
         \\    release-notes: print release notes for the given git tag
         \\
