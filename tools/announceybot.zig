@@ -3,9 +3,12 @@ const PkgHash = @import("pkghash.zig");
 const Manifest = @import("Manifest.zig");
 
 const README_PATH = "README.md";
+const README_MAX_SIZE = 25 * 1024;
 const README_UPDATE_TEMPLATE = @embedFile("./announceybot/release-dep-update-template.md");
 const RELEASE_NOTES_TEMPLATE = @embedFile("./announceybot/release-note-template.md");
 const RELEASE_ANNOUNCEMENT_TEMPLATE = @embedFile("./announceybot/release-announcement-template.md");
+const REPLACE_BEGIN_MARKER = "<!-- INSERT_DEP_BEGIN -->";
+const REPLACE_END_MARKER = "<!-- INSERT_DEP_END -->";
 
 fn usage() void {
     const message =
@@ -60,7 +63,7 @@ pub fn main() !void {
     }
 
     if (std.mem.eql(u8, command, "update-readme")) {
-        return command_releasenotes(gpa, tagname);
+        return command_update_readme(gpa, tagname);
     }
 
     // undocumented commands
@@ -352,6 +355,52 @@ fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
     try std.io.getStdOut().writeAll(release_notes);
 }
 fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
-    _ = allocator;
-    _ = tag;
+    const annotation = try get_tag_annotation(allocator, tag);
+    defer allocator.free(annotation);
+    const hash = try getPkgHash(allocator);
+    defer allocator.free(hash);
+
+    const update_part = try renderTemplate(allocator, README_UPDATE_TEMPLATE, .{
+        .tag = tag,
+        .hash = hash,
+        .annotation = annotation,
+    });
+    defer allocator.free(update_part);
+
+    // read the readme
+    const readme = try std.fs.cwd().readFileAlloc(allocator, README_PATH, README_MAX_SIZE);
+    defer allocator.free(readme);
+
+    var output_file = try std.fs.cwd().createFile(README_PATH, .{});
+    var writer = output_file.writer();
+    defer output_file.close();
+
+    // var writer = std.io.getStdOut().writer();
+
+    // iterate over lines
+    var in_replace_block: bool = false;
+    var line_it = std.mem.split(u8, readme, "\n");
+    while (line_it.next()) |line| {
+        if (in_replace_block) {
+            if (std.mem.startsWith(u8, line, REPLACE_END_MARKER)) {
+                in_replace_block = false;
+            }
+            continue;
+        }
+        if (std.mem.startsWith(u8, line, REPLACE_BEGIN_MARKER)) {
+            _ = try writer.write(REPLACE_BEGIN_MARKER);
+            _ = try writer.write("\n");
+            _ = try writer.write(update_part);
+            _ = try writer.write(REPLACE_END_MARKER);
+            _ = try writer.write("\n");
+            in_replace_block = true;
+            continue;
+        }
+        // we need to put the \n back in.
+        // TODO: change this by using some "search" iterator that just
+        // returns indices etc
+        var output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
+        defer allocator.free(output_line);
+        _ = try writer.write(output_line);
+    }
 }
