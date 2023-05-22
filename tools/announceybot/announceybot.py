@@ -9,7 +9,7 @@ TAG_NAME = os.getenv("TAG_NAME", sys.argv[1])
 
 def send_to_discord(message):
     webhook = DiscordWebhook(url=URL, rate_limit_retry=True, content=message)
-    if os.getenv("DEBUG", None) == None:
+    if os.getenv("DEBUG", None) is None:
         return webhook.execute()
     else:
         print("Sending ...")
@@ -19,12 +19,13 @@ def send_to_discord(message):
 def get_tag_annotation(tagname):
     ret = subprocess.run([
         "git",
+        "tag",
         "-l", 
         "--format='%(contents)'",
         f"{TAG_NAME}",
         ], capture_output=True)
     text = ret.stdout.decode("utf-8")
-    return text
+    return text.replace("'", "").replace('"', '\\"')
 
 
 def get_replacement():
@@ -39,10 +40,10 @@ def get_replacement():
 
 if __name__ == '__main__':
     annotation = get_tag_annotation(TAG_NAME)
-    zon_update = get_replacement()
+    zon_update = get_replacement().replace('"', '\\"')
     message = f'''# TEST-RUN TEST-RUN TEST-RUN
 
-    # New release {TAG_NAME}!
+# New release {TAG_NAME}!
 
 ## Updates
 

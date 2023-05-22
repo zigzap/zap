@@ -8,12 +8,13 @@ TAG_NAME = os.getenv("TAG_NAME", sys.argv[1])
 def get_tag_annotation(tagname):
     ret = subprocess.run([
         "git",
+        "tag",
         "-l", 
         "--format='%(contents)'",
         f"{TAG_NAME}",
         ], capture_output=True)
     text = ret.stdout.decode("utf-8")
-    return text
+    return text.replace("'", "")
 
 
 def get_replacement():

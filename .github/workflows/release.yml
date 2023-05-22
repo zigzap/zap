@@ -1,5 +1,8 @@
 name: Create Release, update README, send announceybot
 
+# we need write permission on contents for the release action
+permissions: read-all|write-all
+
 on:
   push:
     tags:
