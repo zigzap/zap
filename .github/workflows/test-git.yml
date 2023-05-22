@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
 
     - name: Set tag name
       id: tag
@@ -23,7 +25,6 @@ jobs:
     - name: Generate release notes
       id: release_notes
       run: |
-        git fetch --tags
         echo "${{ steps.tag.outputs.version }}"
         git tag -l --format='%(contents)' "${{ steps.tag.outputs.version }}"
         tools/announceybot.exe release-notes "${{ steps.tag.outputs.version }}" > relnotes.md
