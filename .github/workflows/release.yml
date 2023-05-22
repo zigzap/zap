@@ -1,7 +1,5 @@
 name: Create Release, update README, send announceybot
 
-# we need write permission on contents for the release action
-permissions: read-all|write-all
 
 on:
   push:
@@ -48,6 +46,9 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
+      permissions: 
+        id-token: read|write
+        contents: read|write
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
       with:
