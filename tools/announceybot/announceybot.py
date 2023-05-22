@@ -25,7 +25,7 @@ def get_tag_annotation(tagname):
         f"{TAG_NAME}",
         ], capture_output=True)
     text = ret.stdout.decode("utf-8")
-    return text.replace("'", "").replace('"', '\\"')
+    return text.replace("'", "")
 
 
 def get_replacement():
@@ -40,16 +40,14 @@ def get_replacement():
 
 if __name__ == '__main__':
     annotation = get_tag_annotation(TAG_NAME)
-    zon_update = get_replacement().replace('"', '\\"')
-    message = f'''# TEST-RUN TEST-RUN TEST-RUN
+    zon_update = get_replacement()
+    message = f''' __**New release {TAG_NAME}!**__
 
-# New release {TAG_NAME}!
-
-## Updates
+**Updates**
 
 {annotation}
 
-## Using it
+**Using it**
 
 Modify your `build.zig.zon` like this:
 
