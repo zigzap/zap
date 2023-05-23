@@ -22,8 +22,20 @@ const _module = @This();
 // TODO: replace with comptime debug logger like in log.zig
 var _debug: bool = false;
 
+/// Start the IO reactor
+///
+/// Will start listeners etc.
 pub fn start(args: fio.fio_start_args) void {
     fio.fio_start(args);
+}
+
+/// Stop ZAP:
+///
+/// 1. Stop accepting further incoming requests
+/// 2. Wait for all running request handlers to return
+/// 3. return from `zap.start(...)`
+pub fn stop() void {
+    fio.fio_stop();
 }
 
 pub fn debug(comptime fmt: []const u8, args: anytype) void {
