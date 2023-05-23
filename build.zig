@@ -167,6 +167,14 @@ pub fn build(b: *std.build.Builder) !void {
     run_sendfile_test_step.dependOn(&run_sendfile_tests.step);
     run_sendfile_test_step.dependOn(&install_sendfile_tests.step);
 
+    // Similar to creating the run step earlier, this exposes a `test` step to
+    // the `zig build --help` menu, providing a way for the participant to request
+    // running the unit tests.
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&run_auth_tests.step);
+    test_step.dependOn(&run_httpparams_tests.step);
+    test_step.dependOn(&run_sendfile_tests.step);
+
     //
     // pkghash
     //
