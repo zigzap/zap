@@ -395,10 +395,25 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 while (it.next()) |kv| {
                     // we iterate over all usernames and passwords, create tokens,
                     // and memorize the tokens
-                    _ = try ret.createAndStoreSessionToken(kv.key_ptr.*, kv.value_ptr.*);
+                    const token = try ret.createAndStoreSessionToken(kv.key_ptr.*, kv.value_ptr.*);
+                    allocator.free(token);
                 }
             }
             return ret;
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.allocator.free(self.settings.usernameParam);
+            self.allocator.free(self.settings.passwordParam);
+            self.allocator.free(self.settings.loginPage);
+            self.allocator.free(self.settings.cookieName);
+
+            // clean up the session tokens: the key strings are duped
+            var key_it = self.sessionTokens.keyIterator();
+            while (key_it.next()) |key_ptr| {
+                self.allocator.free(key_ptr.*);
+            }
+            self.sessionTokens.deinit();
         }
 
         /// Check for session token cookie, remove the token from the valid tokens
@@ -445,13 +460,6 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             } else |err| {
                 zap.debug("unreachable: UserPassSessionAuth.logout: {any}", .{err});
             }
-        }
-
-        pub fn deinit(self: *const Self) void {
-            self.allocator.free(self.settings.usernameParam);
-            self.allocator.free(self.settings.passwordParam);
-            self.allocator.free(self.settings.loginPage);
-            self.allocator.free(self.settings.cookieName);
         }
 
         fn _internal_authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
@@ -521,6 +529,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                                 if (std.mem.eql(u8, pw.str, correct_pw)) {
                                     // create session token
                                     if (self.createAndStoreSessionToken(username.str, pw.str)) |token| {
+                                        defer self.allocator.free(token);
                                         // now set the cookie header
                                         if (r.setCookie(.{
                                             .name = self.settings.cookieName,
@@ -594,11 +603,11 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 defer self.tokenLookupLock.unlock();
 
                 if (!self.sessionTokens.contains(token)) {
-                    try self.sessionTokens.put(token, {});
+                    try self.sessionTokens.put(try self.allocator.dupe(u8, token), {});
                 }
             } else {
                 if (!self.sessionTokens.contains(token)) {
-                    try self.sessionTokens.put(token, {});
+                    try self.sessionTokens.put(try self.allocator.dupe(u8, token), {});
                 }
             }
             return token;

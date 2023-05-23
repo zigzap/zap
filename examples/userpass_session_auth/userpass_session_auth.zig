@@ -85,6 +85,14 @@ fn on_request(r: zap.SimpleRequest) void {
                     return on_logout(r);
                 }
 
+                // /logout can be shown since we're still authenticated for this
+                // very request
+                if (std.mem.startsWith(u8, p, "/stop")) {
+                    std.log.info("    + for /stop --> logout page", .{});
+                    zap.stop();
+                    return on_logout(r);
+                }
+
                 // any other paths will still show the normal page
                 std.log.info("    + --> normal page", .{});
                 return on_normal_page(r);
@@ -100,48 +108,59 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
 
-    var listener = zap.SimpleHttpListener.init(.{
-        .port = 3000,
-        .on_request = on_request,
-        .log = true,
-        .max_clients = 100000,
-    });
-    try listener.listen();
+    // we start a block here so the defers will run before we call the gpa
+    // to detect leaks
+    {
+        var allocator = gpa.allocator();
+        var listener = zap.SimpleHttpListener.init(.{
+            .port = 3000,
+            .on_request = on_request,
+            .log = true,
+            .max_clients = 100000,
+        });
+        try listener.listen();
 
-    zap.enableDebugLog();
+        zap.enableDebugLog();
 
-    // add a single user to our allowed users
-    var userpass = Lookup.init(allocator);
-    try userpass.put("zap", "awesome");
+        // add a single user to our allowed users
+        var userpass = Lookup.init(allocator);
+        defer userpass.deinit();
+        try userpass.put("zap", "awesome");
 
-    // init our auth
-    authenticator = try Authenticator.init(
-        allocator,
-        &userpass,
-        .{
-            .usernameParam = "username",
-            .passwordParam = "password",
-            .loginPage = loginpath,
-            .cookieName = "zap-session",
-        },
-    );
+        // init our auth
+        authenticator = try Authenticator.init(
+            allocator,
+            &userpass,
+            .{
+                .usernameParam = "username",
+                .passwordParam = "password",
+                .loginPage = loginpath,
+                .cookieName = "zap-session",
+            },
+        );
+        defer authenticator.deinit();
 
-    // just some debug output: listing the session tokens the authenticator may
-    // have generated already (if auth_lock_token_table == false).
-    const lookup = authenticator.sessionTokens;
-    std.debug.print("\nauth token list len: {d}\n", .{lookup.count()});
-    var it = lookup.iterator();
-    while (it.next()) |item| {
-        std.debug.print("    {s}\n", .{item.key_ptr.*});
+        // just some debug output: listing the session tokens the authenticator may
+        // have generated already (if auth_lock_token_table == false).
+        const lookup = authenticator.sessionTokens;
+        std.debug.print("\nauth token list len: {d}\n", .{lookup.count()});
+        var it = lookup.iterator();
+        while (it.next()) |item| {
+            std.debug.print("    {s}\n", .{item.key_ptr.*});
+        }
+
+        std.debug.print("Visit me on http://127.0.0.1:3000\n", .{});
+
+        // start worker threads
+        zap.start(.{
+            .threads = 2,
+            .workers = 1,
+        });
     }
 
-    std.debug.print("Visit me on http://127.0.0.1:3000\n", .{});
-
-    // start worker threads
-    zap.start(.{
-        .threads = 2,
-        .workers = 1,
-    });
+    // all defers should have run by now
+    std.debug.print("\n\nSTOPPED!\n\n", .{});
+    const leaked = gpa.detectLeaks();
+    std.debug.print("Leaks detected: {}\n", .{leaked});
 }
