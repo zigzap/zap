@@ -65,6 +65,13 @@ if [ "$SUBJECT" = "csharp" ] ; then
     URL=http://127.0.0.1:5026
 fi
 
+if [ "$SUBJECT" = "cpp" ] ; then
+    cd wrk/cpp && zig build -Doptimize=ReleaseFast
+    ./zig-out/bin/cpp-beast 127.0.0.1 8070 . &
+    PID=$!
+    URL=http://127.0.0.1:8070
+fi
+
 sleep 1
 echo "========================================================================"
 echo "                          $SUBJECT"
