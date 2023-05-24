@@ -2,7 +2,7 @@
 
 # ⚡zap⚡ - blazingly fast backends in zig
 
-![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) ![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)
+![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jcGcEr4v)
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
