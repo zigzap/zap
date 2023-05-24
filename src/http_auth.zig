@@ -343,8 +343,6 @@ pub const UserPassSessionAuthArgs = struct {
 /// - `Lookup` must implement .get([]const u8) -> []const u8 for user password retrieval
 /// - `lockedPwLookups` : if true, accessing the provided Lookup instance will be protected
 ///    by a Mutex. You can access the mutex yourself via the `passwordLookupLock`.
-/// - `lockedTokenLookups` : if true, accessing the internal token table will be protected
-///    by a Mutex. You can access the mutex yourself via the `passwordLookupLock`.
 ///
 /// Note: In order to be quick, you can set lockedTokenLookups to false.
 ///       -> we generate it on init() and leave it static
@@ -353,7 +351,7 @@ pub const UserPassSessionAuthArgs = struct {
 ///       -> another browser program with the page still open would still be able to use
 ///       -> the session. Which is kindof OK, but not as cool as erasing the token
 ///       -> on the server side which immediately block all other browsers as well.
-pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool, comptime lockedTokenLookups: bool) type {
+pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool) type {
     return struct {
         allocator: std.mem.Allocator,
         lookup: *Lookup,
@@ -389,16 +387,6 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 .sessionTokens = SessionTokenMap.init(allocator),
             };
 
-            if (lockedTokenLookups == false) {
-                // we populate on init and forbid logout()
-                var it = lookup.iterator();
-                while (it.next()) |kv| {
-                    // we iterate over all usernames and passwords, create tokens,
-                    // and memorize the tokens
-                    const token = try ret.createAndStoreSessionToken(kv.key_ptr.*, kv.value_ptr.*);
-                    allocator.free(token);
-                }
-            }
             return ret;
         }
 
@@ -417,25 +405,8 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
         }
 
         /// Check for session token cookie, remove the token from the valid tokens
-        /// Note: only valid if lockedTokenLookups == true
         pub fn logout(self: *Self, r: *const zap.SimpleRequest) void {
-            if (lockedTokenLookups == false) {
-                if (r.setCookie(.{
-                    .name = self.settings.cookieName,
-                    .value = "invalid",
-                    .max_age_s = -1,
-                })) {
-                    zap.debug("logout ok\n", .{});
-                } else |err| {
-                    zap.debug("logout cookie setting failed: {any}\n", .{err});
-                }
-                // @compileLog("WARNING! If lockedTokenLookups==false, logout() cannot erase the token from its internal, server-side list of valid tokens");
-                return;
-            } else {
-                zap.debug("logout cookie setting failed\n", .{});
-            }
-
-            // if we are allowed to lock the table, we can erase the list of valid tokens server-side
+            // we  erase the list of valid tokens server-side
             if (r.setCookie(.{
                 .name = self.settings.cookieName,
                 .value = "invalid",
@@ -446,7 +417,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 zap.debug("logout cookie setting failed: {any}\n", .{err});
             }
 
-            r.parseCookies();
+            r.parseCookies(false);
 
             // check for session cookie
             if (r.getCookieStr(self.settings.cookieName, self.allocator, false)) |maybe_cookie| {
@@ -454,8 +425,14 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                     defer cookie.deinit();
                     self.tokenLookupLock.lock();
                     defer self.tokenLookupLock.unlock();
-                    // if cookie is a valid session, remove it!
-                    _ = self.sessionTokens.remove(cookie);
+                    if (self.sessionTokens.getKeyPtr(cookie.str)) |keyPtr| {
+                        const keySlice = keyPtr.*;
+                        // if cookie is a valid session, remove it!
+                        _ = self.sessionTokens.remove(cookie.str);
+                        // only now can we let go of the cookie str slice that
+                        // was used as the key
+                        self.allocator.free(keySlice);
+                    }
                 }
             } else |err| {
                 zap.debug("unreachable: UserPassSessionAuth.logout: {any}", .{err});
@@ -483,24 +460,14 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                 if (maybe_cookie) |cookie| {
                     defer cookie.deinit();
                     // locked or unlocked token lookup
-                    if (lockedTokenLookups) {
-                        self.tokenLookupLock.lock();
-                        defer self.tokenLookupLock.unlock();
-                        if (self.sessionTokens.contains(cookie.str)) {
-                            // cookie is a valid session!
-                            zap.debug("Auth: COKIE IS OK!!!!: {s}\n", .{cookie.str});
-                            return .AuthOK;
-                        } else {
-                            zap.debug("Auth: COKIE IS BAD!!!!: {s}\n", .{cookie.str});
-                        }
+                    self.tokenLookupLock.lock();
+                    defer self.tokenLookupLock.unlock();
+                    if (self.sessionTokens.contains(cookie.str)) {
+                        // cookie is a valid session!
+                        zap.debug("Auth: COKIE IS OK!!!!: {s}\n", .{cookie.str});
+                        return .AuthOK;
                     } else {
-                        if (self.sessionTokens.contains(cookie.str)) {
-                            // cookie is a valid session!
-                            zap.debug("Auth: COKIE IS OK!!!!: {s}\n", .{cookie.str});
-                            return .AuthOK;
-                        } else {
-                            zap.debug("Auth: COKIE IS BAD!!!!: {s}\n", .{cookie.str});
-                        }
+                        zap.debug("Auth: COKIE IS BAD!!!!: {s}\n", .{cookie.str});
                     }
                 }
             } else |err| {
@@ -588,6 +555,11 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             var hasher = Hash.init(.{});
             hasher.update(username);
             hasher.update(password);
+            var buf: [16]u8 = undefined;
+            const time_nano = std.time.nanoTimestamp();
+            const timestampHex = try std.fmt.bufPrint(&buf, "{0x}", .{time_nano});
+            hasher.update(timestampHex);
+
             var digest: [Hash.digest_length]u8 = undefined;
             hasher.final(&digest);
             const token: Token = std.fmt.bytesToHex(digest, .lower);
@@ -597,18 +569,11 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
 
         fn createAndStoreSessionToken(self: *Self, username: []const u8, password: []const u8) ![]const u8 {
             const token = try self.createSessionToken(username, password);
-            // put locked or not
-            if (lockedTokenLookups) {
-                self.tokenLookupLock.lock();
-                defer self.tokenLookupLock.unlock();
+            self.tokenLookupLock.lock();
+            defer self.tokenLookupLock.unlock();
 
-                if (!self.sessionTokens.contains(token)) {
-                    try self.sessionTokens.put(try self.allocator.dupe(u8, token), {});
-                }
-            } else {
-                if (!self.sessionTokens.contains(token)) {
-                    try self.sessionTokens.put(try self.allocator.dupe(u8, token), {});
-                }
+            if (!self.sessionTokens.contains(token)) {
+                try self.sessionTokens.put(try self.allocator.dupe(u8, token), {});
             }
             return token;
         }
