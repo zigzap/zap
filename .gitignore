@@ -8,3 +8,4 @@ tmp/
 wrk/go/main
 scratch
 **/.mypy_cache/*
+docs/
