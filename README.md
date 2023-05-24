@@ -55,7 +55,7 @@ Here's what works:
   Authentication](./examples/userpass_session_auth/)**: A convenience
   authenticator that redirects un-authenticated requests to a login page and
   sends cookies containing session tokens based on username/password pairs
-  transmitted via POST request.
+  received via POST request.
 - **[MIDDLEWARE support](examples/middleware/middleware.zig)**: chain together
   request handlers in middleware style. Provide custom context structs, totally
   type-safe, using **[ZIG-CEPTION](doc/zig-ception.md)**. If you come from GO
