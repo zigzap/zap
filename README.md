@@ -260,7 +260,7 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 See also [introducing.md](introducing.md) for more on the state and progress of
 this project.
 
-**We now have our own [ZAP discord](https://discord.gg/MNqmDy5F) server!!!**
+**We now have our own [ZAP discord](https://discord.gg/jcGcEr4v) server!!!**
 
 You can also reach me on [the zig showtime discord
 server](https://discord.gg/CBzE3VMb) under the handle renerocksai
