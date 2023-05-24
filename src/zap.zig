@@ -14,10 +14,9 @@ pub const Middleware = @import("middleware.zig");
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
+const http = @import("http.zig");
 
 const util = @import("util.zig");
-
-const _module = @This();
 
 // TODO: replace with comptime debug logger like in log.zig
 var _debug: bool = false;
@@ -180,7 +179,7 @@ pub const SimpleRequest = struct {
     }
 
     // redirect to path with status code 302 by default
-    pub fn redirectTo(self: *const Self, path: []const u8, code: ?_module.StatusCode) HttpError!void {
+    pub fn redirectTo(self: *const Self, path: []const u8, code: ?http.StatusCode) HttpError!void {
         self.setStatus(if (code) |status| status else .found);
         try self.setHeader("Location", path);
         try self.sendBody("moved");
@@ -250,7 +249,7 @@ pub const SimpleRequest = struct {
         self.h.*.status = status;
     }
 
-    pub fn setStatus(self: *const Self, status: _module.StatusCode) void {
+    pub fn setStatus(self: *const Self, status: http.StatusCode) void {
         self.h.*.status = @intCast(usize, @enumToInt(status));
     }
 
