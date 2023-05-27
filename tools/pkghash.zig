@@ -411,7 +411,7 @@ pub fn computePackageHashExcludingDirectories(
         }
     }
 
-    std.sort.sort(*HashedFile, all_files.items, {}, HashedFile.lessThan);
+    std.mem.sort(*HashedFile, all_files.items, {}, HashedFile.lessThan);
 
     var hasher = Manifest.Hash.init(.{});
     var any_failures = false;
@@ -469,7 +469,7 @@ pub fn computePackageHashForFileList(
         }
     }
 
-    std.sort.sort(*HashedFile, all_files.items, {}, HashedFile.lessThan);
+    std.mem.sort(*HashedFile, all_files.items, {}, HashedFile.lessThan);
 
     var hasher = Manifest.Hash.init(.{});
     var any_failures = false;
