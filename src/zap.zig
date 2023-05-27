@@ -143,7 +143,7 @@ pub const SimpleRequest = struct {
         try writer.print("ERROR: {any}\n\n", .{err});
 
         var debugInfo = try std.debug.getSelfDebugInfo();
-        var ttyConfig: std.debug.TTY.Config = .no_color;
+        var ttyConfig: std.io.tty.Config = .no_color;
         try std.debug.writeCurrentStackTrace(writer, debugInfo, ttyConfig, null);
         try self.sendBody(string.items);
     }

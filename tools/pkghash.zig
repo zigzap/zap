@@ -381,7 +381,7 @@ pub fn computePackageHashExcludingDirectories(
 
         loop: while (try walker.next()) |entry| {
             switch (entry.kind) {
-                .Directory => {
+                .directory => {
                     for (excluded_directories) |dir_name| {
                         if (mem.eql(u8, entry.basename, dir_name)) {
                             var item = walker.stack.pop();
@@ -393,7 +393,7 @@ pub fn computePackageHashExcludingDirectories(
                     }
                     continue :loop;
                 },
-                .File => {},
+                .file => {},
                 else => return error.IllegalFileTypeInPackage,
             }
             const hashed_file = try arena.create(HashedFile);
