@@ -464,10 +464,10 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                     defer self.tokenLookupLock.unlock();
                     if (self.sessionTokens.contains(cookie.str)) {
                         // cookie is a valid session!
-                        zap.debug("Auth: COKIE IS OK!!!!: {s}\n", .{cookie.str});
+                        zap.debug("Auth: COOKIE IS OK!!!!: {s}\n", .{cookie.str});
                         return .AuthOK;
                     } else {
-                        zap.debug("Auth: COKIE IS BAD!!!!: {s}\n", .{cookie.str});
+                        zap.debug("Auth: COOKIE IS BAD!!!!: {s}\n", .{cookie.str});
                         // this is not necessarily a bad thing. it could be a
                         // stale cookie from a previous session. So let's check
                         // if username and password are being sent and correct.

@@ -73,6 +73,7 @@ pub fn main() !void {
             // since we provided "false" for duplicating strings in the call
             // to getCookieStr(), there won't be an allocation error
             else |err| {
+                std.log.err("ERROR!\n", .{});
                 std.log.err("cannot check for `ZIG_ZAP` cookie: {any}\n", .{err});
             }
 
@@ -83,7 +84,10 @@ pub fn main() !void {
                 // .max_age_s = 60,
                 //
                 // check out other params: domain, path, secure, http_only
-            }) catch unreachable;
+            }) catch |err| {
+                std.log.err("ERROR!\n", .{});
+                std.log.err("cannot set cookie: {any}\n", .{err});
+            };
 
             r.sendBody("Hello") catch unreachable;
         }

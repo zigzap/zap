@@ -310,7 +310,15 @@ pub const SimpleRequest = struct {
             .secure = if (args.secure) 1 else 0,
             .http_only = if (args.http_only) 1 else 0,
         };
-        if (fio.http_set_cookie(self.h, c) == -1) {
+
+        // TODO WAT?
+        // if we:
+        //     if(fio.http_set_cookie(...) == -1)
+        // instead of capturing it in `ret` first and then checking it,
+        // all ReleaseXXX builds return an error!
+        const ret = fio.http_set_cookie(self.h, c);
+        if (ret == -1) {
+            std.log.err("fio.http_set_cookie returned: {}\n", .{ret});
             return error.SetCookie;
         }
     }
