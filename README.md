@@ -2,7 +2,7 @@
 
 # ⚡zap⚡ - blazingly fast backends in zig
 
-![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jcGcEr4v)
+![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jQAAN6Ubyj)
 
 Zap is intended to become the [zig](https://ziglang.org) replacement for the
 kind of REST APIs I used to write in [python](https://python.org) with
@@ -260,7 +260,7 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 See also [introducing.md](introducing.md) for more on the state and progress of
 this project.
 
-**We now have our own [ZAP discord](https://discord.gg/jcGcEr4v) server!!!**
+**We now have our own [ZAP discord](https://discord.gg/jQAAN6Ubyj) server!!!**
 
 You can also reach me on [the zig showtime discord
 server](https://discord.gg/CBzE3VMb) under the handle renerocksai
