@@ -80,8 +80,10 @@ pub fn main() !void {
             r.setCookie(.{
                 .name = "rene",
                 .value = "rocksai",
+                .path = "/xxx",
+                .domain = "yyy",
                 // if we leave .max_age_s = 0 -> session cookie
-                // .max_age_s = 60,
+                .max_age_s = 60,
                 //
                 // check out other params: domain, path, secure, http_only
             }) catch |err| {
