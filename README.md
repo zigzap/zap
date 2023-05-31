@@ -138,7 +138,7 @@ $ zig build run-hello
 $ # open http://localhost:3000 in your browser
 ```
 
-... and open [http://localhost:3000](http://locahhost:3000) in your browser.
+... and open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Using ⚡zap⚡ in your own projects
 
