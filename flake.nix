@@ -2,7 +2,7 @@
   description = "zap dev shell";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     # required for latest zig
@@ -59,6 +59,12 @@
             pkgs.gotools
             pkgs.gopls
             pkgs.golint
+
+            pkgs.dotnet-sdk_8
+            pkgs.dotnet-runtime_8
+            pkgs.zlib
+            pkgs.icu
+            pkgs.openssl
           ];
 
           buildInputs = with pkgs; [
@@ -72,6 +78,7 @@
             # once we set SHELL to point to the interactive bash, neovim will 
             # launch the correct $SHELL in its :terminal 
             export SHELL=${pkgs.bashInteractive}/bin/bash
+            export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:${pkgs.icu.out}/lib:${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
           '';
         };
 
