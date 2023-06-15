@@ -58,6 +58,13 @@ if [ "$SUBJECT" = "axum" ] ; then
     URL=http://127.0.0.1:3000
 fi
 
+if [ "$SUBJECT" = "csharp" ] ; then
+    cd wrk/csharp && dotnet publish csharp.csproj -o ./out
+    ./out/csharp --urls "http://127.0.0.1:5026" &
+    PID=$!
+    URL=http://127.0.0.1:5026
+fi
+
 sleep 1
 echo "========================================================================"
 echo "                          $SUBJECT"

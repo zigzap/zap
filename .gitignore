@@ -6,6 +6,11 @@ tmp/
 **/target/*
 **/__pycache__/*
 wrk/go/main
+wrk/csharp/bin/
+wrk/csharp/obj/
+wrk/csharp/out/
 scratch
 **/.mypy_cache/*
 docs/
+.DS_Store
+.vs/
