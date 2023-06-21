@@ -335,7 +335,7 @@ fn hashFileFallible(dir: fs.Dir, hashed_file: *HashedFile) HashedFile.Error!void
     defer file.close();
     var hasher = Manifest.Hash.init(.{});
     hasher.update(hashed_file.normalized_path);
-    hasher.update(&.{ 0, @boolToInt(try isExecutable(file)) });
+    hasher.update(&.{ 0, @intFromBool(try isExecutable(file)) });
     while (true) {
         const bytes_read = try file.read(&buf);
         if (bytes_read == 0) break;

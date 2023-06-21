@@ -149,9 +149,9 @@ pub const SimpleRequest = struct {
     }
 
     pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
-        const ret = fio.http_send_body(self.h, @intToPtr(
+        const ret = fio.http_send_body(self.h, @ptrFromInt(
             *anyopaque,
-            @ptrToInt(body.ptr),
+            @intFromPtr(body.ptr),
         ), body.len);
         debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
         if (ret == -1) return error.HttpSendBody;
@@ -160,9 +160,9 @@ pub const SimpleRequest = struct {
 
     pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
         if (self.setContentType(.JSON)) {
-            if (fio.http_send_body(self.h, @intToPtr(
+            if (fio.http_send_body(self.h, @ptrFromInt(
                 *anyopaque,
-                @ptrToInt(json.ptr),
+                @intFromPtr(json.ptr),
             ), json.len) != 0) return error.HttpSendBody;
             self.markAsFinished(true);
         } else |err| return err;
@@ -250,7 +250,7 @@ pub const SimpleRequest = struct {
     }
 
     pub fn setStatus(self: *const Self, status: http.StatusCode) void {
-        self.h.*.status = @intCast(usize, @enumToInt(status));
+        self.h.*.status = @intCast(usize, @intFromEnum(status));
     }
 
     /// Sends a file if present in the filesystem orelse returns an error.
@@ -850,9 +850,9 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
 
 // lower level sendBody
 pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
-    const ret = fio.http_send_body(request, @intToPtr(
+    const ret = fio.http_send_body(request, @ptrFromInt(
         *anyopaque,
-        @ptrToInt(body.ptr),
+        @intFromPtr(body.ptr),
     ), body.len);
     debug("sendBody(): ret = {}\n", .{ret});
     if (ret != -1) return error.HttpSendBody;
