@@ -82,10 +82,10 @@ fn listUsers(self: *Self, r: zap.SimpleRequest) void {
 fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
     const self = @fieldParentPtr(Self, "endpoint", e);
     if (r.body) |body| {
-        var maybe_user: ?User = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+        var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
-            defer std.json.parseFree(User, self.alloc, u);
-            if (self.users.addByName(u.first_name, u.last_name)) |id| {
+            defer u.deinit();
+            if (self.users.addByName(u.value.first_name, u.value.last_name)) |id| {
                 var jsonbuf: [128]u8 = undefined;
                 if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     r.sendJson(json) catch return;
@@ -104,11 +104,11 @@ fn putUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
         if (self.userIdFromPath(path)) |id| {
             if (self.users.get(id)) |_| {
                 if (r.body) |body| {
-                    var maybe_user: ?User = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+                    var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
                     if (maybe_user) |u| {
-                        defer std.json.parseFree(User, self.alloc, u);
+                        defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;
-                        if (self.users.update(id, u.first_name, u.last_name)) {
+                        if (self.users.update(id, u.value.first_name, u.value.last_name)) {
                             if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                                 r.sendJson(json) catch return;
                             }
