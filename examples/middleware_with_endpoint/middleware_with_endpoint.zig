@@ -20,10 +20,10 @@ const SharedAllocator = struct {
 };
 
 // create a combined context struct
-const Context = zap.Middleware.MixContexts(.{
-    .{ .name = "?user", .type = UserMiddleWare.User },
-    .{ .name = "?session", .type = SessionMiddleWare.Session },
-});
+const Context = struct {
+    user: ?UserMiddleWare.User = null,
+    session: ?SessionMiddleWare.Session = null,
+};
 
 // we create a Handler type based on our Context
 const Handler = zap.Middleware.Handler(Context);
