@@ -132,7 +132,7 @@ pub fn fiobjectify(
             }
         },
         .Enum => {
-            return fio.fiobj_num_new_bignum(@enumToInt(value));
+            return fio.fiobj_num_new_bignum(@intFromEnum(value));
         },
         .Union => {
             const info = @typeInfo(T).Union;
