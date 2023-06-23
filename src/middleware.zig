@@ -22,7 +22,7 @@ pub fn MixContexts(comptime context_tuple: anytype) type {
         fields[i] = .{
             .name = fieldName,
             .type = fieldType,
-            .default_value = if (isOptional) &null else null,
+            .default_value = if (isOptional) &@as(fieldType, null) else null,
             .is_comptime = false,
             .alignment = 0,
         };
