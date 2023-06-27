@@ -15,7 +15,7 @@ fn on_request(r: zap.SimpleRequest) void {
         if (the_path.len < 7 or !std.mem.startsWith(u8, the_path, "/user/"))
             return;
 
-        const user_id: usize = @intCast(usize, the_path[6] - 0x30);
+        const user_id: usize = @as(usize, @intCast(the_path[6] - 0x30));
         const user = users.get(user_id);
 
         var buf: [100]u8 = undefined;

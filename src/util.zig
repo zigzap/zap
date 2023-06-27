@@ -47,7 +47,7 @@ pub fn str2fio(s: []const u8) fio.fio_str_info_s {
 }
 
 pub fn toCharPtr(s: []const u8) [*c]u8 {
-    return @ptrFromInt([*c]u8, @intFromPtr(s.ptr));
+    return @as([*c]u8, @ptrFromInt(@intFromPtr(s.ptr)));
 }
 
 //

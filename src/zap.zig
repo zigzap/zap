@@ -118,7 +118,7 @@ pub const SimpleRequest = struct {
 
     pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
         if (self._user_context.*.user_context) |ptr| {
-            return @ptrCast(*Context, @alignCast(@alignOf(*Context), ptr));
+            return @as(*Context, @ptrCast(@alignCast(ptr)));
         } else {
             return null;
         }
@@ -149,9 +149,9 @@ pub const SimpleRequest = struct {
     }
 
     pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
-        const ret = fio.http_send_body(self.h, @ptrFromInt(
+        const ret = fio.http_send_body(self.h, @as(
             *anyopaque,
-            @intFromPtr(body.ptr),
+            @ptrFromInt(@intFromPtr(body.ptr)),
         ), body.len);
         debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
         if (ret == -1) return error.HttpSendBody;
@@ -160,9 +160,9 @@ pub const SimpleRequest = struct {
 
     pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
         if (self.setContentType(.JSON)) {
-            if (fio.http_send_body(self.h, @ptrFromInt(
+            if (fio.http_send_body(self.h, @as(
                 *anyopaque,
-                @intFromPtr(json.ptr),
+                @ptrFromInt(@intFromPtr(json.ptr)),
             ), json.len) != 0) return error.HttpSendBody;
             self.markAsFinished(true);
         } else |err| return err;
@@ -250,7 +250,7 @@ pub const SimpleRequest = struct {
     }
 
     pub fn setStatus(self: *const Self, status: http.StatusCode) void {
-        self.h.*.status = @intCast(usize, @intFromEnum(status));
+        self.h.*.status = @as(usize, @intCast(@intFromEnum(status)));
     }
 
     /// Sends a file if present in the filesystem orelse returns an error.
@@ -299,13 +299,13 @@ pub const SimpleRequest = struct {
     pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
         var c: fio.http_cookie_args_s = .{
             .name = util.toCharPtr(args.name),
-            .name_len = @intCast(isize, args.name.len),
+            .name_len = @as(isize, @intCast(args.name.len)),
             .value = util.toCharPtr(args.value),
-            .value_len = @intCast(isize, args.value.len),
+            .value_len = @as(isize, @intCast(args.value.len)),
             .domain = if (args.domain) |p| util.toCharPtr(p) else null,
-            .domain_len = if (args.domain) |p| @intCast(isize, p.len) else 0,
+            .domain_len = if (args.domain) |p| @as(isize, @intCast(p.len)) else 0,
             .path = if (args.path) |p| util.toCharPtr(p) else null,
-            .path_len = if (args.path) |p| @intCast(isize, p.len) else 0,
+            .path_len = if (args.path) |p| @as(isize, @intCast(p.len)) else 0,
             .max_age = args.max_age_s,
             .secure = if (args.secure) 1 else 0,
             .http_only = if (args.http_only) 1 else 0,
@@ -353,7 +353,7 @@ pub const SimpleRequest = struct {
 
     /// Same as parametersToOwnedStrList() but for cookies
     pub fn cookiesToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
-        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @intCast(usize, self.getCookiesCount()));
+        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
         var context: _parametersToOwnedStrSliceContext = .{
             .params = &params,
             .allocator = a,
@@ -368,7 +368,7 @@ pub const SimpleRequest = struct {
 
     /// Same as parametersToOwnedList() but for cookies
     pub fn cookiesToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
-        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @intCast(usize, self.getCookiesCount()));
+        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
         var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
         const howmany = fio.fiobj_each1(self.h.*.cookies, 0, _each_nextParam, &context);
         if (howmany != self.getCookiesCount()) {
@@ -391,7 +391,7 @@ pub const SimpleRequest = struct {
     /// Requires parseBody() and/or parseQuery() have been called.
     /// Returned list needs to be deinited.
     pub fn parametersToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
-        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @intCast(usize, self.getParamCount()));
+        var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
         var context: _parametersToOwnedStrSliceContext = .{
             .params = &params,
             .allocator = a,
@@ -412,7 +412,7 @@ pub const SimpleRequest = struct {
     };
 
     fn _each_nextParamStr(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
-        const ctx: *_parametersToOwnedStrSliceContext = @ptrCast(*_parametersToOwnedStrSliceContext, @alignCast(@alignOf(*_parametersToOwnedStrSliceContext), context));
+        const ctx: *_parametersToOwnedStrSliceContext = @as(*_parametersToOwnedStrSliceContext, @ptrCast(@alignCast(context)));
         // this is thread-safe, guaranteed by fio
         var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
@@ -448,7 +448,7 @@ pub const SimpleRequest = struct {
     /// Requires parseBody() and/or parseQuery() have been called.
     /// Returned slice needs to be freed.
     pub fn parametersToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
-        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @intCast(usize, self.getParamCount()));
+        var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
         var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
         const howmany = fio.fiobj_each1(self.h.*.params, 0, _each_nextParam, &context);
         if (howmany != self.getParamCount()) {
@@ -465,7 +465,7 @@ pub const SimpleRequest = struct {
     };
 
     fn _each_nextParam(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
-        const ctx: *_parametersToOwnedSliceContext = @ptrCast(*_parametersToOwnedSliceContext, @alignCast(@alignOf(*_parametersToOwnedSliceContext), context));
+        const ctx: *_parametersToOwnedSliceContext = @as(*_parametersToOwnedSliceContext, @ptrCast(@alignCast(context)));
         // this is thread-safe, guaranteed by fio
         var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
@@ -850,9 +850,9 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
 
 // lower level sendBody
 pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
-    const ret = fio.http_send_body(request, @ptrFromInt(
+    const ret = fio.http_send_body(request, @as(
         *anyopaque,
-        @intFromPtr(body.ptr),
+        @ptrFromInt(@intFromPtr(body.ptr)),
     ), body.len);
     debug("sendBody(): ret = {}\n", .{ret});
     if (ret != -1) return error.HttpSendBody;

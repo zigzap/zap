@@ -57,7 +57,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_message(handle: WsHandle, msg: fio.fio_str_info_s, is_text: u8) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @ptrCast(?*WebSocketSettings, @alignCast(@alignOf(?*WebSocketSettings), fio.websocket_udata_get(handle)));
+            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             var message = msg.data[0..msg.len];
             if (user_provided_settings) |settings| {
                 if (settings.on_message) |on_message| {
@@ -67,7 +67,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_open(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @ptrCast(?*WebSocketSettings, @alignCast(@alignOf(?*WebSocketSettings), fio.websocket_udata_get(handle)));
+            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_open) |on_open| {
                     on_open(settings.context, handle);
@@ -76,7 +76,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_ready(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @ptrCast(?*WebSocketSettings, @alignCast(@alignOf(?*WebSocketSettings), fio.websocket_udata_get(handle)));
+            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_ready) |on_ready| {
                     on_ready(settings.context, handle);
@@ -85,7 +85,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_shutdown(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @ptrCast(?*WebSocketSettings, @alignCast(@alignOf(?*WebSocketSettings), fio.websocket_udata_get(handle)));
+            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_shutdown) |on_shutdown| {
                     on_shutdown(settings.context, handle);
@@ -94,7 +94,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_close(uuid: isize, udata: ?*anyopaque) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @ptrCast(?*WebSocketSettings, @alignCast(@alignOf(?*WebSocketSettings), udata));
+            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(udata)));
             if (user_provided_settings) |settings| {
                 if (settings.on_close) |on_close| {
                     on_close(settings.context, uuid);
@@ -119,7 +119,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         pub fn udataToContext(udata: *anyopaque) *ContextType {
-            return @ptrCast(*ContextType, @alignCast(@alignOf(*ContextType), udata));
+            return @as(*ContextType, @ptrCast(@alignCast(udata)));
         }
 
         pub inline fn close(handle: WsHandle) void {
@@ -189,7 +189,7 @@ pub fn Handler(comptime ContextType: type) type {
 
         pub fn internal_subscription_on_message(handle: WsHandle, channel: fio.fio_str_info_s, message: fio.fio_str_info_s, udata: ?*anyopaque) callconv(.C) void {
             if (udata) |p| {
-                const args = @ptrCast(*SubscribeArgs, @alignCast(@alignOf(*SubscribeArgs), p));
+                const args = @as(*SubscribeArgs, @ptrCast(@alignCast(p)));
                 if (args.on_message) |on_message| {
                     on_message(args.context, handle, channel.data[0..channel.len], message.data[0..message.len]);
                 }
@@ -197,7 +197,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
         pub fn internal_subscription_on_unsubscribe(udata: ?*anyopaque) callconv(.C) void {
             if (udata) |p| {
-                const args = @ptrCast(*SubscribeArgs, @alignCast(@alignOf(*SubscribeArgs), p));
+                const args = @as(*SubscribeArgs, @ptrCast(@alignCast(p)));
                 if (args.on_unsubscribe) |on_unsubscribe| {
                     on_unsubscribe(args.context);
                 }

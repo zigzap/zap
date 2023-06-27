@@ -1344,15 +1344,15 @@ pub const u_int64_t = __uint64_t;
 pub const register_t = c_long;
 pub fn __bswap_16(arg___bsx: __uint16_t) callconv(.C) __uint16_t {
     var __bsx = arg___bsx;
-    return @bitCast(__uint16_t, @truncate(c_short, ((@bitCast(c_int, @as(c_uint, __bsx)) >> @intCast(@import("std").math.Log2Int(c_int), 8)) & @as(c_int, 255)) | ((@bitCast(c_int, @as(c_uint, __bsx)) & @as(c_int, 255)) << @intCast(@import("std").math.Log2Int(c_int), 8))));
+    return @as(__uint16_t, @bitCast(@as(c_short, @truncate(((@as(c_int, @bitCast(@as(c_uint, __bsx))) >> @as(@import("std").math.Log2Int(c_int), @intCast(8))) & @as(c_int, 255)) | ((@as(c_int, @bitCast(@as(c_uint, __bsx))) & @as(c_int, 255)) << @as(@import("std").math.Log2Int(c_int), @intCast(8)))))));
 }
 pub fn __bswap_32(arg___bsx: __uint32_t) callconv(.C) __uint32_t {
     var __bsx = arg___bsx;
-    return ((((__bsx & @as(c_uint, 4278190080)) >> @intCast(@import("std").math.Log2Int(c_uint), 24)) | ((__bsx & @as(c_uint, 16711680)) >> @intCast(@import("std").math.Log2Int(c_uint), 8))) | ((__bsx & @as(c_uint, 65280)) << @intCast(@import("std").math.Log2Int(c_uint), 8))) | ((__bsx & @as(c_uint, 255)) << @intCast(@import("std").math.Log2Int(c_uint), 24));
+    return ((((__bsx & @as(c_uint, 4278190080)) >> @as(@import("std").math.Log2Int(c_uint), @intCast(24))) | ((__bsx & @as(c_uint, 16711680)) >> @as(@import("std").math.Log2Int(c_uint), @intCast(8)))) | ((__bsx & @as(c_uint, 65280)) << @as(@import("std").math.Log2Int(c_uint), @intCast(8)))) | ((__bsx & @as(c_uint, 255)) << @as(@import("std").math.Log2Int(c_uint), @intCast(24)));
 }
 pub fn __bswap_64(arg___bsx: __uint64_t) callconv(.C) __uint64_t {
     var __bsx = arg___bsx;
-    return @bitCast(__uint64_t, @truncate(c_ulong, ((((((((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 18374686479671623680)) >> @intCast(@import("std").math.Log2Int(c_ulonglong), 56)) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 71776119061217280)) >> @intCast(@import("std").math.Log2Int(c_ulonglong), 40))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 280375465082880)) >> @intCast(@import("std").math.Log2Int(c_ulonglong), 24))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 1095216660480)) >> @intCast(@import("std").math.Log2Int(c_ulonglong), 8))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 4278190080)) << @intCast(@import("std").math.Log2Int(c_ulonglong), 8))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 16711680)) << @intCast(@import("std").math.Log2Int(c_ulonglong), 24))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 65280)) << @intCast(@import("std").math.Log2Int(c_ulonglong), 40))) | ((@bitCast(c_ulonglong, @as(c_ulonglong, __bsx)) & @as(c_ulonglong, 255)) << @intCast(@import("std").math.Log2Int(c_ulonglong), 56))));
+    return @as(__uint64_t, @bitCast(@as(c_ulong, @truncate(((((((((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 18374686479671623680)) >> @as(@import("std").math.Log2Int(c_ulonglong), @intCast(56))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 71776119061217280)) >> @as(@import("std").math.Log2Int(c_ulonglong), @intCast(40)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 280375465082880)) >> @as(@import("std").math.Log2Int(c_ulonglong), @intCast(24)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 1095216660480)) >> @as(@import("std").math.Log2Int(c_ulonglong), @intCast(8)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 4278190080)) << @as(@import("std").math.Log2Int(c_ulonglong), @intCast(8)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 16711680)) << @as(@import("std").math.Log2Int(c_ulonglong), @intCast(24)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 65280)) << @as(@import("std").math.Log2Int(c_ulonglong), @intCast(40)))) | ((@as(c_ulonglong, @bitCast(@as(c_ulonglong, __bsx))) & @as(c_ulonglong, 255)) << @as(@import("std").math.Log2Int(c_ulonglong), @intCast(56)))))));
 }
 pub fn __uint16_identity(arg___x: __uint16_t) callconv(.C) __uint16_t {
     var __x = arg___x;
@@ -1661,7 +1661,7 @@ pub const struct_file_handle = extern struct {
     pub fn f_handle(self: anytype) @import("std").zig.c_translation.FlexibleArrayType(@TypeOf(self), u8) {
         const Intermediate = @import("std").zig.c_translation.FlexibleArrayType(@TypeOf(self), u8);
         const ReturnType = @import("std").zig.c_translation.FlexibleArrayType(@TypeOf(self), u8);
-        return @ptrCast(ReturnType, @alignCast(@alignOf(u8), @ptrCast(Intermediate, self) + 8));
+        return @as(ReturnType, @ptrCast(@alignCast(@alignOf(u8), @as(Intermediate, @ptrCast(self)) + 8)));
     }
 };
 pub extern fn readahead(__fd: c_int, __offset: __off64_t, __count: usize) __ssize_t;
@@ -2084,37 +2084,37 @@ pub fn fio_lock(arg_lock: [*c]volatile fio_lock_i) callconv(.C) void {
 pub fn fio_reschedule_thread() callconv(.C) void {
     const tm_1: struct_timespec = struct_timespec{
         .tv_sec = 0,
-        .tv_nsec = @bitCast(__syscall_slong_t, @as(c_long, @as(c_int, 1))),
+        .tv_nsec = @as(__syscall_slong_t, @bitCast(@as(c_long, @as(c_int, 1)))),
     };
     _ = nanosleep(&tm_1, null);
 }
 pub fn fio_throttle_thread(arg_nano_sec: usize) callconv(.C) void {
     var nano_sec = arg_nano_sec;
     const tm_1: struct_timespec = struct_timespec{
-        .tv_sec = @bitCast(time_t, nano_sec / @bitCast(c_ulong, @as(c_long, @as(c_int, 1000000000)))),
-        .tv_nsec = @bitCast(c_long, nano_sec % @bitCast(c_ulong, @as(c_long, @as(c_int, 1000000000)))),
+        .tv_sec = @as(time_t, @bitCast(nano_sec / @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1000000000)))))),
+        .tv_nsec = @as(c_long, @bitCast(nano_sec % @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1000000000)))))),
     };
     _ = nanosleep(&tm_1, null);
 }
 pub fn fio_ct_true(arg_cond: usize) callconv(.C) usize {
     var cond = arg_cond;
-    return (cond | (@bitCast(c_ulong, @as(c_long, @as(c_int, 0))) -% cond)) >> @intCast(@import("std").math.Log2Int(c_ulong), (@sizeOf(usize) << @intCast(@import("std").math.Log2Int(c_ulong), 3)) -% @bitCast(c_ulong, @as(c_long, @as(c_int, 1))));
+    return (cond | (@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) -% cond)) >> @as(@import("std").math.Log2Int(c_ulong), @intCast((@sizeOf(usize) << @as(@import("std").math.Log2Int(c_ulong), @intCast(3))) -% @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))));
 }
 pub fn fio_ct_false(arg_cond: usize) callconv(.C) usize {
     var cond = arg_cond;
-    return fio_ct_true(cond) ^ @bitCast(c_ulong, @as(c_long, @as(c_int, 1)));
+    return fio_ct_true(cond) ^ @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))));
 }
 pub fn fio_ct_if(arg_cond: u8, arg_a: usize, arg_b: usize) callconv(.C) usize {
     var cond = arg_cond;
     var a = arg_a;
     var b = arg_b;
-    return b ^ (@bitCast(c_ulong, @as(c_long, @as(c_int, 0) - (@bitCast(c_int, @as(c_uint, cond)) & @as(c_int, 1)))) & (a ^ b));
+    return b ^ (@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0) - (@as(c_int, @bitCast(@as(c_uint, cond))) & @as(c_int, 1))))) & (a ^ b));
 }
 pub fn fio_ct_if2(arg_cond: usize, arg_a: usize, arg_b: usize) callconv(.C) usize {
     var cond = arg_cond;
     var a = arg_a;
     var b = arg_b;
-    return fio_ct_if(@bitCast(u8, @truncate(u8, fio_ct_true(cond))), a, b);
+    return fio_ct_if(@as(u8, @bitCast(@as(u8, @truncate(fio_ct_true(cond))))), a, b);
 }
 pub extern fn fio_atol(pstr: [*c][*c]u8) i64;
 pub extern fn fio_atof(pstr: [*c][*c]u8) f64;
@@ -2128,67 +2128,67 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
     var data_ = arg_data_;
     var len = arg_len;
     var seed = arg_seed;
-    var data: [*c]const u8 = @intToPtr([*c]u8, @ptrToInt(data_));
+    var data: [*c]const u8 = @as([*c]u8, @ptrFromInt(@intFromPtr(data_)));
     var v0: u64 = seed ^ @as(c_ulong, 12327324395758126793);
     var v1: u64 = ~seed +% @as(c_ulong, 12327324395758126793);
-    var v2: u64 = ((seed << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 17))) & @as(c_ulong, 63))) | (seed >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 17))) & @as(c_ulong, 63)))) ^ (~@as(c_ulong, 12327324395758126793) +% @as(c_ulong, 18138880411439337787));
-    var v3: u64 = ((seed << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (seed >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)))) +% ~@as(c_ulong, 12327324395758126793);
+    var v2: u64 = ((seed << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 17)))) & @as(c_ulong, 63)))) | (seed >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 17)))) & @as(c_ulong, 63))))) ^ (~@as(c_ulong, 12327324395758126793) +% @as(c_ulong, 18138880411439337787));
+    var v3: u64 = ((seed << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (seed >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))))) +% ~@as(c_ulong, 12327324395758126793);
     {
-        var i: usize = len >> @intCast(@import("std").math.Log2Int(usize), 5);
+        var i: usize = len >> @as(@import("std").math.Log2Int(usize), @intCast(5));
         while (i != 0) : (i -%= 1) {
-            v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
-            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-            v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
+            v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+            v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
             v0 *%= @as(c_ulong, 18138880411439337787);
-            v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
-            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-            v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
+            v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+            v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
             v1 *%= @as(c_ulong, 18138880411439337787);
-            v2 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 7))])));
-            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-            v2 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 7))])));
+            v2 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+            v2 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
             v2 *%= @as(c_ulong, 18138880411439337787);
-            v3 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 7))])));
-            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-            v3 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 24)))))[@intCast(c_uint, @as(c_int, 7))])));
+            v3 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+            v3 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 24))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
             v3 *%= @as(c_ulong, 18138880411439337787);
-            data += @bitCast(usize, @intCast(isize, @as(c_int, 32)));
+            data += @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 32)))));
         }
     }
     while (true) {
-        switch (len & @bitCast(c_ulong, @as(c_long, @as(c_int, 24)))) {
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 24))) => {
-                v2 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 7))])));
-                v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v2 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 16)))))[@intCast(c_uint, @as(c_int, 7))])));
+        switch (len & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 24))))) {
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 24)))) => {
+                v2 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v2 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 16))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v2 *%= @as(c_ulong, 18138880411439337787);
-                v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
-                v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
+                v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v1 *%= @as(c_ulong, 18138880411439337787);
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
-                v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v0 *%= @as(c_ulong, 18138880411439337787);
-                data += len & @bitCast(c_ulong, @as(c_long, @as(c_int, 24)));
+                data += len & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 24))));
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 16))) => {
-                v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
-                v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v1 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data + @bitCast(usize, @intCast(isize, @as(c_int, 8)))))[@intCast(c_uint, @as(c_int, 7))])));
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 16)))) => {
+                v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v1 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data + @as(usize, @bitCast(@as(isize, @intCast(@as(c_int, 8))))))))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v1 *%= @as(c_ulong, 18138880411439337787);
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
-                v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v0 *%= @as(c_ulong, 18138880411439337787);
-                data += len & @bitCast(c_ulong, @as(c_long, @as(c_int, 24)));
+                data += len & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 24))));
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 8))) => {
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
-                v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
-                v0 +%= @bitCast(u64, (((((((@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56)) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16))) | (@bitCast(u64, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8))) | @bitCast(c_ulong, @as(c_ulong, @intToPtr([*c]u8, @ptrToInt(data))[@intCast(c_uint, @as(c_int, 7))])));
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 8)))) => {
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
+                v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
+                v0 +%= @as(u64, @bitCast((((((((@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16)))) | (@as(u64, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8)))) | @as(c_ulong, @bitCast(@as(c_ulong, @as([*c]u8, @ptrFromInt(@intFromPtr(data)))[@as(c_uint, @intCast(@as(c_int, 7)))])))));
                 v0 *%= @as(c_ulong, 18138880411439337787);
-                data += len & @bitCast(c_ulong, @as(c_long, @as(c_int, 24)));
+                data += len & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 24))));
             },
             else => {},
         }
@@ -2196,41 +2196,41 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
     }
     var tmp: u64 = 0;
     while (true) {
-        switch (len & @bitCast(c_ulong, @as(c_long, @as(c_int, 7)))) {
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 7))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 6))])) << @intCast(u6, 8);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+        switch (len & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 7))))) {
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 7)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 6)))]))) << @as(u6, @intCast(8));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2240,39 +2240,39 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 6))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 5))])) << @intCast(u6, 16);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 5)))]))) << @as(u6, @intCast(16));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2282,38 +2282,38 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 5))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 4))])) << @intCast(u6, 24);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 5)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 4)))]))) << @as(u6, @intCast(24));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2323,37 +2323,37 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 4))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 3))])) << @intCast(u6, 32);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 4)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 3)))]))) << @as(u6, @intCast(32));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2363,36 +2363,36 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 2))])) << @intCast(u6, 40);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 2)))]))) << @as(u6, @intCast(40));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2402,35 +2402,35 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 1))])) << @intCast(u6, 48);
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 1)))]))) << @as(u6, @intCast(48));
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2440,34 +2440,34 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
                     break;
                 }
             },
-            @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
-                tmp |= @bitCast(u64, @as(c_ulong, data[@intCast(c_uint, @as(c_int, 0))])) << @intCast(u6, 56);
+            @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
+                tmp |= @as(u64, @bitCast(@as(c_ulong, data[@as(c_uint, @intCast(@as(c_int, 0)))]))) << @as(u6, @intCast(56));
                 while (true) {
-                    switch ((len >> @intCast(@import("std").math.Log2Int(usize), 3)) & @bitCast(c_ulong, @as(c_long, @as(c_int, 3)))) {
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 3))) => {
+                    switch ((len >> @as(@import("std").math.Log2Int(usize), @intCast(3))) & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3))))) {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 3)))) => {
                             v3 +%= tmp;
-                            v3 = (v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v3 = (v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v3 +%= tmp;
                             v3 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 2))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))) => {
                             v2 +%= tmp;
-                            v2 = (v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v2 = (v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v2 +%= tmp;
                             v2 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 1))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1)))) => {
                             v1 +%= tmp;
-                            v1 = (v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v1 = (v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v1 +%= tmp;
                             v1 *%= @as(c_ulong, 18138880411439337787);
                             break;
                         },
-                        @bitCast(c_ulong, @as(c_long, @as(c_int, 0))) => {
+                        @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))) => {
                             v0 +%= tmp;
-                            v0 = (v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+                            v0 = (v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
                             v0 +%= tmp;
                             v0 *%= @as(c_ulong, 18138880411439337787);
                             break;
@@ -2481,18 +2481,18 @@ pub fn fio_risky_hash(arg_data_: ?*const anyopaque, arg_len: usize, arg_seed: u6
         }
         break;
     }
-    var result: u64 = ((((v0 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 17))) & @as(c_ulong, 63))) | (v0 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 17))) & @as(c_ulong, 63)))) +% ((v1 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 13))) & @as(c_ulong, 63))) | (v1 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 13))) & @as(c_ulong, 63))))) +% ((v2 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 47))) & @as(c_ulong, 63))) | (v2 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 47))) & @as(c_ulong, 63))))) +% ((v3 << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 57))) & @as(c_ulong, 63))) | (v3 >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 57))) & @as(c_ulong, 63))));
-    len ^= len << @intCast(@import("std").math.Log2Int(usize), 33);
+    var result: u64 = ((((v0 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 17)))) & @as(c_ulong, 63)))) | (v0 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 17)))) & @as(c_ulong, 63))))) +% ((v1 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 13)))) & @as(c_ulong, 63)))) | (v1 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 13)))) & @as(c_ulong, 63)))))) +% ((v2 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 47)))) & @as(c_ulong, 63)))) | (v2 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 47)))) & @as(c_ulong, 63)))))) +% ((v3 << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 57)))) & @as(c_ulong, 63)))) | (v3 >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 57)))) & @as(c_ulong, 63)))));
+    len ^= len << @as(@import("std").math.Log2Int(usize), @intCast(33));
     result +%= len;
     result +%= v0 *% @as(c_ulong, 12327324395758126793);
-    result ^= (result << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 13))) & @as(c_ulong, 63))) | (result >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 13))) & @as(c_ulong, 63)));
+    result ^= (result << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 13)))) & @as(c_ulong, 63)))) | (result >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 13)))) & @as(c_ulong, 63))));
     result +%= v1 *% @as(c_ulong, 12327324395758126793);
-    result ^= (result << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 29))) & @as(c_ulong, 63))) | (result >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 29))) & @as(c_ulong, 63)));
+    result ^= (result << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 29)))) & @as(c_ulong, 63)))) | (result >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 29)))) & @as(c_ulong, 63))));
     result +%= v2 *% @as(c_ulong, 12327324395758126793);
-    result ^= (result << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 33))) & @as(c_ulong, 63))) | (result >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 33))) & @as(c_ulong, 63)));
+    result ^= (result << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 33)))) & @as(c_ulong, 63)))) | (result >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 33)))) & @as(c_ulong, 63))));
     result +%= v3 *% @as(c_ulong, 12327324395758126793);
-    result ^= (result << @intCast(u6, @bitCast(c_ulong, @as(c_long, @as(c_int, 51))) & @as(c_ulong, 63))) | (result >> @intCast(u6, @bitCast(c_ulong, @as(c_long, -@as(c_int, 51))) & @as(c_ulong, 63)));
-    result ^= (result >> @intCast(u6, 29)) *% @as(c_ulong, 18138880411439337787);
+    result ^= (result << @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, @as(c_int, 51)))) & @as(c_ulong, 63)))) | (result >> @as(u6, @intCast(@as(c_ulong, @bitCast(@as(c_long, -@as(c_int, 51)))) & @as(c_ulong, 63))));
+    result ^= (result >> @as(u6, @intCast(29))) *% @as(c_ulong, 18138880411439337787);
     return result;
 }
 pub extern fn fio_siphash24(data: ?*const anyopaque, len: usize, key1: u64, key2: u64) u64;
@@ -2550,7 +2550,7 @@ pub fn fio_sha2_512(arg_s: [*c]fio_sha2_s, arg_data: ?*const anyopaque, arg_len:
     var s = arg_s;
     var data = arg_data;
     var len = arg_len;
-    s.* = fio_sha2_init(@bitCast(c_uint, SHA_512));
+    s.* = fio_sha2_init(@as(c_uint, @bitCast(SHA_512)));
     fio_sha2_write(s, data, len);
     return fio_sha2_result(s);
 }
@@ -2558,7 +2558,7 @@ pub fn fio_sha2_256(arg_s: [*c]fio_sha2_s, arg_data: ?*const anyopaque, arg_len:
     var s = arg_s;
     var data = arg_data;
     var len = arg_len;
-    s.* = fio_sha2_init(@bitCast(c_uint, SHA_256));
+    s.* = fio_sha2_init(@as(c_uint, @bitCast(SHA_256)));
     fio_sha2_write(s, data, len);
     return fio_sha2_result(s);
 }
@@ -2566,7 +2566,7 @@ pub fn fio_sha2_384(arg_s: [*c]fio_sha2_s, arg_data: ?*const anyopaque, arg_len:
     var s = arg_s;
     var data = arg_data;
     var len = arg_len;
-    s.* = fio_sha2_init(@bitCast(c_uint, SHA_384));
+    s.* = fio_sha2_init(@as(c_uint, @bitCast(SHA_384)));
     fio_sha2_write(s, data, len);
     return fio_sha2_result(s);
 }
@@ -2586,17 +2586,17 @@ pub const FIOBJ_T_UNKNOWN: c_int = 44;
 pub const fiobj_type_enum = u8;
 pub const FIOBJ = usize;
 pub fn fiobj_null() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_NULL));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_NULL)));
 }
 pub fn fiobj_true() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_TRUE));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_TRUE)));
 }
 pub fn fiobj_false() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_FALSE));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_FALSE)));
 }
 pub fn fiobj_type_name(o: FIOBJ) callconv(.C) [*c]const u8 {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return "Number";
-    if (((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return fiobj_type_vtable(o).*.class_name;
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return "Number";
+    if (((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) return fiobj_type_vtable(o).*.class_name;
     if (!(o != 0)) return "NULL";
     return "Primitive";
 } // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/fiobject.h:375:3: warning: TODO implement translation of stmt class AtomicExprClass
@@ -2605,42 +2605,42 @@ pub extern fn fiobj_dup(arg_o: FIOBJ) callconv(.C) FIOBJ; // zig-cache/i/e0c8a6e
 // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/fiobject.h:446:17: warning: unable to translate function, demoted to extern
 pub extern fn fiobj_free(arg_o: FIOBJ) callconv(.C) void;
 pub fn fiobj_is_true(o: FIOBJ) callconv(.C) c_int {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @boolToInt((@bitCast(usize, o) >> @intCast(@import("std").math.Log2Int(usize), 1)) != @bitCast(c_ulong, @as(c_long, @as(c_int, 0))));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) return @boolToInt(o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));
-    return @bitCast(c_int, @truncate(c_uint, fiobj_type_vtable(o).*.is_true.?(o)));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @intFromBool((@as(usize, @bitCast(o)) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) return @intFromBool(o == @as(c_ulong, @bitCast(@as(c_long, FIOBJ_T_TRUE))));
+    return @as(c_int, @bitCast(@as(c_uint, @truncate(fiobj_type_vtable(o).*.is_true.?(o)))));
 }
 pub fn fiobj_obj2num(o: FIOBJ) callconv(.C) isize {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) {
-        const sign: usize = if ((o & ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) != 0) ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1)) else @bitCast(c_ulong, @as(c_long, @as(c_int, 0)));
-        return @bitCast(isize, ((o & (~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) >> @intCast(@import("std").math.Log2Int(c_ulong), 1)) | sign);
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) {
+        const sign: usize = if ((o & ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) != 0) ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) else @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))));
+        return @as(isize, @bitCast(((o & (~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) >> @as(@import("std").math.Log2Int(c_ulong), @intCast(1))) | sign));
     }
-    if (!(o != 0) or !(((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) return @bitCast(isize, @as(c_long, @boolToInt(o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)))));
+    if (!(o != 0) or !(((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) return @as(isize, @bitCast(@as(c_long, @intFromBool(o == @as(c_ulong, @bitCast(@as(c_long, FIOBJ_T_TRUE)))))));
     return fiobj_type_vtable(o).*.to_i.?(o);
 }
 pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @intToFloat(f64, fiobj_obj2num(o));
-    if (!(o != 0) or ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return @intToFloat(f64, o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(f64, @floatFromInt(fiobj_obj2num(o)));
+    if (!(o != 0) or ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) return @as(f64, @floatFromInt(o == @as(c_ulong, @bitCast(@as(c_long, FIOBJ_T_TRUE)))));
     return fiobj_type_vtable(o).*.to_f.?(o);
 }
 pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     if (!(o != 0)) {
         var ret: fio_str_info_s = fio_str_info_s{
-            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-            .data = @intToPtr([*c]u8, @ptrToInt("null")),
+            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
         };
         return ret;
     }
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return fio_ltocstr(@bitCast(isize, o) >> @intCast(@import("std").math.Log2Int(isize), 1));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) {
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return fio_ltocstr(@as(isize, @bitCast(o)) >> @as(@import("std").math.Log2Int(isize), @intCast(1)));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) {
         while (true) {
-            switch (@bitCast(c_int, @as(c_uint, @bitCast(u8, @truncate(u8, o))))) {
+            switch (@as(c_int, @bitCast(@as(c_uint, @as(u8, @bitCast(@as(u8, @truncate(o)))))))) {
                 @as(c_int, 6) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-                            .data = @intToPtr([*c]u8, @ptrToInt("null")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
                         };
                         return ret;
                     }
@@ -2648,9 +2648,9 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 @as(c_int, 38) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 5))),
-                            .data = @intToPtr([*c]u8, @ptrToInt("false")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 5)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("false"))),
                         };
                         return ret;
                     }
@@ -2658,9 +2658,9 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 @as(c_int, 22) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-                            .data = @intToPtr([*c]u8, @ptrToInt("true")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("true"))),
                         };
                         return ret;
                     }
@@ -2673,60 +2673,60 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     return fiobj_type_vtable(o).*.to_str.?(o);
 }
 pub fn fiobj_obj2hash(o: FIOBJ) callconv(.C) u64 {
-    if (fiobj_type_is(o, @bitCast(u8, @truncate(i8, FIOBJ_T_STRING))) != 0) return fiobj_str_hash(o);
-    if (!(((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) return @bitCast(u64, o);
+    if (fiobj_type_is(o, @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_STRING))))) != 0) return fiobj_str_hash(o);
+    if (!(((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) return @as(u64, @bitCast(o));
     var s: fio_str_info_s = fiobj_obj2cstr(o);
-    return fio_siphash13(@ptrCast(?*const anyopaque, s.data), s.len, @intCast(u64, @ptrToInt(&fiobj_each2)), @intCast(u64, @ptrToInt(&fiobj_free_complex_object)));
+    return fio_siphash13(@as(?*const anyopaque, @ptrCast(s.data)), s.len, @as(u64, @intCast(@intFromPtr(&fiobj_each2))), @as(u64, @intCast(@intFromPtr(&fiobj_free_complex_object))));
 }
 pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, arg_arg: ?*anyopaque) callconv(.C) usize {
     var o = arg_o;
     var start_at = arg_start_at;
     var task = arg_task;
     var arg = arg_arg;
-    if ((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
+    if ((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
     return 0;
 }
 pub extern fn fiobj_each2(FIOBJ, task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, arg: ?*anyopaque) usize;
 pub fn fiobj_iseq(o: FIOBJ, o2: FIOBJ) callconv(.C) c_int {
     if (o == o2) return 1;
     if (!(o != 0) or !(o2 != 0)) return 0;
-    if (!(((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) or !(((o2 != 0) and ((o2 & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o2 & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) return 0;
-    if (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_object_header_s, @alignCast(@import("std").meta.alignment([*c]fiobj_object_header_s), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7)))))).*.type)) != @bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_object_header_s, @alignCast(@import("std").meta.alignment([*c]fiobj_object_header_s), @intToPtr(?*anyopaque, o2 & ~@bitCast(usize, @as(c_long, @as(c_int, 7)))))).*.type))) return 0;
+    if (!(((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) or !(((o2 != 0) and ((o2 & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o2 & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) return 0;
+    if (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_object_header_s, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_object_header_s), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7))))))))).*.type))) != @as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_object_header_s, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_object_header_s), @as(?*anyopaque, @ptrFromInt(o2 & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7))))))))).*.type)))) return 0;
     if (!(fiobj_type_vtable(o).*.is_eq.?(o, o2) != 0)) return 0;
     if ((fiobj_type_vtable(o).*.each != null) and (fiobj_type_vtable(o).*.count.?(o) != 0)) return fiobj_iseq____internal_complex__(o, o2);
     return 1;
 }
 pub fn fiobj_type(arg_o: FIOBJ) callconv(.C) fiobj_type_enum {
     var o = arg_o;
-    if (!(o != 0)) return @bitCast(u8, @truncate(i8, FIOBJ_T_NULL));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @bitCast(u8, @truncate(i8, FIOBJ_T_NUMBER));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) return @bitCast(u8, @truncate(u8, o));
-    if (true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 2))))) return @bitCast(u8, @truncate(i8, FIOBJ_T_STRING));
-    if (true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 4))))) return @bitCast(u8, @truncate(i8, FIOBJ_T_HASH));
-    return @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))];
+    if (!(o != 0)) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NULL))));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NUMBER))));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) return @as(u8, @bitCast(@as(u8, @truncate(o))));
+    if (true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))))) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_STRING))));
+    if (true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 4)))))) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_HASH))));
+    return @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))];
 }
 pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize {
     var o = arg_o;
     var @"type" = arg_type;
     while (true) {
-        switch (@bitCast(c_int, @as(c_uint, @"type"))) {
-            @as(c_int, 1) => return @bitCast(usize, @as(c_long, @boolToInt(((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) or (@bitCast(c_int, @as(c_uint, @intToPtr([*c]fiobj_type_enum, o)[@intCast(c_uint, @as(c_int, 0))])) == FIOBJ_T_NUMBER)))),
-            @as(c_int, 6) => return @bitCast(usize, @as(c_long, @boolToInt(!(o != 0) or (o == fiobj_null())))),
-            @as(c_int, 22) => return @bitCast(usize, @as(c_long, @boolToInt(o == fiobj_true()))),
-            @as(c_int, 38) => return @bitCast(usize, @as(c_long, @boolToInt(o == fiobj_false()))),
-            @as(c_int, 40) => return @bitCast(usize, @as(c_long, @boolToInt(((true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 2))))) or (((@as(c_int, 2) == @as(c_int, 0)) and (((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == FIOBJ_T_STRING))))),
+        switch (@as(c_int, @bitCast(@as(c_uint, @"type")))) {
+            @as(c_int, 1) => return @as(usize, @bitCast(@as(c_long, @intFromBool(((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) or (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrFromInt(o))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == FIOBJ_T_NUMBER))))),
+            @as(c_int, 6) => return @as(usize, @bitCast(@as(c_long, @intFromBool(!(o != 0) or (o == fiobj_null()))))),
+            @as(c_int, 22) => return @as(usize, @bitCast(@as(c_long, @intFromBool(o == fiobj_true())))),
+            @as(c_int, 38) => return @as(usize, @bitCast(@as(c_long, @intFromBool(o == fiobj_false())))),
+            @as(c_int, 40) => return @as(usize, @bitCast(@as(c_long, @intFromBool(((true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))))) or (((@as(c_int, 2) == @as(c_int, 0)) and (((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == FIOBJ_T_STRING)))))),
             @as(c_int, 42) => {
                 if (true) {
-                    return @bitCast(usize, @as(c_long, @boolToInt(((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0)))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 4)))))));
+                    return @as(usize, @bitCast(@as(c_long, @intFromBool(((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 4)))))))));
                 }
-                return @bitCast(usize, @as(c_long, @boolToInt((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type"))))));
+                return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
             },
-            @as(c_int, 39), @as(c_int, 41), @as(c_int, 43), @as(c_int, 44) => return @bitCast(usize, @as(c_long, @boolToInt((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type")))))),
+            @as(c_int, 39), @as(c_int, 41), @as(c_int, 43), @as(c_int, 44) => return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type")))))))),
             else => {},
         }
         break;
     }
-    return @bitCast(usize, @as(c_long, @boolToInt((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @intToPtr(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type"))))));
+    return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
 }
 pub const fiobj_object_vtable_s = extern struct {
     class_name: [*c]const u8,
@@ -2752,7 +2752,7 @@ pub extern const FIOBJECT_VTABLE_DATA: fiobj_object_vtable_s;
 pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtable_s {
     var o = arg_o;
     while (true) {
-        switch (@bitCast(c_int, @as(c_uint, fiobj_type(o)))) {
+        switch (@as(c_int, @bitCast(@as(c_uint, fiobj_type(o))))) {
             @as(c_int, 1) => return &FIOBJECT_VTABLE_NUMBER,
             @as(c_int, 39) => return &FIOBJECT_VTABLE_FLOAT,
             @as(c_int, 40) => return &FIOBJECT_VTABLE_STRING,
@@ -2773,7 +2773,7 @@ pub extern fn fiobj_str_hash(o: FIOBJ) u64;
 pub fn fiobj_hash_string(arg_data: ?*const anyopaque, arg_len: usize) callconv(.C) u64 {
     var data = arg_data;
     var len = arg_len;
-    return fio_siphash13(data, len, @intCast(u64, @ptrToInt(&fiobj_each2)), @intCast(u64, @ptrToInt(&fiobj_free_complex_object)));
+    return fio_siphash13(data, len, @as(u64, @intCast(@intFromPtr(&fiobj_each2))), @as(u64, @intCast(@intFromPtr(&fiobj_free_complex_object))));
 }
 pub extern fn fiobj_iseq____internal_complex__(o: FIOBJ, o2: FIOBJ) c_int;
 pub extern fn fiobj_ary_new() FIOBJ;
@@ -2847,10 +2847,10 @@ pub extern fn fiobj_hash_haskey(hash: FIOBJ, key: FIOBJ) c_int;
 pub extern fn fiobj_hash_clear(hash: FIOBJ) void;
 pub fn fiobj_num_new(arg_num: isize) callconv(.C) FIOBJ {
     var num = arg_num;
-    if (((@bitCast(usize, num) & (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0)))) or ((@bitCast(usize, num) & (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1)))) == (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1))))) {
-        const num_abs: usize = @bitCast(usize, num) & (~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1));
-        const num_sign: usize = @bitCast(usize, num) & ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1));
-        return ((num_abs << @intCast(@import("std").math.Log2Int(usize), 1)) | num_sign) | @bitCast(c_ulong, @as(c_long, @as(c_int, 1)));
+    if (((@as(usize, @bitCast(num)) & (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))))) or ((@as(usize, @bitCast(num)) & (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))))) == (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))))) {
+        const num_abs: usize = @as(usize, @bitCast(num)) & (~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)));
+        const num_sign: usize = @as(usize, @bitCast(num)) & ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)));
+        return ((num_abs << @as(@import("std").math.Log2Int(usize), @intCast(1))) | num_sign) | @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))));
     }
     return fiobj_num_new_bignum(num);
 }
@@ -2943,7 +2943,7 @@ pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 pub fn fiobj4sock_dealloc(arg_o: ?*anyopaque) callconv(.C) void {
     var o = arg_o;
-    fiobj_free(@intCast(FIOBJ, @ptrToInt(o)));
+    fiobj_free(@as(FIOBJ, @intCast(@intFromPtr(o))));
 } // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/fio.h:1205:41: warning: cannot initialize opaque type
 // zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/fiobj4fio.h:13:47: warning: unable to translate function, demoted to extern
 pub extern fn fiobj_send_free(arg_uuid: isize, arg_o: FIOBJ) callconv(.C) isize;
@@ -4806,8 +4806,8 @@ pub inline fn le64toh(x: anytype) @TypeOf(__uint64_identity(x)) {
     return __uint64_identity(x);
 }
 pub const _SYS_SELECT_H = @as(c_int, 1);
-pub inline fn __FD_ISSET(d: anytype, s: anytype) @TypeOf((__FDS_BITS(s)[@intCast(usize, __FD_ELT(d))] & __FD_MASK(d)) != @as(c_int, 0)) {
-    return (__FDS_BITS(s)[@intCast(usize, __FD_ELT(d))] & __FD_MASK(d)) != @as(c_int, 0);
+pub inline fn __FD_ISSET(d: anytype, s: anytype) @TypeOf((__FDS_BITS(s)[@as(usize, @intCast(__FD_ELT(d)))] & __FD_MASK(d)) != @as(c_int, 0)) {
+    return (__FDS_BITS(s)[@as(usize, @intCast(__FD_ELT(d)))] & __FD_MASK(d)) != @as(c_int, 0);
 }
 pub const __timeval_defined = @as(c_int, 1);
 pub const __NFDBITS = @as(c_int, 8) * @import("std").zig.c_translation.cast(c_int, @import("std").zig.c_translation.sizeof(__fd_mask));
@@ -5256,13 +5256,13 @@ pub inline fn fio_rrot64(i: anytype, bits: anytype) @TypeOf((@import("std").zig.
     return (@import("std").zig.c_translation.cast(u64, i) >> (bits & @as(c_ulong, 63))) | (@import("std").zig.c_translation.cast(u64, i) << (-bits & @as(c_ulong, 63)));
 }
 pub inline fn fio_str2u16(c: anytype) u16 {
-    return @import("std").zig.c_translation.cast(u16, (@import("std").zig.c_translation.cast(u16, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 0))]) << @as(c_int, 8)) | @import("std").zig.c_translation.cast(u16, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 1))]));
+    return @import("std").zig.c_translation.cast(u16, (@import("std").zig.c_translation.cast(u16, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 0)))]) << @as(c_int, 8)) | @import("std").zig.c_translation.cast(u16, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 1)))]));
 }
 pub inline fn fio_str2u32(c: anytype) u32 {
-    return @import("std").zig.c_translation.cast(u32, (((@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 0))]) << @as(c_int, 24)) | (@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 1))]) << @as(c_int, 16))) | (@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 2))]) << @as(c_int, 8))) | @import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 3))]));
+    return @import("std").zig.c_translation.cast(u32, (((@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 0)))]) << @as(c_int, 24)) | (@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 1)))]) << @as(c_int, 16))) | (@import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 2)))]) << @as(c_int, 8))) | @import("std").zig.c_translation.cast(u32, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 3)))]));
 }
 pub inline fn fio_str2u64(c: anytype) u64 {
-    return @import("std").zig.c_translation.cast(u64, (((((((@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 0))]) << @as(c_int, 56)) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 1))]) << @as(c_int, 48))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 2))]) << @as(c_int, 40))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 3))]) << @as(c_int, 32))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 4))]) << @as(c_int, 24))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 5))]) << @as(c_int, 16))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 6))]) << @as(c_int, 8))) | @import("std").zig.c_translation.cast([*c]u8, c)[@intCast(usize, @as(c_int, 7))]);
+    return @import("std").zig.c_translation.cast(u64, (((((((@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 0)))]) << @as(c_int, 56)) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 1)))]) << @as(c_int, 48))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 2)))]) << @as(c_int, 40))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 3)))]) << @as(c_int, 32))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 4)))]) << @as(c_int, 24))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 5)))]) << @as(c_int, 16))) | (@import("std").zig.c_translation.cast(u64, @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 6)))]) << @as(c_int, 8))) | @import("std").zig.c_translation.cast([*c]u8, c)[@as(usize, @intCast(@as(c_int, 7)))]);
 }
 pub const FIO_HASH_SECRET_SEED64_1 = @import("std").zig.c_translation.cast(usize, &fio_hash_secret_marker1);
 pub const FIO_HASH_SECRET_SEED64_2 = @import("std").zig.c_translation.cast(usize, &fio_hash_secret_marker2);
@@ -5358,8 +5358,8 @@ pub const _CTYPE_H = @as(c_int, 1);
 pub inline fn _ISbit(bit: anytype) @TypeOf(if (bit < @as(c_int, 8)) (@as(c_int, 1) << bit) << @as(c_int, 8) else (@as(c_int, 1) << bit) >> @as(c_int, 8)) {
     return if (bit < @as(c_int, 8)) (@as(c_int, 1) << bit) << @as(c_int, 8) else (@as(c_int, 1) << bit) >> @as(c_int, 8);
 }
-pub inline fn __isctype(c: anytype, @"type": anytype) @TypeOf(__ctype_b_loc().*[@intCast(usize, @import("std").zig.c_translation.cast(c_int, c))] & @import("std").zig.c_translation.cast(c_ushort, @"type")) {
-    return __ctype_b_loc().*[@intCast(usize, @import("std").zig.c_translation.cast(c_int, c))] & @import("std").zig.c_translation.cast(c_ushort, @"type");
+pub inline fn __isctype(c: anytype, @"type": anytype) @TypeOf(__ctype_b_loc().*[@as(usize, @intCast(@import("std").zig.c_translation.cast(c_int, c)))] & @import("std").zig.c_translation.cast(c_ushort, @"type")) {
+    return __ctype_b_loc().*[@as(usize, @intCast(@import("std").zig.c_translation.cast(c_int, c)))] & @import("std").zig.c_translation.cast(c_ushort, @"type");
 }
 pub inline fn __isascii(c: anytype) @TypeOf((c & ~@as(c_int, 0x7f)) == @as(c_int, 0)) {
     return (c & ~@as(c_int, 0x7f)) == @as(c_int, 0);
@@ -5367,8 +5367,8 @@ pub inline fn __isascii(c: anytype) @TypeOf((c & ~@as(c_int, 0x7f)) == @as(c_int
 pub inline fn __toascii(c: anytype) @TypeOf(c & @as(c_int, 0x7f)) {
     return c & @as(c_int, 0x7f);
 }
-pub inline fn __isctype_l(c: anytype, @"type": anytype, locale: anytype) @TypeOf(locale.*.__ctype_b[@intCast(usize, @import("std").zig.c_translation.cast(c_int, c))] & @import("std").zig.c_translation.cast(c_ushort, @"type")) {
-    return locale.*.__ctype_b[@intCast(usize, @import("std").zig.c_translation.cast(c_int, c))] & @import("std").zig.c_translation.cast(c_ushort, @"type");
+pub inline fn __isctype_l(c: anytype, @"type": anytype, locale: anytype) @TypeOf(locale.*.__ctype_b[@as(usize, @intCast(@import("std").zig.c_translation.cast(c_int, c)))] & @import("std").zig.c_translation.cast(c_ushort, @"type")) {
+    return locale.*.__ctype_b[@as(usize, @intCast(@import("std").zig.c_translation.cast(c_int, c)))] & @import("std").zig.c_translation.cast(c_ushort, @"type");
 }
 pub inline fn __isalnum_l(c: anytype, l: anytype) @TypeOf(__isctype_l(c, _ISalnum, l)) {
     return __isctype_l(c, _ISalnum, l);
