@@ -122,7 +122,7 @@ pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOB
     var start_at = arg_start_at;
     var task = arg_task;
     var arg = arg_arg;
-    if ((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
+    if ((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
     return 0;
 }
 
@@ -138,13 +138,13 @@ pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
 pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
 pub fn fiobj_null() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_NULL));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_NULL)));
 }
 pub fn fiobj_true() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_TRUE));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_TRUE)));
 }
 pub fn fiobj_false() callconv(.C) FIOBJ {
-    return @bitCast(FIOBJ, @as(c_long, FIOBJ_T_FALSE));
+    return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_FALSE)));
 }
 pub extern fn fiobj_ary_new2(capa: usize) FIOBJ;
 pub extern fn fiobj_str_new(str: [*c]const u8, len: usize) FIOBJ;
@@ -214,33 +214,33 @@ pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize
     var o = arg_o;
     var @"type" = arg_type;
     while (true) {
-        switch (@bitCast(c_int, @as(c_uint, @"type"))) {
-            @as(c_int, 1) => return @bitCast(usize, @as(c_long, @intFromBool(((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) or (@bitCast(c_int, @as(c_uint, @ptrFromInt([*c]fiobj_type_enum, o)[@intCast(c_uint, @as(c_int, 0))])) == FIOBJ_T_NUMBER)))),
-            @as(c_int, 6) => return @bitCast(usize, @as(c_long, @intFromBool(!(o != 0) or (o == fiobj_null())))),
-            @as(c_int, 22) => return @bitCast(usize, @as(c_long, @intFromBool(o == fiobj_true()))),
-            @as(c_int, 38) => return @bitCast(usize, @as(c_long, @intFromBool(o == fiobj_false()))),
-            @as(c_int, 40) => return @bitCast(usize, @as(c_long, @intFromBool(((true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 2))))) or (((@as(c_int, 2) == @as(c_int, 0)) and (((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @ptrFromInt(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == FIOBJ_T_STRING))))),
+        switch (@as(c_int, @bitCast(@as(c_uint, @"type")))) {
+            @as(c_int, 1) => return @as(usize, @bitCast(@as(c_long, @intFromBool(((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) or (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrFromInt(o))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == FIOBJ_T_NUMBER))))),
+            @as(c_int, 6) => return @as(usize, @bitCast(@as(c_long, @intFromBool(!(o != 0) or (o == fiobj_null()))))),
+            @as(c_int, 22) => return @as(usize, @bitCast(@as(c_long, @intFromBool(o == fiobj_true())))),
+            @as(c_int, 38) => return @as(usize, @bitCast(@as(c_long, @intFromBool(o == fiobj_false())))),
+            @as(c_int, 40) => return @as(usize, @bitCast(@as(c_long, @intFromBool(((true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))))) or (((@as(c_int, 2) == @as(c_int, 0)) and (((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == FIOBJ_T_STRING)))))),
             @as(c_int, 42) => {
                 if (true) {
-                    return @bitCast(usize, @as(c_long, @intFromBool(((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0)))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 4)))))));
+                    return @as(usize, @bitCast(@as(c_long, @intFromBool(((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 4)))))))));
                 }
-                return @bitCast(usize, @as(c_long, @intFromBool((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @ptrFromInt(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type"))))));
+                return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
             },
-            @as(c_int, 39), @as(c_int, 41), @as(c_int, 43), @as(c_int, 44) => return @bitCast(usize, @as(c_long, @intFromBool((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @ptrFromInt(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type")))))),
+            @as(c_int, 39), @as(c_int, 41), @as(c_int, 43), @as(c_int, 44) => return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type")))))))),
             else => {},
         }
         break;
     }
-    return @bitCast(usize, @as(c_long, @intFromBool((((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) and (@bitCast(c_int, @as(c_uint, @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @ptrFromInt(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))])) == @bitCast(c_int, @as(c_uint, @"type"))))));
+    return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
 }
 pub fn fiobj_type(arg_o: FIOBJ) callconv(.C) fiobj_type_enum {
     var o = arg_o;
-    if (!(o != 0)) return @bitCast(u8, @truncate(i8, FIOBJ_T_NULL));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @bitCast(u8, @truncate(i8, FIOBJ_T_NUMBER));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) return @bitCast(u8, @truncate(u8, o));
-    if (true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 2))))) return @bitCast(u8, @truncate(i8, FIOBJ_T_STRING));
-    if (true and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 4))))) return @bitCast(u8, @truncate(i8, FIOBJ_T_HASH));
-    return @ptrCast([*c]fiobj_type_enum, @alignCast(@import("std").meta.alignment([*c]fiobj_type_enum), @ptrFromInt(?*anyopaque, o & ~@bitCast(usize, @as(c_long, @as(c_int, 7))))))[@intCast(c_uint, @as(c_int, 0))];
+    if (!(o != 0)) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NULL))));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NUMBER))));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) return @as(u8, @bitCast(@as(u8, @truncate(o))));
+    if (true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 2)))))) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_STRING))));
+    if (true and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 4)))))) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_HASH))));
+    return @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))];
 }
 pub extern const FIOBJECT_VTABLE_NUMBER: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_FLOAT: fiobj_object_vtable_s;
@@ -251,7 +251,7 @@ pub extern const FIOBJECT_VTABLE_DATA: fiobj_object_vtable_s;
 pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtable_s {
     var o = arg_o;
     while (true) {
-        switch (@bitCast(c_int, @as(c_uint, fiobj_type(o)))) {
+        switch (@as(c_int, @bitCast(@as(c_uint, fiobj_type(o))))) {
             @as(c_int, 1) => return &FIOBJECT_VTABLE_NUMBER,
             @as(c_int, 39) => return &FIOBJECT_VTABLE_FLOAT,
             @as(c_int, 40) => return &FIOBJECT_VTABLE_STRING,
@@ -267,15 +267,15 @@ pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtabl
 }
 
 pub fn fiobj_obj2num(o: FIOBJ) callconv(.C) isize {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) {
-        const sign: usize = if ((o & ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) != 0) ~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) | (~(~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1)) >> @intCast(@import("std").math.Log2Int(usize), 1)) else @bitCast(c_ulong, @as(c_long, @as(c_int, 0)));
-        return @bitCast(isize, ((o & (~@bitCast(usize, @as(c_long, @as(c_int, 0))) >> @intCast(@import("std").math.Log2Int(usize), 1))) >> @intCast(@import("std").math.Log2Int(c_ulong), 1)) | sign);
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) {
+        const sign: usize = if ((o & ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) != 0) ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) else @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))));
+        return @as(isize, @bitCast(((o & (~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) >> @as(@import("std").math.Log2Int(c_ulong), @intCast(1))) | sign));
     }
-    if (!(o != 0) or !(((o != 0) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 0))))) and ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) != @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))))) return @bitCast(isize, @as(c_long, @intFromBool(o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)))));
+    if (!(o != 0) or !(((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) return @as(isize, @bitCast(@as(c_long, @intFromBool(o == @as(c_ulong, @bitCast(@as(c_long, FIOBJ_T_TRUE)))))));
     return fiobj_type_vtable(o).*.to_i.?(o);
 }
 pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return @floatFromInt(f64, fiobj_obj2num(o));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(f64, @floatFromInt(fiobj_obj2num(o)));
     // the below doesn't parse and we don't support ints here anyway
     // if (!(o != 0) or ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return @intToFloat(f64, o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));
     return fiobj_type_vtable(o).*.to_f.?(o);
@@ -285,22 +285,22 @@ pub extern fn fio_ltocstr(c_long) fio_str_info_s;
 pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     if (!(o != 0)) {
         var ret: fio_str_info_s = fio_str_info_s{
-            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-            .data = @ptrFromInt([*c]u8, @intFromPtr("null")),
+            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
         };
         return ret;
     }
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 1)))) != 0) return fio_ltocstr(@bitCast(isize, o) >> @intCast(@import("std").math.Log2Int(isize), 1));
-    if ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) {
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return fio_ltocstr(@as(isize, @bitCast(o)) >> @as(@import("std").math.Log2Int(isize), @intCast(1)));
+    if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) {
         while (true) {
-            switch (@bitCast(c_int, @as(c_uint, @bitCast(u8, @truncate(u8, o))))) {
+            switch (@as(c_int, @bitCast(@as(c_uint, @as(u8, @bitCast(@as(u8, @truncate(o)))))))) {
                 @as(c_int, 6) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-                            .data = @ptrFromInt([*c]u8, @intFromPtr("null")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
                         };
                         return ret;
                     }
@@ -308,9 +308,9 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 @as(c_int, 38) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 5))),
-                            .data = @ptrFromInt([*c]u8, @intFromPtr("false")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 5)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("false"))),
                         };
                         return ret;
                     }
@@ -318,9 +318,9 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 @as(c_int, 22) => {
                     {
                         var ret: fio_str_info_s = fio_str_info_s{
-                            .capa = @bitCast(usize, @as(c_long, @as(c_int, 0))),
-                            .len = @bitCast(usize, @as(c_long, @as(c_int, 4))),
-                            .data = @ptrFromInt([*c]u8, @intFromPtr("true")),
+                            .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
+                            .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
+                            .data = @as([*c]u8, @ptrFromInt(@intFromPtr("true"))),
                         };
                         return ret;
                     }
