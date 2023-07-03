@@ -10,8 +10,8 @@ kind of REST APIs I used to write in [python](https://python.org) with
 [mongodb](https://www.mongodb.com), etc. It can be considered to be a
 microframework for web applications.
 
-What I need for that is a blazingly fast, robust HTTP server that I can use with
-zig. While facil.io supports TLS, I don't care about HTTPS support. In
+What I needed for that was a blazingly fast, robust HTTP server that I could use
+with zig. While facil.io supports TLS, I don't care about HTTPS support. In
 production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 
 Zap wraps and patches [facil.io - the C web application
@@ -22,6 +22,14 @@ framework](https://facil.io).
 
 _Under the hood, everything is super robust and fast. My zig wrappers are fresh,
 juicy, and alpha._
+
+After having used ZAP in production for weeks, I can confidently assert hat it
+proved to be:
+
+- ⚡ **blazingly fast** ⚡
+- 💪 **extremely robust** 💪
+
+Exactly the goals I set out to achieve!
 
 Here's what works:
 
@@ -38,8 +46,10 @@ Here's what works:
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
 - **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring a
-  `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing users,
-  together with a static HTML and JavaScript frontend to play with.
+  `/users` endpoint for performing PUT/DELETE/GET/POST operations and listing
+  users, together with a simple frontend to play with. **It also introduces a
+  `/stop` endpoint** that shuts down Zap, so **memory leak detection** can be
+  performed in main().
 - **[mustache](examples/mustache/mustache.zig)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
 - **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a
@@ -98,23 +108,10 @@ I didn't care about optimizations at all.
 
 But, how fast is it? Being blazingly fast is relative. When compared with a
 simple GO HTTP server, a simple zig zap HTTP server performed really good on my
-machine:
+machine (x86_64-linux):
 
 - zig zap was nearly 30% faster than GO
 - zig zap had over 50% more throughput than GO
-
-**Elephant in the room**: I was intrigued comparing to a basic rust HTTP server.
-Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
-tried to go for the one in [The Rust Programming
-Language](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
-Wanting it to be of a somewhat fair comparison, I opted for the multi-threaded
-example. It didn't work out-of-the-box, but I got it to work and changed it to
-not read files but outputting a static text just like in the other examples.
-**Maybe someone with rust experience** can have a look at my
-[wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
-I expected it to be faster than the basic GO example. I'll enable the
-GitHub discussions for this matter. My suspicion is bad performance of the
-mutexes.
 
 **Update**: Thanks to @felipetrz, I got to test against more realistic Python
 and Rust examples. Both python `sanic` and rust `axum` were easy enough to
@@ -125,9 +122,52 @@ integrate.
 ![](wrk_charts_summary.png)
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
-... of reasonable performance 😎.
+... of reasonable performance 😎. 
+
+I can rest my case that developing ZAP was a good idea because it's faster than
+both alternatives: a) staying with Python, and b) creating a GO + Zig hybrid.
 
 See more details in [blazingly-fast.md](blazingly-fast.md).
+
+## 💪 Robust
+
+ZAP is **very robust**. In fact, it is so robust that I was confidently able to
+only work with in-memory data (RAM) in all my initial ZAP projects so far: 3
+online research experiments. No database, no file persistence, until I hit
+"save" at the end 😊.
+
+So I was able to postpone my cunning data persistence strategy that's similar to
+a mark-and-sweep garbage collector and would only persist "dirty" data when
+traffic is low, in favor of getting stuff online more quickly. But even if
+implemented, such a persistence strategy is risky because when traffic is not
+low, it means the system is under (heavy) load. Would you confidently NOT save
+data when load is high and the data changes most frequently -> the potential
+data loss is maximized?
+
+To answer that question, I just skipped it. I skipped saving data until
+receiving a "save" signal. And it worked. ZAP kept on zapping. When
+traffic calmed down or all experiment participants had finished, I hit "save"
+and went on analyzing the data.
+
+Handling all errors does pay off after all. No hidden control flow, no hidden
+errors or exceptions is one of Zig's strengths.
+
+To be honest: There are still pitfalls. E.g. if you request large stack sizes
+for worker threads, Zig won't like that and panic. So make sure you don't have
+local variables that require tens of megabytes of stack space.
+
+
+### 🛡️ Memory-safe
+
+See the [StopEndpoint](examples/endpoint/stopendpoint.zig) in the
+[endpoint](examples/endpoint) example. That example uses ZIG's awesome
+`GeneralPurposeAllocator` to report memory leaks when ZAP is shut down. The
+`StopEndpoint` just stops ZAP when receiving a request on the `/stop` route.
+
+You can use the same strategy in your debug builds and tests to check if your
+code leaks memory.
+
+
 
 ## Getting started
 
