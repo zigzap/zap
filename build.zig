@@ -36,6 +36,8 @@ pub fn build(b: *std.build.Builder) !void {
     const facil_install_step = b.addInstallArtifact(facil_lib);
     b.getInstallStep().dependOn(&facil_install_step.step);
 
+    const all_step = b.step("all", "build all examples");
+
     inline for ([_]struct {
         name: []const u8,
         src: []const u8,
@@ -96,6 +98,7 @@ pub fn build(b: *std.build.Builder) !void {
         // install the artifact - depending on the "example"
         const example_build_step = b.addInstallArtifact(example);
         example_step.dependOn(&example_build_step.step);
+        all_step.dependOn(&example_build_step.step);
     }
 
     //
@@ -187,6 +190,7 @@ pub fn build(b: *std.build.Builder) !void {
     var pkghash_step = b.step("pkghash", "Build pkghash");
     const pkghash_build_step = b.addInstallArtifact(pkghash_exe);
     pkghash_step.dependOn(&pkghash_build_step.step);
+    all_step.dependOn(&pkghash_build_step.step);
 
     //
     // announceybot
@@ -200,4 +204,5 @@ pub fn build(b: *std.build.Builder) !void {
     var announceybot_step = b.step("announceybot", "Build announceybot");
     const announceybot_build_step = b.addInstallArtifact(announceybot_exe);
     announceybot_step.dependOn(&announceybot_build_step.step);
+    all_step.dependOn(&announceybot_build_step.step);
 }
