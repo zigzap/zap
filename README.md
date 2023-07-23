@@ -211,10 +211,10 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap v0.1.8-pre
+        // zap v0.1.9-pre
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.1.8-pre.tar.gz",
-            .hash = "1220e30645c293c943dccc9d4394f7088679cf0969c63a7f4b23f72e375744123729",
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.1.9-pre.tar.gz",
+            .hash = "12201e3ee597a7d9f98dc7fd19492403d754a1da101d2e678795e330c0382ff02f6a",
         }
     }
 }
@@ -379,6 +379,7 @@ pub fn main() !void {
     });
 }
 ```
+
 
 
 
