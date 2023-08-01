@@ -33,7 +33,7 @@ pub fn build(b: *std.build.Builder) !void {
     // we install the facil dependency, just to see what it's like
     // zig build with the default (install) step will install it
     facil_lib.installLibraryHeaders(facil_dep.artifact("facil.io"));
-    const facil_install_step = b.addInstallArtifact(facil_lib);
+    const facil_install_step = b.addInstallArtifact(facil_lib, .{});
     b.getInstallStep().dependOn(&facil_install_step.step);
 
     const all_step = b.step("all", "build all examples");
@@ -96,7 +96,7 @@ pub fn build(b: *std.build.Builder) !void {
         example_run_step.dependOn(&example_run.step);
 
         // install the artifact - depending on the "example"
-        const example_build_step = b.addInstallArtifact(example);
+        const example_build_step = b.addInstallArtifact(example, .{});
         example_step.dependOn(&example_build_step.step);
         all_step.dependOn(&example_build_step.step);
     }
@@ -125,7 +125,7 @@ pub fn build(b: *std.build.Builder) !void {
     auth_tests.addModule("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
-    const install_auth_tests = b.addInstallArtifact(auth_tests);
+    const install_auth_tests = b.addInstallArtifact(auth_tests, .{});
 
     // http paramters (qyery, body) tests
     const httpparams_tests = b.addTest(.{
@@ -142,7 +142,7 @@ pub fn build(b: *std.build.Builder) !void {
     //       dependencies have changed.
     //       So, for now, we just force the exe to be built, so in order that
     //       we can call it again when needed.
-    const install_httpparams_tests = b.addInstallArtifact(httpparams_tests);
+    const install_httpparams_tests = b.addInstallArtifact(httpparams_tests, .{});
 
     // http paramters (qyery, body) tests
     const sendfile_tests = b.addTest(.{
@@ -155,7 +155,7 @@ pub fn build(b: *std.build.Builder) !void {
     sendfile_tests.linkLibrary(facil_dep.artifact("facil.io"));
     sendfile_tests.addModule("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
-    const install_sendfile_tests = b.addInstallArtifact(sendfile_tests);
+    const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
 
     // test commands
     const run_auth_test_step = b.step("test-authentication", "Run auth unit tests [REMOVE zig-cache!]");
@@ -188,7 +188,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     var pkghash_step = b.step("pkghash", "Build pkghash");
-    const pkghash_build_step = b.addInstallArtifact(pkghash_exe);
+    const pkghash_build_step = b.addInstallArtifact(pkghash_exe, .{});
     pkghash_step.dependOn(&pkghash_build_step.step);
     all_step.dependOn(&pkghash_build_step.step);
 
@@ -202,7 +202,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     var announceybot_step = b.step("announceybot", "Build announceybot");
-    const announceybot_build_step = b.addInstallArtifact(announceybot_exe);
+    const announceybot_build_step = b.addInstallArtifact(announceybot_exe, .{});
     announceybot_step.dependOn(&announceybot_build_step.step);
     all_step.dependOn(&announceybot_build_step.step);
 }
