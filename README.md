@@ -171,6 +171,9 @@ code leaks memory.
 
 ## Getting started
 
+Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+[here](https://ziglang.org/download).
+
 ```shell
 $ git clone https://github.com/zigzap/zap.git
 $ cd zap
@@ -181,6 +184,9 @@ $ # open http://localhost:3000 in your browser
 ... and open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Using ⚡zap⚡ in your own projects
+
+Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+[here](https://ziglang.org/download).
 
 If you don't have an existing zig project, create one like this:
 
