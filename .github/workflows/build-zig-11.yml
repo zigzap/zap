@@ -1,13 +1,11 @@
-name: Works with Zig master
+name: Works with Zig 0.11.0
 on: 
-  #   push:
-  #     branches:
-  #     - master
-  #   pull_request:
-  #     branches:
-  #     - master
-  #   schedule:
-  #     - cron: "0 0 * * *"
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
   workflow_dispatch:
   
 jobs:
@@ -21,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: master
+          version: 0.11.0
       - name: Check zig version
         run: zig version
       - name: Build all examples
