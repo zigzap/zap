@@ -12,8 +12,7 @@ jobs:
   ci:
     strategy:
       matrix:
-        # platform: [ubuntu-latest, windows-latest, macos-latest]
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
