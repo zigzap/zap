@@ -1,0 +1,10 @@
+.{
+    .name = "cpp-beast",
+    .version = "0.1.0",
+    .dependencies = .{
+        .beast = .{
+            .url = "https://github.com/kassane/beast/archive/df69ba4d48fbe874730f6a28e9528d9ef7a9547c.tar.gz",
+            .hash = "1220548f8727394522081ab48ed2f7111c20fa5f051ff287ec3c3f82340faa5d68c2",
+        },
+    },
+}
