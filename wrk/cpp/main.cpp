@@ -13,8 +13,8 @@ std::string read_html_file(const std::string& file_path) {
     if (!file) {
         return "File not found: " + file_path;
     }
-
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
     return content;
 }
 
@@ -34,8 +34,14 @@ int main() {
             tcp::socket socket(io_context);
             acceptor.accept(socket);
 
+            // static 17-byte string
+            
             // Read HTML content from a file (e.g., "index.html")
-            std::string html_content = read_html_file("hello.html");
+            // std::string html_content = read_html_file("hello.html");
+            // or
+            std::string msg = "Hello from C++!!!";
+
+            // std::cout << "str len: " << (html_content.length() == msg.length()) << std::boolalpha << "\n";
 
             // Construct an HTTP response with the HTML content
             http::response<http::string_body> response;
@@ -44,7 +50,9 @@ int main() {
             response.reason("OK");
             response.set(http::field::server, "C++ Server");
             response.set(http::field::content_type, "text/html");
-            response.body() = html_content;
+            
+            // response.body() = html_content;
+            response.body() = msg;
             response.prepare_payload();
 
             // Send the response to the client
