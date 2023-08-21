@@ -70,7 +70,7 @@ fi
 
 if [ "$SUBJECT" = "cpp" ] ; then
     cd wrk/cpp && zig build -Doptimize=ReleaseFast
-    ./zig-out/bin/cpp-beast 127.0.0.1 8070 . &
+    $TSK_SRV ./zig-out/bin/cpp-beast 127.0.0.1 8070 . &
     PID=$!
     URL=http://127.0.0.1:8070
 fi
