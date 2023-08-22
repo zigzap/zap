@@ -12,8 +12,7 @@ rm -f wrk/*.perflog
 
 for S in $SUBJECTS; do
     L="$S.perflog"
-    # for R in 1 2 3 ; do
-    for R in 1  ; do
+    for R in 1 2 3 ; do
         ./wrk/measure.sh $S | tee -a wrk/$L
     done
 done
