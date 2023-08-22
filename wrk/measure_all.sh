@@ -6,13 +6,14 @@ if [ ! -d ".git" ] ; then
     exit 1
 fi
 
-SUBJECTS="zig go python sanic rust-bythebook rust-clean axum csharp cpp-beast"
+SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-clean rust-axum csharp cpp-beast"
 
 rm -f wrk/*.perflog
 
 for S in $SUBJECTS; do
     L="$S.perflog"
-    for R in 1 2 3 ; do
+    # for R in 1 2 3 ; do
+    for R in 1  ; do
         ./wrk/measure.sh $S | tee -a wrk/$L
     done
 done

@@ -14,7 +14,7 @@ if [ "$SUBJECT" = "" ] ; then
     exit 1
 fi
 
-if [ "$SUBJECT" = "zig" ] ; then
+if [ "$SUBJECT" = "zig-zap" ] ; then
     zig build -Doptimize=ReleaseFast wrk > /dev/null
     $TSK_SRV ./zig-out/bin/wrk &
     PID=$!
@@ -41,7 +41,7 @@ if [ "$SUBJECT" = "python" ] ; then
     URL=http://127.0.0.1:8080
 fi
 
-if [ "$SUBJECT" = "sanic" ] ; then
+if [ "$SUBJECT" = "python-sanic" ] ; then
     $TSK_SRV python wrk/sanic/sanic-app.py &
     PID=$!
     URL=http://127.0.0.1:8000
@@ -61,7 +61,7 @@ if [ "$SUBJECT" = "rust-clean" ] ; then
     URL=http://127.0.0.1:7878
 fi
 
-if [ "$SUBJECT" = "axum" ] ; then
+if [ "$SUBJECT" = "rust-axum" ] ; then
     cd wrk/axum/hello-axum && cargo build --release
     $TSK_SRV ./target/release/hello-axum &
     PID=$!
