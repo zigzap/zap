@@ -6,7 +6,7 @@ if [ ! -d ".git" ] ; then
     exit 1
 fi
 
-SUBJECTS="zig go python sanic rust-bythebook rust-clean axum csharp cpp"
+SUBJECTS="zig go python sanic rust-bythebook rust-clean axum csharp cpp-beast"
 
 rm -f wrk/*.perflog
 
