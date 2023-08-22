@@ -47,14 +47,14 @@ if [ "$SUBJECT" = "sanic" ] ; then
     URL=http://127.0.0.1:8000
 fi
 
-if [ "$SUBJECT" = "rust" ] ; then
+if [ "$SUBJECT" = "rust-bythebook" ] ; then
     cd wrk/rust/bythebook && cargo build --release
     $TSK_SRV ./target/release/hello &
     PID=$!
     URL=http://127.0.0.1:7878
 fi
 
-if [ "$SUBJECT" = "rust2" ] ; then
+if [ "$SUBJECT" = "rust-clean" ] ; then
     cd wrk/rust/clean && cargo build --release
     $TSK_SRV ./target/release/hello &
     PID=$!

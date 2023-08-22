@@ -6,7 +6,9 @@ if [ ! -d ".git" ] ; then
     exit 1
 fi
 
-SUBJECTS="zig go python sanic rust rust2 axum csharp cpp"
+SUBJECTS="zig go python sanic rust-bythebook rust-clean axum csharp cpp"
+
+rm -f wrk/*.perflog
 
 for S in $SUBJECTS; do
     L="$S.perflog"
