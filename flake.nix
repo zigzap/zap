@@ -48,6 +48,7 @@
             wrk
             python39
             python39Packages.sanic
+            python39Packages.matplotlib
             poetry
             poetry
             pkgs.rustc 
