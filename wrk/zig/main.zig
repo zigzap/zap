@@ -19,6 +19,6 @@ pub fn main() !void {
     // start worker threads
     zap.start(.{
         .threads = 4,
-        .workers = 2, // empirical tests: yield best perf on my machine
+        .workers = 4, // empirical tests: yield best perf on my machine
     });
 }
