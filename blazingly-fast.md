@@ -1,543 +1,245 @@
 # ⚡blazingly fast⚡
 
-I conducted a series of quick tests, using wrk with simple HTTP servers written
-in GO and in zig zap. I made sure that all servers only output 17 bytes of HTTP
-body.
+Initially, I conducted a series of quick tests, using wrk with simple HTTP
+servers written in GO and in zig zap. I made sure that all servers only output
+17 bytes of HTTP body.
 
 Just to get some sort of indication, I also included measurements for python
 since I used to write my REST APIs in python before creating zig zap.
 
 You can check out the scripts I used for the tests in [./wrk](wrk/).
 
-## results
+## Why 
 
-You can see the verbatim output of `wrk`, and some infos about the test machine
-below the code snippets.
+I aimed to enhance the performance of my Python + Flask backends by replacing
+them with a Zig version. To evaluate the success of this transition, I compared
+the performance of a static HTTP server implemented in Python and its Zig
+counterpart, which showed significant improvements. 
 
-**Update**: I was intrigued comparing to a basic rust HTTP server.
-Unfortunately, knowing nothing at all about rust, I couldn't find one and hence
-tried to go for the one in [The Rust Programming
-Language](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
-Wanting it to be of a somewhat fair comparison, I opted for the multi-threaded
-example. It didn't work out-of-the-box, but I got it to work and changed it to
-not read files but outputting a static text just like in the other examples.
-**maybe someone with rust experience** can have a look at my
-[wrk/rust/hello](wrk/rust/hello) code and tell me why it's surprisingly slow, as
-I expected it to be faster than the basic GO example. I'll enable the
-GitHub discussions for this matter. My suspicion is bad performance of the
-mutexes.
+To further assess the Zig server's performance, I compared it with a Go
+implementation, to compare against a widely used industry-standard. I expected
+similar performance levels but was pleasantly surprised when Zap outperformed Go
+by approximately 30% on my test machine. 
 
-![](wrk_tables.png)
+Intrigued by Rust's reputed performance capabilities, I also experimented with a
+Rust version. The results of this experiment are discussed in the
+[Flaws](#flaws) section below.
 
-### requests / sec
+## What 
 
-![](wrk_requests.png)
+So, what are the benchmarks testing?
 
-### transfer MB / sec
+- simple http servers that reply to GET requests with a constant, 17-bytes long response
+- 4 cores are assigned to the subject under test (the respective server)
+- 4 cores are assigned to `wrk`
+    - using 4 threads
+    - aiming at 400 concurrent connections
 
-![](wrk_transfer.png)
+## How
 
+I have fully automated the benchmarks and graph generation.
 
-## zig code 
+To generate the data:
 
-zig version .11.0-dev.1265+3ab43988c
-
-```zig 
-const std = @import("std");
-const zap = @import("zap");
-
-fn on_request_minimal(r: zap.SimpleRequest) void {
-    _ = r.sendBody("Hello from ZAP!!!");
-}
-
-pub fn main() !void {
-    var listener = zap.SimpleHttpListener.init(.{
-        .port = 3000,
-        .on_request = on_request_minimal,
-        .log = false,
-        .max_clients = 100000,
-    });
-    try listener.listen();
-
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-
-    // start worker threads
-    zap.start(.{
-        .threads = 4,
-        .workers = 4,
-    });
-}
+```console
+$ ./wrk/measure_all.sh
 ```
 
-## go code 
+To generate the graphs:
 
-go version go1.16.9 linux/amd64
-
-```go 
-package main
-
-import (
-	"fmt"
-	"net/http"
-)
-
-func hello(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "hello from GO!!!\n")
-}
-
-func main() {
-	print("listening on 0.0.0.0:8090\n")
-	http.HandleFunc("/hello", hello)
-	http.ListenAndServe(":8090", nil)
-}
+```console
+$ python wrk/graph.py
 ```
 
-## python code
+For dependencies, please see the [flake.nix](./flake.nix#L46).
 
-python version 3.9.6
+## Flaws
 
-```python 
-# Python 3 server example
-from http.server import BaseHTTPRequestHandler, HTTPServer
+The benchmarks have limitations, such as the lack of request latencies. The Rust
+community has often criticized these benchmarks as biased. However, no such
+criticisms have come from the Go or Python communities.
 
-hostName = "127.0.0.1"
-serverPort = 8080
+In response to the Rust community's concerns, we've added three Rust
+implementations for comparison:
 
+- A standard version from [the Rust book](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
+- An "axum" version to highlight Rust's speed.
+- A refined version of the Rust book version.
 
-class MyServer(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(bytes("HI FROM PYTHON!!!", "utf-8"))
+Originally, the goal was to compare "batteries included" versions, which created
+a disparity by comparing the optimized zap / facil.io code with basic bundled
+functionalities. These tests were for personal interest and not meant to be
+definitive benchmarks.
 
-    def log_message(self, format, *args):
-        return
-
-
-if __name__ == "__main__":
-    webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
-
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
-    webServer.server_close()
-    print("Server stopped.")
-```
-
-## rust code 
-
-[main.rs](wrk/rust/hello/src/main.rs)
-
-```rust
-use hello::ThreadPool;
-use std::io::prelude::*;
-use std::net::TcpListener;
-use std::net::TcpStream;
-
-fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(4);
-
-    // for stream in listener.incoming().take(2) {
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        pool.execute(|| {
-            handle_connection(stream);
-        });
-    }
-
-    println!("Shutting down.");
-}
-
-fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+To address this bias, we've added the Rust-axum and Python-sanic benchmarks. For
+more information, refer to the relevant discussions and pull requests.
 
 
-    let status_line = "HTTP/1.1 200 OK";
+## More benchmarks?
 
-    let contents = "HELLO from RUST!";
+I often receive requests or PRs to include additional benchmarks, which a lot of
+times I find to be either ego-driven or a cause for unnecessary disputes. People
+tend to favor their preferred language or framework. Zig, Rust, C, and C++ are
+all capable of efficiently creating fast web servers, with different frameworks
+potentially excelling in certain benchmarks. My main concern was whether Zap,
+given its current level of abstraction, could compete with standard web servers.
+This question has been answered, and I see no need for further benchmarks.
 
-    let response = format!(
-        "{}\r\nContent-Length: {}\r\n\r\n{}",
-        status_line,
-        contents.len(),
-        contents
-    );
 
-    stream.write_all(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
-}
-```
+## The computer makes the difference
 
-[lib.rs](wrk/rust/hello/src/lib.rs)
+After automating the performance benchmarks, I gathered data from three
+different computers. It's interesting to see the variation in relative numbers.
 
-```rust
-use std::{
-    sync::{mpsc, Arc, Mutex},
-    thread,
-};
 
-pub struct ThreadPool {
-    workers: Vec<Worker>,
-    sender: Option<mpsc::Sender<Job>>,
-}
+### The test machine (graphs in the README)
 
-type Job = Box<dyn FnOnce() + Send + 'static>;
+To be added when I get home.
 
-impl ThreadPool {
-    /// Create a new ThreadPool.
-    ///
-    /// The size is the number of threads in the pool.
-    ///
-    /// # Panics
-    ///
-    /// The `new` function will panic if the size is zero.
-    pub fn new(size: usize) -> ThreadPool {
-        assert!(size > 0);
+### Workstation at work
 
-        let (sender, receiver) = mpsc::channel();
+A beast. Many cores (which we don't use). 
 
-        let receiver = Arc::new(Mutex::new(receiver));
+![](./wrk/samples/workstation_req_per_sec_graph.png)
 
-        let mut workers = Vec::with_capacity(size);
-
-        for id in 0..size {
-            workers.push(Worker::new(id, Arc::clone(&receiver)));
-        }
-
-        ThreadPool {
-            workers,
-            sender: Some(sender),
-        }
-    }
-
-    pub fn execute<F>(&self, f: F)
-    where
-        F: FnOnce() + Send + 'static,
-    {
-        let job = Box::new(f);
-
-        self.sender.as_ref().unwrap().send(job).unwrap();
-    }
-}
-
-impl Drop for ThreadPool {
-    fn drop(&mut self) {
-        drop(self.sender.take());
-
-        for worker in &mut self.workers {
-            println!("Shutting down worker {}", worker.id);
-
-            if let Some(thread) = worker.thread.take() {
-                thread.join().unwrap();
-            }
-        }
-    }
-}
-
-struct Worker {
-    id: usize,
-    thread: Option<thread::JoinHandle<()>>,
-}
-
-impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv();
-
-            match message {
-                Ok(job) => {
-                    // println!("Worker  got a job; executing.");
-
-                    job();
-                }
-                Err(_) => {
-                    // println!("Worker  disconnected; shutting down.");
-                    break;
-                }
-            }
-        });
-
-        Worker {
-            id,
-            thread: Some(thread),
-        }
-    }
-}
-```
-
-## wrk output
-
-wrk version: `wrk 4.1.0 [epoll] Copyright (C) 2012 Will Glozer`
+![](./wrk/samples/workstation_xfer_per_sec_graph.png)
 
 ```
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
-Listening on 0.0.0.0:3000
-========================================================================
-                          zig
-========================================================================
-Running 10s test @ http://127.0.0.1:3000
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   331.40us  115.09us   8.56ms   91.94%
-    Req/Sec   159.51k     9.44k  175.23k    56.50%
-  Latency Distribution
-     50%  312.00us
-     75%  341.00us
-     90%  375.00us
-     99%  681.00us
-  6348945 requests in 10.01s, 0.94GB read
-Requests/sec: 634220.13
-Transfer/sec:     96.17MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
-Listening on 0.0.0.0:3000
-========================================================================
-                          zig
-========================================================================
-Running 10s test @ http://127.0.0.1:3000
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   322.43us  103.25us   3.72ms   86.57%
-    Req/Sec   166.35k     2.89k  182.78k    68.00%
-  Latency Distribution
-     50%  297.00us
-     75%  330.00us
-     90%  482.00us
-     99%  657.00us
-  6619245 requests in 10.02s, 0.98GB read
-Requests/sec: 660803.71
-Transfer/sec:    100.20MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh zig
-Listening on 0.0.0.0:3000
-========================================================================
-                          zig
-========================================================================
-Running 10s test @ http://127.0.0.1:3000
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   325.47us  105.86us   4.03ms   87.27%
-    Req/Sec   164.60k     4.69k  181.85k    84.75%
-  Latency Distribution
-     50%  300.00us
-     75%  333.00us
-     90%  430.00us
-     99%  667.00us
-  6549594 requests in 10.01s, 0.97GB read
-Requests/sec: 654052.56
-Transfer/sec:     99.18MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
-listening on 0.0.0.0:8090
-========================================================================
-                          go
-========================================================================
-Running 10s test @ http://127.0.0.1:8090/hello
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   680.63us  692.05us  12.09ms   88.04%
-    Req/Sec   126.49k     4.28k  139.26k    71.75%
-  Latency Distribution
-     50%  403.00us
-     75%  822.00us
-     90%    1.52ms
-     99%    3.34ms
-  5033360 requests in 10.01s, 643.22MB read
-Requests/sec: 502584.84
-Transfer/sec:     64.23MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
-listening on 0.0.0.0:8090
-========================================================================
-                          go
-========================================================================
-Running 10s test @ http://127.0.0.1:8090/hello
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   683.97us  695.78us  10.01ms   88.04%
-    Req/Sec   126.31k     4.34k  137.63k    65.00%
-  Latency Distribution
-     50%  408.00us
-     75%  829.00us
-     90%    1.53ms
-     99%    3.34ms
-  5026848 requests in 10.01s, 642.39MB read
-Requests/sec: 502149.91
-Transfer/sec:     64.17MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh go
-listening on 0.0.0.0:8090
-========================================================================
-                          go
-========================================================================
-Running 10s test @ http://127.0.0.1:8090/hello
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   688.89us  702.75us  12.70ms   88.09%
-    Req/Sec   126.06k     4.20k  138.00k    70.25%
-  Latency Distribution
-     50%  414.00us
-     75%  836.00us
-     90%    1.54ms
-     99%    3.36ms
-  5015716 requests in 10.01s, 640.97MB read
-Requests/sec: 500968.28
-Transfer/sec:     64.02MB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
-Server started http://127.0.0.1:8080
-========================================================================
-                          python
-========================================================================
-Running 10s test @ http://127.0.0.1:8080
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    12.89ms  101.69ms   1.79s    97.76%
-    Req/Sec     1.83k     2.11k    7.53k    82.18%
-  Latency Distribution
-     50%  215.00us
-     75%  260.00us
-     90%  363.00us
-     99%  485.31ms
-  34149 requests in 10.02s, 4.33MB read
-  Socket errors: connect 0, read 34149, write 0, timeout 15
-Requests/sec:   3407.63
-Transfer/sec:    442.60KB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
-Server started http://127.0.0.1:8080
-========================================================================
-                          python
-========================================================================
-Running 10s test @ http://127.0.0.1:8080
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     9.87ms   90.32ms   1.79s    98.21%
-    Req/Sec     2.16k     2.17k    7.49k    80.10%
-  Latency Distribution
-     50%  234.00us
-     75%  353.00us
-     90%  378.00us
-     99%  363.73ms
-  43897 requests in 10.02s, 5.57MB read
-  Socket errors: connect 0, read 43897, write 0, timeout 14
-Requests/sec:   4379.74
-Transfer/sec:    568.85KB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh python
-Server started http://127.0.0.1:8080
-========================================================================
-                          python
-========================================================================
-Running 10s test @ http://127.0.0.1:8080
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     3.98ms   51.85ms   1.66s    99.16%
-    Req/Sec     2.69k     2.58k    7.61k    51.14%
-  Latency Distribution
-     50%  234.00us
-     75%  357.00us
-     90%  381.00us
-     99%  568.00us
-  50165 requests in 10.02s, 6.36MB read
-  Socket errors: connect 0, read 50165, write 0, timeout 9
-Requests/sec:   5004.06
-Transfer/sec:    649.95KB
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ 
+[rene@nixos:~]$ neofetch --stdout
+rene@nixos 
+---------- 
+OS: NixOS 23.05.2947.475d5ae2c4cb (Stoat) x86_64 
+Host: LENOVO 1038 
+Kernel: 6.1.46 
+Uptime: 26 mins 
+Packages: 5804 (nix-system), 566 (nix-user) 
+Shell: bash 5.2.15 
+Terminal: /dev/pts/2 
+CPU: Intel Xeon Gold 5218 (64) @ 3.900GHz 
+GPU: NVIDIA Quadro P620 
+GPU: NVIDIA Tesla M40 
+Memory: 1610MiB / 95247MiB 
 
 
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
-    Finished release [optimized] target(s) in 0.00s
-========================================================================
-                          rust
-========================================================================
-Running 10s test @ http://127.0.0.1:7878
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.20ms    1.38ms 208.35ms   99.75%
-    Req/Sec    34.06k     2.00k   38.86k    75.25%
-  Latency Distribution
-     50%    1.32ms
-     75%    1.63ms
-     90%    1.87ms
-     99%    2.32ms
-  1356449 requests in 10.01s, 71.15MB read
-  Socket errors: connect 0, read 1356427, write 0, timeout 0
-Requests/sec: 135446.00
-Transfer/sec:      7.10MB
-
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
-    Finished release [optimized] target(s) in 0.00s
-========================================================================
-                          rust
-========================================================================
-Running 10s test @ http://127.0.0.1:7878
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.21ms  592.89us  10.02ms   63.64%
-    Req/Sec    32.93k     2.91k   37.94k    80.50%
-  Latency Distribution
-     50%    1.31ms
-     75%    1.64ms
-     90%    1.90ms
-     99%    2.48ms
-  1311445 requests in 10.02s, 68.79MB read
-  Socket errors: connect 0, read 1311400, write 0, timeout 0
-Requests/sec: 130904.50
-Transfer/sec:      6.87MB
-
-
-(base) rs@ryzen:~/code/github.com/renerocksai/zap$ ./wrk/measure.sh rust
-    Finished release [optimized] target(s) in 0.00s
-========================================================================
-                          rust
-========================================================================
-Running 10s test @ http://127.0.0.1:7878
-  4 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.26ms    2.88ms 211.74ms   99.92%
-    Req/Sec    33.92k     2.04k   38.99k    74.00%
-  Latency Distribution
-     50%    1.34ms
-     75%    1.66ms
-     90%    1.91ms
-     99%    2.38ms
-  1350527 requests in 10.02s, 70.84MB read
-  Socket errors: connect 0, read 1350474, write 0, timeout 0
-Requests/sec: 134830.39
-Transfer/sec:      7.07MB
-
+[rene@nixos:~]$ lscpu
+Architecture:            x86_64
+  CPU op-mode(s):        32-bit, 64-bit
+  Address sizes:         46 bits physical, 48 bits virtual
+  Byte Order:            Little Endian
+CPU(s):                  64
+  On-line CPU(s) list:   0-63
+Vendor ID:               GenuineIntel
+  Model name:            Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz
+    CPU family:          6
+    Model:               85
+    Thread(s) per core:  2
+    Core(s) per socket:  16
+    Socket(s):           2
+    Stepping:            7
+    CPU(s) scaling MHz:  57%
+    CPU max MHz:         3900,0000
+    CPU min MHz:         1000,0000
+    BogoMIPS:            4600,00
+    Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs b
+                         ts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_
+                         deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpri
+                         ority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xs
+                         avec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req pku ospke avx512_vnni md_clear flush_l1d arch_capabi
+                         lities
+Virtualization features: 
+  Virtualization:        VT-x
+Caches (sum of all):     
+  L1d:                   1 MiB (32 instances)
+  L1i:                   1 MiB (32 instances)
+  L2:                    32 MiB (32 instances)
+  L3:                    44 MiB (2 instances)
+NUMA:                    
+  NUMA node(s):          2
+  NUMA node0 CPU(s):     0-15,32-47
+  NUMA node1 CPU(s):     16-31,48-63
+Vulnerabilities:         
+  Gather data sampling:  Mitigation; Microcode
+  Itlb multihit:         KVM: Mitigation: VMX disabled
+  L1tf:                  Not affected
+  Mds:                   Not affected
+  Meltdown:              Not affected
+  Mmio stale data:       Mitigation; Clear CPU buffers; SMT vulnerable
+  Retbleed:              Mitigation; Enhanced IBRS
+  Spec rstack overflow:  Not affected
+  Spec store bypass:     Mitigation; Speculative Store Bypass disabled via prctl
+  Spectre v1:            Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+  Spectre v2:            Mitigation; Enhanced IBRS, IBPB conditional, RSB filling, PBRSB-eIBRS SW sequence
+  Srbds:                 Not affected
+  Tsx async abort:       Mitigation; TSX disabled
 ```
 
-## test machine
+
+### Work Laptop
+
+Very strange. It absolutely **LOVES** zap 🤣!
+
+![](./wrk/samples/laptop_req_per_sec_graph.png)
+
+![](./wrk/samples/laptop_xfer_per_sec_graph.png)
 
 ```
-          ▗▄▄▄       ▗▄▄▄▄    ▄▄▄▖            rs@ryzen 
-          ▜███▙       ▜███▙  ▟███▛            -------- 
-           ▜███▙       ▜███▙▟███▛             OS: NixOS 22.05 (Quokka) x86_64 
-            ▜███▙       ▜██████▛              Host: Micro-Star International Co., Ltd. B550-A PRO (MS-7C56) 
-     ▟█████████████████▙ ▜████▛     ▟▙        Kernel: 6.0.15 
-    ▟███████████████████▙ ▜███▙    ▟██▙       Uptime: 7 days, 5 hours, 29 mins 
-           ▄▄▄▄▖           ▜███▙  ▟███▛       Packages: 5950 (nix-system), 893 (nix-user), 5 (flatpak) 
-          ▟███▛             ▜██▛ ▟███▛        Shell: bash 5.1.16 
-         ▟███▛               ▜▛ ▟███▛         Resolution: 3840x2160 
-▟███████████▛                  ▟██████████▙   DE: none+i3 
-▜██████████▛                  ▟███████████▛   WM: i3 
-      ▟███▛ ▟▙               ▟███▛            Terminal: Neovim Terminal 
-     ▟███▛ ▟██▙             ▟███▛             CPU: AMD Ryzen 5 5600X (12) @ 3.700GHz 
-    ▟███▛  ▜███▙           ▝▀▀▀▀              GPU: AMD ATI Radeon RX 6700/6700 XT / 6800M 
-    ▜██▛    ▜███▙ ▜██████████████████▛        Memory: 10378MiB / 32033MiB 
-     ▜▛     ▟████▙ ▜████████████████▛
-           ▟██████▙       ▜███▙                                       
-          ▟███▛▜███▙       ▜███▙                                      
-         ▟███▛  ▜███▙       ▜███▙
-         ▝▀▀▀    ▀▀▀▀▘       ▀▀▀▘
+➜ neofetch --stdout
+rs@nixos
+--------
+OS: NixOS 23.05.2918.4cdad15f34e6 (Stoat) x86_64
+Host: LENOVO 20TKS0W700
+Kernel: 6.1.45
+Uptime: 1 day, 4 hours, 50 mins
+Packages: 6259 (nix-system), 267 (nix-user), 9 (flatpak)
+Shell: bash 5.2.15
+Resolution: 3840x1600, 3840x2160
+DE: none+i3
+WM: i3
+Terminal: tmux
+CPU: Intel i9-10885H (16) @ 5.300GHz
+GPU: NVIDIA GeForce GTX 1650 Ti Mobile
+Memory: 4525MiB / 31805MiB
+
+
+➜ lscpu
+Architecture:                       x86_64
+CPU op-mode(s):                     32-bit, 64-bit
+Address sizes:                      39 bits physical, 48 bits virtual
+Byte Order:                         Little Endian
+CPU(s):                             16
+On-line CPU(s) list:                0-15
+Vendor ID:                          GenuineIntel
+Model name:                         Intel(R) Core(TM) i9-10885H CPU @ 2.40GHz
+CPU family:                         6
+Model:                              165
+Thread(s) per core:                 2
+Core(s) per socket:                 8
+Socket(s):                          1
+Stepping:                           2
+CPU(s) scaling MHz:                 56%
+CPU max MHz:                        5300.0000
+CPU min MHz:                        800.0000
+BogoMIPS:                           4800.00
+Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust sgx bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp pku ospke sgx_lc md_clear flush_l1d arch_capabilities
+Virtualization:                     VT-x
+L1d cache:                          256 KiB (8 instances)
+L1i cache:                          256 KiB (8 instances)
+L2 cache:                           2 MiB (8 instances)
+L3 cache:                           16 MiB (1 instance)
+NUMA node(s):                       1
+NUMA node0 CPU(s):                  0-15
+Vulnerability Gather data sampling: Mitigation; Microcode
+Vulnerability Itlb multihit:        KVM: Mitigation: VMX disabled
+Vulnerability L1tf:                 Not affected
+Vulnerability Mds:                  Not affected
+Vulnerability Meltdown:             Not affected
+Vulnerability Mmio stale data:      Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Retbleed:             Mitigation; Enhanced IBRS
+Vulnerability Spec rstack overflow: Not affected
+Vulnerability Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:           Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:           Mitigation; Enhanced IBRS, IBPB conditional, RSB filling, PBRSB-eIBRS SW sequence
+Vulnerability Srbds:                Mitigation; Microcode
+Vulnerability Tsx async abort:      Not affected
 ```
 

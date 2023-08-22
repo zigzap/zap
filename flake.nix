@@ -48,6 +48,7 @@
             wrk
             python39
             python39Packages.sanic
+            python39Packages.matplotlib
             poetry
             poetry
             pkgs.rustc 
@@ -65,6 +66,9 @@
             pkgs.zlib
             pkgs.icu
             pkgs.openssl
+
+            pkgs.neofetch
+            pkgs.util-linux    # lscpu
           ];
 
           buildInputs = with pkgs; [

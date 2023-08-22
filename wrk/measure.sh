@@ -14,7 +14,7 @@ if [ "$SUBJECT" = "" ] ; then
     exit 1
 fi
 
-if [ "$SUBJECT" = "zig" ] ; then
+if [ "$SUBJECT" = "zig-zap" ] ; then
     zig build -Doptimize=ReleaseFast wrk > /dev/null
     $TSK_SRV ./zig-out/bin/wrk &
     PID=$!
@@ -41,20 +41,27 @@ if [ "$SUBJECT" = "python" ] ; then
     URL=http://127.0.0.1:8080
 fi
 
-if [ "$SUBJECT" = "sanic" ] ; then
+if [ "$SUBJECT" = "python-sanic" ] ; then
     $TSK_SRV python wrk/sanic/sanic-app.py &
     PID=$!
     URL=http://127.0.0.1:8000
 fi
 
-if [ "$SUBJECT" = "rust" ] ; then
-    cd wrk/rust/hello && cargo build --release
+if [ "$SUBJECT" = "rust-bythebook" ] ; then
+    cd wrk/rust/bythebook && cargo build --release
     $TSK_SRV ./target/release/hello &
     PID=$!
     URL=http://127.0.0.1:7878
 fi
 
-if [ "$SUBJECT" = "axum" ] ; then
+if [ "$SUBJECT" = "rust-clean" ] ; then
+    cd wrk/rust/clean && cargo build --release
+    $TSK_SRV ./target/release/hello &
+    PID=$!
+    URL=http://127.0.0.1:7878
+fi
+
+if [ "$SUBJECT" = "rust-axum" ] ; then
     cd wrk/axum/hello-axum && cargo build --release
     $TSK_SRV ./target/release/hello-axum &
     PID=$!
@@ -68,7 +75,7 @@ if [ "$SUBJECT" = "csharp" ] ; then
     URL=http://127.0.0.1:5026
 fi
 
-if [ "$SUBJECT" = "cpp" ] ; then
+if [ "$SUBJECT" = "cpp-beast" ] ; then
     cd wrk/cpp && zig build -Doptimize=ReleaseFast
     $TSK_SRV ./zig-out/bin/cpp-beast 127.0.0.1 8070 . &
     PID=$!
