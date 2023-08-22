@@ -117,9 +117,15 @@ machine (x86_64-linux):
 and Rust examples. Both python `sanic` and rust `axum` were easy enough to
 integrate.
 
-![](wrk_table_summary.png)
+**Update**: I have automated the benchmarks. See
+[blazingly-fast.md](./blazingly-fast.md) for more information. Also, thanks to
+@alexpyattaev, the benchmarks are fairer now, pinning server and client to
+specific CPU cores.
 
-![](wrk_charts_summary.png)
+![](./wrk/samples/req_per_sec_graph.png)
+
+![](./wrk/samples/xfer_per_sec_graph.png)
+
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
 ... of reasonable performance 😎. 
