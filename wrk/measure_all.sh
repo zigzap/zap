@@ -6,8 +6,11 @@ if [ ! -d ".git" ] ; then
     exit 1
 fi
 
-SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-clean rust-axum csharp cpp-beast"
+SUBJECTS="$1"
 
+if [ -z "$SUBJECTS" ] ; then
+    SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-clean rust-axum csharp cpp-beast"
+fi
 
 for S in $SUBJECTS; do
     L="$S.perflog"
