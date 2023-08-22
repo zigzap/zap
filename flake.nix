@@ -65,6 +65,9 @@
             pkgs.zlib
             pkgs.icu
             pkgs.openssl
+
+            pkgs.neofetch
+            pkgs.util-linux    # lscpu
           ];
 
           buildInputs = with pkgs; [
