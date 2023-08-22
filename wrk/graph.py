@@ -5,7 +5,7 @@ from matplotlib.ticker import FuncFormatter
 from collections import defaultdict
 import statistics
 
-directory = "./"  # Replace with the actual directory path
+directory = "./wrk"  # Replace with the actual directory path
 
 requests_sec = defaultdict(list)
 transfers_sec = defaultdict(list)
@@ -41,10 +41,18 @@ def plot(kind='', title='', ylabel='', means=None):
         plt.text(bar.get_x() + bar.get_width() / 2, yval, f'{yval:,.2f}', ha='center', va='bottom')
 
     plt.tight_layout()  # Adjust the spacing of the graph elements
-    plt.savefig(f"{kind.lower()}_graph.png")  # Save the graph as a PNG file
+    png_name = f"{directory}/{kind.lower()}_graph.png"
+    plt.savefig(png_name)  # Save the graph as a PNG file
+    print(f"Generated: {png_name}")
 
 
 if __name__ == '__main__':
+    if not os.path.isdir(".git"):
+        print("Please run from root directory of the repository!")
+        print("e.g. python wrk/graph.py")
+        import sys
+        sys.exit(1)
+
     # Iterate over the files in the directory
     for filename in os.listdir(directory):
         if filename.endswith(".perflog"):
