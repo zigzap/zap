@@ -206,13 +206,11 @@ $ mkdir zaptest && cd zaptest
 $ zig init-exe
 $ git init      ## (optional)
 ```
-**Note 1**: Zap is developed with zig master. This version of zig has the
-package management features in place that are used in the following
-instructions. Nix users are lucky; you can use the existing `flake.nix` and run
-`nix develop` to get a development shell providing zig, and also all
-dependencies to build the and run the GO, python, and rust examples for the
-`wrk` performance tests. For mere building, `nix develop .#build` will only
-fetch zig master.
+**Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
+`nix develop` to get a development shell providing zig and all
+dependencies to build and run the GO, python, and rust examples for the
+`wrk` performance tests. For the mere building of zap projects, 
+`nix develop .#build` will only fetch zig 0.11.0.
 
 With an existing zig project, adding zap to it is easy:
 
