@@ -54,6 +54,14 @@ if [ "$SUBJECT" = "rust-bythebook" ] ; then
     URL=http://127.0.0.1:7878
 fi
 
+if [ "$SUBJECT" = "rust-bythebook-improved" ] ; then
+    cd wrk/rust/bythebook-improved && cargo build --release
+    $TSK_SRV ./target/release/hello &
+    PID=$!
+    URL=http://127.0.0.1:7878
+fi
+
+
 if [ "$SUBJECT" = "rust-clean" ] ; then
     cd wrk/rust/clean && cargo build --release
     $TSK_SRV ./target/release/hello &

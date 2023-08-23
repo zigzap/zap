@@ -9,7 +9,7 @@ fi
 SUBJECTS="$1"
 
 if [ -z "$SUBJECTS" ] ; then
-    SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-clean rust-axum csharp cpp-beast"
+    SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-bythebook-improved rust-clean rust-axum csharp cpp-beast"
 fi
 
 for S in $SUBJECTS; do

@@ -1,14 +1,17 @@
+use hello::ThreadPool;
 use std::io::prelude::*;
 use std::net::TcpListener;
 use std::net::TcpStream;
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();    
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    //Creating a massive amount of threads so we can always have one ready to go.
+    let mut pool = ThreadPool::new(128);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         //handle_connection(stream);
-        std::thread::spawn(||{handle_connection(stream)});        
+        pool.execute(handle_connection, stream);
     }
 
     println!("Shutting down.");
@@ -28,5 +31,4 @@ fn handle_connection(mut stream: TcpStream) {
         
         stream.write_all(response_bytes).unwrap();
     }
-
 }
