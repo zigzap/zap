@@ -8,6 +8,11 @@ fi
 
 SUBJECTS="$1"
 
+if [ "$SUBJECTS" = "README" ] ; then 
+    rm -f wrk/*.perflog
+    SUBJECTS="zig-zap go python-sanic rust-axum csharp cpp-beast"
+fi
+
 if [ -z "$SUBJECTS" ] ; then
     SUBJECTS="zig-zap go python python-sanic rust-bythebook rust-bythebook-improved rust-clean rust-axum csharp cpp-beast"
 fi

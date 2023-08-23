@@ -169,7 +169,7 @@ Vulnerabilities:
   Tsx async abort:       Not affected
 ```
 
-### Workstation at work
+### Workstation at work -- out of date (fixed soon)
 
 A beast. Many cores (which we don't use). 
 
@@ -247,7 +247,7 @@ Vulnerabilities:
 ```
 
 
-### Work Laptop
+### Work Laptop -- out of date (fixed soon)
 
 Very strange. It absolutely **LOVES** zap 🤣!
 

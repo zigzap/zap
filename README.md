@@ -122,9 +122,14 @@ integrate.
 @alexpyattaev, the benchmarks are fairer now, pinning server and client to
 specific CPU cores.
 
-![](./wrk/samples/req_per_sec_graph.png)
+**Update**: I have consolidated the benchmarks to one good representative per
+language. See more details in [blazingly-fast.md](./blazingly-fast.md). It
+contains rust implementations that come pretty close to zap's performance in the
+simplistic testing scenario.
 
-![](./wrk/samples/xfer_per_sec_graph.png)
+![](./wrk/samples/README_req_per_sec.png)
+
+![](./wrk/samples/README_xfer_per_sec.png)
 
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
