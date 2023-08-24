@@ -85,6 +85,20 @@ potentially excelling in certain benchmarks. My main concern was whether Zap,
 given its current level of abstraction, could compete with standard web servers.
 This question has been answered, and I see no need for further benchmarks.
 
+So far, we have the following benchmark subjects (implementations) which you'll
+find in the graphs below:
+
+- **zig-zap** : ZAP implementation
+- **go** : GO implementation
+- **python** : Python implementation
+- **python-sanic** : Python implementation with sanic framework
+- **rust-bythebook** : Rust example from the Rust book (not representative)
+- **rust-bythebook-improved** : Improved version of the by-the-book code (thx @alexpyattaev)
+- **rust-clean** : A clean, straight-forward Rust implementation (thx @alexpyattaev)
+- **rust-axum** : Rust implementation using the axum framework (realistic)
+- **(csharp)** : CSharp implementation (thx @leo-costa)
+- **cpp-beast** : A C++ implementation using boost::beast (thx @kassane)
+
 
 ## The computer makes the difference
 
@@ -169,7 +183,7 @@ Vulnerabilities:
   Tsx async abort:       Not affected
 ```
 
-### Workstation at work -- out of date (fixed soon)
+### Workstation at work
 
 A beast. Many cores (which we don't use). 
 
@@ -247,7 +261,7 @@ Vulnerabilities:
 ```
 
 
-### Work Laptop -- out of date (fixed soon)
+### Work Laptop
 
 Very strange. It absolutely **LOVES** zap 🤣!
 
