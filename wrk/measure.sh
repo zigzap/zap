@@ -21,6 +21,14 @@ if [ "$SUBJECT" = "zig-zap" ] ; then
     URL=http://127.0.0.1:3000
 fi
 
+if [ "$SUBJECT" = "http.zig" ] ; then
+    cd wrk/http.zig
+    zig build -Doptimize=ReleaseFast > /dev/null
+    $TSK_SRV ./zig-out/bin/http.zig.demo &
+    PID=$!
+    URL=http://127.0.0.1:5882
+fi
+
 if [ "$SUBJECT" = "zigstd" ] ; then
     zig build -Doptimize=ReleaseFast wrk_zigstd > /dev/null
     $TSK_SRV ./zig-out/bin/wrk_zigstd &
