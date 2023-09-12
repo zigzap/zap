@@ -26,7 +26,7 @@ pub const FreeOrNot = struct {
 
 pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool) !FreeOrNot {
     if (o == 0) return .{ .str = "null", .freeme = false };
-    if (o == fio.FIOBJ_INVALID) return .{ .str = "null", .freeme = false };
+    if (o == fio.FIOBJ_INVALID) return .{ .str = "invalid", .freeme = false };
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_TRUE => .{ .str = "true", .freeme = false },
         fio.FIOBJ_T_FALSE => .{ .str = "false", .freeme = false },
@@ -35,7 +35,7 @@ pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool)
         fio.FIOBJ_T_FLOAT => .{ .str = try a.dupe(u8, fio2str(o) orelse "null"), .freeme = true, .allocator = a },
         // the string comes out of the request, so it is safe to not make a copy
         fio.FIOBJ_T_STRING => .{ .str = if (always_alloc) try a.dupe(u8, fio2str(o) orelse "") else fio2str(o) orelse "", .freeme = if (always_alloc) true else false, .allocator = a },
-        else => .{ .str = "null", .freeme = false },
+        else => .{ .str = "unknown_type", .freeme = false },
     };
 }
 pub fn str2fio(s: []const u8) fio.fio_str_info_s {
