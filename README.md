@@ -43,6 +43,8 @@ Here's what works:
   optional dynamic request handling
 - **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
   a file, honoring compression headers, etc.
+- **[bindataformpost](examples/bindataformpost/bindataformpost.zig)**: example
+  to receive binary files via form post.
 - **[hello_json](examples/hello_json/hello_json.zig)**: serves you json
   dependent on HTTP path
 - **[endpoint](examples/endpoint/)**: a simple JSON REST API example featuring a

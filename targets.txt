@@ -17,4 +17,5 @@ sendfile
 middleware
 middleware_with_endpoint
 senderror
+bindataformpost
 announceybot
