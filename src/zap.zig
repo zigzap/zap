@@ -622,17 +622,35 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                 const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
                 const data = fio.fiobj_hash_get(o, key_data);
 
-                // the data
-                const data_len = fio.fiobj_data_len(data);
-                const data_buf = fio.fiobj_data_read(data, data_len);
+                var data_slice: ?[]const u8 = null;
+                if (fio.is_invalid(data) == 1) {
+                    data_slice = "(zap: invalid data)";
+                } else {
+                    // the data
+                    const data_len = fio.fiobj_data_len(data);
+                    const data_buf = fio.fiobj_data_read(data, data_len);
 
-                if (data_buf.len != data_len) {
-                    std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}", .{ data_len, data_buf.len });
+                    if (data_len < 0) {
+                        std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
+                    } else {
+                        if (data_buf.len != data_len) {
+                            std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
+                            data_slice = "(zap: invalid data: negative size)";
+                        }
+
+                        if (data_buf.len > 0) {
+                            data_slice = data_buf.data[0..data_buf.len];
+                        } else {
+                            std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
+                            data_slice = "(zap: invalid data: negative BUFFER size)";
+                        }
+                    }
                 }
+
                 return .{ .Unsupported_Hash = .{
                     .filename = filename.data[0..filename.len],
                     .mimetype = mimetype.data[0..mimetype.len],
-                    .data = data_buf.data[0..data_buf.len],
+                    .data = data_slice,
                 } };
             } else {
                 return .{ .Unsupported_Hash = .{} };
