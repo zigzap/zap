@@ -136,6 +136,23 @@ pub extern fn fiobj_hash_haskey(hash: FIOBJ, key: FIOBJ) c_int;
 pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
 pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
+
+pub extern fn fiobj_data_newstr() FIOBJ;
+pub extern fn fiobj_data_newstr2(buffer: ?*anyopaque, length: usize, dealloc: ?*const fn (?*anyopaque) callconv(.C) void) FIOBJ;
+pub extern fn fiobj_data_newtmpfile() FIOBJ;
+pub extern fn fiobj_data_newfd(fd: c_int) FIOBJ;
+pub extern fn fiobj_data_slice(parent: FIOBJ, offset: isize, length: usize) FIOBJ;
+pub extern fn fiobj_data_save(io: FIOBJ, filename: [*c]const u8) c_int;
+pub extern fn fiobj_data_read(io: FIOBJ, length: isize) fio_str_info_s;
+pub extern fn fiobj_data_read2ch(io: FIOBJ, token: u8) fio_str_info_s;
+pub extern fn fiobj_data_pos(io: FIOBJ) isize;
+pub extern fn fiobj_data_len(io: FIOBJ) isize;
+pub extern fn fiobj_data_seek(io: FIOBJ, position: isize) void;
+pub extern fn fiobj_data_pread(io: FIOBJ, start_at: isize, length: usize) fio_str_info_s;
+pub extern fn fiobj_data_write(io: FIOBJ, buffer: ?*anyopaque, length: usize) isize;
+pub extern fn fiobj_data_puts(io: FIOBJ, buffer: ?*anyopaque, length: usize) isize;
+pub extern fn fiobj_data_assert_dynamic(io: FIOBJ) void;
+
 pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
 pub fn fiobj_null() callconv(.C) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_NULL)));

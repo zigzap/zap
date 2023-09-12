@@ -590,6 +590,7 @@ pub const HttpParamBinaryFile = struct {
     mimetype: ?[]const u8 = null,
     /// filename
     filename: ?[]const u8 = null,
+
     pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) std.os.WriteError!void {
         const d = value.data orelse "\\0";
         const m = value.mimetype orelse "null";
@@ -611,15 +612,27 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
             const key_name = fio.fiobj_str_new("name", 4);
             const key_data = fio.fiobj_str_new("data", 4);
             const key_type = fio.fiobj_str_new("type", 4);
-            // files: they should have "data", "type", and "filename" keys
+            defer {
+                fio.fiobj_free_wrapped(key_name);
+                fio.fiobj_free_wrapped(key_data);
+                fio.fiobj_free_wrapped(key_type);
+            } // files: they should have "data", "type", and "filename" keys
             if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_type) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
-                // TODO: Fill the fields
-
                 const filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));
                 const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
+                const data = fio.fiobj_hash_get(o, key_data);
+
+                // the data
+                const data_len = fio.fiobj_data_len(data);
+                const data_buf = fio.fiobj_data_read(data, data_len);
+
+                if (data_buf.len != data_len) {
+                    std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}", .{ data_len, data_buf.len });
+                }
                 return .{ .Unsupported_Hash = .{
                     .filename = filename.data[0..filename.len],
                     .mimetype = mimetype.data[0..mimetype.len],
+                    .data = data_buf.data[0..data_buf.len],
                 } };
             } else {
                 return .{ .Unsupported_Hash = .{} };
