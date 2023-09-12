@@ -632,6 +632,7 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
 
                     if (data_len < 0) {
                         std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
+                        std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
 
                         // try to read anyway
                         std.log.warn("WARNING: Attempting to read anyway\n", .{});
@@ -645,7 +646,6 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                     } else {
                         if (data_buf.len != data_len) {
                             std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
-                            data_slice = "(zap: invalid data: negative size)";
                         }
 
                         if (data_buf.len > 0) {
