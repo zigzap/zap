@@ -654,7 +654,7 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                     fio.FIOBJ_T_STRING => {
                         const fiostr = fio.fiobj_obj2cstr(data);
                         if (fiostr.len == 0) {
-                            data_slice = "(zap: epmty string data)";
+                            data_slice = "(zap: empty string data)";
                             std.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
                         } else {
                             data_slice = fiostr.data[0..fiostr.len];
@@ -665,6 +665,7 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                     },
                     else => {
                         // don't know what to do
+                        return .{ .Unsupported = null };
                     },
                 }
 
