@@ -42,6 +42,13 @@ const Handler = struct {
                     },
                     else => {
                         // might be a string param, we don't care
+                        // let's just get it as string
+                        if (r.getParamStr(kv.key.str, Handler.alloc, false)) |maybe_str| {
+                            const value: []const u8 = if (maybe_str) |s| s.str else "(no value)";
+                            std.log.debug("   {s} = {s}", .{ kv.key.str, value });
+                        } else |err| {
+                            std.log.err("Error: {any}\n", .{err});
+                        }
                     },
                 }
             }
