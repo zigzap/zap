@@ -563,8 +563,8 @@ pub const HttpParam = union(HttpParamValueType) {
     String: util.FreeOrNot,
     /// value will always be null
     Unsupported: ?void,
-    /// value will always be null
-    Unsupported_Hash: ?void,
+    /// we assume hashes are because of file transmissions
+    Unsupported_Hash: HttpParamBinaryFile,
     /// value will always be null
     Unsupported_Array: ?void,
 };
@@ -583,6 +583,15 @@ pub const HttpParamKV = struct {
     }
 };
 
+pub const HttpParamBinaryFile = struct {
+    ///  file contents
+    data: ?[]const u8 = null,
+    /// mimetype
+    mimetype: ?[]const u8 = null,
+    /// filename
+    filename: ?[]const u8 = null,
+};
+
 pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_NULL => null,
@@ -592,7 +601,24 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
         fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
         fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(o, a, dupe_string) },
         fio.FIOBJ_T_ARRAY => .{ .Unsupported_Array = null },
-        fio.FIOBJ_T_HASH => .{ .Unsupported_Hash = null },
+        fio.FIOBJ_T_HASH => {
+            const key_name = fio.fiobj_str_new("name", 4);
+            const key_data = fio.fiobj_str_new("data", 4);
+            const key_type = fio.fiobj_str_new("type", 4);
+            // files: they should have "data", "type", and "filename" keys
+            if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_type) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
+                // TODO: Fill the fields
+
+                const filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));
+                const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
+                return .{ .Unsupported_Hash = .{
+                    .filename = filename.data[0..filename.len],
+                    .mimetype = mimetype.data[0..mimetype.len],
+                } };
+            } else {
+                return .{ .Unsupported_Hash = .{} };
+            }
+        },
         else => .{ .Unsupported = null },
     };
 }
