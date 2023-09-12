@@ -9,7 +9,7 @@ pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     const x: fio.fio_str_info_s = fio.fiobj_obj2cstr(o);
     if (x.data == 0)
         return null; // TODO: should we return an error? Actually, looking at fiobj_obj2cstr, this is unreachable
-    return std.mem.span(x.data);
+    return x.data[0..x.len];
 }
 
 pub const FreeOrNot = struct {
