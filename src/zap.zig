@@ -662,6 +662,7 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                     },
                     fio.FIOBJ_T_ARRAY => {
                         std.log.warn("WARNING: HTTP param binary file as array object is not implemented\n", .{});
+                        return .{ .Unsupported = null };
                     },
                     else => {
                         // don't know what to do
