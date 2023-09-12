@@ -623,38 +623,49 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                 const data = fio.fiobj_hash_get(o, key_data);
 
                 var data_slice: ?[]const u8 = null;
-                if (fio.is_invalid(data) == 1) {
-                    data_slice = "(zap: invalid data)";
-                } else {
-                    // the data
-                    const data_len = fio.fiobj_data_len(data);
-                    var data_buf = fio.fiobj_data_read(data, data_len);
 
-                    if (data_len < 0) {
-                        std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
-                        std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
-
-                        // try to read anyway
-                        std.log.warn("WARNING: Attempting to read anyway\n", .{});
-                        data_buf = fio.fiobj_data_read(data, 4096);
-                        if (data_buf.len > 0) {
-                            data_slice = data_buf.data[0..data_buf.len];
+                switch (fio.fiobj_type(data)) {
+                    fio.FIOBJ_T_DATA => {
+                        if (fio.is_invalid(data) == 1) {
+                            data_slice = "(zap: invalid data)";
+                            std.log.warn("WARNING: HTTP param binary file is not a data object\n", .{});
                         } else {
-                            std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
-                            data_slice = "(zap: invalid data: negative BUFFER size)";
-                        }
-                    } else {
-                        if (data_buf.len != data_len) {
-                            std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
-                        }
+                            // the data
+                            const data_len = fio.fiobj_data_len(data);
+                            var data_buf = fio.fiobj_data_read(data, data_len);
 
-                        if (data_buf.len > 0) {
-                            data_slice = data_buf.data[0..data_buf.len];
-                        } else {
-                            std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
-                            data_slice = "(zap: invalid data: negative BUFFER size)";
+                            if (data_len < 0) {
+                                std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
+                                std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
+                            } else {
+                                if (data_buf.len != data_len) {
+                                    std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
+                                }
+
+                                if (data_buf.len > 0) {
+                                    data_slice = data_buf.data[0..data_buf.len];
+                                } else {
+                                    std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
+                                    data_slice = "(zap: invalid data: negative BUFFER size)";
+                                }
+                            }
                         }
-                    }
+                    },
+                    fio.FIOBJ_T_STRING => {
+                        const fiostr = fio.fiobj_obj2cstr(data);
+                        if (fiostr.len == 0) {
+                            data_slice = "(zap: epmty string data)";
+                            std.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
+                        } else {
+                            data_slice = fiostr.data[0..fiostr.len];
+                        }
+                    },
+                    fio.FIOBJ_T_ARRAY => {
+                        std.log.warn("WARNING: HTTP param binary file as array object is not implemented\n", .{});
+                    },
+                    else => {
+                        // don't know what to do
+                    },
                 }
 
                 return .{ .Unsupported_Hash = .{
