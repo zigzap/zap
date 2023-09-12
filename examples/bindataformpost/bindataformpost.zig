@@ -31,6 +31,7 @@ const Handler = struct {
                 std.debug.print("\n", .{});
                 std.log.info("Param `{s}` in owned list is {any}\n", .{ kv.key.str, v });
                 switch (v) {
+                    // single-file upload
                     zap.HttpParam.Hash_Binfile => |*file| {
                         const filename = file.filename orelse "(no filename)";
                         const mimetype = file.mimetype orelse "(no mimetype)";
@@ -39,6 +40,19 @@ const Handler = struct {
                         std.log.debug("    filename: `{s}`\n", .{filename});
                         std.log.debug("    mimetype: {s}\n", .{mimetype});
                         std.log.debug("    contents: {any}\n", .{data});
+                    },
+                    // multi-file upload
+                    zap.HttpParam.Array_Binfile => |*files| {
+                        for (files.*.items) |file| {
+                            const filename = file.filename orelse "(no filename)";
+                            const mimetype = file.mimetype orelse "(no mimetype)";
+                            const data = file.data orelse "";
+
+                            std.log.debug("    filename: `{s}`\n", .{filename});
+                            std.log.debug("    mimetype: {s}\n", .{mimetype});
+                            std.log.debug("    contents: {any}\n", .{data});
+                            files.*.deinit();
+                        }
                     },
                     else => {
                         // might be a string param, we don't care

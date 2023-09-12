@@ -133,7 +133,22 @@ pub extern fn fiobj_hash_pop(hash: FIOBJ, key: [*c]FIOBJ) FIOBJ;
 pub extern fn fiobj_hash_count(hash: FIOBJ) usize;
 pub extern fn fiobj_hash_key_in_loop() FIOBJ;
 pub extern fn fiobj_hash_haskey(hash: FIOBJ, key: FIOBJ) c_int;
+pub extern fn fiobj_ary_new() FIOBJ;
+pub extern fn fiobj_ary_new2(capa: usize) FIOBJ;
+pub extern fn fiobj_ary_count(ary: FIOBJ) usize;
+pub extern fn fiobj_ary_capa(ary: FIOBJ) usize;
+pub extern fn fiobj_ary2ptr(ary: FIOBJ) [*c]FIOBJ;
+pub extern fn fiobj_ary_index(ary: FIOBJ, pos: i64) FIOBJ;
+pub extern fn fiobj_ary_set(ary: FIOBJ, obj: FIOBJ, pos: i64) void;
 pub extern fn fiobj_ary_push(ary: FIOBJ, obj: FIOBJ) void;
+pub extern fn fiobj_ary_pop(ary: FIOBJ) FIOBJ;
+pub extern fn fiobj_ary_unshift(ary: FIOBJ, obj: FIOBJ) void;
+pub extern fn fiobj_ary_shift(ary: FIOBJ) FIOBJ;
+pub extern fn fiobj_ary_replace(ary: FIOBJ, obj: FIOBJ, pos: i64) FIOBJ;
+pub extern fn fiobj_ary_find(ary: FIOBJ, data: FIOBJ) i64;
+pub extern fn fiobj_ary_remove(ary: FIOBJ, pos: i64) c_int;
+pub extern fn fiobj_ary_remove2(ary: FIOBJ, data: FIOBJ) c_int;
+pub extern fn fiobj_ary_compact(ary: FIOBJ) void;
 pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
 
@@ -163,7 +178,6 @@ pub fn fiobj_true() callconv(.C) FIOBJ {
 pub fn fiobj_false() callconv(.C) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_FALSE)));
 }
-pub extern fn fiobj_ary_new2(capa: usize) FIOBJ;
 pub extern fn fiobj_str_new(str: [*c]const u8, len: usize) FIOBJ;
 pub extern fn fiobj_str_buf(capa: usize) FIOBJ;
 
@@ -200,7 +214,6 @@ pub inline fn FIOBJECT2HEAD(o: anytype) [*c]fiobj_object_header_s {
 pub inline fn fiobj_ary_entry(a: anytype, p: anytype) @TypeOf(fiobj_ary_index(a, p)) {
     return fiobj_ary_index(a, p);
 }
-pub extern fn fiobj_ary_index(ary: FIOBJ, pos: i64) FIOBJ;
 pub const FIOBJ_T_NUMBER: c_int = 1;
 pub const FIOBJ_T_NULL: c_int = 6;
 pub const FIOBJ_T_TRUE: c_int = 22;

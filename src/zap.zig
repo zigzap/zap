@@ -552,7 +552,7 @@ pub const HttpParamValueType = enum {
     String,
     Unsupported,
     Hash_Binfile,
-    Unsupported_Array,
+    Array_Binfile,
 };
 
 pub const HttpParam = union(HttpParamValueType) {
@@ -566,7 +566,7 @@ pub const HttpParam = union(HttpParamValueType) {
     /// we assume hashes are because of file transmissions
     Hash_Binfile: HttpParamBinaryFile,
     /// value will always be null
-    Unsupported_Array: ?void,
+    Array_Binfile: std.ArrayList(HttpParamBinaryFile),
 };
 
 pub const HttpParamKV = struct {
@@ -599,6 +599,118 @@ pub const HttpParamBinaryFile = struct {
     }
 };
 
+fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
+    const key_name = fio.fiobj_str_new("name", 4);
+    const key_data = fio.fiobj_str_new("data", 4);
+    const key_type = fio.fiobj_str_new("type", 4);
+    defer {
+        fio.fiobj_free_wrapped(key_name);
+        fio.fiobj_free_wrapped(key_data);
+        fio.fiobj_free_wrapped(key_type);
+    } // files: they should have "data", "type", and "filename" keys
+    if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_type) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
+        const filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));
+        const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
+        const data = fio.fiobj_hash_get(o, key_data);
+
+        var data_slice: ?[]const u8 = null;
+
+        switch (fio.fiobj_type(data)) {
+            fio.FIOBJ_T_DATA => {
+                if (fio.is_invalid(data) == 1) {
+                    data_slice = "(zap: invalid data)";
+                    std.log.warn("WARNING: HTTP param binary file is not a data object\n", .{});
+                } else {
+                    // the data
+                    const data_len = fio.fiobj_data_len(data);
+                    var data_buf = fio.fiobj_data_read(data, data_len);
+
+                    if (data_len < 0) {
+                        std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
+                        std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
+                    } else {
+                        if (data_buf.len != data_len) {
+                            std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
+                        }
+
+                        if (data_buf.len > 0) {
+                            data_slice = data_buf.data[0..data_buf.len];
+                        } else {
+                            std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
+                            data_slice = "(zap: invalid data: negative BUFFER size)";
+                        }
+                    }
+                }
+            },
+            fio.FIOBJ_T_STRING => {
+                const fiostr = fio.fiobj_obj2cstr(data);
+                if (fiostr.len == 0) {
+                    data_slice = "(zap: empty string data)";
+                    std.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
+                } else {
+                    data_slice = fiostr.data[0..fiostr.len];
+                }
+            },
+            fio.FIOBJ_T_ARRAY => {
+                // OK, data is an array
+                const len = fio.fiobj_ary_count(data);
+                const fn_ary = fio.fiobj_hash_get(o, key_name);
+                const mt_ary = fio.fiobj_hash_get(o, key_type);
+
+                if (fio.fiobj_ary_count(fn_ary) == len and fio.fiobj_ary_count(mt_ary) == len) {
+                    var i: isize = 0;
+                    var ret = std.ArrayList(HttpParamBinaryFile).init(a);
+                    while (i < len) : (i += 1) {
+                        const file_data_obj = fio.fiobj_ary_entry(data, i);
+                        const file_name_obj = fio.fiobj_ary_entry(fn_ary, i);
+                        const file_mimetype_obj = fio.fiobj_ary_entry(mt_ary, i);
+                        var has_error: bool = false;
+                        if (fio.is_invalid(file_data_obj) != 1) {
+                            std.log.debug("file data invalid in array", .{});
+                            has_error = true;
+                        }
+                        if (fio.is_invalid(file_name_obj) != 1) {
+                            std.log.debug("file name invalid in array", .{});
+                            has_error = true;
+                        }
+                        if (fio.is_invalid(file_mimetype_obj) != 1) {
+                            std.log.debug("file mimetype invalid in array", .{});
+                            has_error = true;
+                        }
+                        if (has_error) {
+                            return error.Invalid;
+                        }
+
+                        const file_data = fio.fiobj_obj2cstr(file_data_obj);
+                        const file_name = fio.fiobj_obj2cstr(file_name_obj);
+                        const file_mimetype = fio.fiobj_obj2cstr(file_mimetype_obj);
+                        try ret.append(.{
+                            .data = file_data.data[0..file_data.len],
+                            .mimetype = file_mimetype.data[0..file_mimetype.len],
+                            .filename = file_name.data[0..file_name.len],
+                        });
+                    }
+                    return .{ .Array_Binfile = ret };
+                } else {
+                    return error.ArrayLenMismatch;
+                }
+            },
+            else => {
+                // don't know what to do
+                return error.Unsupported;
+            },
+        }
+
+        return .{ .Hash_Binfile = .{
+            .filename = filename.data[0..filename.len],
+            .mimetype = mimetype.data[0..mimetype.len],
+            .data = data_slice,
+        } };
+    } else {
+        return .{ .Hash_Binfile = .{} };
+    }
+}
+
 pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_NULL => null,
@@ -607,77 +719,12 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
         fio.FIOBJ_T_NUMBER => .{ .Int = fio.fiobj_obj2num(o) },
         fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
         fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(o, a, dupe_string) },
-        fio.FIOBJ_T_ARRAY => .{ .Unsupported_Array = null },
+        fio.FIOBJ_T_ARRAY => {
+            return .{ .Unsupported = null };
+        },
         fio.FIOBJ_T_HASH => {
-            const key_name = fio.fiobj_str_new("name", 4);
-            const key_data = fio.fiobj_str_new("data", 4);
-            const key_type = fio.fiobj_str_new("type", 4);
-            defer {
-                fio.fiobj_free_wrapped(key_name);
-                fio.fiobj_free_wrapped(key_data);
-                fio.fiobj_free_wrapped(key_type);
-            } // files: they should have "data", "type", and "filename" keys
-            if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_type) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
-                const filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));
-                const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
-                const data = fio.fiobj_hash_get(o, key_data);
-
-                var data_slice: ?[]const u8 = null;
-
-                switch (fio.fiobj_type(data)) {
-                    fio.FIOBJ_T_DATA => {
-                        if (fio.is_invalid(data) == 1) {
-                            data_slice = "(zap: invalid data)";
-                            std.log.warn("WARNING: HTTP param binary file is not a data object\n", .{});
-                        } else {
-                            // the data
-                            const data_len = fio.fiobj_data_len(data);
-                            var data_buf = fio.fiobj_data_read(data, data_len);
-
-                            if (data_len < 0) {
-                                std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
-                                std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
-                            } else {
-                                if (data_buf.len != data_len) {
-                                    std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
-                                }
-
-                                if (data_buf.len > 0) {
-                                    data_slice = data_buf.data[0..data_buf.len];
-                                } else {
-                                    std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
-                                    data_slice = "(zap: invalid data: negative BUFFER size)";
-                                }
-                            }
-                        }
-                    },
-                    fio.FIOBJ_T_STRING => {
-                        const fiostr = fio.fiobj_obj2cstr(data);
-                        if (fiostr.len == 0) {
-                            data_slice = "(zap: empty string data)";
-                            std.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
-                        } else {
-                            data_slice = fiostr.data[0..fiostr.len];
-                        }
-                    },
-                    fio.FIOBJ_T_ARRAY => {
-                        std.log.warn("WARNING: HTTP param binary file as array object is not implemented\n", .{});
-                        return .{ .Unsupported = null };
-                    },
-                    else => {
-                        // don't know what to do
-                        return .{ .Unsupported = null };
-                    },
-                }
-
-                return .{ .Hash_Binfile = .{
-                    .filename = filename.data[0..filename.len],
-                    .mimetype = mimetype.data[0..mimetype.len],
-                    .data = data_slice,
-                } };
-            } else {
-                return .{ .Hash_Binfile = .{} };
-            }
+            const file = try parseBinfilesFrom(a, o);
+            return file;
         },
         else => .{ .Unsupported = null },
     };
