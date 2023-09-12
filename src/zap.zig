@@ -551,7 +551,7 @@ pub const HttpParamValueType = enum {
     Float,
     String,
     Unsupported,
-    Unsupported_Hash,
+    Hash_Binfile,
     Unsupported_Array,
 };
 
@@ -564,7 +564,7 @@ pub const HttpParam = union(HttpParamValueType) {
     /// value will always be null
     Unsupported: ?void,
     /// we assume hashes are because of file transmissions
-    Unsupported_Hash: HttpParamBinaryFile,
+    Hash_Binfile: HttpParamBinaryFile,
     /// value will always be null
     Unsupported_Array: ?void,
 };
@@ -668,13 +668,13 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
                     },
                 }
 
-                return .{ .Unsupported_Hash = .{
+                return .{ .Hash_Binfile = .{
                     .filename = filename.data[0..filename.len],
                     .mimetype = mimetype.data[0..mimetype.len],
                     .data = data_slice,
                 } };
             } else {
-                return .{ .Unsupported_Hash = .{} };
+                return .{ .Hash_Binfile = .{} };
             }
         },
         else => .{ .Unsupported = null },
