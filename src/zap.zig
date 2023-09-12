@@ -590,6 +590,12 @@ pub const HttpParamBinaryFile = struct {
     mimetype: ?[]const u8 = null,
     /// filename
     filename: ?[]const u8 = null,
+    pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) std.os.WriteError!void {
+        const d = value.data orelse "\\0";
+        const m = value.mimetype orelse "null";
+        const f = value.filename orelse "null";
+        return writer.print("<{s} ({s}): {any}>", .{ f, m, d });
+    }
 };
 
 pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
