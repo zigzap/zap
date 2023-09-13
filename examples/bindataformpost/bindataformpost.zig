@@ -12,7 +12,6 @@ const Handler = struct {
 
         if (r.body) |body| {
             std.log.info("Body length is {any}\n", .{body.len});
-            std.log.info("Body is {s}\n", .{body});
         }
         // check for query params (for ?terminate=true)
         r.parseQuery();
@@ -51,8 +50,8 @@ const Handler = struct {
                             std.log.debug("    filename: `{s}`\n", .{filename});
                             std.log.debug("    mimetype: {s}\n", .{mimetype});
                             std.log.debug("    contents: {any}\n", .{data});
-                            files.*.deinit();
                         }
+                        files.*.deinit();
                     },
                     else => {
                         // might be a string param, we don't care
@@ -80,6 +79,7 @@ const Handler = struct {
         } else |err| {
             std.log.err("cannot check for terminate param: {any}\n", .{err});
         }
+        r.sendJson("{ \"ok\": true }") catch unreachable;
     }
 };
 
@@ -98,7 +98,8 @@ pub fn main() !void {
             .on_request = Handler.on_request,
             .log = true,
             .max_clients = 10,
-            .max_body_size = 1 * 1024,
+            .max_body_size = 10 * 1024 * 1024,
+            .public_folder = ".",
         },
     );
     zap.enableDebugLog();

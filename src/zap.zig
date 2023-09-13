@@ -665,15 +665,15 @@ fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
                         const file_name_obj = fio.fiobj_ary_entry(fn_ary, i);
                         const file_mimetype_obj = fio.fiobj_ary_entry(mt_ary, i);
                         var has_error: bool = false;
-                        if (fio.is_invalid(file_data_obj) != 1) {
+                        if (fio.is_invalid(file_data_obj) == 1) {
                             std.log.debug("file data invalid in array", .{});
                             has_error = true;
                         }
-                        if (fio.is_invalid(file_name_obj) != 1) {
+                        if (fio.is_invalid(file_name_obj) == 1) {
                             std.log.debug("file name invalid in array", .{});
                             has_error = true;
                         }
-                        if (fio.is_invalid(file_mimetype_obj) != 1) {
+                        if (fio.is_invalid(file_mimetype_obj) == 1) {
                             std.log.debug("file mimetype invalid in array", .{});
                             has_error = true;
                         }
