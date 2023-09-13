@@ -1,6 +1,6 @@
 .{
     .name = "zap",
-    .version = "0.1.12-pre",
+    .version = "0.1.13-pre",
 
     .dependencies = .{
         .@"facil.io" = .{
