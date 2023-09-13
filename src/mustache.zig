@@ -11,12 +11,22 @@ pub const enum_mustache_error_en = c_uint;
 pub const mustache_error_en = enum_mustache_error_en;
 
 pub const mustache_s = struct_mustache_s;
-pub extern fn fiobj_mustache_new(args: MustacheLoadArgs) ?*mustache_s;
+pub extern fn fiobj_mustache_new(args: MustacheLoadArgsFio) ?*mustache_s;
 pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
 pub extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
 pub extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 
-pub const MustacheLoadArgs = extern struct {
+/// Mustache load args used in mustacheNew
+pub const MustacheLoadArgs = struct {
+    /// optional filename, enables partial templates on filesystem
+    filename: ?[]const u8 = null,
+
+    /// optional string data. should be used if no filename is specified.
+    data: ?[]const u8 = null,
+};
+
+// used internally for interfacing with fio
+const MustacheLoadArgsFio = extern struct {
     filename: [*c]const u8,
     filename_len: usize,
     data: [*c]const u8,
@@ -44,11 +54,24 @@ pub const MustacheError = error{
 
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
-pub fn MustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
+pub fn mustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
     var err: mustache_error_en = undefined;
 
-    var args = load_args;
-    args.err = &err;
+    var args: MustacheLoadArgsFio = .{
+        .filename = filn: {
+            if (load_args.filename) |filn| break :filn filn.ptr else break :filn null;
+        },
+        .filename_len = filn_len: {
+            if (load_args.filename) |filn| break :filn_len filn.len else break :filn_len 0;
+        },
+        .data = data: {
+            if (load_args.data) |data| break :data data.ptr else break :data null;
+        },
+        .data_len = data_len: {
+            if (load_args.data) |data| break :data_len data.len else break :data_len 0;
+        },
+        .err = &err,
+    };
 
     var ret = fiobj_mustache_new(args);
     switch (err) {
@@ -69,24 +92,14 @@ pub fn MustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
     return MustacheError.MUSTACHE_ERR_UNKNOWN;
 }
 
-pub fn MustacheData(data: []const u8) MustacheError!*Mustache {
-    var err: mustache_error_en = undefined;
-    var args: MustacheLoadArgs = .{ .filename = null, .filename_len = 0, .data = data.ptr, .data_len = data.len, .err = &err };
-
-    return MustacheNew(args);
+/// Convenience function if you only want to use in-memory data (as opposed to file data)
+pub fn mustacheData(data: []const u8) MustacheError!*Mustache {
+    return mustacheNew(.{ .data = data });
 }
 
-pub fn MustacheLoad(filename: []const u8) MustacheError!*Mustache {
-    var err: mustache_error_en = undefined;
-    var args: MustacheLoadArgs = .{
-        .filename = filename.ptr,
-        .filename_len = filename.len,
-        .data = null,
-        .data_len = 0,
-        .err = &err,
-    };
-
-    return MustacheNew(args);
+/// Convenience function if you only want to use file-based data (as opposed to in-memory data)
+pub fn mustacheLoad(filename: []const u8) MustacheError!*Mustache {
+    return mustacheNew(.{ .filename = filename });
 }
 
 // implement these: fiobj_mustache.c
@@ -111,7 +124,7 @@ const MustacheBuildResult = struct {
 
 // this build is slow because it needs to translate to a FIOBJ data
 // object FIOBJ_T_HASH
-pub fn MustacheBuild(mustache: *Mustache, data: anytype) MustacheBuildResult {
+pub fn mustacheBuild(mustache: *Mustache, data: anytype) MustacheBuildResult {
     const T = @TypeOf(data);
     if (@typeInfo(T) != .Struct) {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");
@@ -221,6 +234,6 @@ pub fn fiobjectify(
     unreachable;
 }
 
-pub fn MustacheFree(m: ?*Mustache) void {
+pub fn mustacheFree(m: ?*Mustache) void {
     fiobj_mustache_free(m);
 }

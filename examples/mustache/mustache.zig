@@ -3,13 +3,13 @@ const zap = @import("zap");
 
 fn on_request(r: zap.SimpleRequest) void {
     const template = "{{=<< >>=}}* Users:\r\n<<#users>><<id>>. <<& name>> (<<name>>)\r\n<</users>>\r\nNested: <<& nested.item >>.";
-    const p = zap.MustacheData(template) catch return;
-    defer zap.MustacheFree(p);
+    const p = zap.mustacheData(template) catch return;
+    defer zap.mustacheFree(p);
     const User = struct {
         name: []const u8,
         id: isize,
     };
-    const ret = zap.MustacheBuild(p, .{
+    const ret = zap.mustacheBuild(p, .{
         .users = [_]User{
             .{
                 .name = "Rene",
@@ -29,7 +29,7 @@ fn on_request(r: zap.SimpleRequest) void {
         if (ret.str()) |s| {
             r.sendBody(s) catch return;
         } else {
-            r.sendBody("<html><body><h1>MustacheBuild() failed!</h1></body></html>") catch return;
+            r.sendBody("<html><body><h1>mustacheBuild() failed!</h1></body></html>") catch return;
         }
     } else |err| {
         std.debug.print("Error while setting content type: {}\n", .{err});
