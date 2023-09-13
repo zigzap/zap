@@ -128,6 +128,19 @@ pub fn build(b: *std.build.Builder) !void {
     const run_auth_tests = b.addRunArtifact(auth_tests);
     const install_auth_tests = b.addInstallArtifact(auth_tests, .{});
 
+    // mustache tests
+    const mustache_tests = b.addTest(.{
+        .name = "mustache_tests",
+        .root_source_file = .{ .path = "src/tests/test_mustache.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    mustache_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    mustache_tests.addModule("zap", zap_module);
+
+    const run_mustache_tests = b.addRunArtifact(mustache_tests);
+    const install_mustache_tests = b.addInstallArtifact(mustache_tests, .{});
+
     // http paramters (qyery, body) tests
     const httpparams_tests = b.addTest(.{
         .name = "http_params_tests",
@@ -163,6 +176,10 @@ pub fn build(b: *std.build.Builder) !void {
     run_auth_test_step.dependOn(&run_auth_tests.step);
     run_auth_test_step.dependOn(&install_auth_tests.step);
 
+    const run_mustache_test_step = b.step("test-mustache", "Run mustache unit tests [REMOVE zig-cache!]");
+    run_mustache_test_step.dependOn(&run_mustache_tests.step);
+    run_mustache_test_step.dependOn(&install_mustache_tests.step);
+
     const run_httpparams_test_step = b.step("test-httpparams", "Run http param unit tests [REMOVE zig-cache!]");
     run_httpparams_test_step.dependOn(&run_httpparams_tests.step);
     run_httpparams_test_step.dependOn(&install_httpparams_tests.step);
@@ -176,6 +193,7 @@ pub fn build(b: *std.build.Builder) !void {
     // running the unit tests.
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_auth_tests.step);
+    test_step.dependOn(&run_mustache_tests.step);
     test_step.dependOn(&run_httpparams_tests.step);
     test_step.dependOn(&run_sendfile_tests.step);
 

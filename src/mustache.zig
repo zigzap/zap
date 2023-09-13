@@ -42,18 +42,14 @@ pub const MustacheError = error{
     MUSTACHE_ERR_USER_ERROR,
 };
 
-// pub extern fn fiobj_mustache_load(filename: fio_str_info_s) ?*mustache_s;
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
-pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
+pub fn MustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
     var err: mustache_error_en = undefined;
-    var args: MustacheLoadArgs = .{
-        .filename = null,
-        .filename_len = 0,
-        .data = data.ptr,
-        .data_len = data.len,
-        .err = &err,
-    };
+
+    var args = load_args;
+    args.err = &err;
+
     var ret = fiobj_mustache_new(args);
     switch (err) {
         0 => return ret.?,
@@ -70,6 +66,27 @@ pub fn MustacheNew(data: []const u8) MustacheError!*Mustache {
         11 => return MustacheError.MUSTACHE_ERR_USER_ERROR,
         else => return MustacheError.MUSTACHE_ERR_UNKNOWN,
     }
+    return MustacheError.MUSTACHE_ERR_UNKNOWN;
+}
+
+pub fn MustacheData(data: []const u8) MustacheError!*Mustache {
+    var err: mustache_error_en = undefined;
+    var args: MustacheLoadArgs = .{ .filename = null, .filename_len = 0, .data = data.ptr, .data_len = data.len, .err = &err };
+
+    return MustacheNew(args);
+}
+
+pub fn MustacheLoad(filename: []const u8) MustacheError!*Mustache {
+    var err: mustache_error_en = undefined;
+    var args: MustacheLoadArgs = .{
+        .filename = filename.ptr,
+        .filename_len = filename.len,
+        .data = null,
+        .data_len = 0,
+        .err = &err,
+    };
+
+    return MustacheNew(args);
 }
 
 // implement these: fiobj_mustache.c
