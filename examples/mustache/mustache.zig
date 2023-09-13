@@ -3,7 +3,7 @@ const zap = @import("zap");
 
 fn on_request(r: zap.SimpleRequest) void {
     const template = "{{=<< >>=}}* Users:\r\n<<#users>><<id>>. <<& name>> (<<name>>)\r\n<</users>>\r\nNested: <<& nested.item >>.";
-    const p = zap.MustacheNew(template) catch return;
+    const p = zap.MustacheData(template) catch return;
     defer zap.MustacheFree(p);
     const User = struct {
         name: []const u8,
