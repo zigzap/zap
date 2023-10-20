@@ -14,7 +14,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var req = try http_client.request(.GET, uri, h, .{});
     defer req.deinit();
 
-    try req.start();
+    try req.start(.{});
     try req.wait();
 }
 

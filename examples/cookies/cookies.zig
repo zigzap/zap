@@ -15,7 +15,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     defer req.deinit();
 
     try req.headers.append("cookie", "ZIG_ZAP=awesome");
-    try req.start();
+    try req.start(.{});
     try req.wait();
 }
 

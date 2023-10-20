@@ -167,7 +167,7 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     req.transfer_encoding = .chunked;
 
     // connect, send request
-    try req.start();
+    try req.start(.{});
 
     // send POST payload
     try req.writer().writeAll(message_json);
