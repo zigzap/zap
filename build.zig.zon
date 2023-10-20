@@ -1,11 +1,11 @@
 .{
     .name = "zap",
-    .version = "0.1.14-pre",
-
+    .version = "0.1.15-pre",
+    .paths = .{ "build.zig.zon", "build.zig", "src" },
     .dependencies = .{
         .@"facil.io" = .{
-            .url = "https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.12.tar.gz",
-            .hash = "12200301960bbde64052db068cf31a64091ce1f671898513d9b8d9e2be5b0e4b13a3",
-        }
-    }
+            .url = "https://github.com/edyu/facil.io/archive/refs/tags/v0.0.13.tar.gz",
+            .hash = "12200cc667b6ad0f5f48050ca5f8baac3c87a13131d93c7fe876b26c51c405493f44",
+        },
+    },
 }
