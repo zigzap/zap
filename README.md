@@ -23,7 +23,7 @@ framework](https://facil.io).
 _Under the hood, everything is super robust and fast. My zig wrappers are fresh,
 juicy, and alpha._
 
-After having used ZAP in production for weeks, I can confidently assert hat it
+After having used ZAP in production for weeks, I can confidently assert that it
 proved to be:
 
 - ⚡ **blazingly fast** ⚡
