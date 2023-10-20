@@ -11,7 +11,7 @@ kind of REST APIs I used to write in [python](https://python.org) with
 microframework for web applications.
 
 What I needed for that was a blazingly fast, robust HTTP server that I could use
-with zig. While facil.io supports TLS, I don't care about HTTPS support. In
+with Zig. While facil.io supports TLS, I don't care about HTTPS support. In
 production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
 
 Zap wraps and patches [facil.io - the C web application
@@ -33,7 +33,7 @@ Exactly the goals I set out to achieve!
 
 Here's what works:
 
-- **Super easy build process**: zap's `build.zig` now uses the up-and-coming zig
+- **Super easy build process**: Zap's `build.zig` now uses the up-and-coming Zig
   package manager for its C-dependencies, no git submodules anymore.
   - _tested on Linux and macOS (arm, M1)_
 - **[hello](examples/hello/hello.zig)**: welcomes you with some static HTML
@@ -102,18 +102,18 @@ projects, serving thousands of concurrent clients.
 
 ## ⚡blazingly fast⚡
 
-Claiming to be blazingly fast is the new black. At least, zap doesn't slow you
-down and if your server performs poorly, it's probably not exactly zap's fault.
+Claiming to be blazingly fast is the new black. At least, Zap doesn't slow you
+down and if your server performs poorly, it's probably not exactly Zap's fault.
 Zap relies on the [facil.io](https://facil.io) framework and so it can't really
-claim any performance fame for itself. In this initial implementation of zap,
+claim any performance fame for itself. In this initial implementation of Zap,
 I didn't care about optimizations at all.
 
 But, how fast is it? Being blazingly fast is relative. When compared with a
-simple GO HTTP server, a simple zig zap HTTP server performed really good on my
+simple GO HTTP server, a simple Zig Zap HTTP server performed really good on my
 machine (x86_64-linux):
 
-- zig zap was nearly 30% faster than GO
-- zig zap had over 50% more throughput than GO
+- Zig Zap was nearly 30% faster than GO
+- Zig Zap had over 50% more throughput than GO
 
 **Update**: Thanks to @felipetrz, I got to test against more realistic Python
 and Rust examples. Both python `sanic` and rust `axum` were easy enough to
@@ -126,7 +126,7 @@ specific CPU cores.
 
 **Update**: I have consolidated the benchmarks to one good representative per
 language. See more details in [blazingly-fast.md](./blazingly-fast.md). It
-contains rust implementations that come pretty close to zap's performance in the
+contains rust implementations that come pretty close to Zap's performance in the
 simplistic testing scenario.
 
 ![](./wrk/samples/README_req_per_sec.png)
@@ -214,7 +214,7 @@ dependencies to build and run the GO, python, and rust examples for the
 `wrk` performance tests. For the mere building of zap projects, 
 `nix develop .#build` will only fetch zig 0.11.0.
 
-With an existing zig project, adding zap to it is easy:
+With an existing Zig project, adding Zap to it is easy:
 
 1. Add zap to your `build.zig.zon`
 2. Add zap to your `build.zig`
@@ -250,12 +250,12 @@ Then, in your `build.zig`'s `build` function, add the following before
     exe.linkLibrary(zap.artifact("facil.io"));
 ```
 
-From then on, you can use the zap package in your project. Check out the
-examples to see how to use zap.
+From then on, you can use the Zap package in your project. Check out the
+examples to see how to use Zap.
 
 ## Updating your project to the latest version of zap
 
-You can change the URL to zap in your `build.zig.zon`
+You can change the URL to Zap in your `build.zig.zon`
 
 - easiest: use a tagged release
 - or to one of the tagged versions, e.g. `0.0.9`
