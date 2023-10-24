@@ -71,7 +71,7 @@ pub const usage_pkg =
 ;
 
 pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",
@@ -97,7 +97,7 @@ pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
 }
 
 pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",

@@ -88,7 +88,7 @@ fn get_tag_annotation(allocator: std.mem.Allocator, tagname: []const u8) ![]cons
         tagname,
     };
 
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = allocator,
         .argv = &args,
     });
@@ -161,13 +161,13 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     defer http_client.deinit();
 
     // request
-    var req = try http_client.request(.POST, uri, h, .{});
+    var req = try http_client.open(.POST, uri, h, .{});
     defer req.deinit();
 
     req.transfer_encoding = .chunked;
 
     // connect, send request
-    try req.start(.{});
+    try req.send(.{});
 
     // send POST payload
     try req.writer().writeAll(message_json);

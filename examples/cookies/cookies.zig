@@ -11,11 +11,11 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
+    var req = try http_client.open(.GET, uri, h, .{});
     defer req.deinit();
 
     try req.headers.append("cookie", "ZIG_ZAP=awesome");
-    try req.start(.{});
+    try req.send(.{});
     try req.wait();
 }
 
