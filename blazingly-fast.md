@@ -9,23 +9,23 @@ since I used to write my REST APIs in python before creating zig zap.
 
 You can check out the scripts I used for the tests in [./wrk](wrk/).
 
-## Why 
+## Why
 
 I aimed to enhance the performance of my Python + Flask backends by replacing
 them with a Zig version. To evaluate the success of this transition, I compared
 the performance of a static HTTP server implemented in Python and its Zig
-counterpart, which showed significant improvements. 
+counterpart, which showed significant improvements.
 
 To further assess the Zig server's performance, I compared it with a Go
 implementation, to compare against a widely used industry-standard. I expected
 similar performance levels but was pleasantly surprised when Zap outperformed Go
-by approximately 30% on my test machine. 
+by approximately 30% on my test machine.
 
 Intrigued by Rust's reputed performance capabilities, I also experimented with a
 Rust version. The results of this experiment are discussed in the
 [Flaws](#flaws) section below.
 
-## What 
+## What
 
 So, what are the benchmarks testing?
 
@@ -114,21 +114,21 @@ different computers. It's interesting to see the variation in relative numbers.
 
 ```
 ➜ neofetch --stdout
-rs@ryzen 
--------- 
-OS: NixOS 23.05.997.ddf4688dc7a (Stoat) x86_64 
-Host: Micro-Star International Co., Ltd. B550-A PRO (MS-7C56) 
-Kernel: 6.3.7 
-Uptime: 15 days, 11 hours, 13 mins 
-Packages: 2094 (nix-system), 1356 (nix-user), 7 (flatpak) 
-Shell: bash 5.2.15 
-Resolution: 3840x2160 
-DE: none+i3 
-WM: i3 
-Terminal: tmux 
-CPU: AMD Ryzen 5 5600X (12) @ 3.700GHz 
-GPU: AMD ATI Radeon RX 6700/6700 XT/6750 XT / 6800M/6850M XT 
-Memory: 4981MiB / 32028MiB 
+rs@ryzen
+--------
+OS: NixOS 23.05.997.ddf4688dc7a (Stoat) x86_64
+Host: Micro-Star International Co., Ltd. B550-A PRO (MS-7C56)
+Kernel: 6.3.7
+Uptime: 15 days, 11 hours, 13 mins
+Packages: 2094 (nix-system), 1356 (nix-user), 7 (flatpak)
+Shell: bash 5.2.15
+Resolution: 3840x2160
+DE: none+i3
+WM: i3
+Terminal: tmux
+CPU: AMD Ryzen 5 5600X (12) @ 3.700GHz
+GPU: AMD ATI Radeon RX 6700/6700 XT/6750 XT / 6800M/6850M XT
+Memory: 4981MiB / 32028MiB
 
 
 ➜ lscpu
@@ -151,25 +151,25 @@ Vendor ID:               AuthenticAMD
     CPU max MHz:         4650.2920
     CPU min MHz:         2200.0000
     BogoMIPS:            7399.43
-    Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt 
-                         pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 
+    Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt
+                         pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16
                          sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefet
                          ch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ib
                          pb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xget
                          bv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip
                          _save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospk
                          e vaes vpclmulqdq rdpid overflow_recov succor smca fsrm
-Virtualization features: 
+Virtualization features:
   Virtualization:        AMD-V
-Caches (sum of all):     
+Caches (sum of all):
   L1d:                   192 KiB (6 instances)
   L1i:                   192 KiB (6 instances)
   L2:                    3 MiB (6 instances)
   L3:                    32 MiB (1 instance)
-NUMA:                    
+NUMA:
   NUMA node(s):          1
   NUMA node0 CPU(s):     0-11
-Vulnerabilities:         
+Vulnerabilities:
   Itlb multihit:         Not affected
   L1tf:                  Not affected
   Mds:                   Not affected
@@ -185,7 +185,7 @@ Vulnerabilities:
 
 ### Workstation at work
 
-A beast. Many cores (which we don't use). 
+A beast. Many cores (which we don't use).
 
 ![](./wrk/samples/workstation_req_per_sec_graph.png)
 
@@ -193,19 +193,19 @@ A beast. Many cores (which we don't use).
 
 ```
 [rene@nixos:~]$ neofetch --stdout
-rene@nixos 
----------- 
-OS: NixOS 23.05.2947.475d5ae2c4cb (Stoat) x86_64 
-Host: LENOVO 1038 
-Kernel: 6.1.46 
-Uptime: 26 mins 
-Packages: 5804 (nix-system), 566 (nix-user) 
-Shell: bash 5.2.15 
-Terminal: /dev/pts/2 
-CPU: Intel Xeon Gold 5218 (64) @ 3.900GHz 
-GPU: NVIDIA Quadro P620 
-GPU: NVIDIA Tesla M40 
-Memory: 1610MiB / 95247MiB 
+rene@nixos
+----------
+OS: NixOS 23.05.2947.475d5ae2c4cb (Stoat) x86_64
+Host: LENOVO 1038
+Kernel: 6.1.46
+Uptime: 26 mins
+Packages: 5804 (nix-system), 566 (nix-user)
+Shell: bash 5.2.15
+Terminal: /dev/pts/2
+CPU: Intel Xeon Gold 5218 (64) @ 3.900GHz
+GPU: NVIDIA Quadro P620
+GPU: NVIDIA Tesla M40
+Memory: 1610MiB / 95247MiB
 
 
 [rene@nixos:~]$ lscpu
@@ -233,18 +233,18 @@ Vendor ID:               GenuineIntel
                          ority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xs
                          avec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req pku ospke avx512_vnni md_clear flush_l1d arch_capabi
                          lities
-Virtualization features: 
+Virtualization features:
   Virtualization:        VT-x
-Caches (sum of all):     
+Caches (sum of all):
   L1d:                   1 MiB (32 instances)
   L1i:                   1 MiB (32 instances)
   L2:                    32 MiB (32 instances)
   L3:                    44 MiB (2 instances)
-NUMA:                    
+NUMA:
   NUMA node(s):          2
   NUMA node0 CPU(s):     0-15,32-47
   NUMA node1 CPU(s):     16-31,48-63
-Vulnerabilities:         
+Vulnerabilities:
   Gather data sampling:  Mitigation; Microcode
   Itlb multihit:         KVM: Mitigation: VMX disabled
   L1tf:                  Not affected
@@ -329,4 +329,3 @@ Vulnerability Spectre v2:           Mitigation; Enhanced IBRS, IBPB conditional,
 Vulnerability Srbds:                Mitigation; Microcode
 Vulnerability Tsx async abort:      Not affected
 ```
-

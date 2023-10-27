@@ -58,7 +58,7 @@ pub fn main() !void {
     listener.listen() catch {};
     std.debug.print(
         \\ Run the following:
-        \\ 
+        \\
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer ABCDEFG" -v
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer invalid" -v
         \\

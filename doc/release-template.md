@@ -31,7 +31,7 @@ Here is a complete `build.zig.zon` example:
 Then, in your `build.zig`'s `build` function, add the following before
 `b.installArtifact(exe)`:
 
-```zig 
+```zig
     const zap = b.dependency("zap", .{
         .target = target,
         .optimize = optimize,

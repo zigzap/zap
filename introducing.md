@@ -21,31 +21,31 @@ Here's what works:
 - **Super easy build process**: zap's `build.zig` fetches facilio's git sub-module, applies a patch to its logging for microsecond precision, and then builds and optionally runs everything.
   - _tested on Linux and macOS (arm, M1)_
 - **[hello](https://github.com/renerocksai/zap/blob/master/examples/hello/hello.zig)**: welcomes you with some static HTML
-- **[routes](https://github.com/renerocksai/zap/blob/master/examples/routes/routes.zig)**: a super easy example dispatching on the HTTP path 
+- **[routes](https://github.com/renerocksai/zap/blob/master/examples/routes/routes.zig)**: a super easy example dispatching on the HTTP path
 - **[serve](https://github.com/renerocksai/zap/blob/master/examples/serve/serve.zig)**: the traditional static web server with optional dynamic request handling
 - **[hello_json](https://github.com/renerocksai/zap/blob/master/examples/hello_json/hello_json.zig)**: serves you json dependent on HTTP path
 - **[endpoint](https://github.com/renerocksai/zap/blob/master/examples/endpoint/)**: a simple JSON REST API example featuring a `/users` endpoint for PUTting/DELETE-ing/GET-ting/POST-ing and listing users, together with a static HTML and JavaScript frontend to play with.
 
-If you want to take it for a quick spin: 
+If you want to take it for a quick spin:
 
 ```shell
-$ git clone https://github.com/renerocksai/zap.git 
-$ cd zap 
-$ zig build run-hello 
-$ # open http://localhost:3000 in your browser 
+$ git clone https://github.com/renerocksai/zap.git
+$ cd zap
+$ zig build run-hello
+$ # open http://localhost:3000 in your browser
 ```
 
 See [the README](https://github.com/renerocksai/zap) for how easy it is to get started, how to run the examples, and how to use zap in your own projects.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap to a point where I can use it as the JSON REST API backend for real research projects, serving thousands of concurrent clients. Now that the endpoint example works, ZAP has actually become pretty usable to me.
 
-**Side-note:** It never ceases to amaze me how productive I can be in zig, eventhough I am still considering myself to be a newbie. Sometimes, it's almost like writing python but with all the nice speed and guarantees that zig gives you. Also, the C integration abilities of zig are just phenomenal! I am super excited about zig's future!
+**Side-note:** It never ceases to amaze me how productive I can be in zig, even though I am still considering myself to be a newbie. Sometimes, it's almost like writing python but with all the nice speed and guarantees that zig gives you. Also, the C integration abilities of zig are just phenomenal! I am super excited about zig's future!
 
 Now, on to the guiding principles of Zap.
 
 ## robust
 
-A common recommendation for doing web stuff in zig is to write the actual HTTP server in Go, and use zig for the real work. While there is a selection of notable and cool HTTP server implementations written in zig out there, at the time of writing, most of them seem to a) depend on zig's async facilities which are unsupported until ca. April 2023 when async will return to the self-hosted compiler, and b) have not matured to a point where **I** feel safe using them in production. These are just my opionions and they could be totally wrong though.
+A common recommendation for doing web stuff in zig is to write the actual HTTP server in Go, and use zig for the real work. While there is a selection of notable and cool HTTP server implementations written in zig out there, at the time of writing, most of them seem to a) depend on zig's async facilities which are unsupported until ca. April 2023 when async will return to the self-hosted compiler, and b) have not matured to a point where **I** feel safe using them in production. These are just my opinions and they could be totally wrong though.
 
 However, when I conduct my next online research experiment with thousands of concurrent clients, I cannot afford to run into potential maturity-problems of the HTTP server. These projects typically feature a you-get-one-shot process with little room for errors or re-tries.
 
@@ -75,7 +75,7 @@ So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
 
 See more details in [blazingly-fast.md](https://github.com/renerocksai/zap/blob/master/blazingly-fast.md).
 
-## minimal 
+## minimal
 
 Zap is minimal by necessity. I only (have time to) add what I need - for serving REST APIs and HTML. The primary use-case are frontends that I wrote that communicate with my APIs. Hence, the focus is more on getting stuff done rather than conforming to every standard there is. Even though facilio is able to support TLS, I don't care about that - at least for now. Also, if you present `404 - File not found` as human-readable HTML to the user, nobody forces you to also set the status code to 404, so it can be OK to spare those nanoseconds. Gotta go fast!
 
@@ -91,10 +91,10 @@ I am super excited about both zig and zap's future. I am still impressed by how 
 
 Provided that the incorporated C code is well-written and -tested, WYSIWYG even holds mostly true for combined Zig and C projects.
 
-You can truly build on the soulders of giants here. Mind you, it took me less than a week to arrive at the current state of zap where I am confident that I can already use it to write the one or other REST API with it and, after stress-testing, just move it into production - from merely researching Zig and C web frameworks a few days ago.
+You can truly build on the shoulders of giants here. Mind you, it took me less than a week to arrive at the current state of zap where I am confident that I can already use it to write the one or other REST API with it and, after stress-testing, just move it into production - from merely researching Zig and C web frameworks a few days ago.
 
 Oh, and have I mentioned Zig's built-in build system and testing framework? Those are both super amazing and super convenient. `zig build` is so much more useful than `make` (which I quite like to be honest). And `zig test` is just amazing, too. Zig's physical code layout: which file is located where and how can it be built, imported, tested - it all makes so much sense. Such a coherent, pleasant experience.
 
-Looking forward, I am also tempted to try adding some log-and-replay facilities as a kind of backup for when things go wrong. I wouldn't be confident to attemt such things in C because I'd view them as being too much work; too much could go wrong. But with Zig, I am rather excited about the possibilities that open up and eager to try such things.
+Looking forward, I am also tempted to try adding some log-and-replay facilities as a kind of backup for when things go wrong. I wouldn't be confident to attempt such things in C because I'd view them as being too much work; too much could go wrong. But with Zig, I am rather excited about the possibilities that open up and eager to try such things.
 
 For great justice!

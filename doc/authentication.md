@@ -24,7 +24,7 @@ The `zap.BasicAuth` Authenticator accepts 2 comptime values:
 
 - `Lookup`: either a map to look up passwords for users or a set to lookup
   base64 encoded tokens (user:pass -> base64-encode = token)
-- `kind` : 
+- `kind` :
     - `UserPass` : decode the authentication header, split into user and
       password, then lookup the password in the provided map and compare it.
     - `Token68` : don't bother decoding, the 'lookup' set is filled with
@@ -122,7 +122,7 @@ var map = Map.init(allocator);
 defer map.deinit();
 
 // create user / pass entry
-const user = "Alladdin";
+const user = "Aladdin";
 const pass = "opensesame";
 try map.put(user, pass);
 
@@ -253,7 +253,7 @@ pub fn main() !void {
     listener.listen() catch {};
     std.debug.print(
         \\ Run the following:
-        \\ 
+        \\
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer ABCDEFG" -v
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer invalid" -v
         \\
@@ -268,5 +268,3 @@ pub fn main() !void {
     });
 }
 ```
-
-

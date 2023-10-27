@@ -28,7 +28,7 @@ the `.hash` value in `build.zig.zon`.
 
 ## Using an arbitrary (last) commit
 
-Use the same workflow as above for tags, excpept for the URL, use this schema:
+Use the same workflow as above for tags, except for the URL, use this schema:
 
 ```zig
 .url = "https://github.com/zigzap/zap/archive/[COMMIT-HASH].tar.gz",
@@ -36,5 +36,3 @@ Use the same workflow as above for tags, excpept for the URL, use this schema:
 
 Replace `[COMMIT-HASH]` with the full commit hash as provided, e.g. by `git
 log`.
-
-

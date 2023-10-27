@@ -191,7 +191,6 @@ const HtmlEndpoint = struct {
 
         r.setContentType(.TEXT) catch unreachable;
         r.sendBody(message) catch unreachable;
-        return;
     }
 };
 

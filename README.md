@@ -1,5 +1,3 @@
-
-
 # ⚡zap⚡ - blazingly fast backends in zig
 
 ![](https://github.com/zigzap/zap/actions/workflows/build-zig-11.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jQAAN6Ubyj)
@@ -135,7 +133,7 @@ simplistic testing scenario.
 
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
-... of reasonable performance 😎. 
+... of reasonable performance 😎.
 
 I can rest my case that developing ZAP was a good idea because it's faster than
 both alternatives: a) staying with Python, and b) creating a GO + Zig hybrid.
@@ -211,7 +209,7 @@ $ git init      ## (optional)
 **Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
 `nix develop` to get a development shell providing zig and all
 dependencies to build and run the GO, python, and rust examples for the
-`wrk` performance tests. For the mere building of zap projects, 
+`wrk` performance tests. For the mere building of zap projects,
 `nix develop .#build` will only fetch zig 0.11.0.
 
 With an existing Zig project, adding Zap to it is easy:
@@ -364,16 +362,3 @@ pub fn main() !void {
     });
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-

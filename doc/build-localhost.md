@@ -3,7 +3,7 @@
 Recently, GitHub started hosting release archives on a dedicated host
 codeload.github.com. This is when the problems started. Back then, zig's package
 manager was not expecting to be re-directed to a different URL. On top of that,
-GitHub changed the redirected-to URLs so they wouldn't end in `.tar.gz` anymore. 
+GitHub changed the redirected-to URLs so they wouldn't end in `.tar.gz` anymore.
 
 Above issues were fixed but after some progress on `zig.http` related standard
 library stuff, a similar error started impacting the package manager: parsing
@@ -51,7 +51,7 @@ $ wget https://github.com/zigzap/facil.io/archive/refs/tags/zap-0.0.8.tar.gz
 $ # get zap itself
 $ wget https://github.com/zigzap/zap/archive/refs/tags/release-0.0.20-localhost.tar.gz
 $ # start a http server on port 8000
-$ python -m http.server 
+$ python -m http.server
 ```
 
 ... and use the following in your build.zig.zon:
@@ -85,7 +85,7 @@ hashes, as well as a `MY_TAG.tar.gz`.
 You can then host this via python HTTP server and proceed as if you had
 downloaded it from github.
 
-If all goes well, your dependend code should be able to use your freshly-built
+If all goes well, your dependent code should be able to use your freshly-built
 zap release, depending on it via localhost URL in its `build.zig.zon`.
 
 If not, fix bugs, rinse, and repeat.
@@ -97,5 +97,3 @@ with the non-localhost version from the master branch. Commit it, make sure your
 worktree is clean, and perform above steps again. This time, using a tag that
 doesn't contain `localhost`. You can then push to your fork and create a release
 for the future when zig's bug is fixed.
-
-

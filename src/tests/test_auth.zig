@@ -74,7 +74,7 @@ test "BasicAuth UserPass" {
     defer map.deinit();
 
     // create user / pass entry
-    const user = "Alladdin";
+    const user = "Aladdin";
     const pass = "opensesame";
     try map.put(user, pass);
 
@@ -521,7 +521,7 @@ test "BasicAuth UserPass authenticateRequest" {
     defer map.deinit();
 
     // create user / pass entry
-    const user = "Alladdin";
+    const user = "Aladdin";
     const pass = "opensesame";
     try map.put(user, pass);
 
@@ -587,7 +587,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     defer map.deinit();
 
     // create user / pass entry
-    const user = "Alladdin";
+    const user = "Aladdin";
     const pass = "opensesame";
     try map.put(user, pass);
 

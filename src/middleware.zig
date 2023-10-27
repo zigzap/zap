@@ -80,7 +80,7 @@ pub fn Handler(comptime ContextType: anytype) type {
     };
 }
 
-/// A convenience handler for artibrary zap.SimpleEndpoint
+/// A convenience handler for arbitrary zap.SimpleEndpoint
 pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,

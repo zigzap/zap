@@ -93,6 +93,6 @@ const UserMiddleWare = struct {
 
 ## 🤯
 
-The comments in the code say it all. 
+The comments in the code say it all.
 
 **Isn't ZIG AMAZING?**

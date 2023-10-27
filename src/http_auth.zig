@@ -156,7 +156,7 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
             } else |err| {
                 // can't calc slice size --> fallthrough to return false
                 zap.debug(
-                    "ERROR: UserPassAuth: cannot calc slize size for encoded `{s}`: {any} \n",
+                    "ERROR: UserPassAuth: cannot calc slice size for encoded `{s}`: {any} \n",
                     .{ encoded, err },
                 );
                 return .AuthFailed;

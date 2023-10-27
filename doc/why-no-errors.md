@@ -13,7 +13,7 @@ that points you directly to where the exception happened, plus a stack-trace.
 Wouldn't that be handy? Wouldn't that be a good idea to also make ZAP behave
 that way?
 
-My argument is: NO. Not unconditionally like this. 
+My argument is: NO. Not unconditionally like this.
 
 Let me elaborate: First, ZAP the library cannot know what YOU want to do in case
 of an error. If some `on_request()` returns an error, ZAP would only be able to
@@ -64,7 +64,7 @@ fn on_request_with_errors(r: zap.SimpleHttpRequest) !void {
 ```
 
 ```zig
-// THIS IS WHAT YOU PASS TO THE LISTENER / ENDPONT / ...
+// THIS IS WHAT YOU PASS TO THE LISTENER / ENDPOINT / ...
 fn on_request(r: zap.SimpleHttpRequest) void {
     on_request_with_errors(r) catch |err| {
         // log the error or use:
@@ -84,5 +84,3 @@ To better support the use-case of flask-like error returning, we will "soon":
 
 - only in debug builds would it return the stack traces and in release builds it
   would return more generic 50x responses.
-
-

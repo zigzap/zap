@@ -98,15 +98,13 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
-        .{
-            .port = 3000,
-            .on_request = Handler.on_request,
-            .log = false,
-            .max_clients = 10,
-            .max_body_size = 1 * 1024,
-        },
-    );
+    var listener = zap.SimpleHttpListener.init(.{
+        .port = 3000,
+        .on_request = Handler.on_request,
+        .log = false,
+        .max_clients = 10,
+        .max_body_size = 1 * 1024,
+    });
     zap.enableDebugLog();
     try listener.listen();
     std.log.info("\n\nTerminate with CTRL+C", .{});

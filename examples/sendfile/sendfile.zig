@@ -27,15 +27,13 @@ pub fn on_request(r: zap.SimpleRequest) void {
 
 pub fn main() !void {
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
-        .{
-            .port = 3000,
-            .on_request = on_request,
-            .log = true,
-            .max_clients = 10,
-            .max_body_size = 1 * 1024, // careful here
-        },
-    );
+    var listener = zap.SimpleHttpListener.init(.{
+        .port = 3000,
+        .on_request = on_request,
+        .log = true,
+        .max_clients = 10,
+        .max_body_size = 1 * 1024, // careful here
+    });
 
     zap.enableDebugLog();
     try listener.listen();

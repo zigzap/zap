@@ -52,7 +52,7 @@ pub fn main() !void {
 
     std.debug.print(
         \\ Listening on 0.0.0.0:3000
-        \\ 
+        \\
         \\ Check out:
         \\ http://localhost:3000/user/1   # -- first user
         \\ http://localhost:3000/user/2   # -- second user

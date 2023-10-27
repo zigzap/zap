@@ -92,7 +92,6 @@ fn postUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
                 }
             } else |err| {
                 std.debug.print("ADDING error: {}\n", .{err});
-                return;
             }
         }
     }

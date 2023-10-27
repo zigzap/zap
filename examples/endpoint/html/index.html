@@ -1,23 +1,59 @@
 <html lang='en'>
+
     <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width'>
         <title>ZAP Demo</title>
         <style>
-            body {background-color: #0d1117; }
-            h1 {color: #cdb4db; text-align: center;}
-            h2 {color: #ffafcc; text-align: center;}
-            h3 {color: #ffc8dd; text-align: center; text-decoration: underline;}
-            .brighter {color: #bde0fe;}
-            p {color: #ffc927; padding-left: 50px; margin-right: 50px;}
+            body {
+                background-color: #0d1117;
+            }
 
-            label {color: #B0B0B0;}
-            a {color: #ffc927; padding-left:15px;}
-            input {color: #B06060; margin-bottom: 20px; font-weight: bold; }
+            h1 {
+                color: #cdb4db;
+                text-align: center;
+            }
+
+            h2 {
+                color: #ffafcc;
+                text-align: center;
+            }
+
+            h3 {
+                color: #ffc8dd;
+                text-align: center;
+                text-decoration: underline;
+            }
+
+            .brighter {
+                color: #bde0fe;
+            }
+
+            p {
+                color: #ffc927;
+                padding-left: 50px;
+                margin-right: 50px;
+            }
+
+            label {
+                color: #B0B0B0;
+            }
+
+            a {
+                color: #ffc927;
+                padding-left: 15px;
+            }
+
+            input {
+                color: #B06060;
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+
             textarea {
-                background-color:#181818; 
-                color: #cdb4db; 
-                font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+                background-color: #181818;
+                color: #cdb4db;
+                font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
                 font-size: 1em;
                 border-radius: 12px;
                 border: 2px solid #cdb4db;
@@ -26,6 +62,7 @@
                 width: 80%;
                 height: 18rem;
             }
+
             form {
                 border: 2px solid #cdb4db;
                 border-radius: 12px;
@@ -36,6 +73,7 @@
                 text-align: center;
                 justify-content: center;
             }
+
             .tdform {
                 border: none;
                 border-radius: none;
@@ -46,6 +84,7 @@
                 text-align: center;
                 justify-content: center;
             }
+
             button {
                 background-color: #ffafcc;
                 border-radius: 12px;
@@ -55,37 +94,42 @@
                 padding-top: 5px;
                 padding-bottom: 5px;
             }
+
             .updatebutton {
                 background-color: #B0B0B0;
                 color: #181818;
             }
+
             .delbutton {
                 background-color: #B06060;
                 color: white;
             }
+
             .center {
                 display: flex;
                 justify-content: center;
             }
+
             table {
-                background-color:#181818; 
+                background-color: #181818;
                 border-radius: 12px;
                 padding: 12px;
             }
+
             th {
                 color: #B06060;
                 padding: 15px;
             }
+
             td {
                 color: #B0B0B0;
             }
-            tr {
-            }
         </style>
-<html>
+        <html>
+
     <body>
         <div class="center">
-            <form >
+            <form>
                 <div>
                     <label>First name:</label><br>
                     <input id="first_name"></input>
@@ -94,7 +138,7 @@
                     <label>Last name:</label><br>
                     <input id="last_name"></input>
                 </div>
-                <div >
+                <div>
                     <button type="button" onclick="onNewUser();">Add new user!</button>
                 </div>
             </form>
@@ -113,149 +157,150 @@
                 <textarea id="log" style="display:none"></textarea>
             </div>
         </div>
-    <script>
-        var eL = document.getElementById("log");
-        var eLt = document.getElementById("logtoggler");
+        <script>
+            var eL = document.getElementById("log");
+            var eLt = document.getElementById("logtoggler");
 
-        var showLog = false;
+            var showLog = false;
 
-        function toggleLog() {
-            if(showLog) {
-                eL.style.display = "none";
-                eLt.textContent = "(show)";
-            } else { 
-                eL.style.display = "block";
-                eLt.textContent = "(hide)";
-            }
-            showLog = !showLog;
-        }
-        function log(s) {
-            eL.value += s.toString();
-            eL.value += "\n"
-            eL.scrollTop = eL.scrollHeight;
-        }
-
-        function sendJSON(data, slug, method="POST") {
-            json = JSON.stringify(data);
-            log("SENDING: " + json);
-            const response = fetch(slug, {
-                method: method,
-                body: json,
-                headers: {
-                    "Content-Type": "application/json; charset=UTF-8"
+            function toggleLog() {
+                if (showLog) {
+                    eL.style.display = "none";
+                    eLt.textContent = "(show)";
+                } else {
+                    eL.style.display = "block";
+                    eLt.textContent = "(hide)";
                 }
-            });
-            return response;
-        }
-
-        function onNewUser() {
-            var first_name = document.getElementById("first_name").value;
-            var last_name = document.getElementById("last_name").value;
-            data = {
-                first_name: first_name,
-                last_name: last_name,
+                showLog = !showLog;
             }
-            sendJSON(data, "/users", "POST")
-            .then((response) => response.json())
-            .then((data) => {
-                log("SUCESS: " + JSON.stringify(data));
-                getUserList();
-            })
-            .catch((error) => {
-                log("Error posting data");
-            });
-        }
-
-        function deleteUser(id) {
-            fetch("/users/" + id, { method: "DELETE", } )
-            .then((response) => response.json())
-            .then((data) => {
-                log("SUCESS: " + JSON.stringify(data));
-                getUserList();
-            })
-            .catch((error) => {
-                log("Error deleting data");
-            });
-        }
-
-        function changeUser(id) {
-            const firstname = document.getElementById("first_" + id).value;
-            const lastname = document.getElementById("last_" + id).value;
-            data = {
-                first_name: firstname,
-                last_name: lastname,
+            function log(s) {
+                eL.value += s.toString();
+                eL.value += "\n"
+                eL.scrollTop = eL.scrollHeight;
             }
-            sendJSON(data, "/users/" + id, "PATCH")
-            .then((response) => response.json())
-            .then((data) => {
-                log("SUCESS: " + JSON.stringify(data));
-                getUserList();
-            })
-            .catch((error) => {
-                log("Error updating data");
-            });
-        }
 
-        function addHeaderCell(tr, text) {
-            var th = document.createElement('TH');
-            th.innerHTML = text;
-            tr.appendChild(th);
-        }
-
-        function showTable(users) {
-            var t = document.getElementById("usertable");
-            var new_t = document.createElement("TABLE");
-            var header = new_t.createTHead();
-            var tr = header.insertRow();
-            // insertCell creates TD, we want TH
-            addHeaderCell(tr, 'id');
-            addHeaderCell(tr, 'first name');
-            addHeaderCell(tr, 'last name');
-            addHeaderCell(tr, '');
-            addHeaderCell(tr, '');
-
-            console.log("showTable()");
-            console.log(users);
-            // add the data rows
-            for(var i=0; i<users.length; i++) {
-                var row = new_t.insertRow();
-                var c1 = row.insertCell();
-                c1.innerHTML = users[i].id;
-                var c2 = row.insertCell();
-                c2.innerHTML = '<input id="first_' + users[i].id + '" value="' + users[i].first_name + '"></input>';
-                var c3 = row.insertCell();
-                c3.innerHTML = '<input id="last_' + users[i].id + '" value="' + users[i].last_name + '"></input>';
-                var c4 = row.insertCell();
-                c4.innerHTML = ''
-                    + '<form class="tdform"><button  class="updatebutton" type="button" onclick="changeUser(' + users[i].id + ');">change</button></form>'
-                ;
-                var c5 = row.insertCell();
-                c5.innerHTML = '' 
-                    + '<form class="tdform"><button class="delbutton" type="button" onclick="deleteUser(' + users[i].id + ');">del</button></form>' 
-                ;
+            function sendJSON(data, slug, method = "POST") {
+                json = JSON.stringify(data);
+                log("SENDING: " + json);
+                const response = fetch(slug, {
+                    method: method,
+                    body: json,
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8"
+                    }
+                });
+                return response;
             }
-            console.log("before replace");
-            t.innerHTML = new_t.innerHTML;
-            console.log("after replace");
-        }
+
+            function onNewUser() {
+                var first_name = document.getElementById("first_name").value;
+                var last_name = document.getElementById("last_name").value;
+                data = {
+                    first_name: first_name,
+                    last_name: last_name,
+                }
+                sendJSON(data, "/users", "POST")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        log("SUCCESS: " + JSON.stringify(data));
+                        getUserList();
+                    })
+                    .catch((error) => {
+                        log("Error posting data");
+                    });
+            }
+
+            function deleteUser(id) {
+                fetch("/users/" + id, { method: "DELETE", })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        log("SUCCESS: " + JSON.stringify(data));
+                        getUserList();
+                    })
+                    .catch((error) => {
+                        log("Error deleting data");
+                    });
+            }
+
+            function changeUser(id) {
+                const firstname = document.getElementById("first_" + id).value;
+                const lastname = document.getElementById("last_" + id).value;
+                data = {
+                    first_name: firstname,
+                    last_name: lastname,
+                }
+                sendJSON(data, "/users/" + id, "PATCH")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        log("SUCCESS: " + JSON.stringify(data));
+                        getUserList();
+                    })
+                    .catch((error) => {
+                        log("Error updating data");
+                    });
+            }
+
+            function addHeaderCell(tr, text) {
+                var th = document.createElement('TH');
+                th.innerHTML = text;
+                tr.appendChild(th);
+            }
+
+            function showTable(users) {
+                var t = document.getElementById("usertable");
+                var new_t = document.createElement("TABLE");
+                var header = new_t.createTHead();
+                var tr = header.insertRow();
+                // insertCell creates TD, we want TH
+                addHeaderCell(tr, 'id');
+                addHeaderCell(tr, 'first name');
+                addHeaderCell(tr, 'last name');
+                addHeaderCell(tr, '');
+                addHeaderCell(tr, '');
+
+                console.log("showTable()");
+                console.log(users);
+                // add the data rows
+                for (var i = 0; i < users.length; i++) {
+                    var row = new_t.insertRow();
+                    var c1 = row.insertCell();
+                    c1.innerHTML = users[i].id;
+                    var c2 = row.insertCell();
+                    c2.innerHTML = '<input id="first_' + users[i].id + '" value="' + users[i].first_name + '"></input>';
+                    var c3 = row.insertCell();
+                    c3.innerHTML = '<input id="last_' + users[i].id + '" value="' + users[i].last_name + '"></input>';
+                    var c4 = row.insertCell();
+                    c4.innerHTML = ''
+                        + '<form class="tdform"><button  class="updatebutton" type="button" onclick="changeUser(' + users[i].id + ');">change</button></form>'
+                        ;
+                    var c5 = row.insertCell();
+                    c5.innerHTML = ''
+                        + '<form class="tdform"><button class="delbutton" type="button" onclick="deleteUser(' + users[i].id + ');">del</button></form>'
+                        ;
+                }
+                console.log("before replace");
+                t.innerHTML = new_t.innerHTML;
+                console.log("after replace");
+            }
 
 
-        function getUserList() {
-            fetch("/users", { method: "GET", } )
-            .then((response) => response.json())
-            .then((data) => {
-                log("SUCESS: " + JSON.stringify(data));
-                showTable(data);
-            })
-            .catch((error) => {
-                log("Error fetching data");
-            });
-        }
+            function getUserList() {
+                fetch("/users", { method: "GET", })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        log("SUCCESS: " + JSON.stringify(data));
+                        showTable(data);
+                    })
+                    .catch((error) => {
+                        log("Error fetching data");
+                    });
+            }
 
-        function init() {
-            getUserList();
-        }
-        init();
-    </script>
+            function init() {
+                getUserList();
+            }
+            init();
+        </script>
     </body>
+
 </html>

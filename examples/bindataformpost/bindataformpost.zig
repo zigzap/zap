@@ -92,16 +92,14 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
-        .{
-            .port = 3000,
-            .on_request = Handler.on_request,
-            .log = true,
-            .max_clients = 10,
-            .max_body_size = 10 * 1024 * 1024,
-            .public_folder = ".",
-        },
-    );
+    var listener = zap.SimpleHttpListener.init(.{
+        .port = 3000,
+        .on_request = Handler.on_request,
+        .log = true,
+        .max_clients = 10,
+        .max_body_size = 10 * 1024 * 1024,
+        .public_folder = ".",
+    });
     zap.enableDebugLog();
     try listener.listen();
     std.log.info("\n\nURL is http://localhost:3000\n", .{});
