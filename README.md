@@ -239,7 +239,7 @@ To add zap to `build.zig.zon`:
 <!-- INSERT_DEP_END -->
 
 Then, in your `build.zig`'s `build` function, add the following before
-`b.installArtifact(exe)``:
+`b.installArtifact(exe)`:
 
 ```zig
     const zap = b.dependency("zap", .{
