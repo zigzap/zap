@@ -4,7 +4,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     var server = std.http.Server.init(allocator, .{
         .reuse_address = true,

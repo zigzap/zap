@@ -118,10 +118,10 @@ pub const struct_fio_str_info_s = extern struct {
 pub const fio_str_info_s = struct_fio_str_info_s;
 pub extern fn http_send_body(h: [*c]http_s, data: ?*anyopaque, length: usize) c_int;
 pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, arg_arg: ?*anyopaque) callconv(.C) usize {
-    var o = arg_o;
-    var start_at = arg_start_at;
-    var task = arg_task;
-    var arg = arg_arg;
+    const o = arg_o;
+    const start_at = arg_start_at;
+    const task = arg_task;
+    const arg = arg_arg;
     if ((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (fiobj_type_vtable(o).*.each != null)) return fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);
     return 0;
 }
@@ -241,8 +241,8 @@ pub const fiobj_object_header_s = extern struct {
     ref: u32,
 };
 pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize {
-    var o = arg_o;
-    var @"type" = arg_type;
+    const o = arg_o;
+    const @"type" = arg_type;
     while (true) {
         switch (@as(c_int, @bitCast(@as(c_uint, @"type")))) {
             @as(c_int, 1) => return @as(usize, @bitCast(@as(c_long, @intFromBool(((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) or (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrFromInt(o))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == FIOBJ_T_NUMBER))))),
@@ -264,7 +264,7 @@ pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize
     return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
 }
 pub fn fiobj_type(arg_o: FIOBJ) callconv(.C) fiobj_type_enum {
-    var o = arg_o;
+    const o = arg_o;
     if (!(o != 0)) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NULL))));
     if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NUMBER))));
     if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) return @as(u8, @bitCast(@as(u8, @truncate(o))));
@@ -279,7 +279,7 @@ pub extern const FIOBJECT_VTABLE_ARRAY: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_HASH: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_DATA: fiobj_object_vtable_s;
 pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtable_s {
-    var o = arg_o;
+    const o = arg_o;
     while (true) {
         switch (@as(c_int, @bitCast(@as(c_uint, fiobj_type(o))))) {
             @as(c_int, 1) => return &FIOBJECT_VTABLE_NUMBER,
@@ -314,7 +314,7 @@ pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
 pub extern fn fio_ltocstr(c_long) fio_str_info_s;
 pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
     if (!(o != 0)) {
-        var ret: fio_str_info_s = fio_str_info_s{
+        const ret: fio_str_info_s = fio_str_info_s{
             .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
             .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
             .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
@@ -327,7 +327,7 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
             switch (@as(c_int, @bitCast(@as(c_uint, @as(u8, @bitCast(@as(u8, @truncate(o)))))))) {
                 @as(c_int, 6) => {
                     {
-                        var ret: fio_str_info_s = fio_str_info_s{
+                        const ret: fio_str_info_s = fio_str_info_s{
                             .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
                             .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
                             .data = @as([*c]u8, @ptrFromInt(@intFromPtr("null"))),
@@ -337,7 +337,7 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 },
                 @as(c_int, 38) => {
                     {
-                        var ret: fio_str_info_s = fio_str_info_s{
+                        const ret: fio_str_info_s = fio_str_info_s{
                             .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
                             .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 5)))),
                             .data = @as([*c]u8, @ptrFromInt(@intFromPtr("false"))),
@@ -347,7 +347,7 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
                 },
                 @as(c_int, 22) => {
                     {
-                        var ret: fio_str_info_s = fio_str_info_s{
+                        const ret: fio_str_info_s = fio_str_info_s{
                             .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
                             .len = @as(usize, @bitCast(@as(c_long, @as(c_int, 4)))),
                             .data = @as([*c]u8, @ptrFromInt(@intFromPtr("true"))),
@@ -509,8 +509,8 @@ pub extern fn http_date2rfc7231(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
 pub extern fn http_date2rfc2109(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
 pub extern fn http_date2rfc2822(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
 pub fn http_date2str(arg_target: [*c]u8, arg_tmbuf: [*c]struct_tm) callconv(.C) usize {
-    var target = arg_target;
-    var tmbuf = arg_tmbuf;
+    const target = arg_target;
+    const tmbuf = arg_tmbuf;
     return http_date2rfc7231(target, tmbuf);
 }
 pub extern fn http_time2str(target: [*c]u8, t: time_t) usize;

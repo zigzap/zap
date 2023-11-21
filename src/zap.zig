@@ -142,8 +142,8 @@ pub const SimpleRequest = struct {
         var writer = string.writer();
         try writer.print("ERROR: {any}\n\n", .{err});
 
-        var debugInfo = try std.debug.getSelfDebugInfo();
-        var ttyConfig: std.io.tty.Config = .no_color;
+        const debugInfo = try std.debug.getSelfDebugInfo();
+        const ttyConfig: std.io.tty.Config = .no_color;
         try std.debug.writeCurrentStackTrace(writer, debugInfo, ttyConfig, null);
         try self.sendBody(string.items);
     }
@@ -297,7 +297,7 @@ pub const SimpleRequest = struct {
 
     // Set a response cookie
     pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
-        var c: fio.http_cookie_args_s = .{
+        const c: fio.http_cookie_args_s = .{
             .name = util.toCharPtr(args.name),
             .name_len = @as(isize, @intCast(args.name.len)),
             .value = util.toCharPtr(args.value),
@@ -414,7 +414,7 @@ pub const SimpleRequest = struct {
     fn _each_nextParamStr(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
         const ctx: *_parametersToOwnedStrSliceContext = @as(*_parametersToOwnedStrSliceContext, @ptrCast(@alignCast(context)));
         // this is thread-safe, guaranteed by fio
-        var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
             .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.always_alloc) catch |err| {
                 ctx.last_error = err;
@@ -467,7 +467,7 @@ pub const SimpleRequest = struct {
     fn _each_nextParam(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
         const ctx: *_parametersToOwnedSliceContext = @as(*_parametersToOwnedSliceContext, @ptrCast(@alignCast(context)));
         // this is thread-safe, guaranteed by fio
-        var fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
             .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.dupe_strings) catch |err| {
                 ctx.last_error = err;
@@ -845,7 +845,7 @@ pub const SimpleHttpListener = struct {
                 ._is_finished_request_global = false,
                 ._user_context = undefined,
             };
-            var zigtarget: []u8 = target[0..target_len];
+            const zigtarget: []u8 = target[0..target_len];
             req._is_finished = &req._is_finished_request_global;
 
             var user_context: SimpleRequest.UserContext = .{};
@@ -871,7 +871,7 @@ pub const SimpleHttpListener = struct {
             pfolder = pf.ptr;
         }
 
-        var x: fio.http_settings_s = .{
+        const x: fio.http_settings_s = .{
             .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
             .on_upgrade = if (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack else null,
             .on_response = if (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack else null,
@@ -905,7 +905,7 @@ pub const SimpleHttpListener = struct {
         //     const result = try bufPrint(buf, fmt ++ "\x00", args);
         //     return result[0 .. result.len - 1 :0];
         // }
-        var ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);
+        const ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);
         if (ret == -1) {
             return error.ListenError;
         }
@@ -950,7 +950,7 @@ pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSetti
         pfolder_len = pf.len;
         pfolder = pf.ptr;
     }
-    var x: fio.http_settings_s = .{
+    const x: fio.http_settings_s = .{
         .on_request = settings.on_request,
         .on_upgrade = settings.on_upgrade,
         .on_response = settings.on_response,

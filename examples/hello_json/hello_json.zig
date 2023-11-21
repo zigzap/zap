@@ -41,7 +41,7 @@ fn setupUserData(a: std.mem.Allocator) !void {
 }
 
 pub fn main() !void {
-    var a = std.heap.page_allocator;
+    const a = std.heap.page_allocator;
     try setupUserData(a);
     var listener = zap.SimpleHttpListener.init(.{
         .port = 3000,

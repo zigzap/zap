@@ -27,7 +27,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
@@ -44,7 +44,7 @@ pub fn main() !void {
             // check for query parameters
             r.parseQuery();
 
-            var param_count = r.getParamCount();
+            const param_count = r.getParamCount();
             std.log.info("param_count: {}", .{param_count});
 
             // iterate over all params as strings

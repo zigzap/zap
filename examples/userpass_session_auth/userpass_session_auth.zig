@@ -123,7 +123,7 @@ pub fn main() !void {
     // we start a block here so the defers will run before we call the gpa
     // to detect leaks
     {
-        var allocator = gpa.allocator();
+        const allocator = gpa.allocator();
         var listener = zap.SimpleHttpListener.init(.{
             .port = 3000,
             .on_request = on_request,

@@ -28,7 +28,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
@@ -39,7 +39,7 @@ pub fn main() !void {
 
             r.parseCookies(false);
 
-            var cookie_count = r.getCookiesCount();
+            const cookie_count = r.getCookiesCount();
             std.log.info("cookie_count: {}", .{cookie_count});
 
             // iterate over all cookies as strings

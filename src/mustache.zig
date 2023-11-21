@@ -57,7 +57,7 @@ pub const MustacheError = error{
 pub fn mustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
     var err: mustache_error_en = undefined;
 
-    var args: MustacheLoadArgsFio = .{
+    const args: MustacheLoadArgsFio = .{
         .filename = filn: {
             if (load_args.filename) |filn| break :filn filn.ptr else break :filn null;
         },
@@ -73,7 +73,7 @@ pub fn mustacheNew(load_args: MustacheLoadArgs) MustacheError!*Mustache {
         .err = &err,
     };
 
-    var ret = fiobj_mustache_new(args);
+    const ret = fiobj_mustache_new(args);
     switch (err) {
         0 => return ret.?,
         1 => return MustacheError.MUSTACHE_ERR_TOO_DEEP,
@@ -178,7 +178,7 @@ pub fn fiobjectify(
         },
         .Struct => |S| {
             // create a new fio hashmap
-            var m = fio.fiobj_hash_new();
+            const m = fio.fiobj_hash_new();
             // std.debug.print("new struct\n", .{});
             inline for (S.fields) |Field| {
                 // don't include void fields
@@ -215,7 +215,7 @@ pub fn fiobjectify(
                     return fio.fiobj_str_new(util.toCharPtr(value), value.len);
                 }
 
-                var arr = fio.fiobj_ary_new2(value.len);
+                const arr = fio.fiobj_ary_new2(value.len);
                 for (value) |x| {
                     const v = fiobjectify(x);
                     fio.fiobj_ary_push(arr, v);
