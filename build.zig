@@ -82,7 +82,7 @@ pub fn build(b: *std.build.Builder) !void {
         const example_run_step = b.step(ex_run_stepname, ex_run_stepdesc);
         const example_step = b.step(ex_name, ex_build_desc);
 
-        var example = b.addExecutable(.{
+        const example = b.addExecutable(.{
             .name = ex_name,
             .root_source_file = .{ .path = ex_src },
             .target = target,
@@ -206,7 +206,7 @@ pub fn build(b: *std.build.Builder) !void {
         .target = target,
         .optimize = optimize,
     });
-    var pkghash_step = b.step("pkghash", "Build pkghash");
+    const pkghash_step = b.step("pkghash", "Build pkghash");
     const pkghash_build_step = b.addInstallArtifact(pkghash_exe, .{});
     pkghash_step.dependOn(&pkghash_build_step.step);
     all_step.dependOn(&pkghash_build_step.step);
