@@ -76,10 +76,10 @@ show a feature.
   users, together with a simple frontend to play with. **It also introduces a
   `/stop` endpoint** that shuts down Zap, so **memory leak detection** can be
   performed in main().
-    - See the **[StopEndpoint](examples/endpoint/stopendpoint.zig)**. It uses
-      ZIG's awesome `GeneralPurposeAllocator` to report memory leaks when ZAP is
-      shut down. The `StopEndpoint` just stops ZAP when receiving a request on
-      the `/stop` route.
+    - Check out how [main.zig](examples/endpoint/main.zig) uses ZIG's awesome
+      `GeneralPurposeAllocator` to report memory leaks when ZAP is shut down.
+      The [StopEndpoint](examples/endpoint/stopendpoint.zig) just stops ZAP when
+      receiving a request on the `/stop` route.
 - **[mustache](examples/mustache/mustache.zig)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
 - **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a
