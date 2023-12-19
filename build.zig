@@ -1,4 +1,5 @@
 const std = @import("std");
+const build_facilio = @import("facil.io/build.zig").build_facilio;
 
 pub fn build(b: *std.build.Builder) !void {
     const target = b.standardTargetOptions(.{});
@@ -6,35 +7,15 @@ pub fn build(b: *std.build.Builder) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
-    const facil_dep = b.dependency("facil.io", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
     // create a module to be used internally.
     var zap_module = b.createModule(.{
         .source_file = .{ .path = "src/zap.zig" },
     });
 
-    // register the module so it can be referenced
-    // using the package manager.
-    // TODO: How to automatically integrate the
-    // facil.io dependency with the module?
+    // register the module so it can be referenced using the package manager.
     try b.modules.put(b.dupe("zap"), zap_module);
 
-    const facil_lib = b.addStaticLibrary(.{
-        .name = "facil.io",
-        .target = target,
-        .optimize = optimize,
-    });
-
-    facil_lib.linkLibrary(facil_dep.artifact("facil.io"));
-
-    // we install the facil dependency, just to see what it's like
-    // zig build with the default (install) step will install it
-    facil_lib.installLibraryHeaders(facil_dep.artifact("facil.io"));
-    const facil_install_step = b.addInstallArtifact(facil_lib, .{});
-    b.getInstallStep().dependOn(&facil_install_step.step);
+    const facilio = try build_facilio("facil.io", b, target, optimize);
 
     const all_step = b.step("all", "build all examples");
 
@@ -89,7 +70,7 @@ pub fn build(b: *std.build.Builder) !void {
             .optimize = optimize,
         });
 
-        example.linkLibrary(facil_dep.artifact("facil.io"));
+        example.linkLibrary(facilio);
         example.addModule("zap", zap_module);
 
         // const example_run = example.run();
@@ -122,7 +103,7 @@ pub fn build(b: *std.build.Builder) !void {
         .target = target,
         .optimize = optimize,
     });
-    auth_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    auth_tests.linkLibrary(facilio);
     auth_tests.addModule("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
@@ -135,7 +116,7 @@ pub fn build(b: *std.build.Builder) !void {
         .target = target,
         .optimize = optimize,
     });
-    mustache_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    mustache_tests.linkLibrary(facilio);
     mustache_tests.addModule("zap", zap_module);
 
     const run_mustache_tests = b.addRunArtifact(mustache_tests);
@@ -149,7 +130,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
 
-    httpparams_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    httpparams_tests.linkLibrary(facilio);
     httpparams_tests.addModule("zap", zap_module);
     const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
     // TODO: for some reason, tests aren't run more than once unless
@@ -166,7 +147,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
 
-    sendfile_tests.linkLibrary(facil_dep.artifact("facil.io"));
+    sendfile_tests.linkLibrary(facilio);
     sendfile_tests.addModule("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
