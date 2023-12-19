@@ -52,9 +52,9 @@ Exactly the goals I set out to achieve!
 
 ## Here's what works
 
-I recommend checking out Endpoint-based examples for more realistic use-cases.
-Most of examples are super-stripped-down to only include what's necessary to
-show a feature.
+I recommend checking out **Endpoint-based examples for more realistic
+use-cases**. Most of examples are super-stripped-down to only include what's
+necessary to show a feature.
 
 - **Super easy build process**: Zap's `build.zig` now uses the new Zig package
   manager for its C-dependencies, no git submodules anymore.
