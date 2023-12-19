@@ -4,41 +4,65 @@
 
 ![](https://github.com/zigzap/zap/actions/workflows/build-zig-11.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jQAAN6Ubyj)
 
-Zap is intended to become the [zig](https://ziglang.org) replacement for the
-kind of REST APIs I used to write in [python](https://python.org) with
+Zap is the [zig](https://ziglang.org) replacement for the REST APIs I used to
+write in [python](https://python.org) with
 [Flask](https://flask.palletsprojects.com) and
 [mongodb](https://www.mongodb.com), etc. It can be considered to be a
 microframework for web applications.
 
-What I needed for that was a blazingly fast, robust HTTP server that I could use
-with Zig. While facil.io supports TLS, I don't care about HTTPS support. In
-production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
-
-Zap wraps and patches [facil.io - the C web application
+What I needed as a replacement was a blazingly fast and robust HTTP server that
+I could use with Zig, and I chose to wrap the superb evented networking C
+library [facil.io](https://facil.io). Zap wraps and patches [facil.io - the C web application
 framework](https://facil.io).
 
+## **⚡ZAP⚡ IS FAST, ROBUST, AND STABLE**
 
-**⚡ZAP⚡ IS SUPER ALPHA**
 
-_Under the hood, everything is super robust and fast. My zig wrappers are fresh,
-juicy, and alpha._
-
-After having used ZAP in production for weeks, I can confidently assert that it
-proved to be:
+After having used ZAP in production for over 6 months, I can confidently assert
+that it proved to be:
 
 - ⚡ **blazingly fast** ⚡
 - 💪 **extremely robust** 💪
 
 Exactly the goals I set out to achieve!
 
-Here's what works:
+## <mark>**Zap depends on the latest stable release of Zig (0.11)**</mark>
 
-- **Super easy build process**: Zap's `build.zig` now uses the up-and-coming Zig
-  package manager for its C-dependencies, no git submodules anymore.
+## Most FAQ:
+
+- Q: **Zap doesn't build with Zig master?**
+- A: <mark>**Zap depends on the latest stable release of Zig**, which is **ZIG
+  V0.11**</mark> at the moment. Contributers provide forks with v0.12/master
+  branches which I may integrate soon-ish.
+    - A2: Going "stable" is a deliberate decision. Zap is designed to be
+      depended on by professional, production-grade servers, not just toy
+      projects or Zig/Zap enthusiasts. Having zap not break with frequent
+      changes of zig master, is a feature. We experienced the catch-up game when
+      Zig 0.11 was in development and decided that it might be a big turn-off,
+      especially for professional projects.
+- Q: **What about TLS?**
+- A: While facil.io supports TLS, I currently don't care about HTTPS support. In
+  production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
+    - A2: Some zap users have successfully enabled TLS support in zap's facil.io
+      wrapper. See the discord for answers. I **may** introduce an option to
+      zap's `build.zig` to enable support of a bundled (not system-provided)
+      openssl or bearssl anytime soon.
+
+
+
+## Here's what works
+
+I recommend checking out Endpoint-based examples for more realistic use-cases.
+Most of examples are super-stripped-down to only include what's necessary to
+show a feature.
+
+- **Super easy build process**: Zap's `build.zig` now uses the new Zig package
+  manager for its C-dependencies, no git submodules anymore.
   - _tested on Linux and macOS (arm, M1)_
 - **[hello](examples/hello/hello.zig)**: welcomes you with some static HTML
 - **[routes](examples/routes/routes.zig)**: a super easy example dispatching on
-  the HTTP path
+  the HTTP path. **NOTE**: The dispatch in the example is a super-basic
+  DIY-style dispatch. See endpoint-based examples for more realistic use-cases.
 - **[serve](examples/serve/serve.zig)**: the traditional static web server with
   optional dynamic request handling
 - **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
@@ -52,6 +76,10 @@ Here's what works:
   users, together with a simple frontend to play with. **It also introduces a
   `/stop` endpoint** that shuts down Zap, so **memory leak detection** can be
   performed in main().
+    - See the **[StopEndpoint](examples/endpoint/stopendpoint.zig)**. It uses
+      ZIG's awesome `GeneralPurposeAllocator` to report memory leaks when ZAP is
+      shut down. The `StopEndpoint` just stops ZAP when receiving a request on
+      the `/stop` route.
 - **[mustache](examples/mustache/mustache.zig)**: a simple example using
   [mustache](https://mustache.github.io/) templating.
 - **[endpoint authentication](examples/endpoint_auth/endpoint_auth.zig)**: a
@@ -145,7 +173,7 @@ See more details in [blazingly-fast.md](blazingly-fast.md).
 ## 💪 Robust
 
 ZAP is **very robust**. In fact, it is so robust that I was confidently able to
-only work with in-memory data (RAM) in all my initial ZAP projects so far: 3
+only work with in-memory data (RAM) in all my ZAP projects so far: over 5 large
 online research experiments. No database, no file persistence, until I hit
 "save" at the end 😊.
 
@@ -157,8 +185,8 @@ low, it means the system is under (heavy) load. Would you confidently NOT save
 data when load is high and the data changes most frequently -> the potential
 data loss is maximized?
 
-To answer that question, I just skipped it. I skipped saving data until
-receiving a "save" signal. And it worked. ZAP kept on zapping. When
+To answer that question, I just skipped it. I skipped saving any data until
+receiving a "save" signal via API. And it worked. ZAP just kept on zapping. When
 traffic calmed down or all experiment participants had finished, I hit "save"
 and went on analyzing the data.
 
@@ -309,7 +337,8 @@ $ zig build [EXAMPLE]
 $ ./zig-out/bin/[EXAMPLE]
 ```
 
-... where `[EXAMPLE]` is one of `hello`, `routes`, or `serve`.
+... where `[EXAMPLE]` is one of `hello`, `routes`, `serve`, ... see the [list of
+examples above](#here's-what-works).
 
 Example: building and running the hello example:
 
