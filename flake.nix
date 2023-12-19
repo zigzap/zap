@@ -2,7 +2,7 @@
   description = "zap dev shell";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
     # required for latest zig
@@ -46,9 +46,9 @@
             zigpkgs."0.11.0"
             bat
             wrk
-            python39
-            python39Packages.sanic
-            python39Packages.matplotlib
+            python310
+            python310Packages.sanic
+            python310Packages.matplotlib
             poetry
             poetry
             pkgs.rustc 
