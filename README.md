@@ -338,7 +338,7 @@ $ ./zig-out/bin/[EXAMPLE]
 ```
 
 ... where `[EXAMPLE]` is one of `hello`, `routes`, `serve`, ... see the [list of
-examples above](#here's-what-works).
+examples above](#heres-what-works).
 
 Example: building and running the hello example:
 
