@@ -58,6 +58,7 @@ pub fn build_facilio(
 
     // link against libc
     lib.linkLibC();
+    b.installArtifact(lib);
 
     return lib;
 }
