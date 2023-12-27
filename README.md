@@ -40,13 +40,16 @@ Exactly the goals I set out to achieve!
       changes of zig master, is a feature. We experienced the catch-up game when
       Zig 0.11 was in development and decided that it might be a big turn-off,
       especially for professional projects.
+- Q: **Does ZAP work on Windows?**
+- A: No. This is due to the underlying facil.io C library. Future versions of
+  facil.io might support Windows but there is no timeline yet.
 - Q: **What about TLS?**
 - A: While facil.io supports TLS, I currently don't care about HTTPS support. In
   production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
-    - A2: Some zap users have successfully enabled TLS support in zap's facil.io
-      wrapper. See the discord for answers. I **may** introduce an option to
-      zap's `build.zig` to enable support of a bundled (not system-provided)
-      openssl or bearssl anytime soon.
+    - A2: Some zap users have successfully enabled openssl support in zap's
+      facil.io wrapper. See the discord for answers. I **may** introduce an
+      option to zap's `build.zig` to enable support of a bundled (not
+      system-provided) openssl or bearssl anytime soon.
 
 
 
