@@ -40,6 +40,7 @@ Exactly the goals I set out to achieve!
       changes of zig master, is a feature. We experienced the catch-up game when
       Zig 0.11 was in development and decided that it might be a big turn-off,
       especially for professional projects.
+    - A3: We're going to add a `zig-master` branch soon. (Probably early 2024).
 - Q: **Does ZAP work on Windows?**
 - A: No. This is due to the underlying facil.io C library. Future versions of
   facil.io might support Windows but there is no timeline yet.
