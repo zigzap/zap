@@ -25,6 +25,7 @@ pub fn init(
             .put = putUser,
             .patch = putUser,
             .delete = deleteUser,
+            .options = optionsUser,
         }),
     };
 }
@@ -140,4 +141,12 @@ fn deleteUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
             }
         }
     }
+}
+
+fn optionsUser(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+    _ = e;
+    r.setHeader("Access-Control-Allow-Origin", "*") catch return;
+    r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") catch return;
+    r.setStatus(zap.StatusCode.no_content);
+    r.markAsFinished(true);
 }
