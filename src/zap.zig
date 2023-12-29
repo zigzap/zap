@@ -770,6 +770,7 @@ pub const SimpleHttpListenerSettings = struct {
     log: bool = false,
     ws_timeout: u8 = 40,
     ws_max_msg_size: usize = 262144,
+    tls: ?*anyopaque = null,
 };
 
 pub const SimpleHttpListener = struct {
@@ -883,7 +884,7 @@ pub const SimpleHttpListener = struct {
             .max_body_size = self.settings.max_body_size orelse 50 * 1024 * 1024,
             // fio provides good default:
             .max_clients = self.settings.max_clients orelse 0,
-            .tls = null,
+            .tls = self.settings.tls,
             .reserved1 = 0,
             .reserved2 = 0,
             .reserved3 = 0,

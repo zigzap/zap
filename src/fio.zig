@@ -168,6 +168,53 @@ pub extern fn fiobj_data_write(io: FIOBJ, buffer: ?*anyopaque, length: usize) is
 pub extern fn fiobj_data_puts(io: FIOBJ, buffer: ?*anyopaque, length: usize) isize;
 pub extern fn fiobj_data_assert_dynamic(io: FIOBJ) void;
 
+/// Creates a new SSL/TLS context / settings object with a default certificate (if any).
+/// If a server name is provided, than NULL values can be used to create an anonymous (unverified)
+/// context / settings object. If all values are NULL, a TLS object will be created without a
+/// certificate. This could be used for clients together with fio_tls_trust.  fio_tls_s * is an
+/// opaque type used as a handle for the SSL/TLS functions. It shouldn't be directly accessed.
+pub extern fn fio_tls_new(
+    server_name: ?[*:0]const u8,
+    public_certificate_file: ?[*:0]const u8,
+    private_key_file: ?[*:0]const u8,
+    private_key_password: ?[*:0]const u8,
+) ?*anyopaque;
+
+/// Increase the reference count for the TLS object.
+/// Decrease / free with fio_tls_destroy.
+pub extern fn fio_tls_dup(tls: ?*anyopaque) void;
+
+/// Destroys the SSL/TLS context / settings object and frees any related resources / memory.
+pub extern fn fio_tls_destroy(tls: ?*anyopaque) void;
+
+/// Adds a certificate a new SSL/TLS context / settings object (SNI support).
+/// The private_key_password can be NULL if the private key PEM file isn't password protected.
+pub extern fn fio_tls_cert_add(
+    tls: ?*anyopaque,
+    server_name: ?[*:0]const u8,
+    public_certificate_file: ?[*:0]const u8,
+    private_key_file: ?[*:0]const u8,
+    private_key_password: ?[*:0]const u8,
+) void;
+
+/// Adds a certificate to the "trust" list, which automatically adds a peer verification requirement.
+/// Note: when the fio_tls_s object is used for server connections, this will limit connections to
+/// clients that connect using a trusted certificate.
+pub extern fn fio_tls_trust(tls: ?*anyopaque, public_cert_file: ?[*:0]const u8) void;
+
+/// Establishes an SSL/TLS connection as an SSL/TLS Server, using the specified context / settings object.
+/// The uuid should be a socket UUID that is already connected to a peer (i.e., the result of fio_accept).
+/// The udata is an opaque user data pointer that is passed along to the protocol selected (if any protocols
+/// were added using fio_tls_alpn_add).
+pub extern fn fio_tls_accept(uuid: *u32, tls: ?*anyopaque, udata: ?*anyopaque) void;
+
+/// Establishes an SSL/TLS connection as an SSL/TLS Client, using the specified context / settings object.
+/// The uuid should be a socket UUID that is already connected to a peer (i.e., one received by a fio_connect
+/// specified callback on_connect).
+/// The udata is an opaque user data pointer that is passed along to the protocol selected (if any protocols
+/// were added using fio_tls_alpn_add).
+pub extern fn fio_tls_connect(uuid: *u32, tls: ?*anyopaque, udata: ?*anyopaque) void;
+
 pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
 pub fn fiobj_null() callconv(.C) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_NULL)));
