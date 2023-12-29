@@ -7,6 +7,8 @@ pub fn build(b: *std.build.Builder) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
+    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse false;
+
     // create a module to be used internally.
     var zap_module = b.createModule(.{
         .source_file = .{ .path = "src/zap.zig" },
@@ -15,7 +17,7 @@ pub fn build(b: *std.build.Builder) !void {
     // register the module so it can be referenced using the package manager.
     try b.modules.put(b.dupe("zap"), zap_module);
 
-    const facilio = try build_facilio("facil.io", b, target, optimize);
+    const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
 
     const all_step = b.step("all", "build all examples");
 

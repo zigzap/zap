@@ -5,6 +5,7 @@ pub fn build_facilio(
     b: *std.build.Builder,
     target: std.zig.CrossTarget,
     optimize: std.builtin.OptimizeMode,
+    use_openssl: bool,
 ) !*std.build.CompileStep {
     const lib = b.addStaticLibrary(.{
         .name = "facil.io",
@@ -27,6 +28,8 @@ pub fn build_facilio(
     try flags.append("-DFIO_HTTP_EXACT_LOGGING");
     if (target.getAbi() == .musl)
         try flags.append("-D_LARGEFILE64_SOURCE");
+    if (use_openssl)
+        try flags.append("-DHAVE_OPENSSL -DFIO_TLS_FOUND");
 
     // Include paths
     lib.addIncludePath(.{ .path = subdir ++ "/." });
@@ -35,6 +38,8 @@ pub fn build_facilio(
     lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/cli" });
     lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/http" });
     lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/http/parsers" });
+    if (use_openssl)
+        lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/tls" });
 
     // C source files
     lib.addCSourceFiles(&.{
@@ -56,8 +61,22 @@ pub fn build_facilio(
         subdir ++ "/lib/facil/cli/fio_cli.c",
     }, flags.items);
 
+    if (use_openssl) {
+        lib.addCSourceFiles(&.{
+            subdir ++ "/lib/facil/tls/fio_tls_openssl.c",
+            subdir ++ "/lib/facil/tls/fio_tls_missing.c",
+        }, flags.items);
+    }
+
     // link against libc
     lib.linkLibC();
+
+    // link in libopenssl and libcrypto on demand
+    if (use_openssl) {
+        lib.linkSystemLibrary("ssl");
+        lib.linkSystemLibrary("crypto");
+    }
+
     b.installArtifact(lib);
 
     return lib;
