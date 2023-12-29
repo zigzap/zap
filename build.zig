@@ -84,7 +84,13 @@ pub fn build(b: *std.build.Builder) !void {
         // install the artifact - depending on the "example"
         const example_build_step = b.addInstallArtifact(example, .{});
         example_step.dependOn(&example_build_step.step);
-        all_step.dependOn(&example_build_step.step);
+
+        // ignore https in all because of required -Dopenssl=true
+        // TODO: fix GH pipeline to take care of that
+        // or: auto-provide openssl for https in build.zig
+        if (!std.mem.eql(u8, ex_name, "https")) {
+            all_step.dependOn(&example_build_step.step);
+        }
     }
 
     //
