@@ -43,16 +43,11 @@ Exactly the goals I set out to achieve!
     - A3: We're going to add a `zig-master` branch soon. (Probably early 2024).
 - Q: **Does ZAP work on Windows?**
 - A: No. This is due to the underlying facil.io C library. Future versions of
-  facil.io might support Windows but there is no timeline yet.
-- Q: **What about TLS?**
-- A: While facil.io supports TLS, I currently don't care about HTTPS support. In
-  production, I use [nginx](https://www.nginx.com) as a reverse proxy anyway.
-    - A2: Some zap users have successfully enabled openssl support in zap's
-      facil.io wrapper. See the discord for answers. I **may** introduce an
-      option to zap's `build.zig` to enable support of a bundled (not
-      system-provided) openssl or bearssl anytime soon.
-
-
+  facil.io might support Windows but there is no timeline yet. Your best options
+  on Windows are WSL2 or a docker container.
+- Q: **Does ZAP support TLS / HTTPS?**
+- A: Yes, ZAP supports using the system's openssl. See the
+  [https](./examples/https/https.zig) example.
 
 ## Here's what works
 
@@ -126,6 +121,9 @@ necessary to show a feature.
 - [**Error Trace Responses**](./examples/senderror/senderror.zig): You can now
   call `r.sendError(err, status_code)` when you catch an error and a stack trace
   will be returned to the client / browser.
+- [**HTTPS**](examples/https/https.zig): Shows how easy it is to use facil.io's
+  openssl support. Must be compiled with the `-Dopenssl=true` and requires
+  openssl dev dependencies (headers, lib) to be installed on the system.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
