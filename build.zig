@@ -26,6 +26,7 @@ pub fn build(b: *std.build.Builder) !void {
         src: []const u8,
     }{
         .{ .name = "hello", .src = "examples/hello/hello.zig" },
+        .{ .name = "https", .src = "examples/https/https.zig" },
         .{ .name = "hello2", .src = "examples/hello2/hello2.zig" },
         .{ .name = "routes", .src = "examples/routes/routes.zig" },
         .{ .name = "serve", .src = "examples/serve/serve.zig" },
@@ -47,6 +48,7 @@ pub fn build(b: *std.build.Builder) !void {
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
+
         const ex_build_desc = try std.fmt.allocPrint(
             b.allocator,
             "build the {s} example",
