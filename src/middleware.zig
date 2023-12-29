@@ -210,7 +210,7 @@ test "it" {
         std.debug.print("field {} : name = {s} : type = {any}\n", .{ i, f.name, f.type });
     }
 
-    var mixed: Mixed = .{
+    const mixed: Mixed = .{
         // it's all optionals which we made default to null in MixContexts
     };
     std.debug.print("mixed = {any}\n", .{mixed});
@@ -233,7 +233,7 @@ test "it" {
     };
 
     // this will fail if we don't specify
-    var nonOpts: NonOpts = .{
+    const nonOpts: NonOpts = .{
         .user = &user,
         .session = &session,
     };

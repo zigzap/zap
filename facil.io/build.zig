@@ -42,30 +42,36 @@ pub fn build_facilio(
         lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/tls" });
 
     // C source files
-    lib.addCSourceFiles(&.{
-        subdir ++ "/lib/facil/fio.c",
-        subdir ++ "/lib/facil/fio_zig.c",
-        subdir ++ "/lib/facil/http/http.c",
-        subdir ++ "/lib/facil/http/http1.c",
-        subdir ++ "/lib/facil/http/websockets.c",
-        subdir ++ "/lib/facil/http/http_internal.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_numbers.c",
-        subdir ++ "/lib/facil/fiobj/fio_siphash.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_str.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_ary.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_data.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_hash.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_json.c",
-        subdir ++ "/lib/facil/fiobj/fiobject.c",
-        subdir ++ "/lib/facil/fiobj/fiobj_mustache.c",
-        subdir ++ "/lib/facil/cli/fio_cli.c",
-    }, flags.items);
+    lib.addCSourceFiles(.{
+        .files = &.{
+            subdir ++ "/lib/facil/fio.c",
+            subdir ++ "/lib/facil/fio_zig.c",
+            subdir ++ "/lib/facil/http/http.c",
+            subdir ++ "/lib/facil/http/http1.c",
+            subdir ++ "/lib/facil/http/websockets.c",
+            subdir ++ "/lib/facil/http/http_internal.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_numbers.c",
+            subdir ++ "/lib/facil/fiobj/fio_siphash.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_str.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_ary.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_data.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_hash.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_json.c",
+            subdir ++ "/lib/facil/fiobj/fiobject.c",
+            subdir ++ "/lib/facil/fiobj/fiobj_mustache.c",
+            subdir ++ "/lib/facil/cli/fio_cli.c",
+        },
+        .flags = flags.items,
+    });
 
     if (use_openssl) {
-        lib.addCSourceFiles(&.{
-            subdir ++ "/lib/facil/tls/fio_tls_openssl.c",
-            subdir ++ "/lib/facil/tls/fio_tls_missing.c",
-        }, flags.items);
+        lib.addCSourceFiles(.{
+            .files = &.{
+                subdir ++ "/lib/facil/tls/fio_tls_openssl.c",
+                subdir ++ "/lib/facil/tls/fio_tls_missing.c",
+            },
+            .flags = flags.items,
+        });
     }
 
     // link against libc

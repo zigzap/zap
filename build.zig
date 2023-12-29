@@ -10,7 +10,7 @@ pub fn build(b: *std.build.Builder) !void {
     const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse false;
 
     // create a module to be used internally.
-    var zap_module = b.createModule(.{
+    const zap_module = b.createModule(.{
         .source_file = .{ .path = "src/zap.zig" },
     });
 
@@ -84,7 +84,9 @@ pub fn build(b: *std.build.Builder) !void {
         // install the artifact - depending on the "example"
         const example_build_step = b.addInstallArtifact(example, .{});
         example_step.dependOn(&example_build_step.step);
-        all_step.dependOn(&example_build_step.step);
+        if (!std.mem.eql(u8, ex_name, "https")) {
+            all_step.dependOn(&example_build_step.step);
+        }
     }
 
     //
@@ -185,7 +187,7 @@ pub fn build(b: *std.build.Builder) !void {
     //
     // pkghash
     //
-    var pkghash_exe = b.addExecutable(.{
+    const pkghash_exe = b.addExecutable(.{
         .name = "pkghash",
         .root_source_file = .{ .path = "./tools/pkghash.zig" },
         .target = target,
@@ -199,7 +201,7 @@ pub fn build(b: *std.build.Builder) !void {
     //
     // announceybot
     //
-    var announceybot_exe = b.addExecutable(.{
+    const announceybot_exe = b.addExecutable(.{
         .name = "announceybot",
         .root_source_file = .{ .path = "./tools/announceybot.zig" },
         .target = target,

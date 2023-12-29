@@ -46,8 +46,8 @@ const ContextManager = struct {
         self.lock.lock();
         defer self.lock.unlock();
 
-        var ctx = try self.allocator.create(Context);
-        var userName = try std.fmt.allocPrint(
+        const ctx = try self.allocator.create(Context);
+        const userName = try std.fmt.allocPrint(
             self.allocator,
             "{s}{d}",
             .{ self.usernamePrefix, self.contexts.items.len },
@@ -201,7 +201,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     GlobalContextManager = ContextManager.init(allocator, "chatroom", "user-");
     defer GlobalContextManager.deinit();

@@ -72,7 +72,7 @@ const UserMiddleWare = struct {
     pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
 
         // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+        const self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
 
         // do our work: fill in the user field of the context
@@ -115,7 +115,7 @@ const SessionMiddleWare = struct {
     // note that the first parameter is of type *Handler, not *Self !!!
     pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
         // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+        const self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
 
         context.session = Session{
@@ -151,7 +151,7 @@ const HtmlMiddleWare = struct {
     pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
 
         // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+        const self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
 
         std.debug.print("\n\nHtmlMiddleware: handling request with context: {any}\n\n", .{context});
@@ -190,7 +190,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
     SharedAllocator.init(allocator);
 
     // we create our HTML middleware component that handles the request

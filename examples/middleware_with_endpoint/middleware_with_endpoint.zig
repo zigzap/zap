@@ -59,7 +59,7 @@ const UserMiddleWare = struct {
     pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
 
         // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+        const self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
 
         // do our work: fill in the user field of the context
@@ -104,7 +104,7 @@ const SessionMiddleWare = struct {
     // note that the first parameter is of type *Handler, not *Self !!!
     pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
         // this is how we would get our self pointer
-        var self = @fieldParentPtr(Self, "handler", handler);
+        const self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
 
         context.session = Session{
@@ -154,7 +154,7 @@ const HtmlEndpoint = struct {
     }
 
     pub fn get(ep: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
-        var self = @fieldParentPtr(Self, "endpoint", ep);
+        const self = @fieldParentPtr(Self, "endpoint", ep);
         _ = self;
 
         var buf: [1024]u8 = undefined;
@@ -199,7 +199,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
     SharedAllocator.init(allocator);
 
     // create the endpoint
