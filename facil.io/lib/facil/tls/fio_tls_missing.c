@@ -31,7 +31,7 @@ Feel free to copy, use and enjoy according to the license provided.
 #undef REQUIRE_LIBRARY
 #define REQUIRE_LIBRARY()                                                      \
   FIO_LOG_FATAL("No supported SSL/TLS library available.");                    \
-  exit(-1);
+  exit(202);   // CoalNova's suggestion. Was: -1
 #endif
 /* STOP deleting after this line */
 
@@ -514,7 +514,7 @@ void FIO_TLS_WEAK fio_tls_cert_add(fio_tls_s *tls, const char *server_name,
 file_missing:
   FIO_LOG_FATAL("TLS certificate file missing for either %s or %s or both.",
                 key, cert);
-  exit(-1);
+  exit(203);   // CoalNova's suggestion. Was: -1
 }
 
 /**
@@ -575,7 +575,7 @@ void FIO_TLS_WEAK fio_tls_trust(fio_tls_s *tls, const char *public_cert_file) {
   return;
 file_missing:
   FIO_LOG_FATAL("TLS certificate file missing for %s ", public_cert_file);
-  exit(-1);
+  exit(204);   // CoalNova's suggestion. was: -1.
 }
 
 /**
