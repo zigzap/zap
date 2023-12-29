@@ -26,8 +26,6 @@ that it proved to be:
 
 Exactly the goals I set out to achieve!
 
-## <mark>**Zap depends on the latest stable release of Zig (0.11)**</mark>
-
 ## Most FAQ:
 
 - Q: **Does ZAP work on Windows?**
@@ -37,12 +35,18 @@ Exactly the goals I set out to achieve!
 - Q: **Does ZAP support TLS / HTTPS?**
 - A: Yes, ZAP supports using the system's openssl. See the
   [https](./examples/https/https.zig) example.
+- Q: **Are there API docs?**
+- A: They are under development. Git clone this, then run `zig build run-docserver`.
 
 ## Here's what works
 
 I recommend checking out **Endpoint-based examples for more realistic
 use-cases**. Most of examples are super-stripped-down to only include what's
 necessary to show a feature.
+
+**NOTE: To see API docs, run `zig build run-docserver`.** To specify a custom
+port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
+--docs=path/to/docs`.
 
 - **Super easy build process**: Zap's `build.zig` now uses the new Zig package
   manager for its C-dependencies, no git submodules anymore.
@@ -203,7 +207,7 @@ code leaks memory.
 
 ## Getting started
 
-Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+Make sure you have zig 0.12.0 installed. Fetch it from
 [here](https://ziglang.org/download).
 
 ```shell
@@ -216,6 +220,8 @@ $ # open http://localhost:3000 in your browser
 ... and open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Using ⚡zap⚡ in your own projects
+
+## NOTE, WHILE THIS IS ITS OWN 0.12.0 BRANCH, THIS SECTION WON'T GET UPDATED
 
 Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
 [here](https://ziglang.org/download).
