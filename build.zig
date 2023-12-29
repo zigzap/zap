@@ -21,6 +21,21 @@ pub fn build(b: *std.build.Builder) !void {
 
     const all_step = b.step("all", "build all examples");
 
+    // -- Docs
+    const docs_obj = b.addObject(.{
+        .name = "docs",
+        .root_source_file = .{ .path = "src/zap.zig" },
+        .target = target,
+        .optimize = .Debug,
+    });
+    const install_docs = b.addInstallDirectory(.{
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+        .source_dir = docs_obj.getEmittedDocs(),
+    });
+    b.step("docs", "Build docs").dependOn(&install_docs.step);
+    // --
+
     inline for ([_]struct {
         name: []const u8,
         src: []const u8,
@@ -197,6 +212,28 @@ pub fn build(b: *std.build.Builder) !void {
     const pkghash_build_step = b.addInstallArtifact(pkghash_exe, .{});
     pkghash_step.dependOn(&pkghash_build_step.step);
     all_step.dependOn(&pkghash_build_step.step);
+
+    //
+    // docserver
+    //
+    const docserver_exe = b.addExecutable(.{
+        .name = "docserver",
+        .root_source_file = .{ .path = "./tools/docserver.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    docserver_exe.linkLibrary(facilio);
+    docserver_exe.addModule("zap", zap_module);
+    var docserver_step = b.step("docserver", "Build docserver");
+    const docserver_build_step = b.addInstallArtifact(docserver_exe, .{});
+    docserver_step.dependOn(&docserver_build_step.step);
+    docserver_step.dependOn(&install_docs.step);
+
+    const docserver_run_step = b.step("run-docserver", "run the docserver");
+    const docserver_run = b.addRunArtifact(docserver_exe);
+    docserver_run_step.dependOn(&docserver_run.step);
+
+    all_step.dependOn(&docserver_build_step.step);
 
     //
     // announceybot
