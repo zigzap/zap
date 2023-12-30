@@ -23,5 +23,16 @@ jobs:
         run: zig version
       - name: Build all examples
         run: ./build_all.sh
-      - name: Run all tests
-        run: zig build test
+      # - name: Run all tests
+      #   run: zig build test
+      # Run tests separately so we can see more clearly which one fails
+      - name: Run mustache tests
+        run: zig build test-mustache
+      - name: Run httpparams tests
+        run: zig build test-httpparams
+      - name: Run sendfile tests
+        run: zig build test-sendfile
+      - name: Run authentication tests
+        run: zig build test-authentication
+      - name: Report end of tests
+        run: echo "tests finished"
