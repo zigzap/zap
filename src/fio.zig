@@ -195,12 +195,12 @@ pub extern fn fio_tls_cert_add(
     public_certificate_file: ?[*:0]const u8,
     private_key_file: ?[*:0]const u8,
     private_key_password: ?[*:0]const u8,
-) void;
+) c_int;
 
 /// Adds a certificate to the "trust" list, which automatically adds a peer verification requirement.
 /// Note: when the fio_tls_s object is used for server connections, this will limit connections to
 /// clients that connect using a trusted certificate.
-pub extern fn fio_tls_trust(tls: ?*anyopaque, public_cert_file: ?[*:0]const u8) void;
+pub extern fn fio_tls_trust(tls: ?*anyopaque, public_cert_file: ?[*:0]const u8) c_int;
 
 /// Establishes an SSL/TLS connection as an SSL/TLS Server, using the specified context / settings object.
 /// The uuid should be a socket UUID that is already connected to a peer (i.e., the result of fio_accept).

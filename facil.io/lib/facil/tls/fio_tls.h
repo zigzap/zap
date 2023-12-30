@@ -42,7 +42,7 @@ fio_tls_s *fio_tls_new(const char *server_name, const char *public_cert_file,
  *                            "public_key.pem",
  *                            "private_key.pem", NULL );
  */
-void fio_tls_cert_add(fio_tls_s *, const char *server_name,
+int fio_tls_cert_add(fio_tls_s *, const char *server_name,
                       const char *public_cert_file,
                       const char *private_key_file, const char *pk_password);
 
@@ -87,7 +87,7 @@ uintptr_t fio_tls_alpn_count(fio_tls_s *tls);
  *
  *      fio_tls_trust(tls, "google-ca.pem" );
  */
-void fio_tls_trust(fio_tls_s *, const char *public_cert_file);
+int fio_tls_trust(fio_tls_s *, const char *public_cert_file);
 
 /**
  * Establishes an SSL/TLS connection as an SSL/TLS Server, using the specified

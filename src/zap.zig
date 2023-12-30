@@ -4,6 +4,9 @@
 const std = @import("std");
 const fio = @import("fio.zig");
 
+/// Server-Side TLS function wrapper
+pub const Tls = @import("tls.zig");
+
 pub usingnamespace @import("fio.zig");
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
@@ -770,7 +773,7 @@ pub const SimpleHttpListenerSettings = struct {
     log: bool = false,
     ws_timeout: u8 = 40,
     ws_max_msg_size: usize = 262144,
-    tls: ?*anyopaque = null,
+    tls: ?Tls = null,
 };
 
 pub const SimpleHttpListener = struct {
@@ -884,7 +887,7 @@ pub const SimpleHttpListener = struct {
             .max_body_size = self.settings.max_body_size orelse 50 * 1024 * 1024,
             // fio provides good default:
             .max_clients = self.settings.max_clients orelse 0,
-            .tls = self.settings.tls,
+            .tls = if (self.settings.tls) |tls| tls.fio_tls else null,
             .reserved1 = 0,
             .reserved2 = 0,
             .reserved3 = 0,
