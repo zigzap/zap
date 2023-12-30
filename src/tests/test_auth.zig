@@ -152,11 +152,19 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
 
     try req.send(.{});
     try req.wait();
-    // var br = std.io.bufferedReaderSize(std.crypto.tls.max_ciphertext_record_len, req.reader());
-    // var buffer: [1024]u8 = undefined;
-    // we know we won't receive a lot
-    // const len = try br.reader().readAll(&buffer);
-    // std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
+    // req.deinit() panics!
+    // defer req.deinit();
+
+    // without this block, the tests sometimes get stuck which
+    // might have to do with connection pooling and connections being in
+    // a different state when all data has been read?!?
+    {
+        var buffer: [1024]u8 = undefined;
+        // we know we won't receive a lot
+        const len = try req.reader().readAll(&buffer);
+        std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
+    }
+
     zap.fio_stop();
 }
 
@@ -215,7 +223,7 @@ test "BearerAuthSingle authenticateRequest OK" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
@@ -272,7 +280,7 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
@@ -323,7 +331,7 @@ test "BearerAuthMulti authenticateRequest OK" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
@@ -374,7 +382,7 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
@@ -430,7 +438,7 @@ test "BasicAuth Token68 authenticateRequest" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
@@ -486,7 +494,7 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
@@ -552,7 +560,7 @@ test "BasicAuth UserPass authenticateRequest" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings(HTTP_RESPONSE, received_response);
@@ -619,7 +627,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     // start worker threads
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);

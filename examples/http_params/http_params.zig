@@ -115,6 +115,6 @@ pub fn main() !void {
     defer thread.join();
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 }
