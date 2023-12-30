@@ -52,7 +52,7 @@ test "send file" {
     defer thread.join();
     zap.start(.{
         .threads = 1,
-        .workers = 0,
+        .workers = 1,
     });
 
     if (read_len) |rl| {
