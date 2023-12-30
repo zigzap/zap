@@ -44,12 +44,11 @@ pub fn main() !void {
         help_and_exit(KEY_FILE, err);
     };
 
-    const tls = try zap.Tls.init(
-        "localhost:4443",
-        CERT_FILE,
-        KEY_FILE,
-        null, // key file is not password-protected
-    );
+    const tls = try zap.Tls.init(.{
+        .server_name = "localhost:4443",
+        .public_certificate_file = CERT_FILE,
+        .private_key_file = KEY_FILE,
+    });
     defer tls.deinit();
 
     var listener = zap.SimpleHttpListener.init(.{
