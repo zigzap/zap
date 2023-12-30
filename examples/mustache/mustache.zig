@@ -1,15 +1,26 @@
 const std = @import("std");
 const zap = @import("zap");
+const Mustache = @import("zap").Mustache;
 
 fn on_request(r: zap.SimpleRequest) void {
-    const template = "{{=<< >>=}}* Users:\r\n<<#users>><<id>>. <<& name>> (<<name>>)\r\n<</users>>\r\nNested: <<& nested.item >>.";
-    const p = zap.mustacheData(template) catch return;
-    defer zap.mustacheFree(p);
+    const template =
+        \\ {{=<< >>=}}
+        \\ * Users:
+        \\ <<#users>>
+        \\ <<id>>. <<& name>> (<<name>>)
+        \\ <</users>>
+        \\ Nested: <<& nested.item >>.
+    ;
+
+    var mustache = Mustache.fromData(template) catch return;
+    defer mustache.deinit();
+
     const User = struct {
         name: []const u8,
         id: isize,
     };
-    const ret = zap.mustacheBuild(p, .{
+
+    const ret = mustache.build(.{
         .users = [_]User{
             .{
                 .name = "Rene",
@@ -25,6 +36,7 @@ fn on_request(r: zap.SimpleRequest) void {
         },
     });
     defer ret.deinit();
+
     if (r.setContentType(.TEXT)) {
         if (ret.str()) |s| {
             r.sendBody(s) catch return;
