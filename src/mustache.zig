@@ -78,7 +78,7 @@ pub const Mustache = struct {
         const ret = fiobj_mustache_new(args);
         switch (err) {
             0 => return Self{
-                .handler = ret.?,
+                .handle = ret.?,
             },
             1 => return Error.MUSTACHE_ERR_TOO_DEEP,
             2 => return Error.MUSTACHE_ERR_CLOSURE_MISMATCH,
