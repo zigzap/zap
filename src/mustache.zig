@@ -9,18 +9,17 @@ const util = @import("util.zig");
 pub const Mustache = struct {
     const Self = @This();
 
-    pub const struct_mustache_s = opaque {};
-    pub const enum_mustache_error_en = c_uint;
-    pub const mustache_error_en = enum_mustache_error_en;
+    const struct_mustache_s = opaque {};
+    const mustache_s = struct_mustache_s;
+    const enum_mustache_error_en = c_uint;
+    const mustache_error_en = enum_mustache_error_en;
 
-    pub const mustache_s = struct_mustache_s;
-    pub extern fn fiobj_mustache_new(args: MustacheLoadArgsFio) ?*mustache_s;
-    pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
-    pub extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
-    pub extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
+    extern fn fiobj_mustache_new(args: MustacheLoadArgsFio) ?*mustache_s;
+    extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
+    extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;
+    extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 
     /// Load arguments used when creating a new Mustache instance.
-    /// One source of data must be passed in, otherwise an error will occur.
     pub const MustacheLoadArgs = struct {
         /// Filename. This enables partial templates on filesystem.
         filename: ?[]const u8 = null,
@@ -94,7 +93,7 @@ pub const Mustache = struct {
             11 => return Error.MUSTACHE_ERR_USER_ERROR,
             else => return Error.MUSTACHE_ERR_UNKNOWN,
         }
-        return Error.MUSTACHE_ERR_UNKNOWN;
+        unreachable;
     }
 
     /// Convenience function to create a new `Mustache` instance with in-memory data loaded;
