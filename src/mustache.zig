@@ -37,9 +37,9 @@ pub const Mustache = struct {
         err: [*c]mustache_error_en,
     };
 
-    handler: *mustache_s,
+    /// Handle to the underlying fiobj mustache instance.
+    handle: *mustache_s,
 
-    pub const Status = enum(c_int) {};
     pub const Error = error{
         MUSTACHE_ERR_TOO_DEEP,
         MUSTACHE_ERR_CLOSURE_MISMATCH,
@@ -110,7 +110,7 @@ pub const Mustache = struct {
 
     /// Free the data backing a `Mustache` instance.
     pub fn deinit(self: *Self) void {
-        fiobj_mustache_free(self.handler);
+        fiobj_mustache_free(self.handle);
     }
 
     // TODO: implement these - fiobj_mustache.c
@@ -139,8 +139,9 @@ pub const Mustache = struct {
 
     /// Build the Mustache template; `deinit()` should be called on the build
     /// result to free the data.
-    /// TODO: This build is slow because it needs to translate to a FIOBJ data
-    /// object - FIOBJ_T_HASH
+    // TODO: The build may be slow because it needs to convert zig types to facil.io
+    // types. However, this needs to be investigated into.
+    // See `fiobjectify` for more information.
     pub fn build(self: *Self, data: anytype) MustacheBuildResult {
         const T = @TypeOf(data);
         if (@typeInfo(T) != .Struct) {
@@ -150,11 +151,13 @@ pub const Mustache = struct {
         var result: MustacheBuildResult = .{};
 
         result.fiobj_context = fiobjectify(data);
-        result.fiobj_result = fiobj_mustache_build(self.handler, result.fiobj_context);
+        result.fiobj_result = fiobj_mustache_build(self.handle, result.fiobj_context);
         return result;
     }
 
-    pub fn fiobjectify(
+    /// Internal function used to convert zig types to facil.io types.
+    /// Used when providing the context to `fiobj_mustache_build`.
+    fn fiobjectify(
         value: anytype,
     ) fio.FIOBJ {
         const T = @TypeOf(value);
