@@ -14,6 +14,7 @@ pub const SimpleEndpointSettings = struct {
     put: ?RequestFn = null,
     delete: ?RequestFn = null,
     patch: ?RequestFn = null,
+    options: ?RequestFn = null,
     /// only applicable to AuthenticatingEndpoint
     unauthorized: ?RequestFn = null,
 };
@@ -32,6 +33,7 @@ pub const SimpleEndpoint = struct {
                 .put = s.put orelse &nop,
                 .delete = s.delete orelse &nop,
                 .patch = s.patch orelse &nop,
+                .options = s.options orelse &nop,
                 .unauthorized = s.unauthorized orelse &nop,
             },
         };
@@ -54,6 +56,8 @@ pub const SimpleEndpoint = struct {
                 return self.settings.delete.?(self, r);
             if (std.mem.eql(u8, m, "PATCH"))
                 return self.settings.patch.?(self, r);
+            if (std.mem.eql(u8, m, "OPTIONS"))
+                return self.settings.options.?(self, r);
         }
     }
 };
@@ -79,6 +83,7 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                     .put = if (e.settings.put != null) put else null,
                     .delete = if (e.settings.delete != null) delete else null,
                     .patch = if (e.settings.patch != null) patch else null,
+                    .options = if (e.settings.options != null) options else null,
                     .unauthorized = e.settings.unauthorized,
                 }),
             };
@@ -182,6 +187,25 @@ pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
                     }
                 },
                 .AuthOK => authEp.endpoint.settings.patch.?(authEp.endpoint, r),
+                .Handled => {},
+            }
+        }
+
+        /// here, the auth_endpoint will be passed in
+        pub fn options(e: *SimpleEndpoint, r: zap.SimpleRequest) void {
+            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            switch (authEp.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => {
+                    if (e.settings.unauthorized) |unauthorized| {
+                        unauthorized(authEp.endpoint, r);
+                        return;
+                    } else {
+                        r.setStatus(.unauthorized);
+                        r.sendBody("UNAUTHORIZED") catch return;
+                        return;
+                    }
+                },
+                .AuthOK => authEp.endpoint.settings.put.?(authEp.endpoint, r),
                 .Handled => {},
             }
         }
