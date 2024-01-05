@@ -2,11 +2,11 @@ const std = @import("std");
 
 pub fn build_facilio(
     comptime subdir: []const u8,
-    b: *std.build.Builder,
-    target: std.zig.CrossTarget,
+    b: *std.Build,
+    target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
     use_openssl: bool,
-) !*std.build.CompileStep {
+) !*std.Build.Step.Compile {
     const lib = b.addStaticLibrary(.{
         .name = "facil.io",
         .target = target,
@@ -15,7 +15,7 @@ pub fn build_facilio(
 
     // Generate flags
     var flags = std.ArrayList([]const u8).init(std.heap.page_allocator);
-    if (lib.optimize != .Debug) try flags.append("-Os");
+    if (optimize != .Debug) try flags.append("-Os");
     try flags.append("-Wno-return-type-c-linkage");
     try flags.append("-fno-sanitize=undefined");
 
@@ -26,7 +26,7 @@ pub fn build_facilio(
     //
 
     try flags.append("-DFIO_HTTP_EXACT_LOGGING");
-    if (target.getAbi() == .musl)
+    if (target.result.abi == .musl)
         try flags.append("-D_LARGEFILE64_SOURCE");
     if (use_openssl)
         try flags.append("-DHAVE_OPENSSL -DFIO_TLS_FOUND");

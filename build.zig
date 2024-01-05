@@ -1,7 +1,7 @@
 const std = @import("std");
 const build_facilio = @import("facil.io/build.zig").build_facilio;
 
-pub fn build(b: *std.build.Builder) !void {
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
@@ -16,12 +16,12 @@ pub fn build(b: *std.build.Builder) !void {
     };
 
     // create a module to be used internally.
-    const zap_module = b.createModule(.{
-        .source_file = .{ .path = "src/zap.zig" },
+    const zap_module = b.addModule("zap", .{
+        .root_source_file = .{ .path = "src/zap.zig" },
     });
 
     // register the module so it can be referenced using the package manager.
-    try b.modules.put(b.dupe("zap"), zap_module);
+    // try b.modules.put(b.dupe("zap"), zap_module);
 
     const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
 
@@ -95,8 +95,8 @@ pub fn build(b: *std.build.Builder) !void {
             .optimize = optimize,
         });
 
+        example.root_module.addImport("zap", zap_module);
         example.linkLibrary(facilio);
-        example.addModule("zap", zap_module);
 
         // const example_run = example.run();
         const example_run = b.addRunArtifact(example);
@@ -131,7 +131,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     auth_tests.linkLibrary(facilio);
-    auth_tests.addModule("zap", zap_module);
+    auth_tests.root_module.addImport("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
     const install_auth_tests = b.addInstallArtifact(auth_tests, .{});
@@ -144,7 +144,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     mustache_tests.linkLibrary(facilio);
-    mustache_tests.addModule("zap", zap_module);
+    mustache_tests.root_module.addImport("zap", zap_module);
 
     const run_mustache_tests = b.addRunArtifact(mustache_tests);
     const install_mustache_tests = b.addInstallArtifact(mustache_tests, .{});
@@ -158,7 +158,8 @@ pub fn build(b: *std.build.Builder) !void {
     });
 
     httpparams_tests.linkLibrary(facilio);
-    httpparams_tests.addModule("zap", zap_module);
+    httpparams_tests.root_module.addImport("zap", zap_module);
+
     const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
     // TODO: for some reason, tests aren't run more than once unless
     //       dependencies have changed.
@@ -175,7 +176,7 @@ pub fn build(b: *std.build.Builder) !void {
     });
 
     sendfile_tests.linkLibrary(facilio);
-    sendfile_tests.addModule("zap", zap_module);
+    sendfile_tests.root_module.addImport("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
 
@@ -229,7 +230,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     docserver_exe.linkLibrary(facilio);
-    docserver_exe.addModule("zap", zap_module);
+    docserver_exe.root_module.addImport("zap", zap_module);
     var docserver_step = b.step("docserver", "Build docserver");
     const docserver_build_step = b.addInstallArtifact(docserver_exe, .{});
     docserver_step.dependOn(&docserver_build_step.step);
