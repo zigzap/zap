@@ -8,7 +8,7 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
 
     // Use an os env var to determine whether to build openssl support
-    const use_openssl = blk: {
+    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
         if (std.os.getenv("ZAP_USE_OPENSSL")) |val| {
             if (std.mem.eql(u8, val, "true")) break :blk true;
         }

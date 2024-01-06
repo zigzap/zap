@@ -275,6 +275,7 @@ Then, in your `build.zig`'s `build` function, add the following before
     const zap = b.dependency("zap", .{
         .target = target,
         .optimize = optimize,
+        //.openssl = true, // required to use tls
     });
     exe.addModule("zap", zap.module("zap"));
     exe.linkLibrary(zap.artifact("facil.io"));
