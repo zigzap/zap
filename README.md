@@ -35,7 +35,8 @@ Exactly the goals I set out to achieve!
 - Q: **Does ZAP support TLS / HTTPS?**
 - A: Yes, ZAP supports using the system's openssl. See the
   [https](./examples/https/https.zig) example and make sure to build with
-  the environment variable `ZAP_USE_OPENSSL=true`:
+  the -Dopenssl flag or the environment variable `ZAP_USE_OPENSSL=true`:
+  - `.openssl = true,` (in build.zig, `b.dependency("zap" .{...})`)
   - `ZAP_USE_OPENSSL=true zig build https`
 - Q: **Are there API docs?**
 - A: They are under development. Git clone this, then run `zig build run-docserver`.
