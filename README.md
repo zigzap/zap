@@ -41,7 +41,8 @@ Exactly the goals I set out to achieve!
 - Q: **Does ZAP support TLS / HTTPS?**
 - A: Yes, ZAP supports using the system's openssl. See the
   [https](./examples/https/https.zig) example and make sure to build with
-  the environment variable `ZAP_USE_OPENSSL=true`:
+  the -Dopenssl flag or the environment variable `ZAP_USE_OPENSSL=true`:
+  - `.openssl = true,` (in build.zig, `b.dependency("zap" .{...})`)
   - `ZAP_USE_OPENSSL=true zig build https`
 
 ## Here's what works
@@ -117,10 +118,11 @@ necessary to show a feature.
   call `r.sendError(err, status_code)` when you catch an error and a stack trace
   will be returned to the client / browser.
 - [**HTTPS**](examples/https/https.zig): Shows how easy it is to use facil.io's
-  openssl support. Must be compiled with the environment variable
-  `ZAP_USE_OPENSSL` set to `true` and requires openssl dev dependencies
+  openssl support. Must be compiled with `-Dopenssl=true` or the environment 
+  variable `ZAP_USE_OPENSSL` set to `true` and requires openssl dev dependencies
   (headers, lib) to be installed on the system.
-  - run it like this: `ZAP_USE_OPENSSL=true zig build run-https`
+  - run it like this: `ZAP_USE_OPENSSL=true zig build run-https`  
+    OR like this: `zig build -Dopenssl=true run-https`
   - it will tell you how to generate certificates
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
@@ -273,6 +275,7 @@ Then, in your `build.zig`'s `build` function, add the following before
     const zap = b.dependency("zap", .{
         .target = target,
         .optimize = optimize,
+        .openssl = false, // set to true to enable TLS support
     });
     exe.addModule("zap", zap.module("zap"));
     exe.linkLibrary(zap.artifact("facil.io"));
