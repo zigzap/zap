@@ -30,7 +30,7 @@ Exactly the goals I set out to achieve!
 ## Most FAQ:
 
 - Q: **Zap doesn't build with Zig master?**
-- A: See the 0.12.0 branch. An example on how to use it is
+- A: See the 0.12.0 branch. An example of how to use it is
   [here](https://github.com/zigzap/hello-0.12.0). Please note that the 0.12.0
   branch is not the official master branch of ZAP. Yet. Until zig 0.12.0 is
   released.
@@ -41,15 +41,16 @@ Exactly the goals I set out to achieve!
 - Q: **Does ZAP support TLS / HTTPS?**
 - A: Yes, ZAP supports using the system's openssl. See the
   [https](./examples/https/https.zig) example and make sure to build with
-  the -Dopenssl flag or the environment variable `ZAP_USE_OPENSSL=true`:
-  - `.openssl = true,` (in build.zig, `b.dependency("zap" .{...})`)
+  the `-Dopenssl` flag or the environment variable `ZAP_USE_OPENSSL=true`:
+  - `.openssl = true,` (in dependent projects' build.zig, `b.dependency("zap" .{...})`)
   - `ZAP_USE_OPENSSL=true zig build https`
+  - `zig build -Dopenssl=true https`
 
 ## Here's what works
 
 I recommend checking out **Endpoint-based examples for more realistic
-use-cases**. Most of examples are super-stripped-down to only include what's
-necessary to show a feature.
+use cases**. Most of the examples are super stripped down to only include 
+what's necessary to show a feature.
 
 - **Super easy build process**: Zap's `build.zig` now uses the new Zig package
   manager for its C-dependencies, no git submodules anymore.
@@ -57,7 +58,7 @@ necessary to show a feature.
 - **[hello](examples/hello/hello.zig)**: welcomes you with some static HTML
 - **[routes](examples/routes/routes.zig)**: a super easy example dispatching on
   the HTTP path. **NOTE**: The dispatch in the example is a super-basic
-  DIY-style dispatch. See endpoint-based examples for more realistic use-cases.
+  DIY-style dispatch. See endpoint-based examples for more realistic use cases.
 - **[serve](examples/serve/serve.zig)**: the traditional static web server with
   optional dynamic request handling
 - **[sendfile](examples/sendfile/sendfile.zig)**: simple example of how to send
