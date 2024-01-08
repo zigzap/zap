@@ -13,7 +13,15 @@ pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 pub usingnamespace @import("http_auth.zig");
+
+/// Middleware support.
+/// Contains a special Listener and a Handler struct that support chaining
+/// requests handlers, with an optional stop once a handler indicates it
+/// processed the request. Also sports an EndpointHandler for using regular zap
+/// Endpoints as Handlers.
 pub const Middleware = @import("middleware.zig");
+
+/// Websocket API
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");

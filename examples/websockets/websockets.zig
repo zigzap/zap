@@ -114,6 +114,7 @@ fn on_close_websocket(context: ?*Context, uuid: isize) void {
         std.log.info("websocket closed: {s}", .{message});
     }
 }
+
 fn handle_websocket_message(
     context: ?*Context,
     handle: WebSockets.WsHandle,

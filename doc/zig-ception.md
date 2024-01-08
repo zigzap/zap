@@ -10,28 +10,11 @@ Here is how it is used in user-code:
 
 ```zig
 // create a combined context struct
-const Context = zap.Middleware.MixContexts(.{
-    .{ .name = "?user", .type = UserMiddleWare.User },
-    .{ .name = "?session", .type = SessionMiddleWare.Session },
-});
+const Context = struct {
+    user: ?UserMiddleWare.User = null,
+    session: ?SessionMiddleWare.Session = null,
+};
 ```
-
-The result of this function call is a struct that has a `user` field of type
-`?UserMiddleWare.User`, which is the `User` struct inside of its containing
-struct - and a `session` field of type `?SessionMiddleWare.Session`.
-
-So `MixContexts` accepts a **tuple** of structs that each contain a
-`name` field and a `type` field. As a hack, we support the `?` in the name to
-indicate we want the resulting struct field to be an optional.
-
-A **tuple** means that we can "mix" as many structs as we like. Not just two
-like in the example above.
-
-`MixContexts` inspects the passed-in `type` fields and **composes a new struct
-type at comptime**! Have a look at its [source code](../src/middleware.zig).
-You'll be blown away if this kind of metaprogramming stuff isn't what you do
-everyday. I was totally blown away by trying it out and seeing it that it
-_actually_ worked.
 
 Why do we create combined structs? Because all our Middleware handler functions
 need to receive a per-request context. But each wants their own data: the User
@@ -62,10 +45,10 @@ Have a look at an excerpt of the example:
 
 ```zig
 // create a combined context struct
-const Context = zap.Middleware.MixContexts(.{
-    .{ .name = "?user", .type = UserMiddleWare.User },
-    .{ .name = "?session", .type = SessionMiddleWare.Session },
-});
+const Context = struct {
+    user: ?UserMiddleWare.User = null,
+    session: ?SessionMiddleWare.Session = null,
+};
 
 // we create a Handler type based on our Context
 const Handler = zap.Middleware.Handler(Context);

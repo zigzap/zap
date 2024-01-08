@@ -20,10 +20,11 @@ const SharedAllocator = struct {
 };
 
 // create a combined context struct
-const Context = zap.Middleware.MixContexts(.{
-    .{ .name = "?user", .type = UserMiddleWare.User },
-    .{ .name = "?session", .type = SessionMiddleWare.Session },
-});
+// NOTE: context struct members need to be optionals which default to null!!!
+const Context = struct {
+    user: ?UserMiddleWare.User = null,
+    session: ?SessionMiddleWare.Session = null,
+};
 
 // we create a Handler type based on our Context
 const Handler = zap.Middleware.Handler(Context);
@@ -143,7 +144,7 @@ const HtmlEndpoint = struct {
     pub fn init() Self {
         return .{
             .ep = zap.Endpoint.init(.{
-                .path = "/doesn'tmatter",
+                .path = "/doesn't+matter",
                 .get = get,
             }),
         };
