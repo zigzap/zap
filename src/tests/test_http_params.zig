@@ -34,7 +34,7 @@ test "http parameters" {
         var params: ?zap.HttpParamKVList = null;
         var paramOneStr: ?zap.FreeOrNot = null;
 
-        pub fn on_request(r: zap.SimpleRequest) void {
+        pub fn on_request(r: zap.Request) void {
             ran = true;
             r.parseQuery();
             param_count = r.getParamCount();
@@ -55,7 +55,7 @@ test "http parameters" {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3001,
             .on_request = Handler.on_request,

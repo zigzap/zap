@@ -4,7 +4,7 @@ const zap = @import("zap");
 const Handler = struct {
     var alloc: std.mem.Allocator = undefined;
 
-    pub fn on_request(r: zap.SimpleRequest) void {
+    pub fn on_request(r: zap.Request) void {
         // check for FORM parameters
         r.parseBody() catch |err| {
             std.log.err("Parse Body error: {any}. Expected if body is empty", .{err});
@@ -92,7 +92,7 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3000,
             .on_request = Handler.on_request,

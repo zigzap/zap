@@ -58,14 +58,14 @@ Now that I think I've made my point 😊, you can, of course always do the
 following:
 
 ```zig
-fn on_request_with_errors(r: zap.SimpleHttpRequest) !void {
+fn on_request_with_errors(r: zap.HttpRequest) !void {
     // do all the try stuff here
 }
 ```
 
 ```zig
 // THIS IS WHAT YOU PASS TO THE LISTENER / ENDPONT / ...
-fn on_request(r: zap.SimpleHttpRequest) void {
+fn on_request(r: zap.HttpRequest) void {
     on_request_with_errors(r) catch |err| {
         // log the error or use:
         return r.returnWithErrorStackTrace(err);

@@ -76,7 +76,7 @@ pub const ContentType = enum {
     JSON,
 };
 
-pub const SimpleRequest = struct {
+pub const Request = struct {
     path: ?[]const u8,
     query: ?[]const u8,
     body: ?[]const u8,
@@ -90,7 +90,7 @@ pub const SimpleRequest = struct {
     /// NEVER touch this field!!!!
     /// use markAsFinished() and isFinished() instead
     /// this is a hack: the listener will put a pointer to this into the udata
-    /// field of `h`. So copies of the SimpleRequest will all have way to the
+    /// field of `h`. So copies of the Request will all have way to the
     /// same instance of this field.
     _is_finished_request_global: bool,
     /// NEVER touch this field!!!!
@@ -156,7 +156,7 @@ pub const SimpleRequest = struct {
             *anyopaque,
             @ptrFromInt(@intFromPtr(body.ptr)),
         ), body.len);
-        debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
+        debug("Request.sendBody(): ret = {}\n", .{ret});
         if (ret == -1) return error.HttpSendBody;
         self.markAsFinished(true);
     }
@@ -744,25 +744,26 @@ pub const CookieArgs = struct {
     http_only: bool = true,
 };
 
-pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
-pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;
+pub const FioHttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
+
+pub const HttpRequestFn = *const fn (Request) void;
 
 /// websocket connection upgrade
 /// fn(request, targetstring)
-pub const SimpleHttpUpgradeFn = *const fn (r: SimpleRequest, target_protocol: []const u8) void;
+pub const HttpUpgradeFn = *const fn (r: Request, target_protocol: []const u8) void;
 
 /// http finish, called when zap finishes. You get your udata back in the
 /// struct.
-pub const SimpleHttpFinishSettings = [*c]fio.struct_http_settings_s;
-pub const SimpleHttpFinishFn = *const fn (SimpleHttpFinishSettings) void;
+pub const HttpFinishSettings = [*c]fio.struct_http_settings_s;
+pub const HttpFinishFn = *const fn (HttpFinishSettings) void;
 
-pub const SimpleHttpListenerSettings = struct {
+pub const HttpListenerSettings = struct {
     port: usize,
     interface: [*c]const u8 = null,
-    on_request: ?SimpleHttpRequestFn,
-    on_response: ?SimpleHttpRequestFn = null,
-    on_upgrade: ?SimpleHttpUpgradeFn = null,
-    on_finish: ?SimpleHttpFinishFn = null,
+    on_request: ?HttpRequestFn,
+    on_response: ?HttpRequestFn = null,
+    on_upgrade: ?HttpUpgradeFn = null,
+    on_finish: ?HttpFinishFn = null,
     // provide any pointer in there for "user data". it will be passed pack in
     // on_finish()'s copy of the struct_http_settings_s
     udata: ?*anyopaque = null,
@@ -776,13 +777,13 @@ pub const SimpleHttpListenerSettings = struct {
     tls: ?Tls = null,
 };
 
-pub const SimpleHttpListener = struct {
-    settings: SimpleHttpListenerSettings,
+pub const HttpListener = struct {
+    settings: HttpListenerSettings,
 
     const Self = @This();
-    var the_one_and_only_listener: ?*SimpleHttpListener = null;
+    var the_one_and_only_listener: ?*HttpListener = null;
 
-    pub fn init(settings: SimpleHttpListenerSettings) Self {
+    pub fn init(settings: HttpListenerSettings) Self {
         std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
@@ -792,10 +793,10 @@ pub const SimpleHttpListener = struct {
     // on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
     // on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
 
-    // we could make it dynamic by passing a SimpleHttpListener via udata
+    // we could make it dynamic by passing a HttpListener via udata
     pub fn theOneAndOnlyRequestCallBack(r: [*c]fio.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -806,7 +807,7 @@ pub const SimpleHttpListener = struct {
             };
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             req.markAsFinished(false);
@@ -820,7 +821,7 @@ pub const SimpleHttpListener = struct {
 
     pub fn theOneAndOnlyResponseCallBack(r: [*c]fio.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -831,7 +832,7 @@ pub const SimpleHttpListener = struct {
             };
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             l.settings.on_response.?(req);
@@ -840,7 +841,7 @@ pub const SimpleHttpListener = struct {
 
     pub fn theOneAndOnlyUpgradeCallBack(r: [*c]fio.http_s, target: [*c]u8, target_len: usize) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -852,7 +853,7 @@ pub const SimpleHttpListener = struct {
             const zigtarget: []u8 = target[0..target_len];
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             l.settings.on_upgrade.?(req, zigtarget);
@@ -870,7 +871,7 @@ pub const SimpleHttpListener = struct {
         var pfolder_len: usize = 0;
 
         if (self.settings.public_folder) |pf| {
-            debug("SimpleHttpListener.listen(): public folder is {s}\n", .{pf});
+            debug("HttpListener.listen(): public folder is {s}\n", .{pf});
             pfolder_len = pf.len;
             pfolder = pf.ptr;
         }
@@ -916,7 +917,7 @@ pub const SimpleHttpListener = struct {
 
         // set ourselves up to handle requests:
         // TODO: do we mind the race condition?
-        // the SimpleHttpRequestFn will check if this is null and not process
+        // the HttpRequestFn will check if this is null and not process
         // the request if it isn't set. hence, if started under full load, the
         // first request(s) might not be serviced, as long as it takes from
         // fio.http_listen() to here
@@ -928,10 +929,10 @@ pub const SimpleHttpListener = struct {
 // lower level listening
 //
 pub const ListenSettings = struct {
-    on_request: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
-    on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
-    on_response: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
-    on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
+    on_request: ?FioHttpRequestFn = null,
+    on_upgrade: ?FioHttpRequestFn = null,
+    on_response: ?FioHttpRequestFn = null,
+    on_finish: ?FioHttpRequestFn = null,
     public_folder: ?[]const u8 = null,
     max_header_size: usize = 32 * 1024,
     max_body_size: usize = 50 * 1024 * 1024,

@@ -5,14 +5,14 @@ fn MAKE_MEGA_ERROR() !void {
     return error.MEGA_ERROR;
 }
 
-fn MY_REQUEST_HANDLER(r: zap.SimpleRequest) void {
+fn MY_REQUEST_HANDLER(r: zap.Request) void {
     MAKE_MEGA_ERROR() catch |err| {
         r.sendError(err, 505);
     };
 }
 
 pub fn main() !void {
-    var listener = zap.SimpleHttpListener.init(.{
+    var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = MY_REQUEST_HANDLER,
         .log = true,

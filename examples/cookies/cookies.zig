@@ -33,7 +33,7 @@ pub fn main() !void {
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
 
-        pub fn on_request(r: zap.SimpleRequest) void {
+        pub fn on_request(r: zap.Request) void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
@@ -98,7 +98,7 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3000,
             .on_request = Handler.on_request,

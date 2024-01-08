@@ -113,9 +113,9 @@ port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
   less type-safe than `zap.Middleware`'s use of contexts.
 - [**Per Request Contexts**](./src/zap.zig#L102) : With the introduction of
   `setUserContext()` and `getUserContext()`, you can, of course use those two in
-  projects that don't use `zap.SimpleEndpoint` or `zap.Middleware`, too, if you
+  projects that don't use `zap.Endpoint` or `zap.Middleware`, too, if you
   really, really, absolutely don't find another way to solve your context
-  problem. **We recommend using a `zap.SimpleEndpoint`** inside of a struct that
+  problem. **We recommend using a `zap.Endpoint`** inside of a struct that
   can provide all the context you need **instead**. You get access to your
   struct in the callbacks via the `@fieldParentPtr()` trick that is used
   extensively in Zap's examples, like the [endpoint
@@ -376,7 +376,7 @@ $ zig build run-routes
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -388,7 +388,7 @@ fn on_request(r: zap.SimpleRequest) void {
 }
 
 pub fn main() !void {
-    var listener = zap.SimpleHttpListener.init(.{
+    var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
         .log = true,
