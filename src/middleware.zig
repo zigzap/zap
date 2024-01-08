@@ -103,6 +103,7 @@ pub const Error = error{
 
 pub const RequestAllocatorFn = *const fn () std.mem.Allocator;
 
+/// Special Listener that supports chaining request handlers.
 pub fn Listener(comptime ContextType: anytype) type {
     return struct {
         listener: zap.HttpListener = undefined,
