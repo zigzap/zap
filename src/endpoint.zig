@@ -43,35 +43,32 @@ pub const EndpointSettings = struct {
 /// The main thread usually continues at the instructions after the call to zap.start().
 ///
 /// ```zig
-/// // file: stopendpoint.zig
+/// const StopEndpoint = struct {
+///     ep: zap.Endpoint = undefined,
 ///
-/// pub const Self = @This();
+///     pub fn init(
+///         path: []const u8,
+///     ) StopEndpoint {
+///         return .{
+///             .ep = zap.Endpoint.init(.{
+///                 .path = path,
+///                 .get = get,
+///             }),
+///         };
+///     }
 ///
-/// ep: zap.Endpoint = undefined,
+///     // access the internal Endpoint
+///     pub fn endpoint(self: *StopEndpoint) *zap.Endpoint {
+///         return &self.ep;
+///     }
 ///
-/// pub fn init(
-///     path: []const u8,
-/// ) Self {
-///     return .{
-///         .ep = zap.Endpoint.init(.{
-///             .path = path,
-///             .get = get,
-///         }),
-///     };
-/// }
-///
-/// // access the internal Endpoint
-/// pub fn endpoint(self: *Self) *zap.Endpoint {
-///     return &self.ep;
-/// }
-///
-/// fn get(e: *zap.Endpoint, r: zap.Request) void {
-///     const self: *Self = @fieldParentPtr(Self, "ep", e);
-///     _ = self;
-///     _ = e;
-///     _ = r;
-///     zap.stop();
-/// }
+///     fn get(e: *zap.Endpoint, r: zap.Request) void {
+///         const self: *StopEndpoint = @fieldParentPtr(StopEndpoint, "ep", e);
+///         _ = self;
+///         _ = r;
+///         zap.stop();
+///     }
+/// };
 /// ```
 pub const Endpoint = struct {
     settings: EndpointSettings,
