@@ -20,17 +20,17 @@ const loginpage = @embedFile("html/login.html");
 const img = @embedFile("./html/Ziggy_the_Ziguana.svg.png");
 
 // global vars yeah!
-//     in bigger projects, we'd probably make use of zap.SimpleEndpoint or
+//     in bigger projects, we'd probably make use of zap.Endpoint or
 //     zap.Middleware and "hide" stuff like authenticators in there
 var authenticator: Authenticator = undefined;
 
 // the login page (embedded)
-fn on_login(r: zap.SimpleRequest) void {
+fn on_login(r: zap.Request) void {
     r.sendBody(loginpage) catch return;
 }
 
 // the "normal page"
-fn on_normal_page(r: zap.SimpleRequest) void {
+fn on_normal_page(r: zap.Request) void {
     zap.debug("on_normal_page()\n", .{});
     r.sendBody(
         \\ <html><body>
@@ -42,7 +42,7 @@ fn on_normal_page(r: zap.SimpleRequest) void {
 }
 
 // the logged-out page
-fn on_logout(r: zap.SimpleRequest) void {
+fn on_logout(r: zap.Request) void {
     zap.debug("on_logout()\n", .{});
     authenticator.logout(&r);
     // note, the link below doesn't matter as the authenticator will send us
@@ -56,7 +56,7 @@ fn on_logout(r: zap.SimpleRequest) void {
     ) catch return;
 }
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     switch (authenticator.authenticateRequest(&r)) {
         .Handled => {
             // the authenticator handled the entire request for us.
@@ -123,8 +123,8 @@ pub fn main() !void {
     // we start a block here so the defers will run before we call the gpa
     // to detect leaks
     {
-        var allocator = gpa.allocator();
-        var listener = zap.SimpleHttpListener.init(.{
+        const allocator = gpa.allocator();
+        var listener = zap.HttpListener.init(.{
             .port = 3000,
             .on_request = on_request,
             .log = true,

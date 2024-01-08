@@ -69,7 +69,7 @@ const UserMiddleWare = struct {
     }
 
     // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
+    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
 
         // this is how we would get our self pointer
         var self = @fieldParentPtr(Self, "handler", handler);
@@ -113,7 +113,7 @@ const SessionMiddleWare = struct {
     }
 
     // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
+    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
         // this is how we would get our self pointer
         var self = @fieldParentPtr(Self, "handler", handler);
         _ = self;
@@ -148,7 +148,7 @@ const HtmlMiddleWare = struct {
     }
 
     // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.SimpleRequest, context: *Context) bool {
+    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
 
         // this is how we would get our self pointer
         var self = @fieldParentPtr(Self, "handler", handler);

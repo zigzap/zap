@@ -34,7 +34,7 @@ pub fn checkAuthHeader(scheme: AuthScheme, auth_header: []const u8) bool {
     };
 }
 
-pub fn extractAuthHeader(scheme: AuthScheme, r: *const zap.SimpleRequest) ?[]const u8 {
+pub fn extractAuthHeader(scheme: AuthScheme, r: *const zap.Request) ?[]const u8 {
     return switch (scheme) {
         .Basic => |b| r.getHeader(b.headerFieldStrFio()),
         .Bearer => |b| r.getHeader(b.headerFieldStrFio()),
@@ -180,7 +180,7 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
                 .Token68 => return self.authenticateToken68(auth_header),
             }
         }
-        pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
+        pub fn authenticateRequest(self: *Self, r: *const zap.Request) AuthResult {
             zap.debug("AUTHENTICATE REQUEST\n", .{});
             if (extractAuthHeader(.Basic, r)) |auth_header| {
                 zap.debug("Authentication Header found!\n", .{});
@@ -234,7 +234,7 @@ pub const BearerAuthSingle = struct {
         return if (std.mem.eql(u8, token, self.token)) .AuthOK else .AuthFailed;
     }
 
-    pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
+    pub fn authenticateRequest(self: *Self, r: *const zap.Request) AuthResult {
         if (extractAuthHeader(.Bearer, r)) |auth_header| {
             return self.authenticate(auth_header);
         }
@@ -292,7 +292,7 @@ pub fn BearerAuthMulti(comptime Lookup: type) type {
             return if (self.lookup.*.contains(token)) .AuthOK else .AuthFailed;
         }
 
-        pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
+        pub fn authenticateRequest(self: *Self, r: *const zap.Request) AuthResult {
             if (extractAuthHeader(.Bearer, r)) |auth_header| {
                 return self.authenticate(auth_header);
             }
@@ -405,7 +405,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
         }
 
         /// Check for session token cookie, remove the token from the valid tokens
-        pub fn logout(self: *Self, r: *const zap.SimpleRequest) void {
+        pub fn logout(self: *Self, r: *const zap.Request) void {
             // we  erase the list of valid tokens server-side
             if (r.setCookie(.{
                 .name = self.settings.cookieName,
@@ -439,7 +439,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             }
         }
 
-        fn _internal_authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
+        fn _internal_authenticateRequest(self: *Self, r: *const zap.Request) AuthResult {
             // if we're requesting the login page, let the request through
             if (r.path) |p| {
                 if (std.mem.startsWith(u8, p, self.settings.loginPage)) {
@@ -530,7 +530,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             return .AuthFailed;
         }
 
-        pub fn authenticateRequest(self: *Self, r: *const zap.SimpleRequest) AuthResult {
+        pub fn authenticateRequest(self: *Self, r: *const zap.Request) AuthResult {
             switch (self._internal_authenticateRequest(r)) {
                 .AuthOK => {
                     // username and pass are ok -> created token, set header, caller can continue
@@ -550,7 +550,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             }
         }
 
-        fn redirect(self: *Self, r: *const zap.SimpleRequest) !void {
+        fn redirect(self: *Self, r: *const zap.Request) !void {
             try r.redirectTo(self.settings.loginPage, self.settings.redirectCode);
         }
 

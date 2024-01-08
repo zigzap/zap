@@ -46,7 +46,7 @@ pub fn Handler(comptime ContextType: anytype) type {
         // will be set
         allocator: ?std.mem.Allocator = null,
 
-        pub const RequestFn = *const fn (*Self, zap.SimpleRequest, *ContextType) bool;
+        pub const RequestFn = *const fn (*Self, zap.Request, *ContextType) bool;
         const Self = @This();
 
         pub fn init(on_request: RequestFn, other: ?*Self) Self {
@@ -59,7 +59,7 @@ pub fn Handler(comptime ContextType: anytype) type {
         // example for handling request
         // which you can use in your components, e.g.:
         // return self.handler.handleOther(r, context);
-        pub fn handleOther(self: *Self, r: zap.SimpleRequest, context: *ContextType) bool {
+        pub fn handleOther(self: *Self, r: zap.Request, context: *ContextType) bool {
             // in structs embedding a handler, we'd @fieldParentPtr the first
             // param to get to the real self
 
@@ -80,16 +80,16 @@ pub fn Handler(comptime ContextType: anytype) type {
     };
 }
 
-/// A convenience handler for artibrary zap.SimpleEndpoint
+/// A convenience handler for artibrary zap.Endpoint
 pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,
-        endpoint: *zap.SimpleEndpoint,
+        endpoint: *zap.Endpoint,
         breakOnFinish: bool,
 
         const Self = @This();
 
-        pub fn init(endpoint: *zap.SimpleEndpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
+        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
             return .{
                 .handler = HandlerType.init(onRequest, other),
                 .endpoint = endpoint,
@@ -102,7 +102,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
             return &self.handler;
         }
 
-        pub fn onRequest(handler: *HandlerType, r: zap.SimpleRequest, context: *ContextType) bool {
+        pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
             var self = @fieldParentPtr(Self, "handler", handler);
             r.setUserContext(context);
             self.endpoint.onRequest(r);
@@ -124,8 +124,8 @@ pub const RequestAllocatorFn = *const fn () std.mem.Allocator;
 
 pub fn Listener(comptime ContextType: anytype) type {
     return struct {
-        listener: zap.SimpleHttpListener = undefined,
-        settings: zap.SimpleHttpListenerSettings,
+        listener: zap.HttpListener = undefined,
+        settings: zap.HttpListenerSettings,
 
         // static initial handler
         var handler: ?*Handler(ContextType) = undefined;
@@ -136,7 +136,7 @@ pub fn Listener(comptime ContextType: anytype) type {
 
         /// initialize the middleware handler
         /// the passed in settings must have on_request set to null
-        pub fn init(settings: zap.SimpleHttpListenerSettings, initial_handler: *Handler(ContextType), request_alloc: ?RequestAllocatorFn) Error!Self {
+        pub fn init(settings: zap.HttpListenerSettings, initial_handler: *Handler(ContextType), request_alloc: ?RequestAllocatorFn) Error!Self {
             // override on_request with ourselves
             if (settings.on_request != null) {
                 return Error.InitOnRequestIsNotNull;
@@ -148,7 +148,7 @@ pub fn Listener(comptime ContextType: anytype) type {
                 .settings = settings,
             };
             ret.settings.on_request = onRequest;
-            ret.listener = zap.SimpleHttpListener.init(ret.settings);
+            ret.listener = zap.HttpListener.init(ret.settings);
             handler = initial_handler;
             return ret;
         }
@@ -161,7 +161,7 @@ pub fn Listener(comptime ContextType: anytype) type {
         // but it's actually used obviously. Create your own listener if you
         // want different behavior.
         // Didn't want to make this a callback
-        pub fn onRequest(r: zap.SimpleRequest) void {
+        pub fn onRequest(r: zap.Request) void {
             // we are the 1st handler in the chain, so we create a context
             var context: ContextType = .{};
 

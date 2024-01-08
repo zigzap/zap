@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 const Mustache = @import("zap").Mustache;
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     const template =
         \\ {{=<< >>=}}
         \\ * Users:
@@ -49,7 +49,7 @@ fn on_request(r: zap.SimpleRequest) void {
 }
 
 pub fn main() !void {
-    var listener = zap.SimpleHttpListener.init(.{
+    var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
         .log = true,
