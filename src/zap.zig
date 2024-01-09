@@ -204,6 +204,7 @@ pub const SimpleRequest = struct {
         return self.setHeader("content-type", s);
     }
 
+    /// Tries to determine the content type by file extension of request path, and sets it.
     pub fn setContentTypeFromPath(self: *const Self) !void {
         const t = fio.http_mimetype_find2(self.h.*.path);
         if (fio.is_invalid(t) == 1) return error.HttpSetContentType;
@@ -215,6 +216,26 @@ pub const SimpleRequest = struct {
         if (ret == -1) return error.HttpSetContentType;
     }
 
+    /// Tries to determine the content type by filename extension, and sets it.
+    /// If the extension cannot be determined, NoExtensionInFilename error is
+    /// returned.
+    pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void {
+        const ext = std.fs.path.extension(filename);
+
+        if (ext.len > 1) {
+            var e = ext[1..];
+            var obj = fio.http_mimetype_find(@constCast(e.ptr), e.len);
+
+            if (util.fio2str(obj)) |mime_str| {
+                try self.setHeader("content-type", mime_str);
+            }
+        } else {
+            return error.NoExtensionInFilename;
+        }
+    }
+
+    /// Returns the header value of given key name. Returned mem is temp.
+    /// Do not free it.
     pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
         const hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);
         defer fio.fiobj_free_wrapped(hname);
