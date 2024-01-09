@@ -45,7 +45,7 @@ test "http parameters" {
             // true -> make copies of temp strings
             params = r.parametersToOwnedList(alloc, true) catch unreachable;
 
-            var maybe_str = r.getParamStr("one", alloc, true) catch unreachable;
+            var maybe_str = r.getParamStr(alloc, "one", true) catch unreachable;
             if (maybe_str) |*s| {
                 paramOneStr = s.*;
             }

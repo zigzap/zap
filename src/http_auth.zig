@@ -449,7 +449,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             r.parseCookies(false);
 
             // check for session cookie
-            if (r.getCookieStr(self.settings.cookieName, self.allocator, false)) |maybe_cookie| {
+            if (r.getCookieStr(self.allocator, self.settings.cookieName, false)) |maybe_cookie| {
                 if (maybe_cookie) |cookie| {
                     defer cookie.deinit();
                     self.tokenLookupLock.lock();
@@ -485,7 +485,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             r.parseCookies(false);
 
             // check for session cookie
-            if (r.getCookieStr(self.settings.cookieName, self.allocator, false)) |maybe_cookie| {
+            if (r.getCookieStr(self.allocator, self.settings.cookieName, false)) |maybe_cookie| {
                 if (maybe_cookie) |cookie| {
                     defer cookie.deinit();
                     // locked or unlocked token lookup
@@ -507,10 +507,10 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
             }
 
             // get params of username and password
-            if (r.getParamStr(self.settings.usernameParam, self.allocator, false)) |maybe_username| {
+            if (r.getParamStr(self.allocator, self.settings.usernameParam, false)) |maybe_username| {
                 if (maybe_username) |*username| {
                     defer username.deinit();
-                    if (r.getParamStr(self.settings.passwordParam, self.allocator, false)) |maybe_pw| {
+                    if (r.getParamStr(self.allocator, self.settings.passwordParam, false)) |maybe_pw| {
                         if (maybe_pw) |*pw| {
                             defer pw.deinit();
 

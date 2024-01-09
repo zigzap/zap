@@ -56,7 +56,7 @@ const Handler = struct {
                     else => {
                         // might be a string param, we don't care
                         // let's just get it as string
-                        if (r.getParamStr(kv.key.str, Handler.alloc, false)) |maybe_str| {
+                        if (r.getParamStr(Handler.alloc, kv.key.str, false)) |maybe_str| {
                             const value: []const u8 = if (maybe_str) |s| s.str else "(no value)";
                             std.log.debug("   {s} = {s}", .{ kv.key.str, value });
                         } else |err| {
@@ -68,7 +68,7 @@ const Handler = struct {
         }
 
         // check if we received a terminate=true parameter
-        if (r.getParamStr("terminate", Handler.alloc, false)) |maybe_str| {
+        if (r.getParamStr(Handler.alloc, "terminate", false)) |maybe_str| {
             if (maybe_str) |*s| {
                 defer s.deinit();
                 std.log.info("?terminate={s}\n", .{s.str});
