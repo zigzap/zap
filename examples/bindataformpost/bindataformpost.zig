@@ -73,7 +73,7 @@ const Handler = struct {
                 defer s.deinit();
                 std.log.info("?terminate={s}\n", .{s.str});
                 if (std.mem.eql(u8, s.str, "true")) {
-                    zap.fio_stop();
+                    zap.stop();
                 }
             }
         } else |err| {

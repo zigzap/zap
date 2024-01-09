@@ -2,12 +2,14 @@
 // or maybe let's just make it zap directly...
 
 const std = @import("std");
-const fio = @import("fio.zig");
+
+/// The facilio C API. No need to use this.
+pub const fio = @import("fio.zig");
 
 /// Server-Side TLS function wrapper
 pub const Tls = @import("tls.zig");
 
-pub usingnamespace @import("fio.zig");
+// pub usingnamespace @import("fio.zig");
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
@@ -975,75 +977,78 @@ pub const HttpListener = struct {
     }
 };
 
-/// lower level listening, if you don't want to use a listener but rather use
-/// the listen() function.
-pub const ListenSettings = struct {
-    on_request: ?FioHttpRequestFn = null,
-    on_upgrade: ?FioHttpRequestFn = null,
-    on_response: ?FioHttpRequestFn = null,
-    on_finish: ?FioHttpRequestFn = null,
-    public_folder: ?[]const u8 = null,
-    max_header_size: usize = 32 * 1024,
-    max_body_size: usize = 50 * 1024 * 1024,
-    max_clients: isize = 100,
-    keepalive_timeout_s: u8 = 5,
-    log: bool = false,
+/// Low-level API
+pub const LowLevel = struct {
+    /// lower level listening, if you don't want to use a listener but rather use
+    /// the listen() function.
+    pub const ListenSettings = struct {
+        on_request: ?FioHttpRequestFn = null,
+        on_upgrade: ?FioHttpRequestFn = null,
+        on_response: ?FioHttpRequestFn = null,
+        on_finish: ?FioHttpRequestFn = null,
+        public_folder: ?[]const u8 = null,
+        max_header_size: usize = 32 * 1024,
+        max_body_size: usize = 50 * 1024 * 1024,
+        max_clients: isize = 100,
+        keepalive_timeout_s: u8 = 5,
+        log: bool = false,
 
-    const Self = @This();
+        const Self = @This();
 
-    /// Create settings with defaults
-    pub fn init() Self {
-        return .{};
+        /// Create settings with defaults
+        pub fn init() Self {
+            return .{};
+        }
+    };
+
+    /// Low level listen function
+    pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSettings) ListenError!void {
+        var pfolder: [*c]const u8 = null;
+        var pfolder_len: usize = 0;
+
+        if (settings.public_folder) |pf| {
+            pfolder_len = pf.len;
+            pfolder = pf.ptr;
+        }
+        const x: fio.http_settings_s = .{
+            .on_request = settings.on_request,
+            .on_upgrade = settings.on_upgrade,
+            .on_response = settings.on_response,
+            .on_finish = settings.on_finish,
+            .udata = null,
+            .public_folder = pfolder,
+            .public_folder_length = pfolder_len,
+            .max_header_size = settings.max_header_size,
+            .max_body_size = settings.max_body_size,
+            .max_clients = settings.max_clients,
+            .tls = null,
+            .reserved1 = 0,
+            .reserved2 = 0,
+            .reserved3 = 0,
+            .ws_max_msg_size = settings.ws_max_msg_size,
+            .timeout = settings.keepalive_timeout_s,
+            .ws_timeout = 0,
+            .log = if (settings.log) 1 else 0,
+            .is_client = 0,
+        };
+        // TODO: BUG: without this print/sleep statement, -Drelease* loop forever
+        // in debug2 and debug3 of hello example
+        // std.debug.print("X\n", .{});
+        // TODO: still happening?
+        std.time.sleep(500 * std.time.ns_per_ms);
+
+        if (fio.http_listen(port, interface, x) == -1) {
+            return error.ListenError;
+        }
+    }
+
+    /// lower level sendBody
+    pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
+        const ret = fio.http_send_body(request, @as(
+            *anyopaque,
+            @ptrFromInt(@intFromPtr(body.ptr)),
+        ), body.len);
+        debug("sendBody(): ret = {}\n", .{ret});
+        if (ret != -1) return error.HttpSendBody;
     }
 };
-
-/// Low level listen function
-pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSettings) ListenError!void {
-    var pfolder: [*c]const u8 = null;
-    var pfolder_len: usize = 0;
-
-    if (settings.public_folder) |pf| {
-        pfolder_len = pf.len;
-        pfolder = pf.ptr;
-    }
-    const x: fio.http_settings_s = .{
-        .on_request = settings.on_request,
-        .on_upgrade = settings.on_upgrade,
-        .on_response = settings.on_response,
-        .on_finish = settings.on_finish,
-        .udata = null,
-        .public_folder = pfolder,
-        .public_folder_length = pfolder_len,
-        .max_header_size = settings.max_header_size,
-        .max_body_size = settings.max_body_size,
-        .max_clients = settings.max_clients,
-        .tls = null,
-        .reserved1 = 0,
-        .reserved2 = 0,
-        .reserved3 = 0,
-        .ws_max_msg_size = settings.ws_max_msg_size,
-        .timeout = settings.keepalive_timeout_s,
-        .ws_timeout = 0,
-        .log = if (settings.log) 1 else 0,
-        .is_client = 0,
-    };
-    // TODO: BUG: without this print/sleep statement, -Drelease* loop forever
-    // in debug2 and debug3 of hello example
-    // std.debug.print("X\n", .{});
-    // TODO: still happening?
-    std.time.sleep(500 * std.time.ns_per_ms);
-
-    if (fio.http_listen(port, interface, x) == -1) {
-        return error.ListenError;
-    }
-}
-
-/// lower level sendBody
-pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
-    const ret = fio.http_send_body(request, @as(
-        *anyopaque,
-        @ptrFromInt(@intFromPtr(body.ptr)),
-    ), body.len);
-    debug("sendBody(): ret = {}\n", .{ret});
-    if (ret != -1) return error.HttpSendBody;
-}

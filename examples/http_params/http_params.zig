@@ -86,7 +86,7 @@ pub fn main() !void {
                 if (maybe_str) |*s| {
                     defer s.deinit();
                     if (std.mem.eql(u8, s.str, "true")) {
-                        zap.fio_stop();
+                        zap.stop();
                     }
                 }
             } else |err| {

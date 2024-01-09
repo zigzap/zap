@@ -111,7 +111,7 @@ fn endpoint_http_get(e: *Endpoints.Endpoint, r: zap.Request) void {
     r.sendBody(HTTP_RESPONSE) catch return;
     received_response = HTTP_RESPONSE;
     std.time.sleep(1 * std.time.ns_per_s);
-    zap.fio_stop();
+    zap.stop();
 }
 
 fn endpoint_http_unauthorized(e: *Endpoints.Endpoint, r: zap.Request) void {
@@ -120,7 +120,7 @@ fn endpoint_http_unauthorized(e: *Endpoints.Endpoint, r: zap.Request) void {
     r.sendBody("UNAUTHORIZED ACCESS") catch return;
     received_response = "UNAUTHORIZED";
     std.time.sleep(1 * std.time.ns_per_s);
-    zap.fio_stop();
+    zap.stop();
 }
 
 //
@@ -165,7 +165,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
         std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
     }
 
-    zap.fio_stop();
+    zap.stop();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !std.Thread {
