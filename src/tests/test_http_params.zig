@@ -15,7 +15,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
 
     try req.start();
     try req.wait();
-    zap.fio_stop();
+    zap.stop();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
