@@ -252,8 +252,8 @@ pub const Request = struct {
         const ext = std.fs.path.extension(filename);
 
         if (ext.len > 1) {
-            var e = ext[1..];
-            var obj = fio.http_mimetype_find(@constCast(e.ptr), e.len);
+            const e = ext[1..];
+            const obj = fio.http_mimetype_find(@constCast(e.ptr), e.len);
 
             if (util.fio2str(obj)) |mime_str| {
                 try self.setHeader("content-type", mime_str);
