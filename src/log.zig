@@ -1,7 +1,10 @@
 const std = @import("std");
 
+// TODO: rework logging in zap
+
 debugOn: bool,
 
+/// Access to facil.io's logging facilities
 const Self = @This();
 
 pub fn init(comptime debug: bool) Self {

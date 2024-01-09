@@ -6,7 +6,7 @@ const User = struct {
     last_name: ?[]const u8 = null,
 };
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if (!std.mem.eql(u8, r.method.?, "GET"))
         return;
 
@@ -44,7 +44,7 @@ fn setupUserData(a: std.mem.Allocator) !void {
 pub fn main() !void {
     const a = std.heap.page_allocator;
     try setupUserData(a);
-    var listener = zap.SimpleHttpListener.init(.{
+    var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
         .log = false,

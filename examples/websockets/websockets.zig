@@ -114,6 +114,7 @@ fn on_close_websocket(context: ?*Context, uuid: isize) void {
         std.log.info("websocket closed: {s}", .{message});
     }
 }
+
 fn handle_websocket_message(
     context: ?*Context,
     handle: WebSockets.WsHandle,
@@ -162,7 +163,7 @@ fn handle_websocket_message(
 //
 // HTTP stuff
 //
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     r.setHeader("Server", "zap.example") catch unreachable;
     r.sendBody(
         \\ <html><body>
@@ -171,7 +172,7 @@ fn on_request(r: zap.SimpleRequest) void {
     ) catch return;
 }
 
-fn on_upgrade(r: zap.SimpleRequest, target_protocol: []const u8) void {
+fn on_upgrade(r: zap.Request, target_protocol: []const u8) void {
     // make sure we're talking the right protocol
     if (!std.mem.eql(u8, target_protocol, "websocket")) {
         std.log.warn("received illegal protocol: {s}", .{target_protocol});
@@ -207,7 +208,7 @@ pub fn main() !void {
     defer GlobalContextManager.deinit();
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3010,
             .on_request = on_request,

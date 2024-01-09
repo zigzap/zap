@@ -1,43 +1,14 @@
 const std = @import("std");
 const zap = @import("zap.zig");
 
-pub const ContextDescriptor = struct {
-    name: []const u8,
-    type: type,
-};
-
-/// Provide a tuple of structs of type like ContextDescriptor
-/// a name starting with '?', such as "?user" will be treated as Optional with default `null`.
-pub fn MixContexts(comptime context_tuple: anytype) type {
-    var fields: [context_tuple.len]std.builtin.Type.StructField = undefined;
-    for (context_tuple, 0..) |t, i| {
-        var fieldType: type = t.type;
-        var fieldName: []const u8 = t.name[0..];
-        var isOptional: bool = false;
-        if (fieldName[0] == '?') {
-            fieldType = @Type(.{ .Optional = .{ .child = fieldType } });
-            fieldName = fieldName[1..];
-            isOptional = true;
-        }
-        fields[i] = .{
-            .name = fieldName,
-            .type = fieldType,
-            .default_value = if (isOptional) &@as(fieldType, null) else null,
-            .is_comptime = false,
-            .alignment = 0,
-        };
-    }
-    return @Type(.{
-        .Struct = .{
-            .layout = .Auto,
-            .fields = fields[0..],
-            .decls = &[_]std.builtin.Type.Declaration{},
-            .is_tuple = false,
-        },
-    });
-}
-
-/// Your middleware components need to contain a handler
+/// Your middleware components need to contain a handler.
+///
+/// A Handler is one element in the chain of request handlers that will be tried
+/// by the listener when a request arrives. Handlers indicate to the previous
+/// handler whether they processed a request by returning `true` from their
+/// `on_request` function, in which case a typical request handler would stop
+/// trying to pass the request on to the next handler in the chain. See
+/// the `handle_other` function in this struct.
 pub fn Handler(comptime ContextType: anytype) type {
     return struct {
         other_handler: ?*Self = null,
@@ -46,7 +17,7 @@ pub fn Handler(comptime ContextType: anytype) type {
         // will be set
         allocator: ?std.mem.Allocator = null,
 
-        pub const RequestFn = *const fn (*Self, zap.SimpleRequest, *ContextType) bool;
+        pub const RequestFn = *const fn (*Self, zap.Request, *ContextType) bool;
         const Self = @This();
 
         pub fn init(on_request: RequestFn, other: ?*Self) Self {
@@ -56,10 +27,10 @@ pub fn Handler(comptime ContextType: anytype) type {
             };
         }
 
-        // example for handling request
+        // example for handling a request request
         // which you can use in your components, e.g.:
         // return self.handler.handleOther(r, context);
-        pub fn handleOther(self: *Self, r: zap.SimpleRequest, context: *ContextType) bool {
+        pub fn handleOther(self: *Self, r: zap.Request, context: *ContextType) bool {
             // in structs embedding a handler, we'd @fieldParentPtr the first
             // param to get to the real self
 
@@ -80,16 +51,19 @@ pub fn Handler(comptime ContextType: anytype) type {
     };
 }
 
-/// A convenience handler for artibrary zap.SimpleEndpoint
+/// A convenience handler for artibrary zap.Endpoint
 pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,
-        endpoint: *zap.SimpleEndpoint,
+        endpoint: *zap.Endpoint,
         breakOnFinish: bool,
 
         const Self = @This();
 
-        pub fn init(endpoint: *zap.SimpleEndpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
+        /// Create an endpointhandler from an endpoint and pass in the next (other) handler in the chain.
+        /// If `breakOnFinish` is `true`, the handler will stop handing requests down the chain if
+        /// the endpoint processed the request.
+        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
             return .{
                 .handler = HandlerType.init(onRequest, other),
                 .endpoint = endpoint,
@@ -97,12 +71,17 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
             };
         }
 
-        // we need the handler as a common interface to chain stuff
+        /// Provides the handler as a common interface to chain stuff
         pub fn getHandler(self: *Self) *HandlerType {
             return &self.handler;
         }
 
-        pub fn onRequest(handler: *HandlerType, r: zap.SimpleRequest, context: *ContextType) bool {
+        /// The Handler's request handling function. Gets called from the listener
+        /// with the request and a context instance. Calls the endpoint.
+        ///
+        /// If `breakOnFinish` is `true`, the handler will stop handing requests down the chain if
+        /// the endpoint processed the request.
+        pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
             var self = @fieldParentPtr(Self, "handler", handler);
             r.setUserContext(context);
             self.endpoint.onRequest(r);
@@ -117,15 +96,18 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
 }
 
 pub const Error = error{
+    /// The listener could not be created because the settings provided to its
+    /// init() function contained an `on_request` callback that was not null.
     InitOnRequestIsNotNull,
 };
 
 pub const RequestAllocatorFn = *const fn () std.mem.Allocator;
 
+/// Special Listener that supports chaining request handlers.
 pub fn Listener(comptime ContextType: anytype) type {
     return struct {
-        listener: zap.SimpleHttpListener = undefined,
-        settings: zap.SimpleHttpListenerSettings,
+        listener: zap.HttpListener = undefined,
+        settings: zap.HttpListenerSettings,
 
         // static initial handler
         var handler: ?*Handler(ContextType) = undefined;
@@ -134,9 +116,10 @@ pub fn Listener(comptime ContextType: anytype) type {
 
         const Self = @This();
 
-        /// initialize the middleware handler
-        /// the passed in settings must have on_request set to null
-        pub fn init(settings: zap.SimpleHttpListenerSettings, initial_handler: *Handler(ContextType), request_alloc: ?RequestAllocatorFn) Error!Self {
+        /// Construct and initialize a middleware handler.
+        /// The passed in settings must have on_request set to null! If that is
+        /// not the case, an InitOnRequestIsNotNull error will be returned.
+        pub fn init(settings: zap.HttpListenerSettings, initial_handler: *Handler(ContextType), request_alloc: ?RequestAllocatorFn) Error!Self {
             // override on_request with ourselves
             if (settings.on_request != null) {
                 return Error.InitOnRequestIsNotNull;
@@ -147,21 +130,26 @@ pub fn Listener(comptime ContextType: anytype) type {
             var ret: Self = .{
                 .settings = settings,
             };
+
             ret.settings.on_request = onRequest;
-            ret.listener = zap.SimpleHttpListener.init(ret.settings);
+            ret.listener = zap.HttpListener.init(ret.settings);
             handler = initial_handler;
             return ret;
         }
 
+        /// Start listening.
         pub fn listen(self: *Self) !void {
             try self.listener.listen();
         }
 
-        // this is just a reference implementation
-        // but it's actually used obviously. Create your own listener if you
-        // want different behavior.
-        // Didn't want to make this a callback
-        pub fn onRequest(r: zap.SimpleRequest) void {
+        /// The listener's request handler, stepping through the chain of Handlers
+        /// by calling the initial one which takes it from there.
+        ///
+        /// This is just a reference implementation that you can use by default.
+        /// Create your own listener if you want different behavior.
+        /// (Didn't want to make this a callback. Submit an issue if you really
+        /// think that's an issue).
+        pub fn onRequest(r: zap.Request) void {
             // we are the 1st handler in the chain, so we create a context
             var context: ContextType = .{};
 
@@ -181,61 +169,4 @@ pub fn Listener(comptime ContextType: anytype) type {
             }
         }
     };
-}
-
-test "it" {
-
-    // just some made-up struct
-    const User = struct {
-        name: []const u8,
-        email: []const u8,
-    };
-
-    // just some made-up struct
-    const Session = struct {
-        sessionType: []const u8,
-        token: []const u8,
-        valid: bool,
-    };
-
-    const Mixed = MixContexts(
-        .{
-            .{ .name = "?user", .type = *User },
-            .{ .name = "?session", .type = *Session },
-        },
-    );
-
-    std.debug.print("{any}\n", .{Mixed});
-    inline for (@typeInfo(Mixed).Struct.fields, 0..) |f, i| {
-        std.debug.print("field {} : name = {s} : type = {any}\n", .{ i, f.name, f.type });
-    }
-
-    const mixed: Mixed = .{
-        // it's all optionals which we made default to null in MixContexts
-    };
-    std.debug.print("mixed = {any}\n", .{mixed});
-
-    const NonOpts = MixContexts(
-        .{
-            .{ .name = "user", .type = *User },
-            .{ .name = "session", .type = *Session },
-        },
-    );
-
-    var user: User = .{
-        .name = "renerocksai",
-        .email = "secret",
-    };
-    var session: Session = .{
-        .sessionType = "bearerToken",
-        .token = "ABCDEFG",
-        .valid = false,
-    };
-
-    // this will fail if we don't specify
-    const nonOpts: NonOpts = .{
-        .user = &user,
-        .session = &session,
-    };
-    std.debug.print("nonOpts = {any}\n", .{nonOpts});
 }

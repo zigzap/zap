@@ -4,7 +4,7 @@ const zap = @import("zap");
 const Handler = struct {
     var alloc: std.mem.Allocator = undefined;
 
-    pub fn on_request(r: zap.SimpleRequest) void {
+    pub fn on_request(r: zap.Request) void {
         // check for FORM parameters
         r.parseBody() catch |err| {
             std.log.err("Parse Body error: {any}. Expected if body is empty", .{err});
@@ -56,7 +56,7 @@ const Handler = struct {
                     else => {
                         // might be a string param, we don't care
                         // let's just get it as string
-                        if (r.getParamStr(kv.key.str, Handler.alloc, false)) |maybe_str| {
+                        if (r.getParamStr(Handler.alloc, kv.key.str, false)) |maybe_str| {
                             const value: []const u8 = if (maybe_str) |s| s.str else "(no value)";
                             std.log.debug("   {s} = {s}", .{ kv.key.str, value });
                         } else |err| {
@@ -68,12 +68,12 @@ const Handler = struct {
         }
 
         // check if we received a terminate=true parameter
-        if (r.getParamStr("terminate", Handler.alloc, false)) |maybe_str| {
+        if (r.getParamStr(Handler.alloc, "terminate", false)) |maybe_str| {
             if (maybe_str) |*s| {
                 defer s.deinit();
                 std.log.info("?terminate={s}\n", .{s.str});
                 if (std.mem.eql(u8, s.str, "true")) {
-                    zap.fio_stop();
+                    zap.stop();
                 }
             }
         } else |err| {
@@ -92,7 +92,7 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3000,
             .on_request = Handler.on_request,

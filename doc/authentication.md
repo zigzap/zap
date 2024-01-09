@@ -12,7 +12,7 @@ For convenience, Authenticator types exist that can authenticate requests.
 Zap also provides an `AuthenticatingEndpoint` endpoint-wrapper. Have a look at the [example](../examples/endpoint_auth) and the [tests](../src/tests/test_auth.zig).
 
 The following describes the Authenticator types. All of them provide the
-`authenticateRequest()` function, which takes a `zap.SimpleRequest` and returns
+`authenticateRequest()` function, which takes a `zap.Request` and returns
 a bool value whether it could be authenticated or not.
 
 Further down, we show how to use the Authenticators, and also the
@@ -60,7 +60,7 @@ var auth = try zap.BearerAuthSingle.init(allocator, token, null);
 defer auth.deinit();
 
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if(authenticator.authenticateRequest(r)) {
         r.sendBody(
             \\ <html><body>
@@ -94,7 +94,7 @@ var auth = try zap.BearerAuthMulti(Set).init(allocator, &set, null);
 defer auth.deinit();
 
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if(authenticator.authenticateRequest(r)) {
         r.sendBody(
             \\ <html><body>
@@ -132,7 +132,7 @@ var auth = try Authenticator.init(a, &map, null);
 defer auth.deinit();
 
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if(authenticator.authenticateRequest(r)) {
         r.sendBody(
             \\ <html><body>
@@ -168,7 +168,7 @@ var auth = try Authenticator.init(allocator, &set, null);
 defer auth.deinit();
 
 
-fn on_request(r: zap.SimpleRequest) void {
+fn on_request(r: zap.Request) void {
     if(authenticator.authenticateRequest(r)) {
         r.sendBody(
             \\ <html><body>
@@ -206,13 +206,13 @@ const HTTP_RESPONSE: []const u8 =
 ;
 
 // authenticated requests go here
-fn endpoint_http_get(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+fn endpoint_http_get(e: *zap.Endpoint, r: zap.Request) void {
     _ = e;
     r.sendBody(HTTP_RESPONSE) catch return;
 }
 
 // just for fun, we also catch the unauthorized callback
-fn endpoint_http_unauthorized(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void {
+fn endpoint_http_unauthorized(e: *zap.Endpoint, r: zap.Request) void {
     _ = e;
     r.setStatus(.unauthorized);
     r.sendBody("UNAUTHORIZED ACCESS") catch return;
@@ -220,7 +220,7 @@ fn endpoint_http_unauthorized(e: *zap.SimpleEndpoint, r: zap.SimpleRequest) void
 
 pub fn main() !void {
     // setup listener
-    var listener = zap.SimpleEndpointListener.init(
+    var listener = zap.EndpointListener.init(
         a,
         .{
             .port = 3000,
@@ -233,7 +233,7 @@ pub fn main() !void {
     defer listener.deinit();
 
     // create mini endpoint
-    var ep = zap.SimpleEndpoint.init(.{
+    var ep = zap.Endpoint.init(.{
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
@@ -248,7 +248,7 @@ pub fn main() !void {
     const BearerAuthEndpoint = zap.AuthenticatingEndpoint(Authenticator);
     var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
 
-    try listener.addEndpoint(auth_ep.getEndpoint());
+    try listener.register(auth_ep.endpoint());
 
     listener.listen() catch {};
     std.debug.print(

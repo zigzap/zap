@@ -32,7 +32,7 @@ pub fn main() !void {
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
 
-        pub fn on_request(r: zap.SimpleRequest) void {
+        pub fn on_request(r: zap.Request) void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
@@ -66,7 +66,7 @@ pub fn main() !void {
 
             // let's get param "one" by name
             std.debug.print("\n", .{});
-            if (r.getParamStr("one", alloc, false)) |maybe_str| {
+            if (r.getParamStr(alloc, "one", false)) |maybe_str| {
                 if (maybe_str) |*s| {
                     defer s.deinit();
 
@@ -82,11 +82,11 @@ pub fn main() !void {
             }
 
             // check if we received a terminate=true parameter
-            if (r.getParamStr("terminate", alloc, false)) |maybe_str| {
+            if (r.getParamStr(alloc, "terminate", false)) |maybe_str| {
                 if (maybe_str) |*s| {
                     defer s.deinit();
                     if (std.mem.eql(u8, s.str, "true")) {
-                        zap.fio_stop();
+                        zap.stop();
                     }
                 }
             } else |err| {
@@ -98,7 +98,7 @@ pub fn main() !void {
     Handler.alloc = allocator;
 
     // setup listener
-    var listener = zap.SimpleHttpListener.init(
+    var listener = zap.HttpListener.init(
         .{
             .port = 3000,
             .on_request = Handler.on_request,

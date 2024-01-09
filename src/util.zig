@@ -1,9 +1,10 @@
 const std = @import("std");
 const fio = @import("fio.zig");
 
+/// Used internally: convert a FIO object into its string representation.
 /// note: since this is called from within request functions, we don't make
 /// copies. Also, we return temp memory from fio. -> don't hold on to it outside
-/// of a request function
+/// of a request function. FIO temp memory strings do not need to be freed.
 pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     if (o == 0) return null;
     const x: fio.fio_str_info_s = fio.fiobj_obj2cstr(o);
@@ -12,6 +13,12 @@ pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     return x.data[0..x.len];
 }
 
+/// A "string" type used internally that carries a flag whether its buffer needs
+/// to be freed or not - and honors it in `deinit()`. That way, it's always
+/// safe to call deinit().
+/// For instance, slices taken directly from the zap.Request need not be freed.
+/// But the ad-hoc created string representation of a float parameter must be
+/// freed after use.
 pub const FreeOrNot = struct {
     str: []const u8,
     freeme: bool,
@@ -24,7 +31,10 @@ pub const FreeOrNot = struct {
     }
 };
 
-pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool) !FreeOrNot {
+/// Used internally: convert a FIO object into its string representation.
+/// Depending on the type of the object, a buffer will be created. Hence a
+/// FreeOrNot type is used as the return type.
+pub fn fio2strAllocOrNot(a: std.mem.Allocator, o: fio.FIOBJ, always_alloc: bool) !FreeOrNot {
     if (o == 0) return .{ .str = "null", .freeme = false };
     if (o == fio.FIOBJ_INVALID) return .{ .str = "invalid", .freeme = false };
     return switch (fio.fiobj_type(o)) {
@@ -38,6 +48,8 @@ pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool)
         else => .{ .str = "unknown_type", .freeme = false },
     };
 }
+
+/// Used internally: convert a zig slice into a FIO string.
 pub fn str2fio(s: []const u8) fio.fio_str_info_s {
     return .{
         .data = toCharPtr(s),
@@ -46,6 +58,7 @@ pub fn str2fio(s: []const u8) fio.fio_str_info_s {
     };
 }
 
+/// Used internally: convert a zig slice into a C pointer
 pub fn toCharPtr(s: []const u8) [*c]u8 {
     return @as([*c]u8, @ptrFromInt(@intFromPtr(s.ptr)));
 }
@@ -54,7 +67,8 @@ pub fn toCharPtr(s: []const u8) [*c]u8 {
 // JSON helpers
 //
 
-/// provide your own buf, NOT mutex-protected!
+/// Concenience: format an arbitrary value into a JSON string buffer.
+/// Provide your own buf; this function is NOT mutex-protected!
 pub fn stringifyBuf(
     buffer: []u8,
     value: anytype,
@@ -68,47 +82,3 @@ pub fn stringifyBuf(
         return null;
     }
 }
-
-// deprecated:
-
-// 1MB JSON buffer
-// var jsonbuf: [1024 * 1024]u8 = undefined;
-// var mutex: std.Thread.Mutex = .{};
-
-// use default 1MB buffer, mutex-protected
-// pub fn stringify(
-//     value: anytype,
-//     options: std.json.StringifyOptions,
-// ) ?[]const u8 {
-//     mutex.lock();
-//     defer mutex.unlock();
-//     var fba = std.heap.FixedBufferAllocator.init(&jsonbuf);
-//     var string = std.ArrayList(u8).init(fba.allocator());
-//     if (std.json.stringify(value, options, string.writer())) {
-//         return string.items;
-//     } else |_| { // error
-//         return null;
-//     }
-// }
-
-// use default 1MB buffer, mutex-protected
-// pub fn stringifyArrayList(
-//     comptime T: anytype,
-//     list: *std.ArrayList(T),
-//     options: std.json.StringifyOptions,
-// ) !?[]const u8 {
-//     mutex.lock();
-//     defer mutex.unlock();
-//     var fba = std.heap.FixedBufferAllocator.init(&jsonbuf);
-//     var string = std.ArrayList(u8).init(fba.allocator());
-//     var writer = string.writer();
-//     try writer.writeByte('[');
-//     var first: bool = true;
-//     for (list.items) |user| {
-//         if (!first) try writer.writeByte(',');
-//         first = false;
-//         try std.json.stringify(user, options, string.writer());
-//     }
-//     try writer.writeByte(']');
-//     return string.items;
-// }

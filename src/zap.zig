@@ -2,18 +2,28 @@
 // or maybe let's just make it zap directly...
 
 const std = @import("std");
-const fio = @import("fio.zig");
+
+/// The facilio C API. No need to use this.
+pub const fio = @import("fio.zig");
 
 /// Server-Side TLS function wrapper
 pub const Tls = @import("tls.zig");
 
-pub usingnamespace @import("fio.zig");
+// pub usingnamespace @import("fio.zig");
 pub usingnamespace @import("endpoint.zig");
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 pub usingnamespace @import("mustache.zig");
 pub usingnamespace @import("http_auth.zig");
+
+/// Middleware support.
+/// Contains a special Listener and a Handler struct that support chaining
+/// requests handlers, with an optional stop once a handler indicates it
+/// processed the request. Also sports an EndpointHandler for using regular zap
+/// Endpoints as Handlers.
 pub const Middleware = @import("middleware.zig");
+
+/// Websocket API
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
@@ -40,16 +50,20 @@ pub fn stop() void {
     fio.fio_stop();
 }
 
+/// Extremely simplistic zap debug function.
+/// TODO: re-wwrite logging or use std.log
 pub fn debug(comptime fmt: []const u8, args: anytype) void {
     if (_debug) {
         std.debug.print("[zap] - " ++ fmt, args);
     }
 }
 
+/// Enable zap debug logging
 pub fn enableDebugLog() void {
     _debug = true;
 }
 
+/// start Zap with debug logging on
 pub fn startWithLogging(args: fio.fio_start_args) void {
     debug = true;
     fio.fio_start(args);
@@ -70,13 +84,17 @@ pub const HttpError = error{
     SendFile,
 };
 
+/// Http Content Type enum.
+/// Needs some love.
 pub const ContentType = enum {
     TEXT,
     HTML,
     JSON,
+    // TODO: more content types
 };
 
-pub const SimpleRequest = struct {
+/// HttpRequest passed to request callback functions.
+pub const Request = struct {
     path: ?[]const u8,
     query: ?[]const u8,
     body: ?[]const u8,
@@ -90,7 +108,7 @@ pub const SimpleRequest = struct {
     /// NEVER touch this field!!!!
     /// use markAsFinished() and isFinished() instead
     /// this is a hack: the listener will put a pointer to this into the udata
-    /// field of `h`. So copies of the SimpleRequest will all have way to the
+    /// field of `h`. So copies of the Request will all have way to the
     /// same instance of this field.
     _is_finished_request_global: bool,
     /// NEVER touch this field!!!!
@@ -103,22 +121,27 @@ pub const SimpleRequest = struct {
 
     const Self = @This();
 
+    /// mark the current request as finished. Important for middleware-style
+    /// request handler chaining. Called when sending a body, redirecting, etc.
     pub fn markAsFinished(self: *const Self, finished: bool) void {
         // we might be a copy
         self._is_finished.* = finished;
     }
 
+    /// tell whether request processing has finished. (e.g. response sent,
+    /// redirected, ...)
     pub fn isFinished(self: *const Self) bool {
         // we might be a copy
         return self._is_finished.*;
     }
 
-    /// if you absolutely must, you can set any context here
-    // (note, this line is linked to from the readme)
+    /// if you absolutely must, you can set any context on the request here
+    // (note, this line is linked to from the readme) -- TODO: sync
     pub fn setUserContext(self: *const Self, context: *anyopaque) void {
         self._user_context.*.user_context = context;
     }
 
+    /// get the associated user context of the request.
     pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
         if (self._user_context.*.user_context) |ptr| {
             return @as(*Context, @ptrCast(@alignCast(ptr)));
@@ -127,6 +150,7 @@ pub const SimpleRequest = struct {
         }
     }
 
+    /// Tries to send an error stack trace.
     pub fn sendError(self: *const Self, err: anyerror, errorcode_num: usize) void {
         // TODO: query accept headers
         if (self._internal_sendError(err, errorcode_num)) {
@@ -135,6 +159,8 @@ pub const SimpleRequest = struct {
             self.sendBody(@errorName(err)) catch return;
         }
     }
+
+    /// Used internally. Probably does not need to be public.
     pub fn _internal_sendError(self: *const Self, err: anyerror, errorcode_num: usize) !void {
         // TODO: query accept headers
         // TODO: let's hope 20k is enough. Maybe just really allocate here
@@ -151,16 +177,18 @@ pub const SimpleRequest = struct {
         try self.sendBody(string.items);
     }
 
+    /// Send body.
     pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
         const ret = fio.http_send_body(self.h, @as(
             *anyopaque,
             @ptrFromInt(@intFromPtr(body.ptr)),
         ), body.len);
-        debug("SimpleRequest.sendBody(): ret = {}\n", .{ret});
+        debug("Request.sendBody(): ret = {}\n", .{ret});
         if (ret == -1) return error.HttpSendBody;
         self.markAsFinished(true);
     }
 
+    /// Set content type and send json buffer.
     pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
         if (self.setContentType(.JSON)) {
             if (fio.http_send_body(self.h, @as(
@@ -171,6 +199,7 @@ pub const SimpleRequest = struct {
         } else |err| return err;
     }
 
+    /// Set content type.
     pub fn setContentType(self: *const Self, c: ContentType) HttpError!void {
         const s = switch (c) {
             .TEXT => "text/plain",
@@ -181,7 +210,7 @@ pub const SimpleRequest = struct {
         return self.setHeader("content-type", s);
     }
 
-    // redirect to path with status code 302 by default
+    /// redirect to path with status code 302 by default
     pub fn redirectTo(self: *const Self, path: []const u8, code: ?http.StatusCode) HttpError!void {
         self.setStatus(if (code) |status| status else .found);
         try self.setHeader("Location", path);
@@ -242,6 +271,7 @@ pub const SimpleRequest = struct {
         return util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));
     }
 
+    /// Set header.
     pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
         const hname: fio.fio_str_info_s = .{
             .data = util.toCharPtr(name),
@@ -261,7 +291,7 @@ pub const SimpleRequest = struct {
         // FIXME without the following if, we get errors in release builds
         // at least we don't have to log unconditionally
         if (ret == -1) {
-            std.debug.print("***************** zap.zig:145\n", .{});
+            std.debug.print("***************** zap.zig:274\n", .{});
         }
         debug("setHeader: ret = {}\n", .{ret});
 
@@ -269,10 +299,12 @@ pub const SimpleRequest = struct {
         return error.HttpSetHeader;
     }
 
+    /// Set status by numeric value.
     pub fn setStatusNumeric(self: *const Self, status: usize) void {
         self.h.*.status = status;
     }
 
+    /// Set status by enum.
     pub fn setStatus(self: *const Self, status: http.StatusCode) void {
         self.h.*.status = @as(usize, @intCast(@intFromEnum(status)));
     }
@@ -315,11 +347,12 @@ pub const SimpleRequest = struct {
         fio.http_parse_query(self.h);
     }
 
+    /// Parse received cookie headers
     pub fn parseCookies(self: *const Self, url_encoded: bool) void {
         fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
     }
 
-    // Set a response cookie
+    /// Set a response cookie
     pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
         const c: fio.http_cookie_args_s = .{
             .name = util.toCharPtr(args.name),
@@ -340,6 +373,7 @@ pub const SimpleRequest = struct {
         //     if(fio.http_set_cookie(...) == -1)
         // instead of capturing it in `ret` first and then checking it,
         // all ReleaseXXX builds return an error!
+        // TODO: still happening?
         const ret = fio.http_set_cookie(self.h, c);
         if (ret == -1) {
             std.log.err("fio.http_set_cookie returned: {}\n", .{ret});
@@ -347,8 +381,8 @@ pub const SimpleRequest = struct {
         }
     }
 
-    /// Returns named cookie. Works like getParamStr()
-    pub fn getCookieStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
+    /// Returns named cookie. Works like getParamStr().
+    pub fn getCookieStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
         if (self.h.*.cookies == 0) return null;
         const key = fio.fiobj_str_new(name.ptr, name.len);
         defer fio.fiobj_free_wrapped(key);
@@ -356,10 +390,10 @@ pub const SimpleRequest = struct {
         if (value == fio.FIOBJ_INVALID) {
             return null;
         }
-        return try util.fio2strAllocOrNot(value, a, always_alloc);
+        return try util.fio2strAllocOrNot(a, value, always_alloc);
     }
 
-    /// Returns the number of parameters after parsing.
+    /// Returns the number of cookies after parsing.
     ///
     /// Parse with parseCookies()
     pub fn getCookiesCount(self: *const Self) isize {
@@ -440,11 +474,11 @@ pub const SimpleRequest = struct {
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
-            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.always_alloc) catch |err| {
+            .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.always_alloc) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
-            .value = util.fio2strAllocOrNot(fiobj_value, ctx.allocator, ctx.always_alloc) catch |err| {
+            .value = util.fio2strAllocOrNot(ctx.allocator, fiobj_value, ctx.always_alloc) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
@@ -493,11 +527,11 @@ pub const SimpleRequest = struct {
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
-            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.dupe_strings) catch |err| {
+            .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.dupe_strings) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
-            .value = Fiobj2HttpParam(fiobj_value, ctx.allocator, ctx.dupe_strings) catch |err| {
+            .value = Fiobj2HttpParam(ctx.allocator, fiobj_value, ctx.dupe_strings) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
@@ -524,7 +558,7 @@ pub const SimpleRequest = struct {
     ///
     /// Requires parseBody() and/or parseQuery() have been called.
     /// The returned string needs to be deinited with .deinit()
-    pub fn getParamStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
+    pub fn getParamStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
         if (self.h.*.params == 0) return null;
         const key = fio.fiobj_str_new(name.ptr, name.len);
         defer fio.fiobj_free_wrapped(key);
@@ -532,7 +566,7 @@ pub const SimpleRequest = struct {
         if (value == fio.FIOBJ_INVALID) {
             return null;
         }
-        return try util.fio2strAllocOrNot(value, a, always_alloc);
+        return try util.fio2strAllocOrNot(a, value, always_alloc);
     }
 };
 
@@ -546,6 +580,7 @@ pub const HttpParamStrKV = struct {
     }
 };
 
+/// List of key value pairs of Http param strings.
 pub const HttpParamStrKVList = struct {
     items: []HttpParamStrKV,
     allocator: std.mem.Allocator,
@@ -557,6 +592,7 @@ pub const HttpParamStrKVList = struct {
     }
 };
 
+/// List of key value pairs of Http params (might be of different types).
 pub const HttpParamKVList = struct {
     items: []HttpParamKV,
     allocator: std.mem.Allocator,
@@ -568,6 +604,7 @@ pub const HttpParamKVList = struct {
     }
 };
 
+/// Enum for HttpParam tagged union
 pub const HttpParamValueType = enum {
     // Null,
     Bool,
@@ -579,6 +616,7 @@ pub const HttpParamValueType = enum {
     Array_Binfile,
 };
 
+/// Tagged union holding a typed Http param
 pub const HttpParam = union(HttpParamValueType) {
     Bool: bool,
     Int: isize,
@@ -593,6 +631,7 @@ pub const HttpParam = union(HttpParamValueType) {
     Array_Binfile: std.ArrayList(HttpParamBinaryFile),
 };
 
+/// Key value pair of one typed Http param
 pub const HttpParamKV = struct {
     key: util.FreeOrNot,
     value: ?HttpParam,
@@ -607,6 +646,7 @@ pub const HttpParamKV = struct {
     }
 };
 
+/// Struct representing an uploaded file.
 pub const HttpParamBinaryFile = struct {
     ///  file contents
     data: ?[]const u8 = null,
@@ -615,6 +655,7 @@ pub const HttpParamBinaryFile = struct {
     /// filename
     filename: ?[]const u8 = null,
 
+    /// format function for printing file upload data
     pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) std.os.WriteError!void {
         const d = value.data orelse "\\0";
         const m = value.mimetype orelse "null";
@@ -735,14 +776,15 @@ fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
     }
 }
 
-pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
+/// Parse FIO object into a typed Http param. Supports file uploads.
+pub fn Fiobj2HttpParam(a: std.mem.Allocator, o: fio.FIOBJ, dupe_string: bool) !?HttpParam {
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_NULL => null,
         fio.FIOBJ_T_TRUE => .{ .Bool = true },
         fio.FIOBJ_T_FALSE => .{ .Bool = false },
         fio.FIOBJ_T_NUMBER => .{ .Int = fio.fiobj_obj2num(o) },
         fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
-        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(o, a, dupe_string) },
+        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(a, o, dupe_string) },
         fio.FIOBJ_T_ARRAY => {
             return .{ .Unsupported = null };
         },
@@ -754,6 +796,7 @@ pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?
     };
 }
 
+/// Args for setting a cookie
 pub const CookieArgs = struct {
     name: []const u8,
     value: []const u8,
@@ -765,25 +808,31 @@ pub const CookieArgs = struct {
     http_only: bool = true,
 };
 
-pub const HttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
-pub const SimpleHttpRequestFn = *const fn (SimpleRequest) void;
+/// Used internally: facilio Http request callback function type
+pub const FioHttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 
-/// websocket connection upgrade
+/// Zap Http request callback function type.
+pub const HttpRequestFn = *const fn (Request) void;
+
+/// websocket connection upgrade callback type
 /// fn(request, targetstring)
-pub const SimpleHttpUpgradeFn = *const fn (r: SimpleRequest, target_protocol: []const u8) void;
+pub const HttpUpgradeFn = *const fn (r: Request, target_protocol: []const u8) void;
 
 /// http finish, called when zap finishes. You get your udata back in the
-/// struct.
-pub const SimpleHttpFinishSettings = [*c]fio.struct_http_settings_s;
-pub const SimpleHttpFinishFn = *const fn (SimpleHttpFinishSettings) void;
+/// HttpFinishSetting struct.
+pub const HttpFinishSettings = [*c]fio.struct_http_settings_s;
 
-pub const SimpleHttpListenerSettings = struct {
+/// Http finish callback type
+pub const HttpFinishFn = *const fn (HttpFinishSettings) void;
+
+/// Listener settings
+pub const HttpListenerSettings = struct {
     port: usize,
     interface: [*c]const u8 = null,
-    on_request: ?SimpleHttpRequestFn,
-    on_response: ?SimpleHttpRequestFn = null,
-    on_upgrade: ?SimpleHttpUpgradeFn = null,
-    on_finish: ?SimpleHttpFinishFn = null,
+    on_request: ?HttpRequestFn,
+    on_response: ?HttpRequestFn = null,
+    on_upgrade: ?HttpUpgradeFn = null,
+    on_finish: ?HttpFinishFn = null,
     // provide any pointer in there for "user data". it will be passed pack in
     // on_finish()'s copy of the struct_http_settings_s
     udata: ?*anyopaque = null,
@@ -797,26 +846,26 @@ pub const SimpleHttpListenerSettings = struct {
     tls: ?Tls = null,
 };
 
-pub const SimpleHttpListener = struct {
-    settings: SimpleHttpListenerSettings,
+/// Http listener
+pub const HttpListener = struct {
+    settings: HttpListenerSettings,
 
     const Self = @This();
-    var the_one_and_only_listener: ?*SimpleHttpListener = null;
+    var the_one_and_only_listener: ?*HttpListener = null;
 
-    pub fn init(settings: SimpleHttpListenerSettings) Self {
+    /// Create a listener
+    pub fn init(settings: HttpListenerSettings) Self {
         std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
         };
     }
 
-    // on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
-    // on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
-
-    // we could make it dynamic by passing a SimpleHttpListener via udata
+    // we could make it dynamic by passing a HttpListener via udata
+    /// Used internally: the listener's facilio request callback
     pub fn theOneAndOnlyRequestCallBack(r: [*c]fio.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -827,7 +876,7 @@ pub const SimpleHttpListener = struct {
             };
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             req.markAsFinished(false);
@@ -839,9 +888,10 @@ pub const SimpleHttpListener = struct {
         }
     }
 
+    /// Used internally: the listener's facilio response callback
     pub fn theOneAndOnlyResponseCallBack(r: [*c]fio.http_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -852,16 +902,17 @@ pub const SimpleHttpListener = struct {
             };
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             l.settings.on_response.?(req);
         }
     }
 
+    /// Used internally: the listener's facilio upgrade callback
     pub fn theOneAndOnlyUpgradeCallBack(r: [*c]fio.http_s, target: [*c]u8, target_len: usize) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            var req: SimpleRequest = .{
+            var req: Request = .{
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
@@ -873,25 +924,27 @@ pub const SimpleHttpListener = struct {
             const zigtarget: []u8 = target[0..target_len];
             req._is_finished = &req._is_finished_request_global;
 
-            var user_context: SimpleRequest.UserContext = .{};
+            var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
             l.settings.on_upgrade.?(req, zigtarget);
         }
     }
 
+    /// Used internally: the listener's facilio finish callback
     pub fn theOneAndOnlyFinishCallBack(s: [*c]fio.struct_http_settings_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
             l.settings.on_finish.?(s);
         }
     }
 
+    /// Start listening
     pub fn listen(self: *Self) !void {
         var pfolder: [*c]const u8 = null;
         var pfolder_len: usize = 0;
 
         if (self.settings.public_folder) |pf| {
-            debug("SimpleHttpListener.listen(): public folder is {s}\n", .{pf});
+            debug("HttpListener.listen(): public folder is {s}\n", .{pf});
             pfolder_len = pf.len;
             pfolder = pf.ptr;
         }
@@ -921,15 +974,12 @@ pub const SimpleHttpListener = struct {
         // TODO: BUG: without this print/sleep statement, -Drelease* loop forever
         // in debug2 and debug3 of hello example
         // std.debug.print("X\n", .{});
-        std.time.sleep(500 * 1000 * 1000);
+        // TODO: still happening?
+        std.time.sleep(500 * std.time.ns_per_ms);
 
         var portbuf: [100]u8 = undefined;
         const printed_port = try std.fmt.bufPrintZ(&portbuf, "{d}", .{self.settings.port});
 
-        // pub fn bufPrintZ(buf: []u8, comptime fmt: []const u8, args: anytype) BufPrintError![:0]u8 {
-        //     const result = try bufPrint(buf, fmt ++ "\x00", args);
-        //     return result[0 .. result.len - 1 :0];
-        // }
         const ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);
         if (ret == -1) {
             return error.ListenError;
@@ -937,7 +987,7 @@ pub const SimpleHttpListener = struct {
 
         // set ourselves up to handle requests:
         // TODO: do we mind the race condition?
-        // the SimpleHttpRequestFn will check if this is null and not process
+        // the HttpRequestFn will check if this is null and not process
         // the request if it isn't set. hence, if started under full load, the
         // first request(s) might not be serviced, as long as it takes from
         // fio.http_listen() to here
@@ -945,73 +995,78 @@ pub const SimpleHttpListener = struct {
     }
 };
 
-//
-// lower level listening
-//
-pub const ListenSettings = struct {
-    on_request: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
-    on_upgrade: ?*const fn ([*c]fio.http_s, [*c]u8, usize) callconv(.C) void = null,
-    on_response: ?*const fn ([*c]fio.http_s) callconv(.C) void = null,
-    on_finish: ?*const fn ([*c]fio.struct_http_settings_s) callconv(.C) void = null,
-    public_folder: ?[]const u8 = null,
-    max_header_size: usize = 32 * 1024,
-    max_body_size: usize = 50 * 1024 * 1024,
-    max_clients: isize = 100,
-    keepalive_timeout_s: u8 = 5,
-    log: bool = false,
+/// Low-level API
+pub const LowLevel = struct {
+    /// lower level listening, if you don't want to use a listener but rather use
+    /// the listen() function.
+    pub const ListenSettings = struct {
+        on_request: ?FioHttpRequestFn = null,
+        on_upgrade: ?FioHttpRequestFn = null,
+        on_response: ?FioHttpRequestFn = null,
+        on_finish: ?FioHttpRequestFn = null,
+        public_folder: ?[]const u8 = null,
+        max_header_size: usize = 32 * 1024,
+        max_body_size: usize = 50 * 1024 * 1024,
+        max_clients: isize = 100,
+        keepalive_timeout_s: u8 = 5,
+        log: bool = false,
 
-    const Self = @This();
+        const Self = @This();
 
-    pub fn init() Self {
-        return .{};
+        /// Create settings with defaults
+        pub fn init() Self {
+            return .{};
+        }
+    };
+
+    /// Low level listen function
+    pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSettings) ListenError!void {
+        var pfolder: [*c]const u8 = null;
+        var pfolder_len: usize = 0;
+
+        if (settings.public_folder) |pf| {
+            pfolder_len = pf.len;
+            pfolder = pf.ptr;
+        }
+        const x: fio.http_settings_s = .{
+            .on_request = settings.on_request,
+            .on_upgrade = settings.on_upgrade,
+            .on_response = settings.on_response,
+            .on_finish = settings.on_finish,
+            .udata = null,
+            .public_folder = pfolder,
+            .public_folder_length = pfolder_len,
+            .max_header_size = settings.max_header_size,
+            .max_body_size = settings.max_body_size,
+            .max_clients = settings.max_clients,
+            .tls = null,
+            .reserved1 = 0,
+            .reserved2 = 0,
+            .reserved3 = 0,
+            .ws_max_msg_size = settings.ws_max_msg_size,
+            .timeout = settings.keepalive_timeout_s,
+            .ws_timeout = 0,
+            .log = if (settings.log) 1 else 0,
+            .is_client = 0,
+        };
+        // TODO: BUG: without this print/sleep statement, -Drelease* loop forever
+        // in debug2 and debug3 of hello example
+        // std.debug.print("X\n", .{});
+        // TODO: still happening?
+        std.time.sleep(500 * std.time.ns_per_ms);
+
+        if (fio.http_listen(port, interface, x) == -1) {
+            return error.ListenError;
+        }
+    }
+
+    /// lower level sendBody
+    pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
+        const ret = fio.http_send_body(request, @as(
+            *anyopaque,
+            @ptrFromInt(@intFromPtr(body.ptr)),
+        ), body.len);
+        debug("sendBody(): ret = {}\n", .{ret});
+        if (ret != -1) return error.HttpSendBody;
     }
 };
-
-pub fn listen(port: [*c]const u8, interface: [*c]const u8, settings: ListenSettings) ListenError!void {
-    var pfolder: [*c]const u8 = null;
-    var pfolder_len: usize = 0;
-
-    if (settings.public_folder) |pf| {
-        pfolder_len = pf.len;
-        pfolder = pf.ptr;
-    }
-    const x: fio.http_settings_s = .{
-        .on_request = settings.on_request,
-        .on_upgrade = settings.on_upgrade,
-        .on_response = settings.on_response,
-        .on_finish = settings.on_finish,
-        .udata = null,
-        .public_folder = pfolder,
-        .public_folder_length = pfolder_len,
-        .max_header_size = settings.max_header_size,
-        .max_body_size = settings.max_body_size,
-        .max_clients = settings.max_clients,
-        .tls = null,
-        .reserved1 = 0,
-        .reserved2 = 0,
-        .reserved3 = 0,
-        .ws_max_msg_size = settings.ws_max_msg_size,
-        .timeout = settings.keepalive_timeout_s,
-        .ws_timeout = 0,
-        .log = if (settings.log) 1 else 0,
-        .is_client = 0,
-    };
-    // TODO: BUG: without this print/sleep statement, -Drelease* loop forever
-    // in debug2 and debug3 of hello example
-    // std.debug.print("X\n", .{});
-    std.time.sleep(500 * 1000 * 1000);
-
-    if (fio.http_listen(port, interface, x) == -1) {
-        return error.ListenError;
-    }
-}
-
-// lower level sendBody
-pub fn sendBody(request: [*c]fio.http_s, body: []const u8) HttpError!void {
-    const ret = fio.http_send_body(request, @as(
-        *anyopaque,
-        @ptrFromInt(@intFromPtr(body.ptr)),
-    ), body.len);
-    debug("sendBody(): ret = {}\n", .{ret});
-    if (ret != -1) return error.HttpSendBody;
-}
