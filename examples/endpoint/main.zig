@@ -3,7 +3,7 @@ const zap = @import("zap");
 const UserWeb = @import("userweb.zig");
 const StopEndpoint = @import("stopendpoint.zig");
 
-// this is just to demo that we can catch arbitrary slugs
+// this is just to demo that we can catch arbitrary slugs as fallback
 fn on_request(r: zap.Request) void {
     if (r.path) |the_path| {
         std.debug.print("REQUESTED PATH: {s}\n", .{the_path});
@@ -56,7 +56,7 @@ pub fn main() !void {
 
         // and run
         zap.start(.{
-            .threads = 2000,
+            .threads = 2,
             // IMPORTANT! It is crucial to only have a single worker for this example to work!
             // Multiple workers would have multiple copies of the users hashmap.
             //

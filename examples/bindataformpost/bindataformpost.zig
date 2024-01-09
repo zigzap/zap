@@ -5,7 +5,7 @@ const Handler = struct {
     var alloc: std.mem.Allocator = undefined;
 
     pub fn on_request(r: zap.Request) void {
-        // check for FORM parameters
+        // parse for FORM (body) parameters first
         r.parseBody() catch |err| {
             std.log.err("Parse Body error: {any}. Expected if body is empty", .{err});
         };
@@ -13,7 +13,8 @@ const Handler = struct {
         if (r.body) |body| {
             std.log.info("Body length is {any}\n", .{body.len});
         }
-        // check for query params (for ?terminate=true)
+
+        // parse potential query params (for ?terminate=true)
         r.parseQuery();
 
         const param_count = r.getParamCount();
@@ -56,8 +57,11 @@ const Handler = struct {
                     else => {
                         // might be a string param, we don't care
                         // let's just get it as string
+                        // always_alloc param = false -> the string will be a slice from the request buffer
+                        // --> no deinit necessary
                         if (r.getParamStr(Handler.alloc, kv.key.str, false)) |maybe_str| {
                             const value: []const u8 = if (maybe_str) |s| s.str else "(no value)";
+                            // above, we didn't defer s.deinit because the string is just a slice from the request buffer
                             std.log.debug("   {s} = {s}", .{ kv.key.str, value });
                         } else |err| {
                             std.log.err("Error: {any}\n", .{err});
@@ -70,7 +74,6 @@ const Handler = struct {
         // check if we received a terminate=true parameter
         if (r.getParamStr(Handler.alloc, "terminate", false)) |maybe_str| {
             if (maybe_str) |*s| {
-                defer s.deinit();
                 std.log.info("?terminate={s}\n", .{s.str});
                 if (std.mem.eql(u8, s.str, "true")) {
                     zap.stop();

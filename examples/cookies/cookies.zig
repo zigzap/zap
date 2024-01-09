@@ -37,17 +37,19 @@ pub fn main() !void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
-            r.parseCookies(false);
+            r.parseCookies(false); // url_encoded = false
 
             const cookie_count = r.getCookiesCount();
             std.log.info("cookie_count: {}", .{cookie_count});
 
-            // iterate over all cookies as strings
+            // iterate over all cookies as strings (always_alloc=false)
             var strCookies = r.cookiesToOwnedStrList(alloc, false) catch unreachable;
             defer strCookies.deinit();
             std.debug.print("\n", .{});
             for (strCookies.items) |kv| {
                 std.log.info("CookieStr `{s}` is `{s}`", .{ kv.key.str, kv.value.str });
+                // we don't need to deinit kv.key and kv.value because we requested always_alloc=false
+                // so they are just slices into the request buffer
             }
 
             std.debug.print("\n", .{});
@@ -63,7 +65,7 @@ pub fn main() !void {
             std.debug.print("\n", .{});
             if (r.getCookieStr(alloc, "ZIG_ZAP", false)) |maybe_str| {
                 if (maybe_str) |*s| {
-                    defer s.deinit();
+                    defer s.deinit(); // unnecessary because always_alloc=false
 
                     std.log.info("Cookie ZIG_ZAP = {s}", .{s.str});
                 } else {
