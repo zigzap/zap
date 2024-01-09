@@ -34,7 +34,7 @@ pub const FreeOrNot = struct {
 /// Used internally: convert a FIO object into its string representation.
 /// Depending on the type of the object, a buffer will be created. Hence a
 /// FreeOrNot type is used as the return type.
-pub fn fio2strAllocOrNot(o: fio.FIOBJ, a: std.mem.Allocator, always_alloc: bool) !FreeOrNot {
+pub fn fio2strAllocOrNot(a: std.mem.Allocator, o: fio.FIOBJ, always_alloc: bool) !FreeOrNot {
     if (o == 0) return .{ .str = "null", .freeme = false };
     if (o == fio.FIOBJ_INVALID) return .{ .str = "invalid", .freeme = false };
     return switch (fio.fiobj_type(o)) {

@@ -362,7 +362,7 @@ pub const Request = struct {
     }
 
     /// Returns named cookie. Works like getParamStr().
-    pub fn getCookieStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
+    pub fn getCookieStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
         if (self.h.*.cookies == 0) return null;
         const key = fio.fiobj_str_new(name.ptr, name.len);
         defer fio.fiobj_free_wrapped(key);
@@ -538,7 +538,7 @@ pub const Request = struct {
     ///
     /// Requires parseBody() and/or parseQuery() have been called.
     /// The returned string needs to be deinited with .deinit()
-    pub fn getParamStr(self: *const Self, name: []const u8, a: std.mem.Allocator, always_alloc: bool) !?util.FreeOrNot {
+    pub fn getParamStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
         if (self.h.*.params == 0) return null;
         const key = fio.fiobj_str_new(name.ptr, name.len);
         defer fio.fiobj_free_wrapped(key);
@@ -757,7 +757,7 @@ fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
 }
 
 /// Parse FIO object into a typed Http param. Supports file uploads.
-pub fn Fiobj2HttpParam(o: fio.FIOBJ, a: std.mem.Allocator, dupe_string: bool) !?HttpParam {
+pub fn Fiobj2HttpParam(a: std.mem.Allocator, o: fio.FIOBJ, dupe_string: bool) !?HttpParam {
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_NULL => null,
         fio.FIOBJ_T_TRUE => .{ .Bool = true },
