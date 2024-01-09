@@ -66,7 +66,7 @@ pub fn main() !void {
 
             // let's get param "one" by name
             std.debug.print("\n", .{});
-            if (r.getParamStr("one", alloc, false)) |maybe_str| {
+            if (r.getParamStr(alloc, "one", false)) |maybe_str| {
                 if (maybe_str) |*s| {
                     defer s.deinit();
 
@@ -82,7 +82,7 @@ pub fn main() !void {
             }
 
             // check if we received a terminate=true parameter
-            if (r.getParamStr("terminate", alloc, false)) |maybe_str| {
+            if (r.getParamStr(alloc, "terminate", false)) |maybe_str| {
                 if (maybe_str) |*s| {
                     defer s.deinit();
                     if (std.mem.eql(u8, s.str, "true")) {

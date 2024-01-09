@@ -61,7 +61,7 @@ pub fn main() !void {
 
             // let's get cookie "ZIG_ZAP" by name
             std.debug.print("\n", .{});
-            if (r.getCookieStr("ZIG_ZAP", alloc, false)) |maybe_str| {
+            if (r.getCookieStr(alloc, "ZIG_ZAP", false)) |maybe_str| {
                 if (maybe_str) |*s| {
                     defer s.deinit();
 

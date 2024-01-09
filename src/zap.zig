@@ -370,7 +370,7 @@ pub const Request = struct {
         if (value == fio.FIOBJ_INVALID) {
             return null;
         }
-        return try util.fio2strAllocOrNot(value, a, always_alloc);
+        return try util.fio2strAllocOrNot(a, value, always_alloc);
     }
 
     /// Returns the number of cookies after parsing.
@@ -454,11 +454,11 @@ pub const Request = struct {
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
-            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.always_alloc) catch |err| {
+            .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.always_alloc) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
-            .value = util.fio2strAllocOrNot(fiobj_value, ctx.allocator, ctx.always_alloc) catch |err| {
+            .value = util.fio2strAllocOrNot(ctx.allocator, fiobj_value, ctx.always_alloc) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
@@ -507,11 +507,11 @@ pub const Request = struct {
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
-            .key = util.fio2strAllocOrNot(fiobj_key, ctx.allocator, ctx.dupe_strings) catch |err| {
+            .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.dupe_strings) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
-            .value = Fiobj2HttpParam(fiobj_value, ctx.allocator, ctx.dupe_strings) catch |err| {
+            .value = Fiobj2HttpParam(ctx.allocator, fiobj_value, ctx.dupe_strings) catch |err| {
                 ctx.last_error = err;
                 return -1;
             },
@@ -546,7 +546,7 @@ pub const Request = struct {
         if (value == fio.FIOBJ_INVALID) {
             return null;
         }
-        return try util.fio2strAllocOrNot(value, a, always_alloc);
+        return try util.fio2strAllocOrNot(a, value, always_alloc);
     }
 };
 
@@ -764,7 +764,7 @@ pub fn Fiobj2HttpParam(a: std.mem.Allocator, o: fio.FIOBJ, dupe_string: bool) !?
         fio.FIOBJ_T_FALSE => .{ .Bool = false },
         fio.FIOBJ_T_NUMBER => .{ .Int = fio.fiobj_obj2num(o) },
         fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
-        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(o, a, dupe_string) },
+        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(a, o, dupe_string) },
         fio.FIOBJ_T_ARRAY => {
             return .{ .Unsupported = null };
         },
