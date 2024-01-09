@@ -27,6 +27,7 @@ fn on_request(r: zap.Request) void {
         }
         std.debug.print("<< json: {s}\n", .{json_to_send});
         r.setContentType(.JSON) catch return;
+        r.setContentTypeFromFilename("test.json") catch return;
         r.sendBody(json_to_send) catch return;
     }
 }
