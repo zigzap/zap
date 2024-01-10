@@ -2,16 +2,18 @@ const std = @import("std");
 const zap = @import("zap.zig");
 const auth = @import("http_auth.zig");
 
+const Endpoint = @This();
+
 // zap types
 const Request = zap.Request;
 const ListenerSettings = zap.HttpListenerSettings;
-const Listener = zap.HttpListener;
+const HttpListener = zap.HttpListener;
 
 /// Type of the request function callbacks.
 pub const RequestFn = *const fn (self: *Endpoint, r: Request) void;
 
 /// Settings to initialize an Endpoint
-pub const EndpointSettings = struct {
+pub const Settings = struct {
     /// path / slug of the endpoint
     path: []const u8,
     /// callback to GET request handler
@@ -26,101 +28,57 @@ pub const EndpointSettings = struct {
     patch: ?RequestFn = null,
     /// callback to OPTIONS request handler
     options: ?RequestFn = null,
-    /// Only applicable to AuthenticatingEndpoint: handler for unauthorized requests
+    /// Only applicable to Authenticating Endpoint: handler for unauthorized requests
     unauthorized: ?RequestFn = null,
 };
 
-/// The simple Endpoint struct. Create one and pass in your callbacks. Then,
-/// pass it to a HttpListener's `register()` function to register with the
-/// listener.
-///
-/// **NOTE**: A common endpoint pattern for zap is to create your own struct
-/// that embeds an Endpoint, provides specific callbacks, and uses
-/// `@fieldParentPtr` to get a reference to itself.
-///
-/// Example:
-/// A simple endpoint listening on the /stop route that shuts down zap.
-/// The main thread usually continues at the instructions after the call to zap.start().
-///
-/// ```zig
-/// const StopEndpoint = struct {
-///     ep: zap.Endpoint = undefined,
-///
-///     pub fn init(
-///         path: []const u8,
-///     ) StopEndpoint {
-///         return .{
-///             .ep = zap.Endpoint.init(.{
-///                 .path = path,
-///                 .get = get,
-///             }),
-///         };
-///     }
-///
-///     // access the internal Endpoint
-///     pub fn endpoint(self: *StopEndpoint) *zap.Endpoint {
-///         return &self.ep;
-///     }
-///
-///     fn get(e: *zap.Endpoint, r: zap.Request) void {
-///         const self: *StopEndpoint = @fieldParentPtr(StopEndpoint, "ep", e);
-///         _ = self;
-///         _ = r;
-///         zap.stop();
-///     }
-/// };
-/// ```
-pub const Endpoint = struct {
-    settings: EndpointSettings,
+settings: Settings,
 
-    const Self = @This();
+/// Initialize the endpoint.
+/// Set only the callbacks you need. Requests of HTTP methods without a
+/// provided callback will be ignored.
+pub fn init(s: Settings) Endpoint {
+    return .{
+        .settings = .{
+            .path = s.path,
+            .get = s.get orelse &nop,
+            .post = s.post orelse &nop,
+            .put = s.put orelse &nop,
+            .delete = s.delete orelse &nop,
+            .patch = s.patch orelse &nop,
+            .options = s.options orelse &nop,
+            .unauthorized = s.unauthorized orelse &nop,
+        },
+    };
+}
 
-    /// Initialize the endpoint.
-    /// Set only the callbacks you need. Requests of HTTP methods without a
-    /// provided callback will be ignored.
-    pub fn init(s: EndpointSettings) Self {
-        return .{
-            .settings = .{
-                .path = s.path,
-                .get = s.get orelse &nop,
-                .post = s.post orelse &nop,
-                .put = s.put orelse &nop,
-                .delete = s.delete orelse &nop,
-                .patch = s.patch orelse &nop,
-                .options = s.options orelse &nop,
-                .unauthorized = s.unauthorized orelse &nop,
-            },
-        };
+// no operation. Dummy handler function for ignoring unset request types.
+fn nop(self: *Endpoint, r: Request) void {
+    _ = self;
+    _ = r;
+}
+
+/// The global request handler for this Endpoint, called by the listener.
+pub fn onRequest(self: *Endpoint, r: zap.Request) void {
+    if (r.method) |m| {
+        if (std.mem.eql(u8, m, "GET"))
+            return self.settings.get.?(self, r);
+        if (std.mem.eql(u8, m, "POST"))
+            return self.settings.post.?(self, r);
+        if (std.mem.eql(u8, m, "PUT"))
+            return self.settings.put.?(self, r);
+        if (std.mem.eql(u8, m, "DELETE"))
+            return self.settings.delete.?(self, r);
+        if (std.mem.eql(u8, m, "PATCH"))
+            return self.settings.patch.?(self, r);
+        if (std.mem.eql(u8, m, "OPTIONS"))
+            return self.settings.options.?(self, r);
     }
-
-    // no operation. Dummy handler function for ignoring unset request types.
-    fn nop(self: *Endpoint, r: Request) void {
-        _ = self;
-        _ = r;
-    }
-
-    /// The global request handler for this Endpoint, called by the listener.
-    pub fn onRequest(self: *Endpoint, r: zap.Request) void {
-        if (r.method) |m| {
-            if (std.mem.eql(u8, m, "GET"))
-                return self.settings.get.?(self, r);
-            if (std.mem.eql(u8, m, "POST"))
-                return self.settings.post.?(self, r);
-            if (std.mem.eql(u8, m, "PUT"))
-                return self.settings.put.?(self, r);
-            if (std.mem.eql(u8, m, "DELETE"))
-                return self.settings.delete.?(self, r);
-            if (std.mem.eql(u8, m, "PATCH"))
-                return self.settings.patch.?(self, r);
-            if (std.mem.eql(u8, m, "OPTIONS"))
-                return self.settings.options.?(self, r);
-        }
-    }
-};
+}
 
 /// Wrap an endpoint with an Authenticator -> new Endpoint of type Endpoint
 /// is available via the `endpoint()` function.
-pub fn AuthenticatingEndpoint(comptime Authenticator: type) type {
+pub fn Authenticating(comptime Authenticator: type) type {
     return struct {
         authenticator: *Authenticator,
         ep: *Endpoint,
@@ -289,8 +247,8 @@ pub const EndpointListenerError = error{
 /// The listener with ednpoint support
 ///
 /// NOTE: It switches on path.startsWith -> so use endpoints with distinctly starting names!!
-pub const EndpointListener = struct {
-    listener: Listener,
+pub const Listener = struct {
+    listener: HttpListener,
     allocator: std.mem.Allocator,
 
     const Self = @This();
@@ -314,12 +272,12 @@ pub const EndpointListener = struct {
 
         // override the settings with our internal, actul callback function
         // so that "we" will be called on request
-        ls.on_request = onRequest;
+        ls.on_request = Listener.onRequest;
 
         // store the settings-provided request callback for later use
         on_request = l.on_request;
         return .{
-            .listener = Listener.init(ls),
+            .listener = HttpListener.init(ls),
             .allocator = a,
         };
     }

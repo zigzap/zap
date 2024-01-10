@@ -61,7 +61,7 @@ pub const AuthResult = enum {
     /// The authenticator handled the request that didn't pass authentication /
     /// authorization.
     /// This is used to implement authenticators that redirect to a login
-    /// page. An AuthenticatingEndpoint will not do the default, which is trying
+    /// page. An Authenticating endpoint will not do the default, which is trying
     /// to call the `unauthorized` callback if one exists orelse ignore the request.
     Handled,
 };
@@ -79,7 +79,7 @@ pub const AuthResult = enum {
 /// WWW-Authenticate: Basic realm="this"
 ///
 /// Lookup : any kind of map that implements get([]const u8) -> []const u8
-pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
+pub fn Basic(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
     return struct {
         allocator: std.mem.Allocator,
         realm: ?[]const u8,
@@ -219,7 +219,7 @@ pub fn BasicAuth(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
 /// Errors:
 /// HTTP/1.1 401 Unauthorized
 /// WWW-Authenticate: Bearer realm="example", error="invalid_token", error_description="..."
-pub const BearerAuthSingle = struct {
+pub const BearerSingle = struct {
     allocator: std.mem.Allocator,
     token: []const u8,
     realm: ?[]const u8,
@@ -276,7 +276,7 @@ pub const BearerAuthSingle = struct {
 /// Errors:
 /// HTTP/1.1 401 Unauthorized
 /// WWW-Authenticate: Bearer realm="example", error="invalid_token", error_description="..."
-pub fn BearerAuthMulti(comptime Lookup: type) type {
+pub fn BearerMulti(comptime Lookup: type) type {
     return struct {
         allocator: std.mem.Allocator,
         lookup: *Lookup,
@@ -325,8 +325,8 @@ pub fn BearerAuthMulti(comptime Lookup: type) type {
     };
 }
 
-/// Settings to initialize a UserPassSessionAuth authenticator.
-pub const UserPassSessionAuthArgs = struct {
+/// Settings to initialize a UserPassSession authenticator.
+pub const UserPassSessionArgs = struct {
     /// username body parameter
     usernameParam: []const u8,
     /// password body parameter
@@ -341,7 +341,7 @@ pub const UserPassSessionAuthArgs = struct {
     redirectCode: zap.StatusCode = .found,
 };
 
-/// UserPassSessionAuth supports the following use case:
+/// UserPassSession supports the following use case:
 ///
 /// - checks every request: is it going to the login page? -> let the request through.
 /// - else:
@@ -358,7 +358,7 @@ pub const UserPassSessionAuthArgs = struct {
 /// mechanisms described above will still kick in. For that reason: please know what
 /// you're doing.
 ///
-/// See UserPassSessionAuthArgs:
+/// See UserPassSessionArgs:
 /// - username & password param names can be defined by you
 /// - session cookie name and max-age can be defined by you
 /// - login page and redirect code (.302) can be defined by you
@@ -376,11 +376,11 @@ pub const UserPassSessionAuthArgs = struct {
 ///       -> another browser program with the page still open would still be able to use
 ///       -> the session. Which is kindof OK, but not as cool as erasing the token
 ///       -> on the server side which immediately block all other browsers as well.
-pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool) type {
+pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) type {
     return struct {
         allocator: std.mem.Allocator,
         lookup: *Lookup,
-        settings: UserPassSessionAuthArgs,
+        settings: UserPassSessionArgs,
 
         // TODO: cookie store per user?
         sessionTokens: SessionTokenMap,
@@ -398,7 +398,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
         pub fn init(
             allocator: std.mem.Allocator,
             lookup: *Lookup,
-            args: UserPassSessionAuthArgs,
+            args: UserPassSessionArgs,
         ) !Self {
             var ret: Self = .{
                 .allocator = allocator,
@@ -464,7 +464,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                     }
                 }
             } else |err| {
-                zap.debug("unreachable: UserPassSessionAuth.logout: {any}", .{err});
+                zap.debug("unreachable: UserPassSession.logout: {any}", .{err});
             }
         }
 
@@ -478,7 +478,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
 
             // parse body
             r.parseBody() catch {
-                // zap.debug("warning: parseBody() failed in UserPassSessionAuth: {any}", .{err});
+                // zap.debug("warning: parseBody() failed in UserPassSession: {any}", .{err});
                 // this is not an error in case of e.g. gets with querystrings
             };
 
@@ -503,7 +503,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                     }
                 }
             } else |err| {
-                zap.debug("unreachable: could not check for cookie in UserPassSessionAuth: {any}", .{err});
+                zap.debug("unreachable: could not check for cookie in UserPassSession: {any}", .{err});
             }
 
             // get params of username and password
@@ -548,12 +548,12 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                             }
                         }
                     } else |err| {
-                        zap.debug("getParamSt() for password failed in UserPassSessionAuth: {any}", .{err});
+                        zap.debug("getParamSt() for password failed in UserPassSession: {any}", .{err});
                         return .AuthFailed;
                     }
                 }
             } else |err| {
-                zap.debug("getParamSt() for user failed in UserPassSessionAuth: {any}", .{err});
+                zap.debug("getParamSt() for user failed in UserPassSession: {any}", .{err});
                 return .AuthFailed;
             }
             return .AuthFailed;
@@ -575,7 +575,7 @@ pub fn UserPassSessionAuth(comptime Lookup: type, comptime lockedPwLookups: bool
                     // we need to redirect and return .Handled
                     self.redirect(r) catch |err| {
                         // we just give up
-                        zap.debug("redirect() failed in UserPassSessionAuth: {any}", .{err});
+                        zap.debug("redirect() failed in UserPassSession: {any}", .{err});
                     };
                     return .Handled;
                 },

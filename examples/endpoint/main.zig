@@ -21,7 +21,7 @@ pub fn main() !void {
     // we scope everything that can allocate within this block for leak detection
     {
         // setup listener
-        var listener = zap.EndpointListener.init(
+        var listener = zap.Endpoint.Listener.init(
             allocator,
             .{
                 .port = 3000,
