@@ -32,7 +32,7 @@ const Handler = struct {
                 std.log.info("Param `{s}` in owned list is {any}\n", .{ kv.key.str, v });
                 switch (v) {
                     // single-file upload
-                    zap.HttpParam.Hash_Binfile => |*file| {
+                    zap.Request.HttpParam.Hash_Binfile => |*file| {
                         const filename = file.filename orelse "(no filename)";
                         const mimetype = file.mimetype orelse "(no mimetype)";
                         const data = file.data orelse "";
@@ -42,7 +42,7 @@ const Handler = struct {
                         std.log.debug("    contents: {any}\n", .{data});
                     },
                     // multi-file upload
-                    zap.HttpParam.Array_Binfile => |*files| {
+                    zap.Request.HttpParam.Array_Binfile => |*files| {
                         for (files.*.items) |file| {
                             const filename = file.filename orelse "(no filename)";
                             const mimetype = file.mimetype orelse "(no mimetype)";

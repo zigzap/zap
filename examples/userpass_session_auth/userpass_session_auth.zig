@@ -5,7 +5,7 @@ const Lookup = std.StringHashMap([]const u8);
 const auth_lock_pw_table = false;
 
 // see the source for more info
-const Authenticator = zap.UserPassSessionAuth(
+const Authenticator = zap.Auth.UserPassSession(
     Lookup,
     // we may set this to true if we expect our username -> password map
     // to change. in that case the authenticator must lock the table for

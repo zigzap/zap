@@ -30,8 +30,8 @@ test "http parameters" {
         var ran: bool = false;
         var param_count: isize = 0;
 
-        var strParams: ?zap.HttpParamStrKVList = null;
-        var params: ?zap.HttpParamKVList = null;
+        var strParams: ?zap.Request.HttpParamStrKVList = null;
+        var params: ?zap.Request.HttpParamKVList = null;
         var paramOneStr: ?zap.FreeOrNot = null;
 
         pub fn on_request(r: zap.Request) void {

@@ -25,7 +25,7 @@ fn endpoint_http_unauthorized(e: *zap.Endpoint, r: zap.Request) void {
 
 pub fn main() !void {
     // setup listener
-    var listener = zap.EndpointListener.init(
+    var listener = zap.Endpoint.Listener.init(
         a,
         .{
             .port = 3000,
@@ -45,12 +45,12 @@ pub fn main() !void {
     });
 
     // create authenticator
-    const Authenticator = zap.BearerAuthSingle;
+    const Authenticator = zap.Auth.BearerSingle;
     var authenticator = try Authenticator.init(a, token, null);
     defer authenticator.deinit();
 
     // create authenticating endpoint
-    const BearerAuthEndpoint = zap.AuthenticatingEndpoint(Authenticator);
+    const BearerAuthEndpoint = zap.Endpoint.Authenticating(Authenticator);
     var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
 
     try listener.register(auth_ep.endpoint());
