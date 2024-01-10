@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>log.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L2"></span>
+<span class="line" id="L3"><span class="tok-comment">// TODO: rework logging in zap</span>
+</span>
+<span class="line" id="L4"></span>
+<span class="line" id="L5">debugOn: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L6"></span>
+<span class="line" id="L7"><span class="tok-comment">/// Access to facil.io's logging facilities</span></span>
+<span class="line" id="L8"><span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L9"></span>
+<span class="line" id="L10"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(<span class="tok-kw">comptime</span> debug: <span class="tok-type">bool</span>) Self {</span>
+<span class="line" id="L11">    <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L12">        .debugOn = debug,</span>
+<span class="line" id="L13">    };</span>
+<span class="line" id="L14">}</span>
+<span class="line" id="L15"></span>
+<span class="line" id="L16"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">log</span>(self: *<span class="tok-kw">const</span> Self, <span class="tok-kw">comptime</span> fmt: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, args: <span class="tok-kw">anytype</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L17">    <span class="tok-kw">if</span> (self.debugOn) {</span>
+<span class="line" id="L18">        std.debug.print(<span class="tok-str">&quot;[zap] - &quot;</span> ++ fmt, args);</span>
+<span class="line" id="L19">    }</span>
+<span class="line" id="L20">}</span>
+<span class="line" id="L21"></span>
+<span class="line" id="L22"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_none: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L23"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_fatal: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L24"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_error: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L25"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_warning: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L26"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_info: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L27"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> fio_log_level_debug: <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L28"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_set_log_level</span>(level: <span class="tok-type">c_int</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L29"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_get_log_level</span>() <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L30"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_print</span>(level: <span class="tok-type">c_int</span>, msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L31"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_info</span>(msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L32"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_warning</span>(msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L33"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_error</span>(msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L34"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_fatal</span>(msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L35"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_log_debug</span>(msg: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L36"></span>
+<span class="line" id="L37"><span class="tok-comment">// pub fn getDebugLogger(comptime debug: bool) type {</span>
+</span>
+<span class="line" id="L38"><span class="tok-comment">//     return struct {</span>
+</span>
+<span class="line" id="L39"><span class="tok-comment">//         pub fn log(comptime fmt: []const u8, args: anytype) void {</span>
+</span>
+<span class="line" id="L40"><span class="tok-comment">//             if (debug) {</span>
+</span>
+<span class="line" id="L41"><span class="tok-comment">//                 std.debug.print(&quot;[zap] - &quot; ++ fmt, args);</span>
+</span>
+<span class="line" id="L42"><span class="tok-comment">//             }</span>
+</span>
+<span class="line" id="L43"><span class="tok-comment">//         }</span>
+</span>
+<span class="line" id="L44"><span class="tok-comment">//     };</span>
+</span>
+<span class="line" id="L45"><span class="tok-comment">// }</span>
+</span>
+<span class="line" id="L46"></span>
+</code></pre></body>
+</html>

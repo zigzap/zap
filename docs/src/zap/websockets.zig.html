@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>websockets.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L2"><span class="tok-kw">const</span> zap = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;zap.zig&quot;</span>);</span>
+<span class="line" id="L3"><span class="tok-kw">const</span> fio = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;fio.zig&quot;</span>);</span>
+<span class="line" id="L4"><span class="tok-kw">const</span> util = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L5"></span>
+<span class="line" id="L6"><span class="tok-comment">/// The Handle type used for WebSocket connections. Do not mess with this.</span></span>
+<span class="line" id="L7"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> WsHandle = ?*fio.ws_s;</span>
+<span class="line" id="L8"></span>
+<span class="line" id="L9"><span class="tok-comment">/// WebSocket Handler. Pass in a Context type and it will give you a struct that</span></span>
+<span class="line" id="L10"><span class="tok-comment">/// contains all the types and functions you need. See the websocket example</span></span>
+<span class="line" id="L11"><span class="tok-comment">/// for more details.</span></span>
+<span class="line" id="L12"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">Handler</span>(<span class="tok-kw">comptime</span> ContextType: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L13">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L14">        <span class="tok-comment">/// OnMessage Callback on a websocket, type.</span></span>
+<span class="line" id="L15">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> WsOnMessageFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (</span>
+<span class="line" id="L16">            <span class="tok-comment">/// user-provided context, passed in from websocketHttpUpgrade()</span></span>
+<span class="line" id="L17">            context: ?*ContextType,</span>
+<span class="line" id="L18">            <span class="tok-comment">/// websocket handle, used to identify the websocket internally</span></span>
+<span class="line" id="L19">            handle: WsHandle,</span>
+<span class="line" id="L20">            <span class="tok-comment">/// the received message</span></span>
+<span class="line" id="L21">            message: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L22">            <span class="tok-comment">/// indicator if message is text or binary</span></span>
+<span class="line" id="L23">            is_text: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L24">        ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L25"></span>
+<span class="line" id="L26">        <span class="tok-comment">/// Callback (type) when websocket is closed. uuid is a connection identifier,</span></span>
+<span class="line" id="L27">        <span class="tok-comment">/// it is -1 if a connection could not be established</span></span>
+<span class="line" id="L28">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> WsOnCloseFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (context: ?*ContextType, uuid: <span class="tok-type">isize</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L29"></span>
+<span class="line" id="L30">        <span class="tok-comment">/// A websocket callback function type. provides the context passed in at</span></span>
+<span class="line" id="L31">        <span class="tok-comment">/// websocketHttpUpgrade().</span></span>
+<span class="line" id="L32">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> WsFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (context: ?*ContextType, handle: WsHandle) <span class="tok-type">void</span>;</span>
+<span class="line" id="L33"></span>
+<span class="line" id="L34">        <span class="tok-comment">/// Websocket connection handler creation settings. Provide the callbacks you need,</span></span>
+<span class="line" id="L35">        <span class="tok-comment">/// and an optional context.</span></span>
+<span class="line" id="L36">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> WebSocketSettings = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L37">            <span class="tok-comment">/// on_message(context, handle, message, is_text)</span></span>
+<span class="line" id="L38">            on_message: ?WsOnMessageFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L39">            <span class="tok-comment">/// on_open(context)</span></span>
+<span class="line" id="L40">            on_open: ?WsFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L41">            <span class="tok-comment">/// on_ready(context)</span></span>
+<span class="line" id="L42">            on_ready: ?WsFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L43">            <span class="tok-comment">/// on_shutdown(context, uuid)</span></span>
+<span class="line" id="L44">            on_shutdown: ?WsFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L45">            <span class="tok-comment">/// on_close(context)</span></span>
+<span class="line" id="L46">            on_close: ?WsOnCloseFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L47">            <span class="tok-comment">/// passed-in user-defined context</span></span>
+<span class="line" id="L48">            context: ?*ContextType = <span class="tok-null">null</span>,</span>
+<span class="line" id="L49">        };</span>
+<span class="line" id="L50"></span>
+<span class="line" id="L51">        <span class="tok-comment">/// This function will end the HTTP stage of the connection and attempt to &quot;upgrade&quot; to a WebSockets connection.</span></span>
+<span class="line" id="L52">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">upgrade</span>(h: [*c]fio.http_s, settings: *WebSocketSettings) WebSocketError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L53">            <span class="tok-kw">const</span> fio_settings: fio.websocket_settings_s = .{</span>
+<span class="line" id="L54">                .on_message = internal_on_message,</span>
+<span class="line" id="L55">                .on_open = internal_on_open,</span>
+<span class="line" id="L56">                .on_ready = internal_on_ready,</span>
+<span class="line" id="L57">                .on_shutdown = internal_on_shutdown,</span>
+<span class="line" id="L58">                .on_close = internal_on_close,</span>
+<span class="line" id="L59">                .udata = settings,</span>
+<span class="line" id="L60">            };</span>
+<span class="line" id="L61">            <span class="tok-kw">if</span> (fio.http_upgrade2ws(h, fio_settings) != <span class="tok-number">0</span>) {</span>
+<span class="line" id="L62">                <span class="tok-kw">return</span> <span class="tok-kw">error</span>.UpgradeError;</span>
+<span class="line" id="L63">            }</span>
+<span class="line" id="L64">        }</span>
+<span class="line" id="L65"></span>
+<span class="line" id="L66">        <span class="tok-kw">fn</span> <span class="tok-fn">internal_on_message</span>(handle: WsHandle, msg: fio.fio_str_info_s, is_text: <span class="tok-type">u8</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L67">            <span class="tok-kw">const</span> user_provided_settings: ?*WebSocketSettings = <span class="tok-builtin">@as</span>(?*WebSocketSettings, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(fio.websocket_udata_get(handle))));</span>
+<span class="line" id="L68">            <span class="tok-kw">const</span> message = msg.data[<span class="tok-number">0</span>..msg.len];</span>
+<span class="line" id="L69">            <span class="tok-kw">if</span> (user_provided_settings) |settings| {</span>
+<span class="line" id="L70">                <span class="tok-kw">if</span> (settings.on_message) |on_message| {</span>
+<span class="line" id="L71">                    on_message(settings.context, handle, message, is_text == <span class="tok-number">1</span>);</span>
+<span class="line" id="L72">                }</span>
+<span class="line" id="L73">            }</span>
+<span class="line" id="L74">        }</span>
+<span class="line" id="L75"></span>
+<span class="line" id="L76">        <span class="tok-kw">fn</span> <span class="tok-fn">internal_on_open</span>(handle: WsHandle) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L77">            <span class="tok-kw">const</span> user_provided_settings: ?*WebSocketSettings = <span class="tok-builtin">@as</span>(?*WebSocketSettings, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(fio.websocket_udata_get(handle))));</span>
+<span class="line" id="L78">            <span class="tok-kw">if</span> (user_provided_settings) |settings| {</span>
+<span class="line" id="L79">                <span class="tok-kw">if</span> (settings.on_open) |on_open| {</span>
+<span class="line" id="L80">                    on_open(settings.context, handle);</span>
+<span class="line" id="L81">                }</span>
+<span class="line" id="L82">            }</span>
+<span class="line" id="L83">        }</span>
+<span class="line" id="L84"></span>
+<span class="line" id="L85">        <span class="tok-kw">fn</span> <span class="tok-fn">internal_on_ready</span>(handle: WsHandle) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L86">            <span class="tok-kw">const</span> user_provided_settings: ?*WebSocketSettings = <span class="tok-builtin">@as</span>(?*WebSocketSettings, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(fio.websocket_udata_get(handle))));</span>
+<span class="line" id="L87">            <span class="tok-kw">if</span> (user_provided_settings) |settings| {</span>
+<span class="line" id="L88">                <span class="tok-kw">if</span> (settings.on_ready) |on_ready| {</span>
+<span class="line" id="L89">                    on_ready(settings.context, handle);</span>
+<span class="line" id="L90">                }</span>
+<span class="line" id="L91">            }</span>
+<span class="line" id="L92">        }</span>
+<span class="line" id="L93"></span>
+<span class="line" id="L94">        <span class="tok-kw">fn</span> <span class="tok-fn">internal_on_shutdown</span>(handle: WsHandle) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L95">            <span class="tok-kw">const</span> user_provided_settings: ?*WebSocketSettings = <span class="tok-builtin">@as</span>(?*WebSocketSettings, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(fio.websocket_udata_get(handle))));</span>
+<span class="line" id="L96">            <span class="tok-kw">if</span> (user_provided_settings) |settings| {</span>
+<span class="line" id="L97">                <span class="tok-kw">if</span> (settings.on_shutdown) |on_shutdown| {</span>
+<span class="line" id="L98">                    on_shutdown(settings.context, handle);</span>
+<span class="line" id="L99">                }</span>
+<span class="line" id="L100">            }</span>
+<span class="line" id="L101">        }</span>
+<span class="line" id="L102"></span>
+<span class="line" id="L103">        <span class="tok-kw">fn</span> <span class="tok-fn">internal_on_close</span>(uuid: <span class="tok-type">isize</span>, udata: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L104">            <span class="tok-kw">const</span> user_provided_settings: ?*WebSocketSettings = <span class="tok-builtin">@as</span>(?*WebSocketSettings, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(udata)));</span>
+<span class="line" id="L105">            <span class="tok-kw">if</span> (user_provided_settings) |settings| {</span>
+<span class="line" id="L106">                <span class="tok-kw">if</span> (settings.on_close) |on_close| {</span>
+<span class="line" id="L107">                    on_close(settings.context, uuid);</span>
+<span class="line" id="L108">                }</span>
+<span class="line" id="L109">            }</span>
+<span class="line" id="L110">        }</span>
+<span class="line" id="L111"></span>
+<span class="line" id="L112">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> WebSocketError = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L113">            WriteError,</span>
+<span class="line" id="L114">            UpgradeError,</span>
+<span class="line" id="L115">            SubscribeError,</span>
+<span class="line" id="L116">        };</span>
+<span class="line" id="L117"></span>
+<span class="line" id="L118">        <span class="tok-comment">/// Write to the websocket identified by the handle.</span></span>
+<span class="line" id="L119">        <span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">write</span>(handle: WsHandle, message: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, is_text: <span class="tok-type">bool</span>) WebSocketError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L120">            <span class="tok-kw">if</span> (fio.websocket_write(</span>
+<span class="line" id="L121">                handle,</span>
+<span class="line" id="L122">                fio.str2fio(message),</span>
+<span class="line" id="L123">                <span class="tok-kw">if</span> (is_text) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L124">            ) != <span class="tok-number">0</span>) {</span>
+<span class="line" id="L125">                <span class="tok-kw">return</span> <span class="tok-kw">error</span>.WriteError;</span>
+<span class="line" id="L126">            }</span>
+<span class="line" id="L127">        }</span>
+<span class="line" id="L128"></span>
+<span class="line" id="L129">        <span class="tok-comment">/// The context pointer is stored in facilio's udata pointer. Use</span></span>
+<span class="line" id="L130">        <span class="tok-comment">/// this function to turn that pointer into a pointer to your</span></span>
+<span class="line" id="L131">        <span class="tok-comment">/// ContextType.</span></span>
+<span class="line" id="L132">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">udataToContext</span>(udata: *<span class="tok-type">anyopaque</span>) *ContextType {</span>
+<span class="line" id="L133">            <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(*ContextType, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(udata)));</span>
+<span class="line" id="L134">        }</span>
+<span class="line" id="L135"></span>
+<span class="line" id="L136">        <span class="tok-comment">/// Close the websocket connection.</span></span>
+<span class="line" id="L137">        <span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">close</span>(handle: WsHandle) <span class="tok-type">void</span> {</span>
+<span class="line" id="L138">            fio.websocket_close(handle);</span>
+<span class="line" id="L139">        }</span>
+<span class="line" id="L140"></span>
+<span class="line" id="L141">        <span class="tok-comment">/// Settings for publishing a message in a channel.</span></span>
+<span class="line" id="L142">        <span class="tok-kw">const</span> PublishArgs = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L143">            channel: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L144">            message: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L145">            is_json: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
+<span class="line" id="L146">        };</span>
+<span class="line" id="L147"></span>
+<span class="line" id="L148">        <span class="tok-comment">/// Publish a message in a channel.</span></span>
+<span class="line" id="L149">        <span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">publish</span>(args: PublishArgs) <span class="tok-type">void</span> {</span>
+<span class="line" id="L150">            fio.fio_publish(.{</span>
+<span class="line" id="L151">                .channel = util.str2fio(args.channel),</span>
+<span class="line" id="L152">                .message = util.str2fio(args.message),</span>
+<span class="line" id="L153">                .is_json = <span class="tok-kw">if</span> (args.is_json) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L154">            });</span>
+<span class="line" id="L155">        }</span>
+<span class="line" id="L156"></span>
+<span class="line" id="L157">        <span class="tok-comment">/// Type for callback on subscription message.</span></span>
+<span class="line" id="L158">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> SubscriptionOnMessageFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (context: ?*ContextType, handle: WsHandle, channel: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, message: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L159"></span>
+<span class="line" id="L160">        <span class="tok-comment">/// Type for callback on unsubscribe message.</span></span>
+<span class="line" id="L161">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> SubscriptionOnUnsubscribeFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (context: ?*ContextType) <span class="tok-type">void</span>;</span>
+<span class="line" id="L162"></span>
+<span class="line" id="L163">        <span class="tok-comment">/// Settings for subscribing to a channel.</span></span>
+<span class="line" id="L164">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> SubscribeArgs = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L165">            <span class="tok-comment">/// channel name</span></span>
+<span class="line" id="L166">            channel: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L167">            <span class="tok-comment">/// on message callback</span></span>
+<span class="line" id="L168">            on_message: ?SubscriptionOnMessageFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L169">            <span class="tok-comment">/// on unsubscribe callback</span></span>
+<span class="line" id="L170">            on_unsubscribe: ?SubscriptionOnUnsubscribeFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L171">            <span class="tok-comment">/// this is not wrapped nicely yet</span></span>
+<span class="line" id="L172">            match: fio.fio_match_fn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L173">            <span class="tok-comment">/// When using direct message forwarding (no on_message callback), this indicates if</span></span>
+<span class="line" id="L174">            <span class="tok-comment">/// messages should be sent to the client as binary blobs, which is the safest approach.</span></span>
+<span class="line" id="L175">            <span class="tok-comment">/// By default, facil.io will test for UTF-8 data validity and send the data as text if</span></span>
+<span class="line" id="L176">            <span class="tok-comment">/// it's a valid UTF-8. Messages above ~32Kb might be assumed to be binary rather than</span></span>
+<span class="line" id="L177">            <span class="tok-comment">/// tested.</span></span>
+<span class="line" id="L178">            force_binary: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
+<span class="line" id="L179">            <span class="tok-comment">/// When using direct message forwarding (no on_message callback), this indicates if</span></span>
+<span class="line" id="L180">            <span class="tok-comment">/// messages should be sent to the client as UTF-8 text. By default, facil.io will test</span></span>
+<span class="line" id="L181">            <span class="tok-comment">/// for UTF-8 data validity and send the data as text if it's a valid UTF-8. Messages</span></span>
+<span class="line" id="L182">            <span class="tok-comment">/// above ~32Kb might be assumed to be binary rather than tested. force_binary has</span></span>
+<span class="line" id="L183">            <span class="tok-comment">/// precedence over force_text.</span></span>
+<span class="line" id="L184">            force_text: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
+<span class="line" id="L185">            <span class="tok-comment">/// your provided arbitrary context</span></span>
+<span class="line" id="L186">            context: ?*ContextType = <span class="tok-null">null</span>,</span>
+<span class="line" id="L187">        };</span>
+<span class="line" id="L188"></span>
+<span class="line" id="L189">        <span class="tok-comment">/// Subscribe to a channel.</span></span>
+<span class="line" id="L190">        <span class="tok-comment">/// Returns a subscription ID on success and 0 on failure.</span></span>
+<span class="line" id="L191">        <span class="tok-comment">/// we copy the pointer so make sure the struct stays  valid.</span></span>
+<span class="line" id="L192">        <span class="tok-comment">/// we need it to look up the ziggified callbacks.</span></span>
+<span class="line" id="L193">        <span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">subscribe</span>(handle: WsHandle, args: *SubscribeArgs) WebSocketError!<span class="tok-type">usize</span> {</span>
+<span class="line" id="L194">            <span class="tok-kw">if</span> (handle == <span class="tok-null">null</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SubscribeError;</span>
+<span class="line" id="L195">            <span class="tok-kw">const</span> fio_args: fio.websocket_subscribe_s_zigcompat = .{</span>
+<span class="line" id="L196">                .ws = handle.?,</span>
+<span class="line" id="L197">                .channel = util.str2fio(args.channel),</span>
+<span class="line" id="L198">                .on_message = <span class="tok-kw">if</span> (args.on_message) |_| internal_subscription_on_message <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L199">                .on_unsubscribe = <span class="tok-kw">if</span> (args.on_unsubscribe) |_| internal_subscription_on_unsubscribe <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L200">                .match = args.match,</span>
+<span class="line" id="L201">                .force_binary = <span class="tok-kw">if</span> (args.force_binary) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L202">                .force_text = <span class="tok-kw">if</span> (args.force_text) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L203">                .udata = args,</span>
+<span class="line" id="L204">            };</span>
+<span class="line" id="L205">            <span class="tok-kw">const</span> ret = fio.websocket_subscribe_zigcompat(fio_args);</span>
+<span class="line" id="L206">            <span class="tok-kw">if</span> (ret == <span class="tok-number">0</span>) {</span>
+<span class="line" id="L207">                <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SubscribeError;</span>
+<span class="line" id="L208">            }</span>
+<span class="line" id="L209">            <span class="tok-kw">return</span> ret;</span>
+<span class="line" id="L210">        }</span>
+<span class="line" id="L211"></span>
+<span class="line" id="L212">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">internal_subscription_on_message</span>(handle: WsHandle, channel: fio.fio_str_info_s, message: fio.fio_str_info_s, udata: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L213">            <span class="tok-kw">if</span> (udata) |p| {</span>
+<span class="line" id="L214">                <span class="tok-kw">const</span> args = <span class="tok-builtin">@as</span>(*SubscribeArgs, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(p)));</span>
+<span class="line" id="L215">                <span class="tok-kw">if</span> (args.on_message) |on_message| {</span>
+<span class="line" id="L216">                    on_message(args.context, handle, channel.data[<span class="tok-number">0</span>..channel.len], message.data[<span class="tok-number">0</span>..message.len]);</span>
+<span class="line" id="L217">                }</span>
+<span class="line" id="L218">            }</span>
+<span class="line" id="L219">        }</span>
+<span class="line" id="L220">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">internal_subscription_on_unsubscribe</span>(udata: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L221">            <span class="tok-kw">if</span> (udata) |p| {</span>
+<span class="line" id="L222">                <span class="tok-kw">const</span> args = <span class="tok-builtin">@as</span>(*SubscribeArgs, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(p)));</span>
+<span class="line" id="L223">                <span class="tok-kw">if</span> (args.on_unsubscribe) |on_unsubscribe| {</span>
+<span class="line" id="L224">                    on_unsubscribe(args.context);</span>
+<span class="line" id="L225">                }</span>
+<span class="line" id="L226">            }</span>
+<span class="line" id="L227">        }</span>
+<span class="line" id="L228">    };</span>
+<span class="line" id="L229">}</span>
+<span class="line" id="L230"></span>
+</code></pre></body>
+</html>

@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>fio.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ = <span class="tok-type">usize</span>;</span>
+<span class="line" id="L2"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">is_invalid</span>(o: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L3"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fio_url_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L4">    scheme: fio_str_info_s,</span>
+<span class="line" id="L5">    user: fio_str_info_s,</span>
+<span class="line" id="L6">    password: fio_str_info_s,</span>
+<span class="line" id="L7">    host: fio_str_info_s,</span>
+<span class="line" id="L8">    port: fio_str_info_s,</span>
+<span class="line" id="L9">    path: fio_str_info_s,</span>
+<span class="line" id="L10">    query: fio_str_info_s,</span>
+<span class="line" id="L11">    target: fio_str_info_s,</span>
+<span class="line" id="L12">};</span>
+<span class="line" id="L13"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_url_parse</span>(url: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, length: <span class="tok-type">usize</span>) fio_url_s;</span>
+<span class="line" id="L14"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_fio_start_args = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L15">    threads: <span class="tok-type">i16</span>,</span>
+<span class="line" id="L16">    workers: <span class="tok-type">i16</span>,</span>
+<span class="line" id="L17">};</span>
+<span class="line" id="L18"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fio_start_args = struct_fio_start_args;</span>
+<span class="line" id="L19"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_start</span>(args: struct_fio_start_args) <span class="tok-type">void</span>;</span>
+<span class="line" id="L20"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_stop</span>() <span class="tok-type">void</span>;</span>
+<span class="line" id="L21"><span class="tok-kw">const</span> struct_unnamed_37 = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L22">    vtbl: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L23">    flag: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L24">    out_headers: FIOBJ,</span>
+<span class="line" id="L25">};</span>
+<span class="line" id="L26"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> __time_t = <span class="tok-type">c_long</span>;</span>
+<span class="line" id="L27"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> time_t = __time_t;</span>
+<span class="line" id="L28"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> __syscall_slong_t = <span class="tok-type">c_long</span>;</span>
+<span class="line" id="L29"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_timespec = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L30">    tv_sec: __time_t,</span>
+<span class="line" id="L31">    tv_nsec: __syscall_slong_t,</span>
+<span class="line" id="L32">};</span>
+<span class="line" id="L33"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_http_settings_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L34">    on_request: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L35">    on_upgrade: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_s, [*c]<span class="tok-type">u8</span>, <span class="tok-type">usize</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L36">    on_response: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L37">    on_finish: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]struct_http_settings_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L38">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L39">    public_folder: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L40">    public_folder_length: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L41">    max_header_size: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L42">    max_body_size: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L43">    max_clients: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L44">    tls: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L45">    reserved1: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L46">    reserved2: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L47">    reserved3: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L48">    ws_max_msg_size: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L49">    timeout: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L50">    ws_timeout: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L51">    log: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L52">    is_client: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L53">};</span>
+<span class="line" id="L54"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_settings_s = struct_http_settings_s;</span>
+<span class="line" id="L55"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L56">    private_data: struct_unnamed_37,</span>
+<span class="line" id="L57">    received_at: struct_timespec,</span>
+<span class="line" id="L58">    method: FIOBJ,</span>
+<span class="line" id="L59">    status_str: FIOBJ,</span>
+<span class="line" id="L60">    version: FIOBJ,</span>
+<span class="line" id="L61">    status: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L62">    path: FIOBJ,</span>
+<span class="line" id="L63">    query: FIOBJ,</span>
+<span class="line" id="L64">    headers: FIOBJ,</span>
+<span class="line" id="L65">    cookies: FIOBJ,</span>
+<span class="line" id="L66">    params: FIOBJ,</span>
+<span class="line" id="L67">    body: FIOBJ,</span>
+<span class="line" id="L68">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L69">};</span>
+<span class="line" id="L70"></span>
+<span class="line" id="L71"><span class="tok-comment">// zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/http.h:153:12: warning: struct demoted to opaque type - has bitfield</span>
+</span>
+<span class="line" id="L72"></span>
+<span class="line" id="L73"><span class="tok-comment">// typedef struct {</span>
+</span>
+<span class="line" id="L74"><span class="tok-comment">//   /** The cookie's name (Symbol). */</span>
+</span>
+<span class="line" id="L75"><span class="tok-comment">//   const char *name;</span>
+</span>
+<span class="line" id="L76"><span class="tok-comment">//   /** The cookie's value (leave blank to delete cookie). */</span>
+</span>
+<span class="line" id="L77"><span class="tok-comment">//   const char *value;</span>
+</span>
+<span class="line" id="L78"><span class="tok-comment">//   /** The cookie's domain (optional). */</span>
+</span>
+<span class="line" id="L79"><span class="tok-comment">//   const char *domain;</span>
+</span>
+<span class="line" id="L80"><span class="tok-comment">//   /** The cookie's path (optional). */</span>
+</span>
+<span class="line" id="L81"><span class="tok-comment">//   const char *path;</span>
+</span>
+<span class="line" id="L82"><span class="tok-comment">//   /** The cookie name's size in bytes or a terminating NUL will be assumed.*/</span>
+</span>
+<span class="line" id="L83"><span class="tok-comment">//   size_t name_len;</span>
+</span>
+<span class="line" id="L84"><span class="tok-comment">//   /** The cookie value's size in bytes or a terminating NUL will be assumed.*/</span>
+</span>
+<span class="line" id="L85"><span class="tok-comment">//   size_t value_len;</span>
+</span>
+<span class="line" id="L86"><span class="tok-comment">//   /** The cookie domain's size in bytes or a terminating NUL will be assumed.*/</span>
+</span>
+<span class="line" id="L87"><span class="tok-comment">//   size_t domain_len;</span>
+</span>
+<span class="line" id="L88"><span class="tok-comment">//   /** The cookie path's size in bytes or a terminating NULL will be assumed.*/</span>
+</span>
+<span class="line" id="L89"><span class="tok-comment">//   size_t path_len;</span>
+</span>
+<span class="line" id="L90"><span class="tok-comment">//   /** Max Age (how long should the cookie persist), in seconds (0 == session).*/</span>
+</span>
+<span class="line" id="L91"><span class="tok-comment">//   int max_age;</span>
+</span>
+<span class="line" id="L92"><span class="tok-comment">//   /** Limit cookie to secure connections.*/</span>
+</span>
+<span class="line" id="L93"><span class="tok-comment">//   unsigned secure : 1;</span>
+</span>
+<span class="line" id="L94"><span class="tok-comment">//   /** Limit cookie to HTTP (intended to prevent javascript access/hijacking).*/</span>
+</span>
+<span class="line" id="L95"><span class="tok-comment">//   unsigned http_only : 1;</span>
+</span>
+<span class="line" id="L96"><span class="tok-comment">// } http_cookie_args_s;</span>
+</span>
+<span class="line" id="L97"></span>
+<span class="line" id="L98"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_cookie_args_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L99">    name: [*c]<span class="tok-type">u8</span>,</span>
+<span class="line" id="L100">    value: [*c]<span class="tok-type">u8</span>,</span>
+<span class="line" id="L101">    domain: [*c]<span class="tok-type">u8</span>,</span>
+<span class="line" id="L102">    path: [*c]<span class="tok-type">u8</span>,</span>
+<span class="line" id="L103">    name_len: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L104">    value_len: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L105">    domain_len: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L106">    path_len: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L107">    <span class="tok-comment">/// in seconds</span></span>
+<span class="line" id="L108">    max_age: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L109">    secure: <span class="tok-type">c_uint</span>,</span>
+<span class="line" id="L110">    http_only: <span class="tok-type">c_uint</span>,</span>
+<span class="line" id="L111">};</span>
+<span class="line" id="L112"></span>
+<span class="line" id="L113"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_fio_str_info_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L114">    capa: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L115">    len: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L116">    data: [*c]<span class="tok-type">u8</span>,</span>
+<span class="line" id="L117">};</span>
+<span class="line" id="L118"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fio_str_info_s = struct_fio_str_info_s;</span>
+<span class="line" id="L119"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_send_body</span>(h: [*c]http_s, data: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L120"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_each1</span>(arg_o: FIOBJ, arg_start_at: <span class="tok-type">usize</span>, arg_task: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">c_int</span>, arg_arg: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span> {</span>
+<span class="line" id="L121">    <span class="tok-kw">const</span> o = arg_o;</span>
+<span class="line" id="L122">    <span class="tok-kw">const</span> start_at = arg_start_at;</span>
+<span class="line" id="L123">    <span class="tok-kw">const</span> task = arg_task;</span>
+<span class="line" id="L124">    <span class="tok-kw">const</span> arg = arg_arg;</span>
+<span class="line" id="L125">    <span class="tok-kw">if</span> ((((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>)))))) <span class="tok-kw">and</span> (fiobj_type_vtable(o).*.each != <span class="tok-null">null</span>)) <span class="tok-kw">return</span> fiobj_type_vtable(o).*.each.?(o, start_at, task, arg);</span>
+<span class="line" id="L126">    <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L127">}</span>
+<span class="line" id="L128"></span>
+<span class="line" id="L129"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_new</span>() FIOBJ;</span>
+<span class="line" id="L130"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_set</span>(hash: FIOBJ, key: FIOBJ, obj: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L131"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_get</span>(hash: FIOBJ, key: FIOBJ) FIOBJ;</span>
+<span class="line" id="L132"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_pop</span>(hash: FIOBJ, key: [*c]FIOBJ) FIOBJ;</span>
+<span class="line" id="L133"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_count</span>(hash: FIOBJ) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L134"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_key_in_loop</span>() FIOBJ;</span>
+<span class="line" id="L135"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_hash_haskey</span>(hash: FIOBJ, key: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L136"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_new</span>() FIOBJ;</span>
+<span class="line" id="L137"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_new2</span>(capa: <span class="tok-type">usize</span>) FIOBJ;</span>
+<span class="line" id="L138"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_count</span>(ary: FIOBJ) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L139"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_capa</span>(ary: FIOBJ) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L140"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary2ptr</span>(ary: FIOBJ) [*c]FIOBJ;</span>
+<span class="line" id="L141"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_index</span>(ary: FIOBJ, pos: <span class="tok-type">i64</span>) FIOBJ;</span>
+<span class="line" id="L142"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_set</span>(ary: FIOBJ, obj: FIOBJ, pos: <span class="tok-type">i64</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L143"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_push</span>(ary: FIOBJ, obj: FIOBJ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L144"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_pop</span>(ary: FIOBJ) FIOBJ;</span>
+<span class="line" id="L145"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_unshift</span>(ary: FIOBJ, obj: FIOBJ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L146"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_shift</span>(ary: FIOBJ) FIOBJ;</span>
+<span class="line" id="L147"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_replace</span>(ary: FIOBJ, obj: FIOBJ, pos: <span class="tok-type">i64</span>) FIOBJ;</span>
+<span class="line" id="L148"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_find</span>(ary: FIOBJ, data: FIOBJ) <span class="tok-type">i64</span>;</span>
+<span class="line" id="L149"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_remove</span>(ary: FIOBJ, pos: <span class="tok-type">i64</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L150"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_remove2</span>(ary: FIOBJ, data: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L151"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_compact</span>(ary: FIOBJ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L152"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_float_new</span>(num: <span class="tok-type">f64</span>) FIOBJ;</span>
+<span class="line" id="L153"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_num_new_bignum</span>(num: <span class="tok-type">isize</span>) FIOBJ;</span>
+<span class="line" id="L154"></span>
+<span class="line" id="L155"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_newstr</span>() FIOBJ;</span>
+<span class="line" id="L156"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_newstr2</span>(buffer: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>, dealloc: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>) FIOBJ;</span>
+<span class="line" id="L157"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_newtmpfile</span>() FIOBJ;</span>
+<span class="line" id="L158"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_newfd</span>(fd: <span class="tok-type">c_int</span>) FIOBJ;</span>
+<span class="line" id="L159"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_slice</span>(parent: FIOBJ, offset: <span class="tok-type">isize</span>, length: <span class="tok-type">usize</span>) FIOBJ;</span>
+<span class="line" id="L160"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_save</span>(io: FIOBJ, filename: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L161"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_read</span>(io: FIOBJ, length: <span class="tok-type">isize</span>) fio_str_info_s;</span>
+<span class="line" id="L162"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_read2ch</span>(io: FIOBJ, token: <span class="tok-type">u8</span>) fio_str_info_s;</span>
+<span class="line" id="L163"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_pos</span>(io: FIOBJ) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L164"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_len</span>(io: FIOBJ) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L165"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_seek</span>(io: FIOBJ, position: <span class="tok-type">isize</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L166"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_pread</span>(io: FIOBJ, start_at: <span class="tok-type">isize</span>, length: <span class="tok-type">usize</span>) fio_str_info_s;</span>
+<span class="line" id="L167"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_write</span>(io: FIOBJ, buffer: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L168"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_puts</span>(io: FIOBJ, buffer: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L169"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_data_assert_dynamic</span>(io: FIOBJ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L170"></span>
+<span class="line" id="L171"><span class="tok-comment">/// Creates a new SSL/TLS context / settings object with a default certificate (if any).</span></span>
+<span class="line" id="L172"><span class="tok-comment">/// If a server name is provided, than NULL values can be used to create an anonymous (unverified)</span></span>
+<span class="line" id="L173"><span class="tok-comment">/// context / settings object. If all values are NULL, a TLS object will be created without a</span></span>
+<span class="line" id="L174"><span class="tok-comment">/// certificate. This could be used for clients together with fio_tls_trust.  fio_tls_s * is an</span></span>
+<span class="line" id="L175"><span class="tok-comment">/// opaque type used as a handle for the SSL/TLS functions. It shouldn't be directly accessed.</span></span>
+<span class="line" id="L176"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_new</span>(</span>
+<span class="line" id="L177">    server_name: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L178">    public_certificate_file: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L179">    private_key_file: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L180">    private_key_password: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L181">) ?*<span class="tok-type">anyopaque</span>;</span>
+<span class="line" id="L182"></span>
+<span class="line" id="L183"><span class="tok-comment">/// Increase the reference count for the TLS object.</span></span>
+<span class="line" id="L184"><span class="tok-comment">/// Decrease / free with fio_tls_destroy.</span></span>
+<span class="line" id="L185"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_dup</span>(tls: ?*<span class="tok-type">anyopaque</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L186"></span>
+<span class="line" id="L187"><span class="tok-comment">/// Destroys the SSL/TLS context / settings object and frees any related resources / memory.</span></span>
+<span class="line" id="L188"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_destroy</span>(tls: ?*<span class="tok-type">anyopaque</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L189"></span>
+<span class="line" id="L190"><span class="tok-comment">/// Adds a certificate a new SSL/TLS context / settings object (SNI support).</span></span>
+<span class="line" id="L191"><span class="tok-comment">/// The private_key_password can be NULL if the private key PEM file isn't password protected.</span></span>
+<span class="line" id="L192"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_cert_add</span>(</span>
+<span class="line" id="L193">    tls: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L194">    server_name: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L195">    public_certificate_file: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L196">    private_key_file: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L197">    private_key_password: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L198">) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L199"></span>
+<span class="line" id="L200"><span class="tok-comment">/// Adds a certificate to the &quot;trust&quot; list, which automatically adds a peer verification requirement.</span></span>
+<span class="line" id="L201"><span class="tok-comment">/// Note: when the fio_tls_s object is used for server connections, this will limit connections to</span></span>
+<span class="line" id="L202"><span class="tok-comment">/// clients that connect using a trusted certificate.</span></span>
+<span class="line" id="L203"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_trust</span>(tls: ?*<span class="tok-type">anyopaque</span>, public_cert_file: ?[*:<span class="tok-number">0</span>]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L204"></span>
+<span class="line" id="L205"><span class="tok-comment">/// Establishes an SSL/TLS connection as an SSL/TLS Server, using the specified context / settings object.</span></span>
+<span class="line" id="L206"><span class="tok-comment">/// The uuid should be a socket UUID that is already connected to a peer (i.e., the result of fio_accept).</span></span>
+<span class="line" id="L207"><span class="tok-comment">/// The udata is an opaque user data pointer that is passed along to the protocol selected (if any protocols</span></span>
+<span class="line" id="L208"><span class="tok-comment">/// were added using fio_tls_alpn_add).</span></span>
+<span class="line" id="L209"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_accept</span>(uuid: *<span class="tok-type">u32</span>, tls: ?*<span class="tok-type">anyopaque</span>, udata: ?*<span class="tok-type">anyopaque</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L210"></span>
+<span class="line" id="L211"><span class="tok-comment">/// Establishes an SSL/TLS connection as an SSL/TLS Client, using the specified context / settings object.</span></span>
+<span class="line" id="L212"><span class="tok-comment">/// The uuid should be a socket UUID that is already connected to a peer (i.e., one received by a fio_connect</span></span>
+<span class="line" id="L213"><span class="tok-comment">/// specified callback on_connect).</span></span>
+<span class="line" id="L214"><span class="tok-comment">/// The udata is an opaque user data pointer that is passed along to the protocol selected (if any protocols</span></span>
+<span class="line" id="L215"><span class="tok-comment">/// were added using fio_tls_alpn_add).</span></span>
+<span class="line" id="L216"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_tls_connect</span>(uuid: *<span class="tok-type">u32</span>, tls: ?*<span class="tok-type">anyopaque</span>, udata: ?*<span class="tok-type">anyopaque</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L217"></span>
+<span class="line" id="L218"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_free_wrapped</span>(o: FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>;</span>
+<span class="line" id="L219"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_null</span>() <span class="tok-kw">callconv</span>(.C) FIOBJ {</span>
+<span class="line" id="L220">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(FIOBJ, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, FIOBJ_T_NULL)));</span>
+<span class="line" id="L221">}</span>
+<span class="line" id="L222"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_true</span>() <span class="tok-kw">callconv</span>(.C) FIOBJ {</span>
+<span class="line" id="L223">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(FIOBJ, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, FIOBJ_T_TRUE)));</span>
+<span class="line" id="L224">}</span>
+<span class="line" id="L225"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_false</span>() <span class="tok-kw">callconv</span>(.C) FIOBJ {</span>
+<span class="line" id="L226">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(FIOBJ, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, FIOBJ_T_FALSE)));</span>
+<span class="line" id="L227">}</span>
+<span class="line" id="L228"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_str_new</span>(str: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, len: <span class="tok-type">usize</span>) FIOBJ;</span>
+<span class="line" id="L229"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_str_buf</span>(capa: <span class="tok-type">usize</span>) FIOBJ;</span>
+<span class="line" id="L230"></span>
+<span class="line" id="L231"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJ_TYPE</span>(obj: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(fiobj_type(obj)) {</span>
+<span class="line" id="L232">    <span class="tok-kw">return</span> fiobj_type(obj);</span>
+<span class="line" id="L233">}</span>
+<span class="line" id="L234"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJ_TYPE_IS</span>(obj: <span class="tok-kw">anytype</span>, @&quot;type&quot;: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(fiobj_type_is(obj, @&quot;type&quot;)) {</span>
+<span class="line" id="L235">    <span class="tok-kw">return</span> fiobj_type_is(obj, @&quot;type&quot;);</span>
+<span class="line" id="L236">}</span>
+<span class="line" id="L237"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJ_IS_NULL</span>(obj: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(!(obj != <span class="tok-number">0</span>) <span class="tok-kw">or</span> (obj == <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast(FIOBJ, FIOBJ_T_NULL))) {</span>
+<span class="line" id="L238">    <span class="tok-kw">return</span> !(obj != <span class="tok-number">0</span>) <span class="tok-kw">or</span> (obj == <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast(FIOBJ, FIOBJ_T_NULL));</span>
+<span class="line" id="L239">}</span>
+<span class="line" id="L240"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_INVALID = <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>);</span>
+<span class="line" id="L241"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJECT_NUMBER_FLAG = <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>);</span>
+<span class="line" id="L242"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJECT_PRIMITIVE_FLAG = <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>);</span>
+<span class="line" id="L243"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJECT_STRING_FLAG = <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">2</span>);</span>
+<span class="line" id="L244"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJECT_HASH_FLAG = <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>);</span>
+<span class="line" id="L245"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJECT_TYPE_MASK = ~<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast(<span class="tok-type">usize</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>));</span>
+<span class="line" id="L246"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_NUMBER_SIGN_MASK = ~<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast(<span class="tok-type">usize</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>);</span>
+<span class="line" id="L247"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_NUMBER_SIGN_BIT = ~FIOBJ_NUMBER_SIGN_MASK;</span>
+<span class="line" id="L248"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_NUMBER_SIGN_EXCLUDE_BIT = FIOBJ_NUMBER_SIGN_BIT &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>);</span>
+<span class="line" id="L249"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJ_IS_ALLOCATED</span>(o: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; FIOBJECT_NUMBER_FLAG) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>))) <span class="tok-kw">and</span> ((o &amp; FIOBJECT_PRIMITIVE_FLAG) != FIOBJECT_PRIMITIVE_FLAG)) {</span>
+<span class="line" id="L250">    <span class="tok-kw">return</span> ((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; FIOBJECT_NUMBER_FLAG) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>))) <span class="tok-kw">and</span> ((o &amp; FIOBJECT_PRIMITIVE_FLAG) != FIOBJECT_PRIMITIVE_FLAG);</span>
+<span class="line" id="L251">}</span>
+<span class="line" id="L252"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJ2PTR</span>(o: <span class="tok-kw">anytype</span>) ?*<span class="tok-type">anyopaque</span> {</span>
+<span class="line" id="L253">    <span class="tok-kw">return</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast(?*<span class="tok-type">anyopaque</span>, o &amp; FIOBJECT_TYPE_MASK);</span>
+<span class="line" id="L254">}</span>
+<span class="line" id="L255"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJECT2VTBL</span>(o: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(fiobj_type_vtable(o)) {</span>
+<span class="line" id="L256">    <span class="tok-kw">return</span> fiobj_type_vtable(o);</span>
+<span class="line" id="L257">}</span>
+<span class="line" id="L258"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">FIOBJECT2HEAD</span>(o: <span class="tok-kw">anytype</span>) [*c]fiobj_object_header_s {</span>
+<span class="line" id="L259">    <span class="tok-kw">return</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).zig.c_translation.cast([*c]fiobj_object_header_s, FIOBJ2PTR(o));</span>
+<span class="line" id="L260">}</span>
+<span class="line" id="L261"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_ary_entry</span>(a: <span class="tok-kw">anytype</span>, p: <span class="tok-kw">anytype</span>) <span class="tok-builtin">@TypeOf</span>(fiobj_ary_index(a, p)) {</span>
+<span class="line" id="L262">    <span class="tok-kw">return</span> fiobj_ary_index(a, p);</span>
+<span class="line" id="L263">}</span>
+<span class="line" id="L264"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_NUMBER: <span class="tok-type">c_int</span> = <span class="tok-number">1</span>;</span>
+<span class="line" id="L265"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_NULL: <span class="tok-type">c_int</span> = <span class="tok-number">6</span>;</span>
+<span class="line" id="L266"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_TRUE: <span class="tok-type">c_int</span> = <span class="tok-number">22</span>;</span>
+<span class="line" id="L267"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_FALSE: <span class="tok-type">c_int</span> = <span class="tok-number">38</span>;</span>
+<span class="line" id="L268"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_FLOAT: <span class="tok-type">c_int</span> = <span class="tok-number">39</span>;</span>
+<span class="line" id="L269"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_STRING: <span class="tok-type">c_int</span> = <span class="tok-number">40</span>;</span>
+<span class="line" id="L270"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_ARRAY: <span class="tok-type">c_int</span> = <span class="tok-number">41</span>;</span>
+<span class="line" id="L271"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_HASH: <span class="tok-type">c_int</span> = <span class="tok-number">42</span>;</span>
+<span class="line" id="L272"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_DATA: <span class="tok-type">c_int</span> = <span class="tok-number">43</span>;</span>
+<span class="line" id="L273"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FIOBJ_T_UNKNOWN: <span class="tok-type">c_int</span> = <span class="tok-number">44</span>;</span>
+<span class="line" id="L274"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fiobj_type_enum = <span class="tok-type">u8</span>;</span>
+<span class="line" id="L275"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fiobj_object_vtable_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L276">    class_name: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L277">    dealloc: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L278">    count: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span>,</span>
+<span class="line" id="L279">    is_true: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span>,</span>
+<span class="line" id="L280">    is_eq: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span>,</span>
+<span class="line" id="L281">    each: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, <span class="tok-type">usize</span>, ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">c_int</span>, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span>,</span>
+<span class="line" id="L282">    to_str: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ) <span class="tok-kw">callconv</span>(.C) fio_str_info_s,</span>
+<span class="line" id="L283">    to_i: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">isize</span>,</span>
+<span class="line" id="L284">    to_f: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">f64</span>,</span>
+<span class="line" id="L285">};</span>
+<span class="line" id="L286"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fiobj_object_header_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L287">    <span class="tok-type">type</span>: fiobj_type_enum,</span>
+<span class="line" id="L288">    ref: <span class="tok-type">u32</span>,</span>
+<span class="line" id="L289">};</span>
+<span class="line" id="L290"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_type_is</span>(arg_o: FIOBJ, arg_type: fiobj_type_enum) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span> {</span>
+<span class="line" id="L291">    <span class="tok-kw">const</span> o = arg_o;</span>
+<span class="line" id="L292">    <span class="tok-kw">const</span> @&quot;type&quot; = arg_type;</span>
+<span class="line" id="L293">    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {</span>
+<span class="line" id="L294">        <span class="tok-kw">switch</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, @&quot;type&quot;)))) {</span>
+<span class="line" id="L295">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) != <span class="tok-number">0</span>) <span class="tok-kw">or</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrFromInt</span>(o))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))]))) == FIOBJ_T_NUMBER))))),</span>
+<span class="line" id="L296">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(!(o != <span class="tok-number">0</span>) <span class="tok-kw">or</span> (o == fiobj_null()))))),</span>
+<span class="line" id="L297">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">22</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(o == fiobj_true())))),</span>
+<span class="line" id="L298">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">38</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(o == fiobj_false())))),</span>
+<span class="line" id="L299">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">40</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(((<span class="tok-null">true</span> <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">2</span>)))))) <span class="tok-kw">or</span> (((<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">2</span>) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)) <span class="tok-kw">and</span> (((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))))) <span class="tok-kw">and</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(<span class="tok-builtin">@as</span>(?*<span class="tok-type">anyopaque</span>, <span class="tok-builtin">@ptrFromInt</span>(o &amp; ~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>)))))))))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))]))) == FIOBJ_T_STRING)))))),</span>
+<span class="line" id="L300">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">42</span>) =&gt; {</span>
+<span class="line" id="L301">                <span class="tok-kw">if</span> (<span class="tok-null">true</span>) {</span>
+<span class="line" id="L302">                    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>)))))))));</span>
+<span class="line" id="L303">                }</span>
+<span class="line" id="L304">                <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>((((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>)))))) <span class="tok-kw">and</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(<span class="tok-builtin">@as</span>(?*<span class="tok-type">anyopaque</span>, <span class="tok-builtin">@ptrFromInt</span>(o &amp; ~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>)))))))))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))]))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, @&quot;type&quot;))))))));</span>
+<span class="line" id="L305">            },</span>
+<span class="line" id="L306">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">39</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">41</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">43</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">44</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>((((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>)))))) <span class="tok-kw">and</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(<span class="tok-builtin">@as</span>(?*<span class="tok-type">anyopaque</span>, <span class="tok-builtin">@ptrFromInt</span>(o &amp; ~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>)))))))))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))]))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, @&quot;type&quot;)))))))),</span>
+<span class="line" id="L307">            <span class="tok-kw">else</span> =&gt; {},</span>
+<span class="line" id="L308">        }</span>
+<span class="line" id="L309">        <span class="tok-kw">break</span>;</span>
+<span class="line" id="L310">    }</span>
+<span class="line" id="L311">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>((((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>)))))) <span class="tok-kw">and</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(<span class="tok-builtin">@as</span>(?*<span class="tok-type">anyopaque</span>, <span class="tok-builtin">@ptrFromInt</span>(o &amp; ~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>)))))))))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))]))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, @&quot;type&quot;))))))));</span>
+<span class="line" id="L312">}</span>
+<span class="line" id="L313"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_type</span>(arg_o: FIOBJ) <span class="tok-kw">callconv</span>(.C) fiobj_type_enum {</span>
+<span class="line" id="L314">    <span class="tok-kw">const</span> o = arg_o;</span>
+<span class="line" id="L315">    <span class="tok-kw">if</span> (!(o != <span class="tok-number">0</span>)) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, <span class="tok-builtin">@truncate</span>(FIOBJ_T_NULL))));</span>
+<span class="line" id="L316">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, <span class="tok-builtin">@truncate</span>(FIOBJ_T_NUMBER))));</span>
+<span class="line" id="L317">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@truncate</span>(o))));</span>
+<span class="line" id="L318">    <span class="tok-kw">if</span> (<span class="tok-null">true</span> <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">2</span>)))))) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, <span class="tok-builtin">@truncate</span>(FIOBJ_T_STRING))));</span>
+<span class="line" id="L319">    <span class="tok-kw">if</span> (<span class="tok-null">true</span> <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>)))))) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">i8</span>, <span class="tok-builtin">@truncate</span>(FIOBJ_T_HASH))));</span>
+<span class="line" id="L320">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>([*c]fiobj_type_enum, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(<span class="tok-builtin">@as</span>(?*<span class="tok-type">anyopaque</span>, <span class="tok-builtin">@ptrFromInt</span>(o &amp; ~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">7</span>)))))))))[<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))];</span>
+<span class="line" id="L321">}</span>
+<span class="line" id="L322"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_NUMBER: fiobj_object_vtable_s;</span>
+<span class="line" id="L323"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_FLOAT: fiobj_object_vtable_s;</span>
+<span class="line" id="L324"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_STRING: fiobj_object_vtable_s;</span>
+<span class="line" id="L325"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_ARRAY: fiobj_object_vtable_s;</span>
+<span class="line" id="L326"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_HASH: fiobj_object_vtable_s;</span>
+<span class="line" id="L327"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">const</span> FIOBJECT_VTABLE_DATA: fiobj_object_vtable_s;</span>
+<span class="line" id="L328"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_type_vtable</span>(arg_o: FIOBJ) <span class="tok-kw">callconv</span>(.C) [*c]<span class="tok-kw">const</span> fiobj_object_vtable_s {</span>
+<span class="line" id="L329">    <span class="tok-kw">const</span> o = arg_o;</span>
+<span class="line" id="L330">    <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {</span>
+<span class="line" id="L331">        <span class="tok-kw">switch</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, fiobj_type(o))))) {</span>
+<span class="line" id="L332">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_NUMBER,</span>
+<span class="line" id="L333">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">39</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_FLOAT,</span>
+<span class="line" id="L334">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">40</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_STRING,</span>
+<span class="line" id="L335">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">41</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_ARRAY,</span>
+<span class="line" id="L336">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">42</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_HASH,</span>
+<span class="line" id="L337">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">43</span>) =&gt; <span class="tok-kw">return</span> &amp;FIOBJECT_VTABLE_DATA,</span>
+<span class="line" id="L338">            <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">22</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">38</span>), <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">44</span>) =&gt; <span class="tok-kw">return</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L339">            <span class="tok-kw">else</span> =&gt; {},</span>
+<span class="line" id="L340">        }</span>
+<span class="line" id="L341">        <span class="tok-kw">break</span>;</span>
+<span class="line" id="L342">    }</span>
+<span class="line" id="L343">    <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L344">}</span>
+<span class="line" id="L345"></span>
+<span class="line" id="L346"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_obj2num</span>(o: FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">isize</span> {</span>
+<span class="line" id="L347">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) != <span class="tok-number">0</span>) {</span>
+<span class="line" id="L348">        <span class="tok-kw">const</span> sign: <span class="tok-type">usize</span> = <span class="tok-kw">if</span> ((o &amp; ~(~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">usize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>)))) != <span class="tok-number">0</span>) ~(~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">usize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>))) | (~(~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">usize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">usize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>))) <span class="tok-kw">else</span> <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>))));</span>
+<span class="line" id="L349">        <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@bitCast</span>(((o &amp; (~<span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">usize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>)))) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">c_ulong</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>))) | sign));</span>
+<span class="line" id="L350">    }</span>
+<span class="line" id="L351">    <span class="tok-kw">if</span> (!(o != <span class="tok-number">0</span>) <span class="tok-kw">or</span> !(((o != <span class="tok-number">0</span>) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))))) <span class="tok-kw">and</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) != <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))))) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@intFromBool</span>(o == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, FIOBJ_T_TRUE)))))));</span>
+<span class="line" id="L352">    <span class="tok-kw">return</span> fiobj_type_vtable(o).*.to_i.?(o);</span>
+<span class="line" id="L353">}</span>
+<span class="line" id="L354"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_obj2float</span>(o: FIOBJ) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">f64</span> {</span>
+<span class="line" id="L355">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(<span class="tok-type">f64</span>, <span class="tok-builtin">@floatFromInt</span>(fiobj_obj2num(o)));</span>
+<span class="line" id="L356">    <span class="tok-comment">// the below doesn't parse and we don't support ints here anyway</span>
+</span>
+<span class="line" id="L357">    <span class="tok-comment">// if (!(o != 0) or ((o &amp; @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return @intToFloat(f64, o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));</span>
+</span>
+<span class="line" id="L358">    <span class="tok-kw">return</span> fiobj_type_vtable(o).*.to_f.?(o);</span>
+<span class="line" id="L359">}</span>
+<span class="line" id="L360"></span>
+<span class="line" id="L361"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_ltocstr</span>(<span class="tok-type">c_long</span>) fio_str_info_s;</span>
+<span class="line" id="L362"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_obj2cstr</span>(o: FIOBJ) <span class="tok-kw">callconv</span>(.C) fio_str_info_s {</span>
+<span class="line" id="L363">    <span class="tok-kw">if</span> (!(o != <span class="tok-number">0</span>)) {</span>
+<span class="line" id="L364">        <span class="tok-kw">const</span> ret: fio_str_info_s = fio_str_info_s{</span>
+<span class="line" id="L365">            .capa = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))),</span>
+<span class="line" id="L366">            .len = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>)))),</span>
+<span class="line" id="L367">            .data = <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(<span class="tok-str">&quot;null&quot;</span>))),</span>
+<span class="line" id="L368">        };</span>
+<span class="line" id="L369">        <span class="tok-kw">return</span> ret;</span>
+<span class="line" id="L370">    }</span>
+<span class="line" id="L371">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">1</span>))))) != <span class="tok-number">0</span>) <span class="tok-kw">return</span> fio_ltocstr(<span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@bitCast</span>(o)) &gt;&gt; <span class="tok-builtin">@as</span>(<span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>).math.Log2Int(<span class="tok-type">isize</span>), <span class="tok-builtin">@intCast</span>(<span class="tok-number">1</span>)));</span>
+<span class="line" id="L372">    <span class="tok-kw">if</span> ((o &amp; <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) == <span class="tok-builtin">@as</span>(<span class="tok-type">c_ulong</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>))))) {</span>
+<span class="line" id="L373">        <span class="tok-kw">while</span> (<span class="tok-null">true</span>) {</span>
+<span class="line" id="L374">            <span class="tok-kw">switch</span> (<span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_uint</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">u8</span>, <span class="tok-builtin">@truncate</span>(o)))))))) {</span>
+<span class="line" id="L375">                <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">6</span>) =&gt; {</span>
+<span class="line" id="L376">                    {</span>
+<span class="line" id="L377">                        <span class="tok-kw">const</span> ret: fio_str_info_s = fio_str_info_s{</span>
+<span class="line" id="L378">                            .capa = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))),</span>
+<span class="line" id="L379">                            .len = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>)))),</span>
+<span class="line" id="L380">                            .data = <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(<span class="tok-str">&quot;null&quot;</span>))),</span>
+<span class="line" id="L381">                        };</span>
+<span class="line" id="L382">                        <span class="tok-kw">return</span> ret;</span>
+<span class="line" id="L383">                    }</span>
+<span class="line" id="L384">                },</span>
+<span class="line" id="L385">                <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">38</span>) =&gt; {</span>
+<span class="line" id="L386">                    {</span>
+<span class="line" id="L387">                        <span class="tok-kw">const</span> ret: fio_str_info_s = fio_str_info_s{</span>
+<span class="line" id="L388">                            .capa = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))),</span>
+<span class="line" id="L389">                            .len = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">5</span>)))),</span>
+<span class="line" id="L390">                            .data = <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(<span class="tok-str">&quot;false&quot;</span>))),</span>
+<span class="line" id="L391">                        };</span>
+<span class="line" id="L392">                        <span class="tok-kw">return</span> ret;</span>
+<span class="line" id="L393">                    }</span>
+<span class="line" id="L394">                },</span>
+<span class="line" id="L395">                <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">22</span>) =&gt; {</span>
+<span class="line" id="L396">                    {</span>
+<span class="line" id="L397">                        <span class="tok-kw">const</span> ret: fio_str_info_s = fio_str_info_s{</span>
+<span class="line" id="L398">                            .capa = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">0</span>)))),</span>
+<span class="line" id="L399">                            .len = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@bitCast</span>(<span class="tok-builtin">@as</span>(<span class="tok-type">c_long</span>, <span class="tok-builtin">@as</span>(<span class="tok-type">c_int</span>, <span class="tok-number">4</span>)))),</span>
+<span class="line" id="L400">                            .data = <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(<span class="tok-str">&quot;true&quot;</span>))),</span>
+<span class="line" id="L401">                        };</span>
+<span class="line" id="L402">                        <span class="tok-kw">return</span> ret;</span>
+<span class="line" id="L403">                    }</span>
+<span class="line" id="L404">                },</span>
+<span class="line" id="L405">                <span class="tok-kw">else</span> =&gt; <span class="tok-kw">break</span>,</span>
+<span class="line" id="L406">            }</span>
+<span class="line" id="L407">            <span class="tok-kw">break</span>;</span>
+<span class="line" id="L408">        }</span>
+<span class="line" id="L409">    }</span>
+<span class="line" id="L410">    <span class="tok-kw">return</span> fiobj_type_vtable(o).*.to_str.?(o);</span>
+<span class="line" id="L411">}</span>
+<span class="line" id="L412"><span class="tok-comment">// pub const http_cookie_args_s = opaque {};</span>
+</span>
+<span class="line" id="L413"></span>
+<span class="line" id="L414"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_set_header</span>(h: [*c]http_s, name: FIOBJ, value: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L415"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_set_header2</span>(h: [*c]http_s, name: fio_str_info_s, value: fio_str_info_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L416"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_set_cookie</span>(h: [*c]http_s, http_cookie_args_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L417"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sendfile</span>(h: [*c]http_s, fd: <span class="tok-type">c_int</span>, length: <span class="tok-type">usize</span>, offset: <span class="tok-type">usize</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L418"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sendfile2</span>(h: [*c]http_s, prefix: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, prefix_len: <span class="tok-type">usize</span>, encoded: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, encoded_len: <span class="tok-type">usize</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L419"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_send_error</span>(h: [*c]http_s, error_code: <span class="tok-type">usize</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L420"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_finish</span>(h: [*c]http_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L421"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_push_data</span>(h: [*c]http_s, data: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>, mime_type: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L422"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_push_file</span>(h: [*c]http_s, filename: FIOBJ, mime_type: FIOBJ) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L423"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_http_pause_handle_s = <span class="tok-kw">opaque</span> {};</span>
+<span class="line" id="L424"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_pause_handle_s = struct_http_pause_handle_s;</span>
+<span class="line" id="L425"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_pause</span>(h: [*c]http_s, task: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*http_pause_handle_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L426"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_resume</span>(http: ?*http_pause_handle_s, task: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>, fallback: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L427"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_paused_udata_get</span>(http: ?*http_pause_handle_s) ?*<span class="tok-type">anyopaque</span>;</span>
+<span class="line" id="L428"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_paused_udata_set</span>(http: ?*http_pause_handle_s, udata: ?*<span class="tok-type">anyopaque</span>) ?*<span class="tok-type">anyopaque</span>;</span>
+<span class="line" id="L429"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_listen</span>(port: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, binding: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, struct_http_settings_s) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L430"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_connect</span>(url: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, unix_address: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, struct_http_settings_s) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L431"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_settings</span>(h: [*c]http_s) [*c]struct_http_settings_s;</span>
+<span class="line" id="L432"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_peer_addr</span>(h: [*c]http_s) fio_str_info_s;</span>
+<span class="line" id="L433"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_hijack</span>(h: [*c]http_s, leftover: [*c]fio_str_info_s) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L434"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_ws_s = <span class="tok-kw">opaque</span> {};</span>
+<span class="line" id="L435"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ws_s = struct_ws_s;</span>
+<span class="line" id="L436"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> websocket_settings_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L437">    on_message: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*ws_s, fio_str_info_s, <span class="tok-type">u8</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L438">    on_open: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*ws_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L439">    on_ready: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*ws_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L440">    on_shutdown: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*ws_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L441">    on_close: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (<span class="tok-type">isize</span>, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L442">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L443">};</span>
+<span class="line" id="L444"></span>
+<span class="line" id="L445"><span class="tok-comment">// struct websocket_subscribe_s_zigcompat {</span>
+</span>
+<span class="line" id="L446"><span class="tok-comment">//   ws_s *ws;</span>
+</span>
+<span class="line" id="L447"><span class="tok-comment">//   fio_str_info_s channel;</span>
+</span>
+<span class="line" id="L448"><span class="tok-comment">//   void (*on_message)(ws_s *ws, fio_str_info_s channel, fio_str_info_s msg, void *udata);</span>
+</span>
+<span class="line" id="L449"><span class="tok-comment">//   void (*on_unsubscribe)(void *udata);</span>
+</span>
+<span class="line" id="L450"><span class="tok-comment">//   void *udata;</span>
+</span>
+<span class="line" id="L451"><span class="tok-comment">//   fio_match_fn match;</span>
+</span>
+<span class="line" id="L452"><span class="tok-comment">//   unsigned char force_binary;</span>
+</span>
+<span class="line" id="L453"><span class="tok-comment">//   unsigned char force_text;</span>
+</span>
+<span class="line" id="L454"><span class="tok-comment">// };</span>
+</span>
+<span class="line" id="L455"></span>
+<span class="line" id="L456"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> websocket_subscribe_s_zigcompat = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L457">    ws: ?*ws_s,</span>
+<span class="line" id="L458">    channel: fio_str_info_s,</span>
+<span class="line" id="L459">    on_message: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*ws_s, fio_str_info_s, fio_str_info_s, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L460">    on_unsubscribe: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L461">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L462">    match: fio_match_fn,</span>
+<span class="line" id="L463">    force_binary: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L464">    force_text: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L465">};</span>
+<span class="line" id="L466"></span>
+<span class="line" id="L467"><span class="tok-comment">/// 0 on failure</span></span>
+<span class="line" id="L468"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_subscribe_zigcompat</span>(websocket_subscribe_s_zigcompat) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L469"></span>
+<span class="line" id="L470"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_upgrade2ws</span>(http: [*c]http_s, websocket_settings_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L471"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_connect</span>(url: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, settings: websocket_settings_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L472"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_attach</span>(uuid: <span class="tok-type">isize</span>, http_settings: [*c]http_settings_s, args: [*c]websocket_settings_s, data: ?*<span class="tok-type">anyopaque</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L473"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_udata_get</span>(ws: ?*ws_s) ?*<span class="tok-type">anyopaque</span>;</span>
+<span class="line" id="L474"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_udata_set</span>(ws: ?*ws_s, udata: ?*<span class="tok-type">anyopaque</span>) ?*<span class="tok-type">anyopaque</span>;</span>
+<span class="line" id="L475"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_uuid</span>(ws: ?*ws_s) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L476"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_is_client</span>(ws: ?*ws_s) <span class="tok-type">u8</span>;</span>
+<span class="line" id="L477"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_write</span>(ws: ?*ws_s, msg: fio_str_info_s, is_text: <span class="tok-type">u8</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L478"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_close</span>(ws: ?*ws_s) <span class="tok-type">void</span>; <span class="tok-comment">// zig-cache/i/e0c8a6e617497ade13de512cbe191f23/include/websockets.h:104:12: warning: struct demoted to opaque type - has bitfield</span>
+</span>
+<span class="line" id="L479"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_websocket_subscribe_s = <span class="tok-kw">opaque</span> {};</span>
+<span class="line" id="L480"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_subscribe</span>(args: struct_websocket_subscribe_s) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L481"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_unsubscribe</span>(ws: ?*ws_s, subscription_id: <span class="tok-type">usize</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L482"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">websocket_optimize4broadcasts</span>(@&quot;type&quot;: <span class="tok-type">isize</span>, enable: <span class="tok-type">c_int</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L483"></span>
+<span class="line" id="L484"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio_publish</span>(args: fio_publish_args_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L485"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fio_publish_args_s = struct_fio_publish_args_s;</span>
+<span class="line" id="L486"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_fio_publish_args_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L487">    engine: ?*<span class="tok-type">anyopaque</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L488">    <span class="tok-comment">// we don't support engines other than default</span>
+</span>
+<span class="line" id="L489">    <span class="tok-comment">// engine: [*c]const fio_pubsub_engine_s,</span>
+</span>
+<span class="line" id="L490">    filter: <span class="tok-type">i32</span> = <span class="tok-number">0</span>,</span>
+<span class="line" id="L491">    channel: fio_str_info_s,</span>
+<span class="line" id="L492">    message: fio_str_info_s,</span>
+<span class="line" id="L493">    is_json: <span class="tok-type">u8</span>,</span>
+<span class="line" id="L494">};</span>
+<span class="line" id="L495"></span>
+<span class="line" id="L496"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_sse_s = struct_http_sse_s;</span>
+<span class="line" id="L497"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_http_sse_s = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L498">    on_open: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_sse_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L499">    on_ready: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_sse_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L500">    on_shutdown: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_sse_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L501">    on_close: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_sse_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L502">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L503">};</span>
+<span class="line" id="L504"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_upgrade2sse</span>(h: [*c]http_s, http_sse_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L505"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_set_timout</span>(sse: [*c]http_sse_s, timeout: <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L506"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> fio_match_fn = ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (fio_str_info_s, fio_str_info_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L507"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_http_sse_subscribe_args = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L508">    channel: fio_str_info_s,</span>
+<span class="line" id="L509">    on_message: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> ([*c]http_sse_s, fio_str_info_s, fio_str_info_s, ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L510">    on_unsubscribe: ?*<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>,</span>
+<span class="line" id="L511">    udata: ?*<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L512">    match: fio_match_fn,</span>
+<span class="line" id="L513">};</span>
+<span class="line" id="L514"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_subscribe</span>(sse: [*c]http_sse_s, args: struct_http_sse_subscribe_args) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L515"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_unsubscribe</span>(sse: [*c]http_sse_s, subscription: <span class="tok-type">usize</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L516"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_http_sse_write_args = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L517">    id: fio_str_info_s,</span>
+<span class="line" id="L518">    event: fio_str_info_s,</span>
+<span class="line" id="L519">    data: fio_str_info_s,</span>
+<span class="line" id="L520">    retry: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L521">};</span>
+<span class="line" id="L522"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_write</span>(sse: [*c]http_sse_s, struct_http_sse_write_args) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L523"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse2uuid</span>(sse: [*c]http_sse_s) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L524"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_close</span>(sse: [*c]http_sse_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L525"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_dup</span>(sse: [*c]http_sse_s) [*c]http_sse_s;</span>
+<span class="line" id="L526"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_sse_free</span>(sse: [*c]http_sse_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L527"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_parse_body</span>(h: [*c]http_s) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L528"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_parse_query</span>(h: [*c]http_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L529"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_parse_cookies</span>(h: [*c]http_s, is_url_encoded: <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L530"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_add2hash</span>(dest: FIOBJ, name: [*c]<span class="tok-type">u8</span>, name_len: <span class="tok-type">usize</span>, value: [*c]<span class="tok-type">u8</span>, value_len: <span class="tok-type">usize</span>, encoded: <span class="tok-type">u8</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L531"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_add2hash2</span>(dest: FIOBJ, name: [*c]<span class="tok-type">u8</span>, name_len: <span class="tok-type">usize</span>, value: FIOBJ, encoded: <span class="tok-type">u8</span>) <span class="tok-type">c_int</span>;</span>
+<span class="line" id="L532"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_status2str</span>(status: <span class="tok-type">usize</span>) fio_str_info_s;</span>
+<span class="line" id="L533"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_mimetype_register</span>(file_ext: [*c]<span class="tok-type">u8</span>, file_ext_len: <span class="tok-type">usize</span>, mime_type_str: FIOBJ) <span class="tok-type">void</span>;</span>
+<span class="line" id="L534"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_mimetype_find</span>(file_ext: [*c]<span class="tok-type">u8</span>, file_ext_len: <span class="tok-type">usize</span>) FIOBJ;</span>
+<span class="line" id="L535"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_mimetype_find2</span>(url: FIOBJ) FIOBJ;</span>
+<span class="line" id="L536"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_mimetype_clear</span>() <span class="tok-type">void</span>;</span>
+<span class="line" id="L537"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_ACCEPT: FIOBJ;</span>
+<span class="line" id="L538"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CACHE_CONTROL: FIOBJ;</span>
+<span class="line" id="L539"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CONNECTION: FIOBJ;</span>
+<span class="line" id="L540"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CONTENT_ENCODING: FIOBJ;</span>
+<span class="line" id="L541"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CONTENT_LENGTH: FIOBJ;</span>
+<span class="line" id="L542"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CONTENT_RANGE: FIOBJ;</span>
+<span class="line" id="L543"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_CONTENT_TYPE: FIOBJ;</span>
+<span class="line" id="L544"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_COOKIE: FIOBJ;</span>
+<span class="line" id="L545"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_DATE: FIOBJ;</span>
+<span class="line" id="L546"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_ETAG: FIOBJ;</span>
+<span class="line" id="L547"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_HOST: FIOBJ;</span>
+<span class="line" id="L548"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_LAST_MODIFIED: FIOBJ;</span>
+<span class="line" id="L549"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_ORIGIN: FIOBJ;</span>
+<span class="line" id="L550"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_SET_COOKIE: FIOBJ;</span>
+<span class="line" id="L551"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">var</span> HTTP_HEADER_UPGRADE: FIOBJ;</span>
+<span class="line" id="L552"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_req2str</span>(h: [*c]http_s) FIOBJ;</span>
+<span class="line" id="L553"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_write_log</span>(h: [*c]http_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L554"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_gmtime</span>(timer: time_t, tmbuf: [*c]struct_tm) [*c]struct_tm;</span>
+<span class="line" id="L555"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_date2rfc7231</span>(target: [*c]<span class="tok-type">u8</span>, tmbuf: [*c]struct_tm) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L556"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_date2rfc2109</span>(target: [*c]<span class="tok-type">u8</span>, tmbuf: [*c]struct_tm) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L557"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_date2rfc2822</span>(target: [*c]<span class="tok-type">u8</span>, tmbuf: [*c]struct_tm) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L558"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_date2str</span>(arg_target: [*c]<span class="tok-type">u8</span>, arg_tmbuf: [*c]struct_tm) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">usize</span> {</span>
+<span class="line" id="L559">    <span class="tok-kw">const</span> target = arg_target;</span>
+<span class="line" id="L560">    <span class="tok-kw">const</span> tmbuf = arg_tmbuf;</span>
+<span class="line" id="L561">    <span class="tok-kw">return</span> http_date2rfc7231(target, tmbuf);</span>
+<span class="line" id="L562">}</span>
+<span class="line" id="L563"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_time2str</span>(target: [*c]<span class="tok-type">u8</span>, t: time_t) <span class="tok-type">usize</span>;</span>
+<span class="line" id="L564"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_decode_url_unsafe</span>(dest: [*c]<span class="tok-type">u8</span>, url_data: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L565"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_decode_url</span>(dest: [*c]<span class="tok-type">u8</span>, url_data: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L566"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_decode_path_unsafe</span>(dest: [*c]<span class="tok-type">u8</span>, url_data: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L567"><span class="tok-kw">pub</span> <span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">http_decode_path</span>(dest: [*c]<span class="tok-type">u8</span>, url_data: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, length: <span class="tok-type">usize</span>) <span class="tok-type">isize</span>;</span>
+<span class="line" id="L568"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> http_url_s = fio_url_s;</span>
+<span class="line" id="L569"></span>
+<span class="line" id="L570"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> struct_tm = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L571">    tm_sec: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L572">    tm_min: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L573">    tm_hour: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L574">    tm_mday: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L575">    tm_mon: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L576">    tm_year: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L577">    tm_wday: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L578">    tm_yday: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L579">    tm_isdst: <span class="tok-type">c_int</span>,</span>
+<span class="line" id="L580">    tm_gmtoff: <span class="tok-type">c_long</span>,</span>
+<span class="line" id="L581">    tm_zone: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L582">};</span>
+<span class="line" id="L583"></span>
+</code></pre></body>
+</html>

@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>request.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L2"><span class="tok-kw">const</span> Log = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;log.zig&quot;</span>);</span>
+<span class="line" id="L3"><span class="tok-kw">const</span> http = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http.zig&quot;</span>);</span>
+<span class="line" id="L4"><span class="tok-kw">const</span> fio = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;fio.zig&quot;</span>);</span>
+<span class="line" id="L5"></span>
+<span class="line" id="L6"><span class="tok-kw">const</span> util = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L7"><span class="tok-kw">const</span> zap = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;zap.zig&quot;</span>);</span>
+<span class="line" id="L8"></span>
+<span class="line" id="L9"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpError = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L10">    HttpSendBody,</span>
+<span class="line" id="L11">    HttpSetContentType,</span>
+<span class="line" id="L12">    HttpSetHeader,</span>
+<span class="line" id="L13">    HttpParseBody,</span>
+<span class="line" id="L14">    HttpIterParams,</span>
+<span class="line" id="L15">    SetCookie,</span>
+<span class="line" id="L16">    SendFile,</span>
+<span class="line" id="L17">};</span>
+<span class="line" id="L18"></span>
+<span class="line" id="L19"><span class="tok-comment">/// Http Content Type enum.</span></span>
+<span class="line" id="L20"><span class="tok-comment">/// Needs some love.</span></span>
+<span class="line" id="L21"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ContentType = <span class="tok-kw">enum</span> {</span>
+<span class="line" id="L22">    TEXT,</span>
+<span class="line" id="L23">    HTML,</span>
+<span class="line" id="L24">    JSON,</span>
+<span class="line" id="L25">    <span class="tok-comment">// TODO: more content types</span>
+</span>
+<span class="line" id="L26">};</span>
+<span class="line" id="L27"></span>
+<span class="line" id="L28"><span class="tok-comment">/// Key value pair of strings from HTTP parameters</span></span>
+<span class="line" id="L29"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamStrKV = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L30">    key: util.FreeOrNot,</span>
+<span class="line" id="L31">    value: util.FreeOrNot,</span>
+<span class="line" id="L32">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
+<span class="line" id="L33">        self.key.deinit();</span>
+<span class="line" id="L34">        self.value.deinit();</span>
+<span class="line" id="L35">    }</span>
+<span class="line" id="L36">};</span>
+<span class="line" id="L37"></span>
+<span class="line" id="L38"><span class="tok-comment">/// List of key value pairs of Http param strings.</span></span>
+<span class="line" id="L39"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamStrKVList = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L40">    items: []HttpParamStrKV,</span>
+<span class="line" id="L41">    allocator: std.mem.Allocator,</span>
+<span class="line" id="L42">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
+<span class="line" id="L43">        <span class="tok-kw">for</span> (self.items) |*item| {</span>
+<span class="line" id="L44">            item.deinit();</span>
+<span class="line" id="L45">        }</span>
+<span class="line" id="L46">        self.allocator.free(self.items);</span>
+<span class="line" id="L47">    }</span>
+<span class="line" id="L48">};</span>
+<span class="line" id="L49"></span>
+<span class="line" id="L50"><span class="tok-comment">/// List of key value pairs of Http params (might be of different types).</span></span>
+<span class="line" id="L51"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamKVList = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L52">    items: []HttpParamKV,</span>
+<span class="line" id="L53">    allocator: std.mem.Allocator,</span>
+<span class="line" id="L54">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-kw">const</span> <span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
+<span class="line" id="L55">        <span class="tok-kw">for</span> (self.items) |*item| {</span>
+<span class="line" id="L56">            item.deinit();</span>
+<span class="line" id="L57">        }</span>
+<span class="line" id="L58">        self.allocator.free(self.items);</span>
+<span class="line" id="L59">    }</span>
+<span class="line" id="L60">};</span>
+<span class="line" id="L61"></span>
+<span class="line" id="L62"><span class="tok-comment">/// Enum for HttpParam tagged union</span></span>
+<span class="line" id="L63"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamValueType = <span class="tok-kw">enum</span> {</span>
+<span class="line" id="L64">    <span class="tok-comment">// Null,</span>
+</span>
+<span class="line" id="L65">    Bool,</span>
+<span class="line" id="L66">    Int,</span>
+<span class="line" id="L67">    Float,</span>
+<span class="line" id="L68">    String,</span>
+<span class="line" id="L69">    Unsupported,</span>
+<span class="line" id="L70">    Hash_Binfile,</span>
+<span class="line" id="L71">    Array_Binfile,</span>
+<span class="line" id="L72">};</span>
+<span class="line" id="L73"></span>
+<span class="line" id="L74"><span class="tok-comment">/// Tagged union holding a typed Http param</span></span>
+<span class="line" id="L75"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParam = <span class="tok-kw">union</span>(HttpParamValueType) {</span>
+<span class="line" id="L76">    Bool: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L77">    Int: <span class="tok-type">isize</span>,</span>
+<span class="line" id="L78">    Float: <span class="tok-type">f64</span>,</span>
+<span class="line" id="L79">    <span class="tok-comment">/// we don't do writable strings here</span></span>
+<span class="line" id="L80">    String: util.FreeOrNot,</span>
+<span class="line" id="L81">    <span class="tok-comment">/// value will always be null</span></span>
+<span class="line" id="L82">    Unsupported: ?<span class="tok-type">void</span>,</span>
+<span class="line" id="L83">    <span class="tok-comment">/// we assume hashes are because of file transmissions</span></span>
+<span class="line" id="L84">    Hash_Binfile: HttpParamBinaryFile,</span>
+<span class="line" id="L85">    <span class="tok-comment">/// value will always be null</span></span>
+<span class="line" id="L86">    Array_Binfile: std.ArrayList(HttpParamBinaryFile),</span>
+<span class="line" id="L87">};</span>
+<span class="line" id="L88"></span>
+<span class="line" id="L89"><span class="tok-comment">/// Key value pair of one typed Http param</span></span>
+<span class="line" id="L90"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamKV = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L91">    key: util.FreeOrNot,</span>
+<span class="line" id="L92">    value: ?HttpParam,</span>
+<span class="line" id="L93">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
+<span class="line" id="L94">        self.key.deinit();</span>
+<span class="line" id="L95">        <span class="tok-kw">if</span> (self.value) |p| {</span>
+<span class="line" id="L96">            <span class="tok-kw">switch</span> (p) {</span>
+<span class="line" id="L97">                .String =&gt; |*s| s.deinit(),</span>
+<span class="line" id="L98">                <span class="tok-kw">else</span> =&gt; {},</span>
+<span class="line" id="L99">            }</span>
+<span class="line" id="L100">        }</span>
+<span class="line" id="L101">    }</span>
+<span class="line" id="L102">};</span>
+<span class="line" id="L103"></span>
+<span class="line" id="L104"><span class="tok-comment">/// Struct representing an uploaded file.</span></span>
+<span class="line" id="L105"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpParamBinaryFile = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L106">    <span class="tok-comment">///  file contents</span></span>
+<span class="line" id="L107">    data: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L108">    <span class="tok-comment">/// mimetype</span></span>
+<span class="line" id="L109">    mimetype: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L110">    <span class="tok-comment">/// filename</span></span>
+<span class="line" id="L111">    filename: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L112"></span>
+<span class="line" id="L113">    <span class="tok-comment">/// format function for printing file upload data</span></span>
+<span class="line" id="L114">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">format</span>(value: <span class="tok-builtin">@This</span>(), <span class="tok-kw">comptime</span> _: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, _: std.fmt.FormatOptions, writer: <span class="tok-kw">anytype</span>) std.os.WriteError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L115">        <span class="tok-kw">const</span> d = value.data <span class="tok-kw">orelse</span> <span class="tok-str">&quot;\\0&quot;</span>;</span>
+<span class="line" id="L116">        <span class="tok-kw">const</span> m = value.mimetype <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>;</span>
+<span class="line" id="L117">        <span class="tok-kw">const</span> f = value.filename <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>;</span>
+<span class="line" id="L118">        <span class="tok-kw">return</span> writer.print(<span class="tok-str">&quot;&lt;{s} ({s}): {any}&gt;&quot;</span>, .{ f, m, d });</span>
+<span class="line" id="L119">    }</span>
+<span class="line" id="L120">};</span>
+<span class="line" id="L121"></span>
+<span class="line" id="L122"><span class="tok-kw">fn</span> <span class="tok-fn">parseBinfilesFrom</span>(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {</span>
+<span class="line" id="L123">    <span class="tok-kw">const</span> key_name = fio.fiobj_str_new(<span class="tok-str">&quot;name&quot;</span>, <span class="tok-number">4</span>);</span>
+<span class="line" id="L124">    <span class="tok-kw">const</span> key_data = fio.fiobj_str_new(<span class="tok-str">&quot;data&quot;</span>, <span class="tok-number">4</span>);</span>
+<span class="line" id="L125">    <span class="tok-kw">const</span> key_type = fio.fiobj_str_new(<span class="tok-str">&quot;type&quot;</span>, <span class="tok-number">4</span>);</span>
+<span class="line" id="L126">    <span class="tok-kw">defer</span> {</span>
+<span class="line" id="L127">        fio.fiobj_free_wrapped(key_name);</span>
+<span class="line" id="L128">        fio.fiobj_free_wrapped(key_data);</span>
+<span class="line" id="L129">        fio.fiobj_free_wrapped(key_type);</span>
+<span class="line" id="L130">    } <span class="tok-comment">// files: they should have &quot;data&quot;, &quot;type&quot;, and &quot;filename&quot; keys</span>
+</span>
+<span class="line" id="L131">    <span class="tok-kw">if</span> (fio.fiobj_hash_haskey(o, key_data) == <span class="tok-number">1</span> <span class="tok-kw">and</span> fio.fiobj_hash_haskey(o, key_type) == <span class="tok-number">1</span> <span class="tok-kw">and</span> fio.fiobj_hash_haskey(o, key_name) == <span class="tok-number">1</span>) {</span>
+<span class="line" id="L132">        <span class="tok-kw">const</span> filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));</span>
+<span class="line" id="L133">        <span class="tok-kw">const</span> mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));</span>
+<span class="line" id="L134">        <span class="tok-kw">const</span> data = fio.fiobj_hash_get(o, key_data);</span>
+<span class="line" id="L135"></span>
+<span class="line" id="L136">        <span class="tok-kw">var</span> data_slice: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;</span>
+<span class="line" id="L137"></span>
+<span class="line" id="L138">        <span class="tok-kw">switch</span> (fio.fiobj_type(data)) {</span>
+<span class="line" id="L139">            fio.FIOBJ_T_DATA =&gt; {</span>
+<span class="line" id="L140">                <span class="tok-kw">if</span> (fio.is_invalid(data) == <span class="tok-number">1</span>) {</span>
+<span class="line" id="L141">                    data_slice = <span class="tok-str">&quot;(zap: invalid data)&quot;</span>;</span>
+<span class="line" id="L142">                    std.log.warn(<span class="tok-str">&quot;WARNING: HTTP param binary file is not a data object\n&quot;</span>, .{});</span>
+<span class="line" id="L143">                } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L144">                    <span class="tok-comment">// the data</span>
+</span>
+<span class="line" id="L145">                    <span class="tok-kw">const</span> data_len = fio.fiobj_data_len(data);</span>
+<span class="line" id="L146">                    <span class="tok-kw">var</span> data_buf = fio.fiobj_data_read(data, data_len);</span>
+<span class="line" id="L147"></span>
+<span class="line" id="L148">                    <span class="tok-kw">if</span> (data_len &lt; <span class="tok-number">0</span>) {</span>
+<span class="line" id="L149">                        std.log.warn(<span class="tok-str">&quot;WARNING: HTTP param binary file size negative: {d}\n&quot;</span>, .{data_len});</span>
+<span class="line" id="L150">                        std.log.warn(<span class="tok-str">&quot;FIOBJ_TYPE of data is: {d}\n&quot;</span>, .{fio.fiobj_type(data)});</span>
+<span class="line" id="L151">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L152">                        <span class="tok-kw">if</span> (data_buf.len != data_len) {</span>
+<span class="line" id="L153">                            std.log.warn(<span class="tok-str">&quot;WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n&quot;</span>, .{ data_len, data_buf.len });</span>
+<span class="line" id="L154">                        }</span>
+<span class="line" id="L155"></span>
+<span class="line" id="L156">                        <span class="tok-kw">if</span> (data_buf.len &gt; <span class="tok-number">0</span>) {</span>
+<span class="line" id="L157">                            data_slice = data_buf.data[<span class="tok-number">0</span>..data_buf.len];</span>
+<span class="line" id="L158">                        } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L159">                            std.log.warn(<span class="tok-str">&quot;WARNING: HTTP param binary file buffer size negative: {d}\n&quot;</span>, .{data_buf.len});</span>
+<span class="line" id="L160">                            data_slice = <span class="tok-str">&quot;(zap: invalid data: negative BUFFER size)&quot;</span>;</span>
+<span class="line" id="L161">                        }</span>
+<span class="line" id="L162">                    }</span>
+<span class="line" id="L163">                }</span>
+<span class="line" id="L164">            },</span>
+<span class="line" id="L165">            fio.FIOBJ_T_STRING =&gt; {</span>
+<span class="line" id="L166">                <span class="tok-kw">const</span> fiostr = fio.fiobj_obj2cstr(data);</span>
+<span class="line" id="L167">                <span class="tok-kw">if</span> (fiostr.len == <span class="tok-number">0</span>) {</span>
+<span class="line" id="L168">                    data_slice = <span class="tok-str">&quot;(zap: empty string data)&quot;</span>;</span>
+<span class="line" id="L169">                    std.log.warn(<span class="tok-str">&quot;WARNING: HTTP param binary file has empty string object\n&quot;</span>, .{});</span>
+<span class="line" id="L170">                } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L171">                    data_slice = fiostr.data[<span class="tok-number">0</span>..fiostr.len];</span>
+<span class="line" id="L172">                }</span>
+<span class="line" id="L173">            },</span>
+<span class="line" id="L174">            fio.FIOBJ_T_ARRAY =&gt; {</span>
+<span class="line" id="L175">                <span class="tok-comment">// OK, data is an array</span>
+</span>
+<span class="line" id="L176">                <span class="tok-kw">const</span> len = fio.fiobj_ary_count(data);</span>
+<span class="line" id="L177">                <span class="tok-kw">const</span> fn_ary = fio.fiobj_hash_get(o, key_name);</span>
+<span class="line" id="L178">                <span class="tok-kw">const</span> mt_ary = fio.fiobj_hash_get(o, key_type);</span>
+<span class="line" id="L179"></span>
+<span class="line" id="L180">                <span class="tok-kw">if</span> (fio.fiobj_ary_count(fn_ary) == len <span class="tok-kw">and</span> fio.fiobj_ary_count(mt_ary) == len) {</span>
+<span class="line" id="L181">                    <span class="tok-kw">var</span> i: <span class="tok-type">isize</span> = <span class="tok-number">0</span>;</span>
+<span class="line" id="L182">                    <span class="tok-kw">var</span> ret = std.ArrayList(HttpParamBinaryFile).init(a);</span>
+<span class="line" id="L183">                    <span class="tok-kw">while</span> (i &lt; len) : (i += <span class="tok-number">1</span>) {</span>
+<span class="line" id="L184">                        <span class="tok-kw">const</span> file_data_obj = fio.fiobj_ary_entry(data, i);</span>
+<span class="line" id="L185">                        <span class="tok-kw">const</span> file_name_obj = fio.fiobj_ary_entry(fn_ary, i);</span>
+<span class="line" id="L186">                        <span class="tok-kw">const</span> file_mimetype_obj = fio.fiobj_ary_entry(mt_ary, i);</span>
+<span class="line" id="L187">                        <span class="tok-kw">var</span> has_error: <span class="tok-type">bool</span> = <span class="tok-null">false</span>;</span>
+<span class="line" id="L188">                        <span class="tok-kw">if</span> (fio.is_invalid(file_data_obj) == <span class="tok-number">1</span>) {</span>
+<span class="line" id="L189">                            std.log.debug(<span class="tok-str">&quot;file data invalid in array&quot;</span>, .{});</span>
+<span class="line" id="L190">                            has_error = <span class="tok-null">true</span>;</span>
+<span class="line" id="L191">                        }</span>
+<span class="line" id="L192">                        <span class="tok-kw">if</span> (fio.is_invalid(file_name_obj) == <span class="tok-number">1</span>) {</span>
+<span class="line" id="L193">                            std.log.debug(<span class="tok-str">&quot;file name invalid in array&quot;</span>, .{});</span>
+<span class="line" id="L194">                            has_error = <span class="tok-null">true</span>;</span>
+<span class="line" id="L195">                        }</span>
+<span class="line" id="L196">                        <span class="tok-kw">if</span> (fio.is_invalid(file_mimetype_obj) == <span class="tok-number">1</span>) {</span>
+<span class="line" id="L197">                            std.log.debug(<span class="tok-str">&quot;file mimetype invalid in array&quot;</span>, .{});</span>
+<span class="line" id="L198">                            has_error = <span class="tok-null">true</span>;</span>
+<span class="line" id="L199">                        }</span>
+<span class="line" id="L200">                        <span class="tok-kw">if</span> (has_error) {</span>
+<span class="line" id="L201">                            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.Invalid;</span>
+<span class="line" id="L202">                        }</span>
+<span class="line" id="L203"></span>
+<span class="line" id="L204">                        <span class="tok-kw">const</span> file_data = fio.fiobj_obj2cstr(file_data_obj);</span>
+<span class="line" id="L205">                        <span class="tok-kw">const</span> file_name = fio.fiobj_obj2cstr(file_name_obj);</span>
+<span class="line" id="L206">                        <span class="tok-kw">const</span> file_mimetype = fio.fiobj_obj2cstr(file_mimetype_obj);</span>
+<span class="line" id="L207">                        <span class="tok-kw">try</span> ret.append(.{</span>
+<span class="line" id="L208">                            .data = file_data.data[<span class="tok-number">0</span>..file_data.len],</span>
+<span class="line" id="L209">                            .mimetype = file_mimetype.data[<span class="tok-number">0</span>..file_mimetype.len],</span>
+<span class="line" id="L210">                            .filename = file_name.data[<span class="tok-number">0</span>..file_name.len],</span>
+<span class="line" id="L211">                        });</span>
+<span class="line" id="L212">                    }</span>
+<span class="line" id="L213">                    <span class="tok-kw">return</span> .{ .Array_Binfile = ret };</span>
+<span class="line" id="L214">                } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L215">                    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.ArrayLenMismatch;</span>
+<span class="line" id="L216">                }</span>
+<span class="line" id="L217">            },</span>
+<span class="line" id="L218">            <span class="tok-kw">else</span> =&gt; {</span>
+<span class="line" id="L219">                <span class="tok-comment">// don't know what to do</span>
+</span>
+<span class="line" id="L220">                <span class="tok-kw">return</span> <span class="tok-kw">error</span>.Unsupported;</span>
+<span class="line" id="L221">            },</span>
+<span class="line" id="L222">        }</span>
+<span class="line" id="L223"></span>
+<span class="line" id="L224">        <span class="tok-kw">return</span> .{ .Hash_Binfile = .{</span>
+<span class="line" id="L225">            .filename = filename.data[<span class="tok-number">0</span>..filename.len],</span>
+<span class="line" id="L226">            .mimetype = mimetype.data[<span class="tok-number">0</span>..mimetype.len],</span>
+<span class="line" id="L227">            .data = data_slice,</span>
+<span class="line" id="L228">        } };</span>
+<span class="line" id="L229">    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L230">        <span class="tok-kw">return</span> .{ .Hash_Binfile = .{} };</span>
+<span class="line" id="L231">    }</span>
+<span class="line" id="L232">}</span>
+<span class="line" id="L233"></span>
+<span class="line" id="L234"><span class="tok-comment">/// Parse FIO object into a typed Http param. Supports file uploads.</span></span>
+<span class="line" id="L235"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">Fiobj2HttpParam</span>(a: std.mem.Allocator, o: fio.FIOBJ, dupe_string: <span class="tok-type">bool</span>) !?HttpParam {</span>
+<span class="line" id="L236">    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (fio.fiobj_type(o)) {</span>
+<span class="line" id="L237">        fio.FIOBJ_T_NULL =&gt; <span class="tok-null">null</span>,</span>
+<span class="line" id="L238">        fio.FIOBJ_T_TRUE =&gt; .{ .Bool = <span class="tok-null">true</span> },</span>
+<span class="line" id="L239">        fio.FIOBJ_T_FALSE =&gt; .{ .Bool = <span class="tok-null">false</span> },</span>
+<span class="line" id="L240">        fio.FIOBJ_T_NUMBER =&gt; .{ .Int = fio.fiobj_obj2num(o) },</span>
+<span class="line" id="L241">        fio.FIOBJ_T_FLOAT =&gt; .{ .Float = fio.fiobj_obj2float(o) },</span>
+<span class="line" id="L242">        fio.FIOBJ_T_STRING =&gt; .{ .String = <span class="tok-kw">try</span> util.fio2strAllocOrNot(a, o, dupe_string) },</span>
+<span class="line" id="L243">        fio.FIOBJ_T_ARRAY =&gt; {</span>
+<span class="line" id="L244">            <span class="tok-kw">return</span> .{ .Unsupported = <span class="tok-null">null</span> };</span>
+<span class="line" id="L245">        },</span>
+<span class="line" id="L246">        fio.FIOBJ_T_HASH =&gt; {</span>
+<span class="line" id="L247">            <span class="tok-kw">const</span> file = <span class="tok-kw">try</span> parseBinfilesFrom(a, o);</span>
+<span class="line" id="L248">            <span class="tok-kw">return</span> file;</span>
+<span class="line" id="L249">        },</span>
+<span class="line" id="L250">        <span class="tok-kw">else</span> =&gt; .{ .Unsupported = <span class="tok-null">null</span> },</span>
+<span class="line" id="L251">    };</span>
+<span class="line" id="L252">}</span>
+<span class="line" id="L253"></span>
+<span class="line" id="L254"><span class="tok-comment">/// Args for setting a cookie</span></span>
+<span class="line" id="L255"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> CookieArgs = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L256">    name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L257">    value: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L258">    domain: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L259">    path: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L260">    <span class="tok-comment">/// max age in seconds. 0 -&gt; session</span></span>
+<span class="line" id="L261">    max_age_s: <span class="tok-type">c_int</span> = <span class="tok-number">0</span>,</span>
+<span class="line" id="L262">    secure: <span class="tok-type">bool</span> = <span class="tok-null">true</span>,</span>
+<span class="line" id="L263">    http_only: <span class="tok-type">bool</span> = <span class="tok-null">true</span>,</span>
+<span class="line" id="L264">};</span>
+<span class="line" id="L265"></span>
+<span class="line" id="L266">path: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L267">query: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L268">body: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L269">method: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L270">h: [*c]fio.http_s,</span>
+<span class="line" id="L271"></span>
+<span class="line" id="L272"><span class="tok-comment">/// NEVER touch this field!!!!</span></span>
+<span class="line" id="L273"><span class="tok-comment">/// if you absolutely MUST, then you may provide context here</span></span>
+<span class="line" id="L274"><span class="tok-comment">/// via setUserContext and getUserContext</span></span>
+<span class="line" id="L275">_user_context: *UserContext,</span>
+<span class="line" id="L276"><span class="tok-comment">/// NEVER touch this field!!!!</span></span>
+<span class="line" id="L277"><span class="tok-comment">/// use markAsFinished() and isFinished() instead</span></span>
+<span class="line" id="L278"><span class="tok-comment">/// this is a hack: the listener will put a pointer to this into the udata</span></span>
+<span class="line" id="L279"><span class="tok-comment">/// field of `h`. So copies of the Request will all have way to the</span></span>
+<span class="line" id="L280"><span class="tok-comment">/// same instance of this field.</span></span>
+<span class="line" id="L281">_is_finished_request_global: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L282"><span class="tok-comment">/// NEVER touch this field!!!!</span></span>
+<span class="line" id="L283"><span class="tok-comment">/// this is part of the hack.</span></span>
+<span class="line" id="L284">_is_finished: *<span class="tok-type">bool</span> = <span class="tok-null">undefined</span>,</span>
+<span class="line" id="L285"></span>
+<span class="line" id="L286"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> UserContext = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L287">    user_context: ?*<span class="tok-type">anyopaque</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L288">};</span>
+<span class="line" id="L289"></span>
+<span class="line" id="L290"><span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L291"></span>
+<span class="line" id="L292"><span class="tok-comment">/// mark the current request as finished. Important for middleware-style</span></span>
+<span class="line" id="L293"><span class="tok-comment">/// request handler chaining. Called when sending a body, redirecting, etc.</span></span>
+<span class="line" id="L294"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">markAsFinished</span>(self: *<span class="tok-kw">const</span> Self, finished: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L295">    <span class="tok-comment">// we might be a copy</span>
+</span>
+<span class="line" id="L296">    self._is_finished.* = finished;</span>
+<span class="line" id="L297">}</span>
+<span class="line" id="L298"></span>
+<span class="line" id="L299"><span class="tok-comment">/// tell whether request processing has finished. (e.g. response sent,</span></span>
+<span class="line" id="L300"><span class="tok-comment">/// redirected, ...)</span></span>
+<span class="line" id="L301"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">isFinished</span>(self: *<span class="tok-kw">const</span> Self) <span class="tok-type">bool</span> {</span>
+<span class="line" id="L302">    <span class="tok-comment">// we might be a copy</span>
+</span>
+<span class="line" id="L303">    <span class="tok-kw">return</span> self._is_finished.*;</span>
+<span class="line" id="L304">}</span>
+<span class="line" id="L305"></span>
+<span class="line" id="L306"><span class="tok-comment">/// if you absolutely must, you can set any context on the request here</span></span>
+<span class="line" id="L307"><span class="tok-comment">// (note, this line is linked to from the readme) -- TODO: sync</span>
+</span>
+<span class="line" id="L308"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setUserContext</span>(self: *<span class="tok-kw">const</span> Self, context: *<span class="tok-type">anyopaque</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L309">    self._user_context.*.user_context = context;</span>
+<span class="line" id="L310">}</span>
+<span class="line" id="L311"></span>
+<span class="line" id="L312"><span class="tok-comment">/// get the associated user context of the request.</span></span>
+<span class="line" id="L313"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getUserContext</span>(self: *<span class="tok-kw">const</span> Self, <span class="tok-kw">comptime</span> Context: <span class="tok-type">type</span>) ?*Context {</span>
+<span class="line" id="L314">    <span class="tok-kw">if</span> (self._user_context.*.user_context) |ptr| {</span>
+<span class="line" id="L315">        <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>(*Context, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(ptr)));</span>
+<span class="line" id="L316">    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L317">        <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L318">    }</span>
+<span class="line" id="L319">}</span>
+<span class="line" id="L320"></span>
+<span class="line" id="L321"><span class="tok-comment">/// Tries to send an error stack trace.</span></span>
+<span class="line" id="L322"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendError</span>(self: *<span class="tok-kw">const</span> Self, err: <span class="tok-type">anyerror</span>, errorcode_num: <span class="tok-type">usize</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L323">    <span class="tok-comment">// TODO: query accept headers</span>
+</span>
+<span class="line" id="L324">    <span class="tok-kw">if</span> (self._internal_sendError(err, errorcode_num)) {</span>
+<span class="line" id="L325">        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L326">    } <span class="tok-kw">else</span> |_| {</span>
+<span class="line" id="L327">        self.sendBody(<span class="tok-builtin">@errorName</span>(err)) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L328">    }</span>
+<span class="line" id="L329">}</span>
+<span class="line" id="L330"></span>
+<span class="line" id="L331"><span class="tok-comment">/// Used internally. Probably does not need to be public.</span></span>
+<span class="line" id="L332"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">_internal_sendError</span>(self: *<span class="tok-kw">const</span> Self, err: <span class="tok-type">anyerror</span>, errorcode_num: <span class="tok-type">usize</span>) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L333">    <span class="tok-comment">// TODO: query accept headers</span>
+</span>
+<span class="line" id="L334">    <span class="tok-comment">// TODO: let's hope 20k is enough. Maybe just really allocate here</span>
+</span>
+<span class="line" id="L335">    self.h.*.status = errorcode_num;</span>
+<span class="line" id="L336">    <span class="tok-kw">var</span> buf: [<span class="tok-number">20</span> * <span class="tok-number">1024</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L337">    <span class="tok-kw">var</span> fba = std.heap.FixedBufferAllocator.init(&amp;buf);</span>
+<span class="line" id="L338">    <span class="tok-kw">var</span> string = std.ArrayList(<span class="tok-type">u8</span>).init(fba.allocator());</span>
+<span class="line" id="L339">    <span class="tok-kw">var</span> writer = string.writer();</span>
+<span class="line" id="L340">    <span class="tok-kw">try</span> writer.print(<span class="tok-str">&quot;ERROR: {any}\n\n&quot;</span>, .{err});</span>
+<span class="line" id="L341"></span>
+<span class="line" id="L342">    <span class="tok-kw">const</span> debugInfo = <span class="tok-kw">try</span> std.debug.getSelfDebugInfo();</span>
+<span class="line" id="L343">    <span class="tok-kw">const</span> ttyConfig: std.io.tty.Config = .no_color;</span>
+<span class="line" id="L344">    <span class="tok-kw">try</span> std.debug.writeCurrentStackTrace(writer, debugInfo, ttyConfig, <span class="tok-null">null</span>);</span>
+<span class="line" id="L345">    <span class="tok-kw">try</span> self.sendBody(string.items);</span>
+<span class="line" id="L346">}</span>
+<span class="line" id="L347"></span>
+<span class="line" id="L348"><span class="tok-comment">/// Send body.</span></span>
+<span class="line" id="L349"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendBody</span>(self: *<span class="tok-kw">const</span> Self, body: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L350">    <span class="tok-kw">const</span> ret = fio.http_send_body(self.h, <span class="tok-builtin">@as</span>(</span>
+<span class="line" id="L351">        *<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L352">        <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(body.ptr)),</span>
+<span class="line" id="L353">    ), body.len);</span>
+<span class="line" id="L354">    zap.debug(<span class="tok-str">&quot;Request.sendBody(): ret = {}\n&quot;</span>, .{ret});</span>
+<span class="line" id="L355">    <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSendBody;</span>
+<span class="line" id="L356">    self.markAsFinished(<span class="tok-null">true</span>);</span>
+<span class="line" id="L357">}</span>
+<span class="line" id="L358"></span>
+<span class="line" id="L359"><span class="tok-comment">/// Set content type and send json buffer.</span></span>
+<span class="line" id="L360"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendJson</span>(self: *<span class="tok-kw">const</span> Self, json: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L361">    <span class="tok-kw">if</span> (self.setContentType(.JSON)) {</span>
+<span class="line" id="L362">        <span class="tok-kw">if</span> (fio.http_send_body(self.h, <span class="tok-builtin">@as</span>(</span>
+<span class="line" id="L363">            *<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L364">            <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(json.ptr)),</span>
+<span class="line" id="L365">        ), json.len) != <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSendBody;</span>
+<span class="line" id="L366">        self.markAsFinished(<span class="tok-null">true</span>);</span>
+<span class="line" id="L367">    } <span class="tok-kw">else</span> |err| <span class="tok-kw">return</span> err;</span>
+<span class="line" id="L368">}</span>
+<span class="line" id="L369"></span>
+<span class="line" id="L370"><span class="tok-comment">/// Set content type.</span></span>
+<span class="line" id="L371"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setContentType</span>(self: *<span class="tok-kw">const</span> Self, c: ContentType) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L372">    <span class="tok-kw">const</span> s = <span class="tok-kw">switch</span> (c) {</span>
+<span class="line" id="L373">        .TEXT =&gt; <span class="tok-str">&quot;text/plain&quot;</span>,</span>
+<span class="line" id="L374">        .JSON =&gt; <span class="tok-str">&quot;application/json&quot;</span>,</span>
+<span class="line" id="L375">        <span class="tok-kw">else</span> =&gt; <span class="tok-str">&quot;text/html&quot;</span>,</span>
+<span class="line" id="L376">    };</span>
+<span class="line" id="L377">    zap.debug(<span class="tok-str">&quot;setting content-type to {s}\n&quot;</span>, .{s});</span>
+<span class="line" id="L378">    <span class="tok-kw">return</span> self.setHeader(<span class="tok-str">&quot;content-type&quot;</span>, s);</span>
+<span class="line" id="L379">}</span>
+<span class="line" id="L380"></span>
+<span class="line" id="L381"><span class="tok-comment">/// redirect to path with status code 302 by default</span></span>
+<span class="line" id="L382"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">redirectTo</span>(self: *<span class="tok-kw">const</span> Self, path: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, code: ?http.StatusCode) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L383">    self.setStatus(<span class="tok-kw">if</span> (code) |status| status <span class="tok-kw">else</span> .found);</span>
+<span class="line" id="L384">    <span class="tok-kw">try</span> self.setHeader(<span class="tok-str">&quot;Location&quot;</span>, path);</span>
+<span class="line" id="L385">    <span class="tok-kw">try</span> self.sendBody(<span class="tok-str">&quot;moved&quot;</span>);</span>
+<span class="line" id="L386">    self.markAsFinished(<span class="tok-null">true</span>);</span>
+<span class="line" id="L387">}</span>
+<span class="line" id="L388"></span>
+<span class="line" id="L389"><span class="tok-comment">/// shows how to use the logger</span></span>
+<span class="line" id="L390"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setContentTypeWithLogger</span>(</span>
+<span class="line" id="L391">    self: *<span class="tok-kw">const</span> Self,</span>
+<span class="line" id="L392">    c: ContentType,</span>
+<span class="line" id="L393">    logger: *<span class="tok-kw">const</span> Log,</span>
+<span class="line" id="L394">) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L395">    <span class="tok-kw">const</span> s = <span class="tok-kw">switch</span> (c) {</span>
+<span class="line" id="L396">        .TEXT =&gt; <span class="tok-str">&quot;text/plain&quot;</span>,</span>
+<span class="line" id="L397">        .JSON =&gt; <span class="tok-str">&quot;application/json&quot;</span>,</span>
+<span class="line" id="L398">        <span class="tok-kw">else</span> =&gt; <span class="tok-str">&quot;text/html&quot;</span>,</span>
+<span class="line" id="L399">    };</span>
+<span class="line" id="L400">    logger.log(<span class="tok-str">&quot;setting content-type to {s}\n&quot;</span>, .{s});</span>
+<span class="line" id="L401">    <span class="tok-kw">return</span> self.setHeader(<span class="tok-str">&quot;content-type&quot;</span>, s);</span>
+<span class="line" id="L402">}</span>
+<span class="line" id="L403"></span>
+<span class="line" id="L404"><span class="tok-comment">/// Tries to determine the content type by file extension of request path, and sets it.</span></span>
+<span class="line" id="L405"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setContentTypeFromPath</span>(self: *<span class="tok-kw">const</span> Self) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L406">    <span class="tok-kw">const</span> t = fio.http_mimetype_find2(self.h.*.path);</span>
+<span class="line" id="L407">    <span class="tok-kw">if</span> (fio.is_invalid(t) == <span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSetContentType;</span>
+<span class="line" id="L408">    <span class="tok-kw">const</span> ret = fio.fiobj_hash_set(</span>
+<span class="line" id="L409">        self.h.*.private_data.out_headers,</span>
+<span class="line" id="L410">        fio.HTTP_HEADER_CONTENT_TYPE,</span>
+<span class="line" id="L411">        t,</span>
+<span class="line" id="L412">    );</span>
+<span class="line" id="L413">    <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSetContentType;</span>
+<span class="line" id="L414">}</span>
+<span class="line" id="L415"></span>
+<span class="line" id="L416"><span class="tok-comment">/// Tries to determine the content type by filename extension, and sets it.</span></span>
+<span class="line" id="L417"><span class="tok-comment">/// If the extension cannot be determined, NoExtensionInFilename error is</span></span>
+<span class="line" id="L418"><span class="tok-comment">/// returned.</span></span>
+<span class="line" id="L419"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setContentTypeFromFilename</span>(self: *<span class="tok-kw">const</span> Self, filename: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L420">    <span class="tok-kw">const</span> ext = std.fs.path.extension(filename);</span>
+<span class="line" id="L421"></span>
+<span class="line" id="L422">    <span class="tok-kw">if</span> (ext.len &gt; <span class="tok-number">1</span>) {</span>
+<span class="line" id="L423">        <span class="tok-kw">const</span> e = ext[<span class="tok-number">1</span>..];</span>
+<span class="line" id="L424">        <span class="tok-kw">const</span> obj = fio.http_mimetype_find(<span class="tok-builtin">@constCast</span>(e.ptr), e.len);</span>
+<span class="line" id="L425"></span>
+<span class="line" id="L426">        <span class="tok-kw">if</span> (util.fio2str(obj)) |mime_str| {</span>
+<span class="line" id="L427">            <span class="tok-kw">try</span> self.setHeader(<span class="tok-str">&quot;content-type&quot;</span>, mime_str);</span>
+<span class="line" id="L428">        }</span>
+<span class="line" id="L429">    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L430">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.NoExtensionInFilename;</span>
+<span class="line" id="L431">    }</span>
+<span class="line" id="L432">}</span>
+<span class="line" id="L433"></span>
+<span class="line" id="L434"><span class="tok-comment">/// Returns the header value of given key name. Returned mem is temp.</span></span>
+<span class="line" id="L435"><span class="tok-comment">/// Do not free it.</span></span>
+<span class="line" id="L436"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getHeader</span>(self: *<span class="tok-kw">const</span> Self, name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
+<span class="line" id="L437">    <span class="tok-kw">const</span> hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);</span>
+<span class="line" id="L438">    <span class="tok-kw">defer</span> fio.fiobj_free_wrapped(hname);</span>
+<span class="line" id="L439">    <span class="tok-kw">return</span> util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));</span>
+<span class="line" id="L440">}</span>
+<span class="line" id="L441"></span>
+<span class="line" id="L442"><span class="tok-comment">/// Set header.</span></span>
+<span class="line" id="L443"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setHeader</span>(self: *<span class="tok-kw">const</span> Self, name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, value: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L444">    <span class="tok-kw">const</span> hname: fio.fio_str_info_s = .{</span>
+<span class="line" id="L445">        .data = util.toCharPtr(name),</span>
+<span class="line" id="L446">        .len = name.len,</span>
+<span class="line" id="L447">        .capa = name.len,</span>
+<span class="line" id="L448">    };</span>
+<span class="line" id="L449"></span>
+<span class="line" id="L450">    zap.debug(<span class="tok-str">&quot;setHeader: hname = {s}\n&quot;</span>, .{name});</span>
+<span class="line" id="L451">    <span class="tok-kw">const</span> vname: fio.fio_str_info_s = .{</span>
+<span class="line" id="L452">        .data = util.toCharPtr(value),</span>
+<span class="line" id="L453">        .len = value.len,</span>
+<span class="line" id="L454">        .capa = value.len,</span>
+<span class="line" id="L455">    };</span>
+<span class="line" id="L456">    zap.debug(<span class="tok-str">&quot;setHeader: vname = {s}\n&quot;</span>, .{value});</span>
+<span class="line" id="L457">    <span class="tok-kw">const</span> ret = fio.http_set_header2(self.h, hname, vname);</span>
+<span class="line" id="L458"></span>
+<span class="line" id="L459">    <span class="tok-comment">// FIXME without the following if, we get errors in release builds</span>
+</span>
+<span class="line" id="L460">    <span class="tok-comment">// at least we don't have to log unconditionally</span>
+</span>
+<span class="line" id="L461">    <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) {</span>
+<span class="line" id="L462">        std.debug.print(<span class="tok-str">&quot;***************** zap.zig:274\n&quot;</span>, .{});</span>
+<span class="line" id="L463">    }</span>
+<span class="line" id="L464">    zap.debug(<span class="tok-str">&quot;setHeader: ret = {}\n&quot;</span>, .{ret});</span>
+<span class="line" id="L465"></span>
+<span class="line" id="L466">    <span class="tok-kw">if</span> (ret == <span class="tok-number">0</span>) <span class="tok-kw">return</span>;</span>
+<span class="line" id="L467">    <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSetHeader;</span>
+<span class="line" id="L468">}</span>
+<span class="line" id="L469"></span>
+<span class="line" id="L470"><span class="tok-comment">/// Set status by numeric value.</span></span>
+<span class="line" id="L471"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setStatusNumeric</span>(self: *<span class="tok-kw">const</span> Self, status: <span class="tok-type">usize</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L472">    self.h.*.status = status;</span>
+<span class="line" id="L473">}</span>
+<span class="line" id="L474"></span>
+<span class="line" id="L475"><span class="tok-comment">/// Set status by enum.</span></span>
+<span class="line" id="L476"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setStatus</span>(self: *<span class="tok-kw">const</span> Self, status: http.StatusCode) <span class="tok-type">void</span> {</span>
+<span class="line" id="L477">    self.h.*.status = <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@intCast</span>(<span class="tok-builtin">@intFromEnum</span>(status)));</span>
+<span class="line" id="L478">}</span>
+<span class="line" id="L479"></span>
+<span class="line" id="L480"><span class="tok-comment">/// Sends a file if present in the filesystem orelse returns an error.</span></span>
+<span class="line" id="L481"><span class="tok-comment">///</span></span>
+<span class="line" id="L482"><span class="tok-comment">/// - efficiently sends a file using gzip compression</span></span>
+<span class="line" id="L483"><span class="tok-comment">/// - also handles range requests if `Range` or `If-Range` headers are present in the request.</span></span>
+<span class="line" id="L484"><span class="tok-comment">/// - sends the response headers and the specified file (the response's body).</span></span>
+<span class="line" id="L485"><span class="tok-comment">///</span></span>
+<span class="line" id="L486"><span class="tok-comment">/// On success, the `self.h` handle will be consumed and invalid.</span></span>
+<span class="line" id="L487"><span class="tok-comment">/// On error, the handle will still be valid and should be used to send an error response</span></span>
+<span class="line" id="L488"><span class="tok-comment">///</span></span>
+<span class="line" id="L489"><span class="tok-comment">/// Important: sets last-modified and cache-control headers with a max-age value of 1 hour!</span></span>
+<span class="line" id="L490"><span class="tok-comment">/// You can override that by setting those headers yourself, e.g.: setHeader(&quot;Cache-Control&quot;, &quot;no-cache&quot;)</span></span>
+<span class="line" id="L491"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendFile</span>(self: *<span class="tok-kw">const</span> Self, file_path: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L492">    <span class="tok-kw">if</span> (fio.http_sendfile2(self.h, util.toCharPtr(file_path), file_path.len, <span class="tok-null">null</span>, <span class="tok-number">0</span>) != <span class="tok-number">0</span>)</span>
+<span class="line" id="L493">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SendFile;</span>
+<span class="line" id="L494">    self.markAsFinished(<span class="tok-null">true</span>);</span>
+<span class="line" id="L495">}</span>
+<span class="line" id="L496"></span>
+<span class="line" id="L497"><span class="tok-comment">/// Attempts to decode the request's body.</span></span>
+<span class="line" id="L498"><span class="tok-comment">/// This should be called BEFORE parseQuery</span></span>
+<span class="line" id="L499"><span class="tok-comment">/// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()</span></span>
+<span class="line" id="L500"><span class="tok-comment">///</span></span>
+<span class="line" id="L501"><span class="tok-comment">/// Supported body types:</span></span>
+<span class="line" id="L502"><span class="tok-comment">/// - application/x-www-form-urlencoded</span></span>
+<span class="line" id="L503"><span class="tok-comment">/// - application/json</span></span>
+<span class="line" id="L504"><span class="tok-comment">/// - multipart/form-data</span></span>
+<span class="line" id="L505"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parseBody</span>(self: *<span class="tok-kw">const</span> Self) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L506">    <span class="tok-kw">if</span> (fio.http_parse_body(self.h) == -<span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpParseBody;</span>
+<span class="line" id="L507">}</span>
+<span class="line" id="L508"></span>
+<span class="line" id="L509"><span class="tok-comment">/// Parses the query part of an HTTP request</span></span>
+<span class="line" id="L510"><span class="tok-comment">/// This should be called AFTER parseBody(), just in case the body is a JSON</span></span>
+<span class="line" id="L511"><span class="tok-comment">/// object that doesn't have a hash map at its root.</span></span>
+<span class="line" id="L512"><span class="tok-comment">///</span></span>
+<span class="line" id="L513"><span class="tok-comment">/// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()</span></span>
+<span class="line" id="L514"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parseQuery</span>(self: *<span class="tok-kw">const</span> Self) <span class="tok-type">void</span> {</span>
+<span class="line" id="L515">    fio.http_parse_query(self.h);</span>
+<span class="line" id="L516">}</span>
+<span class="line" id="L517"></span>
+<span class="line" id="L518"><span class="tok-comment">/// Parse received cookie headers</span></span>
+<span class="line" id="L519"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parseCookies</span>(self: *<span class="tok-kw">const</span> Self, url_encoded: <span class="tok-type">bool</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L520">    fio.http_parse_cookies(self.h, <span class="tok-kw">if</span> (url_encoded) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>);</span>
+<span class="line" id="L521">}</span>
+<span class="line" id="L522"></span>
+<span class="line" id="L523"><span class="tok-comment">/// Set a response cookie</span></span>
+<span class="line" id="L524"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">setCookie</span>(self: *<span class="tok-kw">const</span> Self, args: CookieArgs) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L525">    <span class="tok-kw">const</span> c: fio.http_cookie_args_s = .{</span>
+<span class="line" id="L526">        .name = util.toCharPtr(args.name),</span>
+<span class="line" id="L527">        .name_len = <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@intCast</span>(args.name.len)),</span>
+<span class="line" id="L528">        .value = util.toCharPtr(args.value),</span>
+<span class="line" id="L529">        .value_len = <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@intCast</span>(args.value.len)),</span>
+<span class="line" id="L530">        .domain = <span class="tok-kw">if</span> (args.domain) |p| util.toCharPtr(p) <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L531">        .domain_len = <span class="tok-kw">if</span> (args.domain) |p| <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@intCast</span>(p.len)) <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L532">        .path = <span class="tok-kw">if</span> (args.path) |p| util.toCharPtr(p) <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L533">        .path_len = <span class="tok-kw">if</span> (args.path) |p| <span class="tok-builtin">@as</span>(<span class="tok-type">isize</span>, <span class="tok-builtin">@intCast</span>(p.len)) <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L534">        .max_age = args.max_age_s,</span>
+<span class="line" id="L535">        .secure = <span class="tok-kw">if</span> (args.secure) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L536">        .http_only = <span class="tok-kw">if</span> (args.http_only) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L537">    };</span>
+<span class="line" id="L538"></span>
+<span class="line" id="L539">    <span class="tok-comment">// TODO WAT?</span>
+</span>
+<span class="line" id="L540">    <span class="tok-comment">// if we:</span>
+</span>
+<span class="line" id="L541">    <span class="tok-comment">//     if(fio.http_set_cookie(...) == -1)</span>
+</span>
+<span class="line" id="L542">    <span class="tok-comment">// instead of capturing it in `ret` first and then checking it,</span>
+</span>
+<span class="line" id="L543">    <span class="tok-comment">// all ReleaseXXX builds return an error!</span>
+</span>
+<span class="line" id="L544">    <span class="tok-comment">// TODO: still happening?</span>
+</span>
+<span class="line" id="L545">    <span class="tok-kw">const</span> ret = fio.http_set_cookie(self.h, c);</span>
+<span class="line" id="L546">    <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) {</span>
+<span class="line" id="L547">        std.log.err(<span class="tok-str">&quot;fio.http_set_cookie returned: {}\n&quot;</span>, .{ret});</span>
+<span class="line" id="L548">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.SetCookie;</span>
+<span class="line" id="L549">    }</span>
+<span class="line" id="L550">}</span>
+<span class="line" id="L551"></span>
+<span class="line" id="L552"><span class="tok-comment">/// Returns named cookie. Works like getParamStr().</span></span>
+<span class="line" id="L553"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getCookieStr</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, always_alloc: <span class="tok-type">bool</span>) !?util.FreeOrNot {</span>
+<span class="line" id="L554">    <span class="tok-kw">if</span> (self.h.*.cookies == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L555">    <span class="tok-kw">const</span> key = fio.fiobj_str_new(name.ptr, name.len);</span>
+<span class="line" id="L556">    <span class="tok-kw">defer</span> fio.fiobj_free_wrapped(key);</span>
+<span class="line" id="L557">    <span class="tok-kw">const</span> value = fio.fiobj_hash_get(self.h.*.cookies, key);</span>
+<span class="line" id="L558">    <span class="tok-kw">if</span> (value == fio.FIOBJ_INVALID) {</span>
+<span class="line" id="L559">        <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L560">    }</span>
+<span class="line" id="L561">    <span class="tok-kw">return</span> <span class="tok-kw">try</span> util.fio2strAllocOrNot(a, value, always_alloc);</span>
+<span class="line" id="L562">}</span>
+<span class="line" id="L563"></span>
+<span class="line" id="L564"><span class="tok-comment">/// Returns the number of cookies after parsing.</span></span>
+<span class="line" id="L565"><span class="tok-comment">///</span></span>
+<span class="line" id="L566"><span class="tok-comment">/// Parse with parseCookies()</span></span>
+<span class="line" id="L567"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getCookiesCount</span>(self: *<span class="tok-kw">const</span> Self) <span class="tok-type">isize</span> {</span>
+<span class="line" id="L568">    <span class="tok-kw">if</span> (self.h.*.cookies == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L569">    <span class="tok-kw">return</span> fio.fiobj_obj2num(self.h.*.cookies);</span>
+<span class="line" id="L570">}</span>
+<span class="line" id="L571"></span>
+<span class="line" id="L572"><span class="tok-comment">/// Returns the number of parameters after parsing.</span></span>
+<span class="line" id="L573"><span class="tok-comment">///</span></span>
+<span class="line" id="L574"><span class="tok-comment">/// Parse with parseBody() and / or parseQuery()</span></span>
+<span class="line" id="L575"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getParamCount</span>(self: *<span class="tok-kw">const</span> Self) <span class="tok-type">isize</span> {</span>
+<span class="line" id="L576">    <span class="tok-kw">if</span> (self.h.*.params == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L577">    <span class="tok-kw">return</span> fio.fiobj_obj2num(self.h.*.params);</span>
+<span class="line" id="L578">}</span>
+<span class="line" id="L579"></span>
+<span class="line" id="L580"><span class="tok-comment">/// Same as parametersToOwnedStrList() but for cookies</span></span>
+<span class="line" id="L581"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">cookiesToOwnedStrList</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, always_alloc: <span class="tok-type">bool</span>) <span class="tok-type">anyerror</span>!HttpParamStrKVList {</span>
+<span class="line" id="L582">    <span class="tok-kw">var</span> params = <span class="tok-kw">try</span> std.ArrayList(HttpParamStrKV).initCapacity(a, <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@intCast</span>(self.getCookiesCount())));</span>
+<span class="line" id="L583">    <span class="tok-kw">var</span> context: _parametersToOwnedStrSliceContext = .{</span>
+<span class="line" id="L584">        .params = &amp;params,</span>
+<span class="line" id="L585">        .allocator = a,</span>
+<span class="line" id="L586">        .always_alloc = always_alloc,</span>
+<span class="line" id="L587">    };</span>
+<span class="line" id="L588">    <span class="tok-kw">const</span> howmany = fio.fiobj_each1(self.h.*.cookies, <span class="tok-number">0</span>, _each_nextParamStr, &amp;context);</span>
+<span class="line" id="L589">    <span class="tok-kw">if</span> (howmany != self.getCookiesCount()) {</span>
+<span class="line" id="L590">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpIterParams;</span>
+<span class="line" id="L591">    }</span>
+<span class="line" id="L592">    <span class="tok-kw">return</span> .{ .items = <span class="tok-kw">try</span> params.toOwnedSlice(), .allocator = a };</span>
+<span class="line" id="L593">}</span>
+<span class="line" id="L594"></span>
+<span class="line" id="L595"><span class="tok-comment">/// Same as parametersToOwnedList() but for cookies</span></span>
+<span class="line" id="L596"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">cookiesToOwnedList</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, dupe_strings: <span class="tok-type">bool</span>) !HttpParamKVList {</span>
+<span class="line" id="L597">    <span class="tok-kw">var</span> params = <span class="tok-kw">try</span> std.ArrayList(HttpParamKV).initCapacity(a, <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@intCast</span>(self.getCookiesCount())));</span>
+<span class="line" id="L598">    <span class="tok-kw">var</span> context: _parametersToOwnedSliceContext = .{ .params = &amp;params, .allocator = a, .dupe_strings = dupe_strings };</span>
+<span class="line" id="L599">    <span class="tok-kw">const</span> howmany = fio.fiobj_each1(self.h.*.cookies, <span class="tok-number">0</span>, _each_nextParam, &amp;context);</span>
+<span class="line" id="L600">    <span class="tok-kw">if</span> (howmany != self.getCookiesCount()) {</span>
+<span class="line" id="L601">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpIterParams;</span>
+<span class="line" id="L602">    }</span>
+<span class="line" id="L603">    <span class="tok-kw">return</span> .{ .items = <span class="tok-kw">try</span> params.toOwnedSlice(), .allocator = a };</span>
+<span class="line" id="L604">}</span>
+<span class="line" id="L605"></span>
+<span class="line" id="L606"><span class="tok-comment">/// Returns the query / body parameters as key/value pairs, as strings.</span></span>
+<span class="line" id="L607"><span class="tok-comment">/// Supported param types that will be converted:</span></span>
+<span class="line" id="L608"><span class="tok-comment">///</span></span>
+<span class="line" id="L609"><span class="tok-comment">/// - Bool</span></span>
+<span class="line" id="L610"><span class="tok-comment">/// - Int</span></span>
+<span class="line" id="L611"><span class="tok-comment">/// - Float</span></span>
+<span class="line" id="L612"><span class="tok-comment">/// - String</span></span>
+<span class="line" id="L613"><span class="tok-comment">///</span></span>
+<span class="line" id="L614"><span class="tok-comment">/// At the moment, no fio ARRAYs are supported as well as HASH maps.</span></span>
+<span class="line" id="L615"><span class="tok-comment">/// So, for JSON body payloads: parse the body instead.</span></span>
+<span class="line" id="L616"><span class="tok-comment">///</span></span>
+<span class="line" id="L617"><span class="tok-comment">/// Requires parseBody() and/or parseQuery() have been called.</span></span>
+<span class="line" id="L618"><span class="tok-comment">/// Returned list needs to be deinited.</span></span>
+<span class="line" id="L619"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parametersToOwnedStrList</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, always_alloc: <span class="tok-type">bool</span>) <span class="tok-type">anyerror</span>!HttpParamStrKVList {</span>
+<span class="line" id="L620">    <span class="tok-kw">var</span> params = <span class="tok-kw">try</span> std.ArrayList(HttpParamStrKV).initCapacity(a, <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@intCast</span>(self.getParamCount())));</span>
+<span class="line" id="L621">    <span class="tok-kw">var</span> context: _parametersToOwnedStrSliceContext = .{</span>
+<span class="line" id="L622">        .params = &amp;params,</span>
+<span class="line" id="L623">        .allocator = a,</span>
+<span class="line" id="L624">        .always_alloc = always_alloc,</span>
+<span class="line" id="L625">    };</span>
+<span class="line" id="L626">    <span class="tok-kw">const</span> howmany = fio.fiobj_each1(self.h.*.params, <span class="tok-number">0</span>, _each_nextParamStr, &amp;context);</span>
+<span class="line" id="L627">    <span class="tok-kw">if</span> (howmany != self.getParamCount()) {</span>
+<span class="line" id="L628">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpIterParams;</span>
+<span class="line" id="L629">    }</span>
+<span class="line" id="L630">    <span class="tok-kw">return</span> .{ .items = <span class="tok-kw">try</span> params.toOwnedSlice(), .allocator = a };</span>
+<span class="line" id="L631">}</span>
+<span class="line" id="L632"></span>
+<span class="line" id="L633"><span class="tok-kw">const</span> _parametersToOwnedStrSliceContext = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L634">    allocator: std.mem.Allocator,</span>
+<span class="line" id="L635">    params: *std.ArrayList(HttpParamStrKV),</span>
+<span class="line" id="L636">    last_error: ?<span class="tok-type">anyerror</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L637">    always_alloc: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L638">};</span>
+<span class="line" id="L639"></span>
+<span class="line" id="L640"><span class="tok-kw">fn</span> <span class="tok-fn">_each_nextParamStr</span>(fiobj_value: fio.FIOBJ, context: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">c_int</span> {</span>
+<span class="line" id="L641">    <span class="tok-kw">const</span> ctx: *_parametersToOwnedStrSliceContext = <span class="tok-builtin">@as</span>(*_parametersToOwnedStrSliceContext, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(context)));</span>
+<span class="line" id="L642">    <span class="tok-comment">// this is thread-safe, guaranteed by fio</span>
+</span>
+<span class="line" id="L643">    <span class="tok-kw">const</span> fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();</span>
+<span class="line" id="L644">    ctx.params.append(.{</span>
+<span class="line" id="L645">        .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.always_alloc) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L646">            ctx.last_error = err;</span>
+<span class="line" id="L647">            <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L648">        },</span>
+<span class="line" id="L649">        .value = util.fio2strAllocOrNot(ctx.allocator, fiobj_value, ctx.always_alloc) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L650">            ctx.last_error = err;</span>
+<span class="line" id="L651">            <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L652">        },</span>
+<span class="line" id="L653">    }) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L654">        <span class="tok-comment">// what to do?</span>
+</span>
+<span class="line" id="L655">        <span class="tok-comment">// signal the caller that an error occured by returning -1</span>
+</span>
+<span class="line" id="L656">        <span class="tok-comment">// also, set the error</span>
+</span>
+<span class="line" id="L657">        ctx.last_error = err;</span>
+<span class="line" id="L658">        <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L659">    };</span>
+<span class="line" id="L660">    <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L661">}</span>
+<span class="line" id="L662"></span>
+<span class="line" id="L663"><span class="tok-comment">/// Returns the query / body parameters as key/value pairs</span></span>
+<span class="line" id="L664"><span class="tok-comment">/// Supported param types that will be converted:</span></span>
+<span class="line" id="L665"><span class="tok-comment">///</span></span>
+<span class="line" id="L666"><span class="tok-comment">/// - Bool</span></span>
+<span class="line" id="L667"><span class="tok-comment">/// - Int</span></span>
+<span class="line" id="L668"><span class="tok-comment">/// - Float</span></span>
+<span class="line" id="L669"><span class="tok-comment">/// - String</span></span>
+<span class="line" id="L670"><span class="tok-comment">///</span></span>
+<span class="line" id="L671"><span class="tok-comment">/// At the moment, no fio ARRAYs are supported as well as HASH maps.</span></span>
+<span class="line" id="L672"><span class="tok-comment">/// So, for JSON body payloads: parse the body instead.</span></span>
+<span class="line" id="L673"><span class="tok-comment">///</span></span>
+<span class="line" id="L674"><span class="tok-comment">/// Requires parseBody() and/or parseQuery() have been called.</span></span>
+<span class="line" id="L675"><span class="tok-comment">/// Returned slice needs to be freed.</span></span>
+<span class="line" id="L676"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">parametersToOwnedList</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, dupe_strings: <span class="tok-type">bool</span>) !HttpParamKVList {</span>
+<span class="line" id="L677">    <span class="tok-kw">var</span> params = <span class="tok-kw">try</span> std.ArrayList(HttpParamKV).initCapacity(a, <span class="tok-builtin">@as</span>(<span class="tok-type">usize</span>, <span class="tok-builtin">@intCast</span>(self.getParamCount())));</span>
+<span class="line" id="L678">    <span class="tok-kw">var</span> context: _parametersToOwnedSliceContext = .{ .params = &amp;params, .allocator = a, .dupe_strings = dupe_strings };</span>
+<span class="line" id="L679">    <span class="tok-kw">const</span> howmany = fio.fiobj_each1(self.h.*.params, <span class="tok-number">0</span>, _each_nextParam, &amp;context);</span>
+<span class="line" id="L680">    <span class="tok-kw">if</span> (howmany != self.getParamCount()) {</span>
+<span class="line" id="L681">        <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpIterParams;</span>
+<span class="line" id="L682">    }</span>
+<span class="line" id="L683">    <span class="tok-kw">return</span> .{ .items = <span class="tok-kw">try</span> params.toOwnedSlice(), .allocator = a };</span>
+<span class="line" id="L684">}</span>
+<span class="line" id="L685"></span>
+<span class="line" id="L686"><span class="tok-kw">const</span> _parametersToOwnedSliceContext = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L687">    params: *std.ArrayList(HttpParamKV),</span>
+<span class="line" id="L688">    last_error: ?<span class="tok-type">anyerror</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L689">    allocator: std.mem.Allocator,</span>
+<span class="line" id="L690">    dupe_strings: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L691">};</span>
+<span class="line" id="L692"></span>
+<span class="line" id="L693"><span class="tok-kw">fn</span> <span class="tok-fn">_each_nextParam</span>(fiobj_value: fio.FIOBJ, context: ?*<span class="tok-type">anyopaque</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">c_int</span> {</span>
+<span class="line" id="L694">    <span class="tok-kw">const</span> ctx: *_parametersToOwnedSliceContext = <span class="tok-builtin">@as</span>(*_parametersToOwnedSliceContext, <span class="tok-builtin">@ptrCast</span>(<span class="tok-builtin">@alignCast</span>(context)));</span>
+<span class="line" id="L695">    <span class="tok-comment">// this is thread-safe, guaranteed by fio</span>
+</span>
+<span class="line" id="L696">    <span class="tok-kw">const</span> fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();</span>
+<span class="line" id="L697">    ctx.params.append(.{</span>
+<span class="line" id="L698">        .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.dupe_strings) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L699">            ctx.last_error = err;</span>
+<span class="line" id="L700">            <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L701">        },</span>
+<span class="line" id="L702">        .value = Fiobj2HttpParam(ctx.allocator, fiobj_value, ctx.dupe_strings) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L703">            ctx.last_error = err;</span>
+<span class="line" id="L704">            <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L705">        },</span>
+<span class="line" id="L706">    }) <span class="tok-kw">catch</span> |err| {</span>
+<span class="line" id="L707">        <span class="tok-comment">// what to do?</span>
+</span>
+<span class="line" id="L708">        <span class="tok-comment">// signal the caller that an error occured by returning -1</span>
+</span>
+<span class="line" id="L709">        <span class="tok-comment">// also, set the error</span>
+</span>
+<span class="line" id="L710">        ctx.last_error = err;</span>
+<span class="line" id="L711">        <span class="tok-kw">return</span> -<span class="tok-number">1</span>;</span>
+<span class="line" id="L712">    };</span>
+<span class="line" id="L713">    <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L714">}</span>
+<span class="line" id="L715"></span>
+<span class="line" id="L716"><span class="tok-comment">/// get named parameter as string</span></span>
+<span class="line" id="L717"><span class="tok-comment">/// Supported param types that will be converted:</span></span>
+<span class="line" id="L718"><span class="tok-comment">///</span></span>
+<span class="line" id="L719"><span class="tok-comment">/// - Bool</span></span>
+<span class="line" id="L720"><span class="tok-comment">/// - Int</span></span>
+<span class="line" id="L721"><span class="tok-comment">/// - Float</span></span>
+<span class="line" id="L722"><span class="tok-comment">/// - String</span></span>
+<span class="line" id="L723"><span class="tok-comment">///</span></span>
+<span class="line" id="L724"><span class="tok-comment">/// At the moment, no fio ARRAYs are supported as well as HASH maps.</span></span>
+<span class="line" id="L725"><span class="tok-comment">/// So, for JSON body payloads: parse the body instead.</span></span>
+<span class="line" id="L726"><span class="tok-comment">///</span></span>
+<span class="line" id="L727"><span class="tok-comment">/// Requires parseBody() and/or parseQuery() have been called.</span></span>
+<span class="line" id="L728"><span class="tok-comment">/// The returned string needs to be deinited with .deinit()</span></span>
+<span class="line" id="L729"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">getParamStr</span>(self: *<span class="tok-kw">const</span> Self, a: std.mem.Allocator, name: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, always_alloc: <span class="tok-type">bool</span>) !?util.FreeOrNot {</span>
+<span class="line" id="L730">    <span class="tok-kw">if</span> (self.h.*.params == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L731">    <span class="tok-kw">const</span> key = fio.fiobj_str_new(name.ptr, name.len);</span>
+<span class="line" id="L732">    <span class="tok-kw">defer</span> fio.fiobj_free_wrapped(key);</span>
+<span class="line" id="L733">    <span class="tok-kw">const</span> value = fio.fiobj_hash_get(self.h.*.params, key);</span>
+<span class="line" id="L734">    <span class="tok-kw">if</span> (value == fio.FIOBJ_INVALID) {</span>
+<span class="line" id="L735">        <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L736">    }</span>
+<span class="line" id="L737">    <span class="tok-kw">return</span> <span class="tok-kw">try</span> util.fio2strAllocOrNot(a, value, always_alloc);</span>
+<span class="line" id="L738">}</span>
+<span class="line" id="L739"></span>
+</code></pre></body>
+</html>

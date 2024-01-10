@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>mustache.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L2"><span class="tok-kw">const</span> fio = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;fio.zig&quot;</span>);</span>
+<span class="line" id="L3"><span class="tok-kw">const</span> util = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L4"></span>
+<span class="line" id="L5"><span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L6"></span>
+<span class="line" id="L7"><span class="tok-kw">const</span> struct_mustache_s = <span class="tok-kw">opaque</span> {};</span>
+<span class="line" id="L8"><span class="tok-kw">const</span> mustache_s = struct_mustache_s;</span>
+<span class="line" id="L9"><span class="tok-kw">const</span> enum_mustache_error_en = <span class="tok-type">c_uint</span>;</span>
+<span class="line" id="L10"><span class="tok-kw">const</span> mustache_error_en = enum_mustache_error_en;</span>
+<span class="line" id="L11"></span>
+<span class="line" id="L12"><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_mustache_new</span>(args: MustacheLoadArgsFio) ?*mustache_s;</span>
+<span class="line" id="L13"><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_mustache_build</span>(mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;</span>
+<span class="line" id="L14"><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_mustache_build2</span>(dest: fio.FIOBJ, mustache: ?*mustache_s, data: fio.FIOBJ) fio.FIOBJ;</span>
+<span class="line" id="L15"><span class="tok-kw">extern</span> <span class="tok-kw">fn</span> <span class="tok-fn">fiobj_mustache_free</span>(mustache: ?*mustache_s) <span class="tok-type">void</span>;</span>
+<span class="line" id="L16"></span>
+<span class="line" id="L17"><span class="tok-comment">/// Load arguments used when creating a new Mustache instance.</span></span>
+<span class="line" id="L18"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> MustacheLoadArgs = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L19">    <span class="tok-comment">/// Filename. This enables partial templates on filesystem.</span></span>
+<span class="line" id="L20">    filename: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L21"></span>
+<span class="line" id="L22">    <span class="tok-comment">/// String data. Should be used if no filename is specified.</span></span>
+<span class="line" id="L23">    data: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L24">};</span>
+<span class="line" id="L25"></span>
+<span class="line" id="L26"><span class="tok-comment">/// Internal struct used for interfacing with fio.</span></span>
+<span class="line" id="L27"><span class="tok-kw">const</span> MustacheLoadArgsFio = <span class="tok-kw">extern</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L28">    filename: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L29">    filename_len: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L30">    data: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L31">    data_len: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L32">    err: [*c]mustache_error_en,</span>
+<span class="line" id="L33">};</span>
+<span class="line" id="L34"></span>
+<span class="line" id="L35"><span class="tok-comment">/// Handle to the underlying fiobj mustache instance.</span></span>
+<span class="line" id="L36">handle: *mustache_s,</span>
+<span class="line" id="L37"></span>
+<span class="line" id="L38"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Error = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L39">    MUSTACHE_ERR_TOO_DEEP,</span>
+<span class="line" id="L40">    MUSTACHE_ERR_CLOSURE_MISMATCH,</span>
+<span class="line" id="L41">    MUSTACHE_ERR_FILE_NOT_FOUND,</span>
+<span class="line" id="L42">    MUSTACHE_ERR_FILE_TOO_BIG,</span>
+<span class="line" id="L43">    MUSTACHE_ERR_FILE_NAME_TOO_LONG,</span>
+<span class="line" id="L44">    MUSTACHE_ERR_FILE_NAME_TOO_SHORT,</span>
+<span class="line" id="L45">    MUSTACHE_ERR_EMPTY_TEMPLATE,</span>
+<span class="line" id="L46">    MUSTACHE_ERR_DELIMITER_TOO_LONG,</span>
+<span class="line" id="L47">    MUSTACHE_ERR_NAME_TOO_LONG,</span>
+<span class="line" id="L48">    MUSTACHE_ERR_UNKNOWN,</span>
+<span class="line" id="L49">    MUSTACHE_ERR_USER_ERROR,</span>
+<span class="line" id="L50">};</span>
+<span class="line" id="L51"></span>
+<span class="line" id="L52"><span class="tok-comment">/// Create a new `Mustache` instance; `deinit()` should be called to free</span></span>
+<span class="line" id="L53"><span class="tok-comment">/// the object after usage.</span></span>
+<span class="line" id="L54"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(load_args: MustacheLoadArgs) Error!Self {</span>
+<span class="line" id="L55">    <span class="tok-kw">var</span> err: mustache_error_en = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L56"></span>
+<span class="line" id="L57">    <span class="tok-kw">const</span> args: MustacheLoadArgsFio = .{</span>
+<span class="line" id="L58">        .filename = filn: {</span>
+<span class="line" id="L59">            <span class="tok-kw">if</span> (load_args.filename) |filn| <span class="tok-kw">break</span> :filn filn.ptr <span class="tok-kw">else</span> <span class="tok-kw">break</span> :filn <span class="tok-null">null</span>;</span>
+<span class="line" id="L60">        },</span>
+<span class="line" id="L61">        .filename_len = filn_len: {</span>
+<span class="line" id="L62">            <span class="tok-kw">if</span> (load_args.filename) |filn| <span class="tok-kw">break</span> :filn_len filn.len <span class="tok-kw">else</span> <span class="tok-kw">break</span> :filn_len <span class="tok-number">0</span>;</span>
+<span class="line" id="L63">        },</span>
+<span class="line" id="L64">        .data = data: {</span>
+<span class="line" id="L65">            <span class="tok-kw">if</span> (load_args.data) |data| <span class="tok-kw">break</span> :data data.ptr <span class="tok-kw">else</span> <span class="tok-kw">break</span> :data <span class="tok-null">null</span>;</span>
+<span class="line" id="L66">        },</span>
+<span class="line" id="L67">        .data_len = data_len: {</span>
+<span class="line" id="L68">            <span class="tok-kw">if</span> (load_args.data) |data| <span class="tok-kw">break</span> :data_len data.len <span class="tok-kw">else</span> <span class="tok-kw">break</span> :data_len <span class="tok-number">0</span>;</span>
+<span class="line" id="L69">        },</span>
+<span class="line" id="L70">        .err = &amp;err,</span>
+<span class="line" id="L71">    };</span>
+<span class="line" id="L72"></span>
+<span class="line" id="L73">    <span class="tok-kw">const</span> ret = fiobj_mustache_new(args);</span>
+<span class="line" id="L74">    <span class="tok-kw">switch</span> (err) {</span>
+<span class="line" id="L75">        <span class="tok-number">0</span> =&gt; <span class="tok-kw">return</span> Self{</span>
+<span class="line" id="L76">            .handle = ret.?,</span>
+<span class="line" id="L77">        },</span>
+<span class="line" id="L78">        <span class="tok-number">1</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_TOO_DEEP,</span>
+<span class="line" id="L79">        <span class="tok-number">2</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_CLOSURE_MISMATCH,</span>
+<span class="line" id="L80">        <span class="tok-number">3</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_FILE_NOT_FOUND,</span>
+<span class="line" id="L81">        <span class="tok-number">4</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_FILE_TOO_BIG,</span>
+<span class="line" id="L82">        <span class="tok-number">5</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_FILE_NAME_TOO_LONG,</span>
+<span class="line" id="L83">        <span class="tok-number">6</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_FILE_NAME_TOO_SHORT,</span>
+<span class="line" id="L84">        <span class="tok-number">7</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_EMPTY_TEMPLATE,</span>
+<span class="line" id="L85">        <span class="tok-number">8</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_DELIMITER_TOO_LONG,</span>
+<span class="line" id="L86">        <span class="tok-number">9</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_NAME_TOO_LONG,</span>
+<span class="line" id="L87">        <span class="tok-number">10</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_UNKNOWN,</span>
+<span class="line" id="L88">        <span class="tok-number">11</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_USER_ERROR,</span>
+<span class="line" id="L89">        <span class="tok-kw">else</span> =&gt; <span class="tok-kw">return</span> Error.MUSTACHE_ERR_UNKNOWN,</span>
+<span class="line" id="L90">    }</span>
+<span class="line" id="L91">    <span class="tok-kw">unreachable</span>;</span>
+<span class="line" id="L92">}</span>
+<span class="line" id="L93"></span>
+<span class="line" id="L94"><span class="tok-comment">/// Convenience function to create a new `Mustache` instance with in-memory data loaded;</span></span>
+<span class="line" id="L95"><span class="tok-comment">/// `deinit()` should be called to free the object after usage..</span></span>
+<span class="line" id="L96"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fromData</span>(data: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) Error!Self {</span>
+<span class="line" id="L97">    <span class="tok-kw">return</span> Self.init(.{ .data = data });</span>
+<span class="line" id="L98">}</span>
+<span class="line" id="L99"></span>
+<span class="line" id="L100"><span class="tok-comment">/// Convenience function to create a new `Mustache` instance with file-based data loaded;</span></span>
+<span class="line" id="L101"><span class="tok-comment">/// `deinit()` should be called to free the object after usage..</span></span>
+<span class="line" id="L102"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fromFile</span>(filename: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) Error!Self {</span>
+<span class="line" id="L103">    <span class="tok-kw">return</span> Self.init(.{ .filename = filename });</span>
+<span class="line" id="L104">}</span>
+<span class="line" id="L105"></span>
+<span class="line" id="L106"><span class="tok-comment">/// Free the data backing a `Mustache` instance.</span></span>
+<span class="line" id="L107"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *Self) <span class="tok-type">void</span> {</span>
+<span class="line" id="L108">    fiobj_mustache_free(self.handle);</span>
+<span class="line" id="L109">}</span>
+<span class="line" id="L110"></span>
+<span class="line" id="L111"><span class="tok-comment">// TODO: implement these - fiobj_mustache.c</span>
+</span>
+<span class="line" id="L112"><span class="tok-comment">// pub extern fn fiobj_mustache_build(mustache: ?*mustache_s, data: FIOBJ) FIOBJ;</span>
+</span>
+<span class="line" id="L113"><span class="tok-comment">// pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;</span>
+</span>
+<span class="line" id="L114"></span>
+<span class="line" id="L115"><span class="tok-comment">/// The result from calling `build`.</span></span>
+<span class="line" id="L116"><span class="tok-kw">const</span> MustacheBuildResult = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L117">    fiobj_result: fio.FIOBJ = <span class="tok-number">0</span>,</span>
+<span class="line" id="L118"></span>
+<span class="line" id="L119">    <span class="tok-comment">/// Holds the context converted into a fiobj.</span></span>
+<span class="line" id="L120">    <span class="tok-comment">/// This is used in `build`.</span></span>
+<span class="line" id="L121">    fiobj_context: fio.FIOBJ = <span class="tok-number">0</span>,</span>
+<span class="line" id="L122"></span>
+<span class="line" id="L123">    <span class="tok-comment">/// Free the data backing a `MustacheBuildResult` instance.</span></span>
+<span class="line" id="L124">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(m: *<span class="tok-kw">const</span> MustacheBuildResult) <span class="tok-type">void</span> {</span>
+<span class="line" id="L125">        fio.fiobj_free_wrapped(m.fiobj_result);</span>
+<span class="line" id="L126">        fio.fiobj_free_wrapped(m.fiobj_context);</span>
+<span class="line" id="L127">    }</span>
+<span class="line" id="L128"></span>
+<span class="line" id="L129">    <span class="tok-comment">/// Retrieve a string representation of the built template.</span></span>
+<span class="line" id="L130">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">str</span>(m: *<span class="tok-kw">const</span> MustacheBuildResult) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
+<span class="line" id="L131">        <span class="tok-kw">return</span> util.fio2str(m.fiobj_result);</span>
+<span class="line" id="L132">    }</span>
+<span class="line" id="L133">};</span>
+<span class="line" id="L134"></span>
+<span class="line" id="L135"><span class="tok-comment">/// Build the Mustache template; `deinit()` should be called on the build</span></span>
+<span class="line" id="L136"><span class="tok-comment">/// result to free the data.</span></span>
+<span class="line" id="L137"><span class="tok-comment">// TODO: The build may be slow because it needs to convert zig types to facil.io</span>
+</span>
+<span class="line" id="L138"><span class="tok-comment">// types. However, this needs to be investigated into.</span>
+</span>
+<span class="line" id="L139"><span class="tok-comment">// See `fiobjectify` for more information.</span>
+</span>
+<span class="line" id="L140"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">build</span>(self: *Self, data: <span class="tok-kw">anytype</span>) MustacheBuildResult {</span>
+<span class="line" id="L141">    <span class="tok-kw">const</span> T = <span class="tok-builtin">@TypeOf</span>(data);</span>
+<span class="line" id="L142">    <span class="tok-kw">if</span> (<span class="tok-builtin">@typeInfo</span>(T) != .Struct) {</span>
+<span class="line" id="L143">        <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;No struct: '&quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot;'&quot;</span>);</span>
+<span class="line" id="L144">    }</span>
+<span class="line" id="L145"></span>
+<span class="line" id="L146">    <span class="tok-kw">var</span> result: MustacheBuildResult = .{};</span>
+<span class="line" id="L147"></span>
+<span class="line" id="L148">    result.fiobj_context = fiobjectify(data);</span>
+<span class="line" id="L149">    result.fiobj_result = fiobj_mustache_build(self.handle, result.fiobj_context);</span>
+<span class="line" id="L150">    <span class="tok-kw">return</span> result;</span>
+<span class="line" id="L151">}</span>
+<span class="line" id="L152"></span>
+<span class="line" id="L153"><span class="tok-comment">/// Internal function used to convert zig types to facil.io types.</span></span>
+<span class="line" id="L154"><span class="tok-comment">/// Used when providing the context to `fiobj_mustache_build`.</span></span>
+<span class="line" id="L155"><span class="tok-kw">fn</span> <span class="tok-fn">fiobjectify</span>(</span>
+<span class="line" id="L156">    value: <span class="tok-kw">anytype</span>,</span>
+<span class="line" id="L157">) fio.FIOBJ {</span>
+<span class="line" id="L158">    <span class="tok-kw">const</span> T = <span class="tok-builtin">@TypeOf</span>(value);</span>
+<span class="line" id="L159">    <span class="tok-kw">switch</span> (<span class="tok-builtin">@typeInfo</span>(T)) {</span>
+<span class="line" id="L160">        .Float, .ComptimeFloat =&gt; {</span>
+<span class="line" id="L161">            <span class="tok-kw">return</span> fio.fiobj_float_new(value);</span>
+<span class="line" id="L162">        },</span>
+<span class="line" id="L163">        .Int, .ComptimeInt =&gt; {</span>
+<span class="line" id="L164">            <span class="tok-kw">return</span> fio.fiobj_num_new_bignum(value);</span>
+<span class="line" id="L165">        },</span>
+<span class="line" id="L166">        .Bool =&gt; {</span>
+<span class="line" id="L167">            <span class="tok-kw">return</span> <span class="tok-kw">if</span> (value) fio.fiobj_true() <span class="tok-kw">else</span> fio.fiobj_false();</span>
+<span class="line" id="L168">        },</span>
+<span class="line" id="L169">        .Null =&gt; {</span>
+<span class="line" id="L170">            <span class="tok-kw">return</span> <span class="tok-number">0</span>;</span>
+<span class="line" id="L171">        },</span>
+<span class="line" id="L172">        .Optional =&gt; {</span>
+<span class="line" id="L173">            <span class="tok-kw">if</span> (value) |payload| {</span>
+<span class="line" id="L174">                <span class="tok-kw">return</span> fiobjectify(payload);</span>
+<span class="line" id="L175">            } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L176">                <span class="tok-kw">return</span> fiobjectify(<span class="tok-null">null</span>);</span>
+<span class="line" id="L177">            }</span>
+<span class="line" id="L178">        },</span>
+<span class="line" id="L179">        .Enum =&gt; {</span>
+<span class="line" id="L180">            <span class="tok-kw">return</span> fio.fiobj_num_new_bignum(<span class="tok-builtin">@intFromEnum</span>(value));</span>
+<span class="line" id="L181">        },</span>
+<span class="line" id="L182">        .Union =&gt; {</span>
+<span class="line" id="L183">            <span class="tok-kw">const</span> info = <span class="tok-builtin">@typeInfo</span>(T).Union;</span>
+<span class="line" id="L184">            <span class="tok-kw">if</span> (info.tag_type) |UnionTagType| {</span>
+<span class="line" id="L185">                <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (info.fields) |u_field| {</span>
+<span class="line" id="L186">                    <span class="tok-kw">if</span> (value == <span class="tok-builtin">@field</span>(UnionTagType, u_field.name)) {</span>
+<span class="line" id="L187">                        <span class="tok-kw">return</span> fiobjectify(<span class="tok-builtin">@field</span>(value, u_field.name));</span>
+<span class="line" id="L188">                    }</span>
+<span class="line" id="L189">                }</span>
+<span class="line" id="L190">            } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L191">                <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;Unable to fiobjectify untagged union '&quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot;'&quot;</span>);</span>
+<span class="line" id="L192">            }</span>
+<span class="line" id="L193">        },</span>
+<span class="line" id="L194">        .Struct =&gt; |S| {</span>
+<span class="line" id="L195">            <span class="tok-comment">// create a new fio hashmap</span>
+</span>
+<span class="line" id="L196">            <span class="tok-kw">const</span> m = fio.fiobj_hash_new();</span>
+<span class="line" id="L197">            <span class="tok-comment">// std.debug.print(&quot;new struct\n&quot;, .{});</span>
+</span>
+<span class="line" id="L198">            <span class="tok-kw">inline</span> <span class="tok-kw">for</span> (S.fields) |Field| {</span>
+<span class="line" id="L199">                <span class="tok-comment">// don't include void fields</span>
+</span>
+<span class="line" id="L200">                <span class="tok-kw">if</span> (Field.<span class="tok-type">type</span> == <span class="tok-type">void</span>) <span class="tok-kw">continue</span>;</span>
+<span class="line" id="L201"></span>
+<span class="line" id="L202">                <span class="tok-comment">// std.debug.print(&quot;    new field: {s}\n&quot;, .{Field.name});</span>
+</span>
+<span class="line" id="L203">                <span class="tok-kw">const</span> fname = fio.fiobj_str_new(util.toCharPtr(Field.name), Field.name.len);</span>
+<span class="line" id="L204">                <span class="tok-comment">// std.debug.print(&quot;    fiobj name : {any}\n&quot;, .{fname});</span>
+</span>
+<span class="line" id="L205">                <span class="tok-kw">const</span> v = <span class="tok-builtin">@field</span>(value, Field.name);</span>
+<span class="line" id="L206">                <span class="tok-comment">// std.debug.print(&quot;    value: {any}\n&quot;, .{v});</span>
+</span>
+<span class="line" id="L207">                <span class="tok-kw">const</span> fvalue = fiobjectify(v);</span>
+<span class="line" id="L208">                <span class="tok-comment">// std.debug.print(&quot;    fiobj value: {any}\n&quot;, .{fvalue});</span>
+</span>
+<span class="line" id="L209">                _ = fio.fiobj_hash_set(m, fname, fvalue);</span>
+<span class="line" id="L210">                fio.fiobj_free_wrapped(fname);</span>
+<span class="line" id="L211">            }</span>
+<span class="line" id="L212">            <span class="tok-kw">return</span> m;</span>
+<span class="line" id="L213">        },</span>
+<span class="line" id="L214">        .ErrorSet =&gt; <span class="tok-kw">return</span> fiobjectify(<span class="tok-builtin">@as</span>([]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, <span class="tok-builtin">@errorName</span>(value))),</span>
+<span class="line" id="L215">        .Pointer =&gt; |ptr_info| <span class="tok-kw">switch</span> (ptr_info.size) {</span>
+<span class="line" id="L216">            .One =&gt; <span class="tok-kw">switch</span> (<span class="tok-builtin">@typeInfo</span>(ptr_info.child)) {</span>
+<span class="line" id="L217">                .Array =&gt; {</span>
+<span class="line" id="L218">                    <span class="tok-kw">const</span> Slice = []<span class="tok-kw">const</span> std.meta.Elem(ptr_info.child);</span>
+<span class="line" id="L219">                    <span class="tok-kw">return</span> fiobjectify(<span class="tok-builtin">@as</span>(Slice, value));</span>
+<span class="line" id="L220">                },</span>
+<span class="line" id="L221">                <span class="tok-kw">else</span> =&gt; {</span>
+<span class="line" id="L222">                    <span class="tok-comment">// TODO: avoid loops?</span>
+</span>
+<span class="line" id="L223">                    <span class="tok-kw">return</span> fiobjectify(value.*);</span>
+<span class="line" id="L224">                },</span>
+<span class="line" id="L225">            },</span>
+<span class="line" id="L226">            <span class="tok-comment">// TODO: .Many when there is a sentinel (waiting for https://github.com/ziglang/zig/pull/3972)</span>
+</span>
+<span class="line" id="L227">            .Slice =&gt; {</span>
+<span class="line" id="L228">                <span class="tok-comment">// std.debug.print(&quot;new slice\n&quot;, .{});</span>
+</span>
+<span class="line" id="L229">                <span class="tok-kw">if</span> (ptr_info.child == <span class="tok-type">u8</span> <span class="tok-kw">and</span> std.unicode.utf8ValidateSlice(value)) {</span>
+<span class="line" id="L230">                    <span class="tok-kw">return</span> fio.fiobj_str_new(util.toCharPtr(value), value.len);</span>
+<span class="line" id="L231">                }</span>
+<span class="line" id="L232"></span>
+<span class="line" id="L233">                <span class="tok-kw">const</span> arr = fio.fiobj_ary_new2(value.len);</span>
+<span class="line" id="L234">                <span class="tok-kw">for</span> (value) |x| {</span>
+<span class="line" id="L235">                    <span class="tok-kw">const</span> v = fiobjectify(x);</span>
+<span class="line" id="L236">                    fio.fiobj_ary_push(arr, v);</span>
+<span class="line" id="L237">                }</span>
+<span class="line" id="L238">                <span class="tok-kw">return</span> arr;</span>
+<span class="line" id="L239">            },</span>
+<span class="line" id="L240">            <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;Unable to fiobjectify type '&quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot;'&quot;</span>),</span>
+<span class="line" id="L241">        },</span>
+<span class="line" id="L242">        .Array =&gt; <span class="tok-kw">return</span> fiobjectify(&amp;value),</span>
+<span class="line" id="L243">        .Vector =&gt; |info| {</span>
+<span class="line" id="L244">            <span class="tok-kw">const</span> array: [info.len]info.child = value;</span>
+<span class="line" id="L245">            <span class="tok-kw">return</span> fiobjectify(&amp;array);</span>
+<span class="line" id="L246">        },</span>
+<span class="line" id="L247">        <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;Unable to fiobjectify type '&quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot;'&quot;</span>),</span>
+<span class="line" id="L248">    }</span>
+<span class="line" id="L249">    <span class="tok-kw">unreachable</span>;</span>
+<span class="line" id="L250">}</span>
+<span class="line" id="L251"></span>
+</code></pre></body>
+</html>

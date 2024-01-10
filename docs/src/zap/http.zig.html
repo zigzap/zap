@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>http.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-comment">/// HTTP Status codes according to `rfc7231`</span></span>
+<span class="line" id="L2"><span class="tok-comment">/// https://tools.ietf.org/html/rfc7231#section-6</span></span>
+<span class="line" id="L3"><span class="tok-comment">/// (taken from https://github.com/Luukdegram/apple_pie/blob/master/src/response.zig)</span></span>
+<span class="line" id="L4"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> StatusCode = <span class="tok-kw">enum</span>(<span class="tok-type">u16</span>) {</span>
+<span class="line" id="L5">    <span class="tok-comment">// Informational 1xx</span>
+</span>
+<span class="line" id="L6">    @&quot;continue&quot; = <span class="tok-number">100</span>,</span>
+<span class="line" id="L7">    <span class="tok-comment">// Successful 2xx</span>
+</span>
+<span class="line" id="L8">    switching_protocols = <span class="tok-number">101</span>,</span>
+<span class="line" id="L9">    ok = <span class="tok-number">200</span>,</span>
+<span class="line" id="L10">    created = <span class="tok-number">201</span>,</span>
+<span class="line" id="L11">    accepted = <span class="tok-number">202</span>,</span>
+<span class="line" id="L12">    non_authoritative_information = <span class="tok-number">203</span>,</span>
+<span class="line" id="L13">    no_content = <span class="tok-number">204</span>,</span>
+<span class="line" id="L14">    reset_content = <span class="tok-number">205</span>,</span>
+<span class="line" id="L15">    <span class="tok-comment">// redirections 3xx</span>
+</span>
+<span class="line" id="L16">    partial_content = <span class="tok-number">206</span>,</span>
+<span class="line" id="L17">    multiple_choices = <span class="tok-number">300</span>,</span>
+<span class="line" id="L18">    moved_permanently = <span class="tok-number">301</span>,</span>
+<span class="line" id="L19">    found = <span class="tok-number">302</span>,</span>
+<span class="line" id="L20">    see_other = <span class="tok-number">303</span>,</span>
+<span class="line" id="L21">    not_modified = <span class="tok-number">304</span>,</span>
+<span class="line" id="L22">    use_proxy = <span class="tok-number">305</span>,</span>
+<span class="line" id="L23">    temporary_redirect = <span class="tok-number">307</span>,</span>
+<span class="line" id="L24">    <span class="tok-comment">// client errors 4xx</span>
+</span>
+<span class="line" id="L25">    bad_request = <span class="tok-number">400</span>,</span>
+<span class="line" id="L26">    unauthorized = <span class="tok-number">401</span>,</span>
+<span class="line" id="L27">    payment_required = <span class="tok-number">402</span>,</span>
+<span class="line" id="L28">    forbidden = <span class="tok-number">403</span>,</span>
+<span class="line" id="L29">    not_found = <span class="tok-number">404</span>,</span>
+<span class="line" id="L30">    method_not_allowed = <span class="tok-number">405</span>,</span>
+<span class="line" id="L31">    not_acceptable = <span class="tok-number">406</span>,</span>
+<span class="line" id="L32">    proxy_authentication_required = <span class="tok-number">407</span>,</span>
+<span class="line" id="L33">    request_timeout = <span class="tok-number">408</span>,</span>
+<span class="line" id="L34">    conflict = <span class="tok-number">409</span>,</span>
+<span class="line" id="L35">    gone = <span class="tok-number">410</span>,</span>
+<span class="line" id="L36">    length_required = <span class="tok-number">411</span>,</span>
+<span class="line" id="L37">    precondition_failed = <span class="tok-number">412</span>,</span>
+<span class="line" id="L38">    request_entity_too_large = <span class="tok-number">413</span>,</span>
+<span class="line" id="L39">    request_uri_too_long = <span class="tok-number">414</span>,</span>
+<span class="line" id="L40">    unsupported_mediatype = <span class="tok-number">415</span>,</span>
+<span class="line" id="L41">    requested_range_not_satisfiable = <span class="tok-number">416</span>,</span>
+<span class="line" id="L42">    expectation_failed = <span class="tok-number">417</span>,</span>
+<span class="line" id="L43">    <span class="tok-comment">/// teapot is an extension status code and not required for clients to support</span></span>
+<span class="line" id="L44">    teapot = <span class="tok-number">418</span>,</span>
+<span class="line" id="L45">    upgrade_required = <span class="tok-number">426</span>,</span>
+<span class="line" id="L46">    <span class="tok-comment">/// extra status code according to `https://tools.ietf.org/html/rfc6585#section-5`</span></span>
+<span class="line" id="L47">    request_header_fields_too_large = <span class="tok-number">431</span>,</span>
+<span class="line" id="L48">    <span class="tok-comment">// server errors 5xx</span>
+</span>
+<span class="line" id="L49">    internal_server_error = <span class="tok-number">500</span>,</span>
+<span class="line" id="L50">    not_implemented = <span class="tok-number">501</span>,</span>
+<span class="line" id="L51">    bad_gateway = <span class="tok-number">502</span>,</span>
+<span class="line" id="L52">    service_unavailable = <span class="tok-number">503</span>,</span>
+<span class="line" id="L53">    gateway_timeout = <span class="tok-number">504</span>,</span>
+<span class="line" id="L54">    http_version_not_supported = <span class="tok-number">505</span>,</span>
+<span class="line" id="L55">    _,</span>
+<span class="line" id="L56"></span>
+<span class="line" id="L57">    <span class="tok-comment">/// Returns the string value of a `StatusCode`</span></span>
+<span class="line" id="L58">    <span class="tok-comment">/// for example: .ResetContent returns &quot;Returns Content&quot;.</span></span>
+<span class="line" id="L59">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">toString</span>(self: StatusCode) []<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
+<span class="line" id="L60">        <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (self) {</span>
+<span class="line" id="L61">            .@&quot;continue&quot; =&gt; <span class="tok-str">&quot;Continue&quot;</span>,</span>
+<span class="line" id="L62">            .switching_protocols =&gt; <span class="tok-str">&quot;Switching Protocols&quot;</span>,</span>
+<span class="line" id="L63">            .ok =&gt; <span class="tok-str">&quot;Ok&quot;</span>,</span>
+<span class="line" id="L64">            .created =&gt; <span class="tok-str">&quot;Created&quot;</span>,</span>
+<span class="line" id="L65">            .accepted =&gt; <span class="tok-str">&quot;Accepted&quot;</span>,</span>
+<span class="line" id="L66">            .non_authoritative_information =&gt; <span class="tok-str">&quot;Non Authoritative Information&quot;</span>,</span>
+<span class="line" id="L67">            .no_content =&gt; <span class="tok-str">&quot;No Content&quot;</span>,</span>
+<span class="line" id="L68">            .reset_content =&gt; <span class="tok-str">&quot;Reset Content&quot;</span>,</span>
+<span class="line" id="L69">            .partial_content =&gt; <span class="tok-str">&quot;Partial Content&quot;</span>,</span>
+<span class="line" id="L70">            .multiple_choices =&gt; <span class="tok-str">&quot;Multiple Choices&quot;</span>,</span>
+<span class="line" id="L71">            .moved_permanently =&gt; <span class="tok-str">&quot;Moved Permanently&quot;</span>,</span>
+<span class="line" id="L72">            .found =&gt; <span class="tok-str">&quot;Found&quot;</span>,</span>
+<span class="line" id="L73">            .see_other =&gt; <span class="tok-str">&quot;See Other&quot;</span>,</span>
+<span class="line" id="L74">            .not_modified =&gt; <span class="tok-str">&quot;Not Modified&quot;</span>,</span>
+<span class="line" id="L75">            .use_proxy =&gt; <span class="tok-str">&quot;Use Proxy&quot;</span>,</span>
+<span class="line" id="L76">            .temporary_redirect =&gt; <span class="tok-str">&quot;Temporary Redirect&quot;</span>,</span>
+<span class="line" id="L77">            .bad_request =&gt; <span class="tok-str">&quot;Bad Request&quot;</span>,</span>
+<span class="line" id="L78">            .unauthorized =&gt; <span class="tok-str">&quot;Unauthorized&quot;</span>,</span>
+<span class="line" id="L79">            .payment_required =&gt; <span class="tok-str">&quot;Payment Required&quot;</span>,</span>
+<span class="line" id="L80">            .forbidden =&gt; <span class="tok-str">&quot;Forbidden&quot;</span>,</span>
+<span class="line" id="L81">            .not_found =&gt; <span class="tok-str">&quot;Not Found&quot;</span>,</span>
+<span class="line" id="L82">            .method_not_allowed =&gt; <span class="tok-str">&quot;Method Not Allowed&quot;</span>,</span>
+<span class="line" id="L83">            .not_acceptable =&gt; <span class="tok-str">&quot;Not Acceptable&quot;</span>,</span>
+<span class="line" id="L84">            .proxy_authentication_required =&gt; <span class="tok-str">&quot;Proxy Authentication Required&quot;</span>,</span>
+<span class="line" id="L85">            .request_timeout =&gt; <span class="tok-str">&quot;Request Timeout&quot;</span>,</span>
+<span class="line" id="L86">            .conflict =&gt; <span class="tok-str">&quot;Conflict&quot;</span>,</span>
+<span class="line" id="L87">            .gone =&gt; <span class="tok-str">&quot;Gone&quot;</span>,</span>
+<span class="line" id="L88">            .length_required =&gt; <span class="tok-str">&quot;Length Required&quot;</span>,</span>
+<span class="line" id="L89">            .precondition_failed =&gt; <span class="tok-str">&quot;Precondition Failed&quot;</span>,</span>
+<span class="line" id="L90">            .request_entity_too_large =&gt; <span class="tok-str">&quot;Request Entity Too Large&quot;</span>,</span>
+<span class="line" id="L91">            .request_uri_too_long =&gt; <span class="tok-str">&quot;Request-URI Too Long&quot;</span>,</span>
+<span class="line" id="L92">            .unsupported_mediatype =&gt; <span class="tok-str">&quot;Unsupported Media Type&quot;</span>,</span>
+<span class="line" id="L93">            .requested_range_not_satisfiable =&gt; <span class="tok-str">&quot;Requested Range Not Satisfiable&quot;</span>,</span>
+<span class="line" id="L94">            .teapot =&gt; <span class="tok-str">&quot;I'm a Teapot&quot;</span>,</span>
+<span class="line" id="L95">            .upgrade_required =&gt; <span class="tok-str">&quot;Upgrade Required&quot;</span>,</span>
+<span class="line" id="L96">            .request_header_fields_too_large =&gt; <span class="tok-str">&quot;Request Header Fields Too Large&quot;</span>,</span>
+<span class="line" id="L97">            .expectation_failed =&gt; <span class="tok-str">&quot;Expectation Failed&quot;</span>,</span>
+<span class="line" id="L98">            .internal_server_error =&gt; <span class="tok-str">&quot;Internal Server Error&quot;</span>,</span>
+<span class="line" id="L99">            .not_implemented =&gt; <span class="tok-str">&quot;Not Implemented&quot;</span>,</span>
+<span class="line" id="L100">            .bad_gateway =&gt; <span class="tok-str">&quot;Bad Gateway&quot;</span>,</span>
+<span class="line" id="L101">            .service_unavailable =&gt; <span class="tok-str">&quot;Service Unavailable&quot;</span>,</span>
+<span class="line" id="L102">            .gateway_timeout =&gt; <span class="tok-str">&quot;Gateway Timeout&quot;</span>,</span>
+<span class="line" id="L103">            .http_version_not_supported =&gt; <span class="tok-str">&quot;HTTP Version Not Supported&quot;</span>,</span>
+<span class="line" id="L104">            _ =&gt; <span class="tok-str">&quot;&quot;</span>,</span>
+<span class="line" id="L105">        };</span>
+<span class="line" id="L106">    }</span>
+<span class="line" id="L107">};</span>
+<span class="line" id="L108"></span>
+</code></pre></body>
+</html>

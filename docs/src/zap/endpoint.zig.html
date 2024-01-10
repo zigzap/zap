@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>endpoint.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+">
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L2"><span class="tok-kw">const</span> zap = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;zap.zig&quot;</span>);</span>
+<span class="line" id="L3"><span class="tok-kw">const</span> auth = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http_auth.zig&quot;</span>);</span>
+<span class="line" id="L4"></span>
+<span class="line" id="L5"><span class="tok-kw">const</span> Endpoint = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L6"></span>
+<span class="line" id="L7"><span class="tok-comment">// zap types</span>
+</span>
+<span class="line" id="L8"><span class="tok-kw">const</span> Request = zap.Request;</span>
+<span class="line" id="L9"><span class="tok-kw">const</span> ListenerSettings = zap.HttpListenerSettings;</span>
+<span class="line" id="L10"><span class="tok-kw">const</span> HttpListener = zap.HttpListener;</span>
+<span class="line" id="L11"></span>
+<span class="line" id="L12"><span class="tok-comment">/// Type of the request function callbacks.</span></span>
+<span class="line" id="L13"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> RequestFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (self: *Endpoint, r: Request) <span class="tok-type">void</span>;</span>
+<span class="line" id="L14"></span>
+<span class="line" id="L15"><span class="tok-comment">/// Settings to initialize an Endpoint</span></span>
+<span class="line" id="L16"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Settings = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L17">    <span class="tok-comment">/// path / slug of the endpoint</span></span>
+<span class="line" id="L18">    path: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L19">    <span class="tok-comment">/// callback to GET request handler</span></span>
+<span class="line" id="L20">    get: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L21">    <span class="tok-comment">/// callback to POST request handler</span></span>
+<span class="line" id="L22">    post: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L23">    <span class="tok-comment">/// callback to PUT request handler</span></span>
+<span class="line" id="L24">    put: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L25">    <span class="tok-comment">/// callback to DELETE request handler</span></span>
+<span class="line" id="L26">    delete: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L27">    <span class="tok-comment">/// callback to PATCH request handler</span></span>
+<span class="line" id="L28">    patch: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L29">    <span class="tok-comment">/// callback to OPTIONS request handler</span></span>
+<span class="line" id="L30">    options: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L31">    <span class="tok-comment">/// Only applicable to Authenticating Endpoint: handler for unauthorized requests</span></span>
+<span class="line" id="L32">    unauthorized: ?RequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L33">};</span>
+<span class="line" id="L34"></span>
+<span class="line" id="L35">settings: Settings,</span>
+<span class="line" id="L36"></span>
+<span class="line" id="L37"><span class="tok-comment">/// Initialize the endpoint.</span></span>
+<span class="line" id="L38"><span class="tok-comment">/// Set only the callbacks you need. Requests of HTTP methods without a</span></span>
+<span class="line" id="L39"><span class="tok-comment">/// provided callback will be ignored.</span></span>
+<span class="line" id="L40"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(s: Settings) Endpoint {</span>
+<span class="line" id="L41">    <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L42">        .settings = .{</span>
+<span class="line" id="L43">            .path = s.path,</span>
+<span class="line" id="L44">            .get = s.get <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L45">            .post = s.post <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L46">            .put = s.put <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L47">            .delete = s.delete <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L48">            .patch = s.patch <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L49">            .options = s.options <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L50">            .unauthorized = s.unauthorized <span class="tok-kw">orelse</span> &amp;nop,</span>
+<span class="line" id="L51">        },</span>
+<span class="line" id="L52">    };</span>
+<span class="line" id="L53">}</span>
+<span class="line" id="L54"></span>
+<span class="line" id="L55"><span class="tok-comment">// no operation. Dummy handler function for ignoring unset request types.</span>
+</span>
+<span class="line" id="L56"><span class="tok-kw">fn</span> <span class="tok-fn">nop</span>(self: *Endpoint, r: Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L57">    _ = self;</span>
+<span class="line" id="L58">    _ = r;</span>
+<span class="line" id="L59">}</span>
+<span class="line" id="L60"></span>
+<span class="line" id="L61"><span class="tok-comment">/// The global request handler for this Endpoint, called by the listener.</span></span>
+<span class="line" id="L62"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">onRequest</span>(self: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L63">    <span class="tok-kw">if</span> (r.method) |m| {</span>
+<span class="line" id="L64">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;GET&quot;</span>))</span>
+<span class="line" id="L65">            <span class="tok-kw">return</span> self.settings.get.?(self, r);</span>
+<span class="line" id="L66">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;POST&quot;</span>))</span>
+<span class="line" id="L67">            <span class="tok-kw">return</span> self.settings.post.?(self, r);</span>
+<span class="line" id="L68">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;PUT&quot;</span>))</span>
+<span class="line" id="L69">            <span class="tok-kw">return</span> self.settings.put.?(self, r);</span>
+<span class="line" id="L70">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;DELETE&quot;</span>))</span>
+<span class="line" id="L71">            <span class="tok-kw">return</span> self.settings.delete.?(self, r);</span>
+<span class="line" id="L72">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;PATCH&quot;</span>))</span>
+<span class="line" id="L73">            <span class="tok-kw">return</span> self.settings.patch.?(self, r);</span>
+<span class="line" id="L74">        <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;OPTIONS&quot;</span>))</span>
+<span class="line" id="L75">            <span class="tok-kw">return</span> self.settings.options.?(self, r);</span>
+<span class="line" id="L76">    }</span>
+<span class="line" id="L77">}</span>
+<span class="line" id="L78"></span>
+<span class="line" id="L79"><span class="tok-comment">/// Wrap an endpoint with an Authenticator -&gt; new Endpoint of type Endpoint</span></span>
+<span class="line" id="L80"><span class="tok-comment">/// is available via the `endpoint()` function.</span></span>
+<span class="line" id="L81"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">Authenticating</span>(<span class="tok-kw">comptime</span> Authenticator: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L82">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L83">        authenticator: *Authenticator,</span>
+<span class="line" id="L84">        ep: *Endpoint,</span>
+<span class="line" id="L85">        auth_endpoint: Endpoint,</span>
+<span class="line" id="L86">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L87"></span>
+<span class="line" id="L88">        <span class="tok-comment">/// Init the authenticating endpoint. Pass in a pointer to the endpoint</span></span>
+<span class="line" id="L89">        <span class="tok-comment">/// you want to wrap, and the Authenticator that takes care of authenticating</span></span>
+<span class="line" id="L90">        <span class="tok-comment">/// requests.</span></span>
+<span class="line" id="L91">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(e: *Endpoint, authenticator: *Authenticator) Self {</span>
+<span class="line" id="L92">            <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L93">                .authenticator = authenticator,</span>
+<span class="line" id="L94">                .ep = e,</span>
+<span class="line" id="L95">                .auth_endpoint = Endpoint.init(.{</span>
+<span class="line" id="L96">                    .path = e.settings.path,</span>
+<span class="line" id="L97">                    <span class="tok-comment">// we override only the set ones. the other ones</span>
+</span>
+<span class="line" id="L98">                    <span class="tok-comment">// are set to null anyway -&gt; will be nopped out</span>
+</span>
+<span class="line" id="L99">                    .get = <span class="tok-kw">if</span> (e.settings.get != <span class="tok-null">null</span>) get <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L100">                    .post = <span class="tok-kw">if</span> (e.settings.post != <span class="tok-null">null</span>) post <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L101">                    .put = <span class="tok-kw">if</span> (e.settings.put != <span class="tok-null">null</span>) put <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L102">                    .delete = <span class="tok-kw">if</span> (e.settings.delete != <span class="tok-null">null</span>) delete <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L103">                    .patch = <span class="tok-kw">if</span> (e.settings.patch != <span class="tok-null">null</span>) patch <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L104">                    .options = <span class="tok-kw">if</span> (e.settings.options != <span class="tok-null">null</span>) options <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L105">                    .unauthorized = e.settings.unauthorized,</span>
+<span class="line" id="L106">                }),</span>
+<span class="line" id="L107">            };</span>
+<span class="line" id="L108">        }</span>
+<span class="line" id="L109"></span>
+<span class="line" id="L110">        <span class="tok-comment">/// Get the auth endpoint struct of type Endpoint so it can be stored in the listener.</span></span>
+<span class="line" id="L111">        <span class="tok-comment">/// When the listener calls the auth_endpoint, onRequest will have</span></span>
+<span class="line" id="L112">        <span class="tok-comment">/// access to all of this via fieldParentPtr</span></span>
+<span class="line" id="L113">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">endpoint</span>(self: *Self) *Endpoint {</span>
+<span class="line" id="L114">            <span class="tok-kw">return</span> &amp;self.auth_endpoint;</span>
+<span class="line" id="L115">        }</span>
+<span class="line" id="L116"></span>
+<span class="line" id="L117">        <span class="tok-comment">/// GET: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L118">        <span class="tok-comment">/// Authenticates GET requests using the Authenticator.</span></span>
+<span class="line" id="L119">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">get</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L120">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L121">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L122">                .AuthFailed =&gt; {</span>
+<span class="line" id="L123">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L124">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L125">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L126">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L127">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L128">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L129">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L130">                    }</span>
+<span class="line" id="L131">                },</span>
+<span class="line" id="L132">                .AuthOK =&gt; authEp.ep.settings.get.?(authEp.ep, r),</span>
+<span class="line" id="L133">                .Handled =&gt; {},</span>
+<span class="line" id="L134">            }</span>
+<span class="line" id="L135">        }</span>
+<span class="line" id="L136"></span>
+<span class="line" id="L137">        <span class="tok-comment">/// POST: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L138">        <span class="tok-comment">/// Authenticates POST requests using the Authenticator.</span></span>
+<span class="line" id="L139">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">post</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L140">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L141">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L142">                .AuthFailed =&gt; {</span>
+<span class="line" id="L143">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L144">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L145">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L146">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L147">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L148">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L149">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L150">                    }</span>
+<span class="line" id="L151">                },</span>
+<span class="line" id="L152">                .AuthOK =&gt; authEp.ep.settings.post.?(authEp.ep, r),</span>
+<span class="line" id="L153">                .Handled =&gt; {},</span>
+<span class="line" id="L154">            }</span>
+<span class="line" id="L155">        }</span>
+<span class="line" id="L156"></span>
+<span class="line" id="L157">        <span class="tok-comment">/// PUT: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L158">        <span class="tok-comment">/// Authenticates PUT requests using the Authenticator.</span></span>
+<span class="line" id="L159">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">put</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L160">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L161">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L162">                .AuthFailed =&gt; {</span>
+<span class="line" id="L163">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L164">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L165">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L166">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L167">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L168">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L169">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L170">                    }</span>
+<span class="line" id="L171">                },</span>
+<span class="line" id="L172">                .AuthOK =&gt; authEp.ep.settings.put.?(authEp.ep, r),</span>
+<span class="line" id="L173">                .Handled =&gt; {},</span>
+<span class="line" id="L174">            }</span>
+<span class="line" id="L175">        }</span>
+<span class="line" id="L176"></span>
+<span class="line" id="L177">        <span class="tok-comment">/// DELETE: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L178">        <span class="tok-comment">/// Authenticates DELETE requests using the Authenticator.</span></span>
+<span class="line" id="L179">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">delete</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L180">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L181">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L182">                .AuthFailed =&gt; {</span>
+<span class="line" id="L183">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L184">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L185">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L186">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L187">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L188">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L189">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L190">                    }</span>
+<span class="line" id="L191">                },</span>
+<span class="line" id="L192">                .AuthOK =&gt; authEp.ep.settings.delete.?(authEp.ep, r),</span>
+<span class="line" id="L193">                .Handled =&gt; {},</span>
+<span class="line" id="L194">            }</span>
+<span class="line" id="L195">        }</span>
+<span class="line" id="L196"></span>
+<span class="line" id="L197">        <span class="tok-comment">/// PATCH: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L198">        <span class="tok-comment">/// Authenticates PATCH requests using the Authenticator.</span></span>
+<span class="line" id="L199">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">patch</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L200">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L201">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L202">                .AuthFailed =&gt; {</span>
+<span class="line" id="L203">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L204">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L205">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L206">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L207">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L208">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L209">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L210">                    }</span>
+<span class="line" id="L211">                },</span>
+<span class="line" id="L212">                .AuthOK =&gt; authEp.ep.settings.patch.?(authEp.ep, r),</span>
+<span class="line" id="L213">                .Handled =&gt; {},</span>
+<span class="line" id="L214">            }</span>
+<span class="line" id="L215">        }</span>
+<span class="line" id="L216"></span>
+<span class="line" id="L217">        <span class="tok-comment">/// OPTIONS: here, the auth_endpoint will be passed in as endpoint.</span></span>
+<span class="line" id="L218">        <span class="tok-comment">/// Authenticates OPTIONS requests using the Authenticator.</span></span>
+<span class="line" id="L219">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">options</span>(e: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L220">            <span class="tok-kw">const</span> authEp: *Self = <span class="tok-builtin">@fieldParentPtr</span>(Self, <span class="tok-str">&quot;auth_endpoint&quot;</span>, e);</span>
+<span class="line" id="L221">            <span class="tok-kw">switch</span> (authEp.authenticator.authenticateRequest(&amp;r)) {</span>
+<span class="line" id="L222">                .AuthFailed =&gt; {</span>
+<span class="line" id="L223">                    <span class="tok-kw">if</span> (e.settings.unauthorized) |unauthorized| {</span>
+<span class="line" id="L224">                        unauthorized(authEp.ep, r);</span>
+<span class="line" id="L225">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L226">                    } <span class="tok-kw">else</span> {</span>
+<span class="line" id="L227">                        r.setStatus(.unauthorized);</span>
+<span class="line" id="L228">                        r.sendBody(<span class="tok-str">&quot;UNAUTHORIZED&quot;</span>) <span class="tok-kw">catch</span> <span class="tok-kw">return</span>;</span>
+<span class="line" id="L229">                        <span class="tok-kw">return</span>;</span>
+<span class="line" id="L230">                    }</span>
+<span class="line" id="L231">                },</span>
+<span class="line" id="L232">                .AuthOK =&gt; authEp.ep.settings.put.?(authEp.ep, r),</span>
+<span class="line" id="L233">                .Handled =&gt; {},</span>
+<span class="line" id="L234">            }</span>
+<span class="line" id="L235">        }</span>
+<span class="line" id="L236">    };</span>
+<span class="line" id="L237">}</span>
+<span class="line" id="L238"></span>
+<span class="line" id="L239"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> EndpointListenerError = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L240">    <span class="tok-comment">/// Since we use .startsWith to check for matching paths, you cannot use</span></span>
+<span class="line" id="L241">    <span class="tok-comment">/// endpoint paths that overlap at the beginning. --&gt; When trying to register</span></span>
+<span class="line" id="L242">    <span class="tok-comment">/// an endpoint whose path would shadow an already registered one, you will</span></span>
+<span class="line" id="L243">    <span class="tok-comment">/// receive this error.</span></span>
+<span class="line" id="L244">    EndpointPathShadowError,</span>
+<span class="line" id="L245">};</span>
+<span class="line" id="L246"></span>
+<span class="line" id="L247"><span class="tok-comment">/// The listener with ednpoint support</span></span>
+<span class="line" id="L248"><span class="tok-comment">///</span></span>
+<span class="line" id="L249"><span class="tok-comment">/// NOTE: It switches on path.startsWith -&gt; so use endpoints with distinctly starting names!!</span></span>
+<span class="line" id="L250"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Listener = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L251">    listener: HttpListener,</span>
+<span class="line" id="L252">    allocator: std.mem.Allocator,</span>
+<span class="line" id="L253"></span>
+<span class="line" id="L254">    <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L255"></span>
+<span class="line" id="L256">    <span class="tok-comment">/// Internal static struct of member endpoints</span></span>
+<span class="line" id="L257">    <span class="tok-kw">var</span> endpoints: std.ArrayList(*Endpoint) = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L258"></span>
+<span class="line" id="L259">    <span class="tok-comment">/// Internal, static request handler callback. Will be set to the optional,</span></span>
+<span class="line" id="L260">    <span class="tok-comment">/// user-defined request callback that only gets called if no endpoints match</span></span>
+<span class="line" id="L261">    <span class="tok-comment">/// a request.</span></span>
+<span class="line" id="L262">    <span class="tok-kw">var</span> on_request: ?zap.HttpRequestFn = <span class="tok-null">null</span>;</span>
+<span class="line" id="L263"></span>
+<span class="line" id="L264">    <span class="tok-comment">/// Initialize a new endpoint listener. Note, if you pass an `on_request`</span></span>
+<span class="line" id="L265">    <span class="tok-comment">/// callback in the provided ListenerSettings, this request callback will be</span></span>
+<span class="line" id="L266">    <span class="tok-comment">/// called every time a request arrives that no endpoint matches.</span></span>
+<span class="line" id="L267">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(a: std.mem.Allocator, l: ListenerSettings) Self {</span>
+<span class="line" id="L268">        endpoints = std.ArrayList(*Endpoint).init(a);</span>
+<span class="line" id="L269"></span>
+<span class="line" id="L270">        <span class="tok-comment">// take copy of listener settings before modifying the callback field</span>
+</span>
+<span class="line" id="L271">        <span class="tok-kw">var</span> ls = l;</span>
+<span class="line" id="L272"></span>
+<span class="line" id="L273">        <span class="tok-comment">// override the settings with our internal, actul callback function</span>
+</span>
+<span class="line" id="L274">        <span class="tok-comment">// so that &quot;we&quot; will be called on request</span>
+</span>
+<span class="line" id="L275">        ls.on_request = Listener.onRequest;</span>
+<span class="line" id="L276"></span>
+<span class="line" id="L277">        <span class="tok-comment">// store the settings-provided request callback for later use</span>
+</span>
+<span class="line" id="L278">        on_request = l.on_request;</span>
+<span class="line" id="L279">        <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L280">            .listener = HttpListener.init(ls),</span>
+<span class="line" id="L281">            .allocator = a,</span>
+<span class="line" id="L282">        };</span>
+<span class="line" id="L283">    }</span>
+<span class="line" id="L284"></span>
+<span class="line" id="L285">    <span class="tok-comment">/// De-init the listener and free its resources.</span></span>
+<span class="line" id="L286">    <span class="tok-comment">/// Registered endpoints will not be de-initialized automatically; just removed</span></span>
+<span class="line" id="L287">    <span class="tok-comment">/// from the internal map.</span></span>
+<span class="line" id="L288">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *Self) <span class="tok-type">void</span> {</span>
+<span class="line" id="L289">        _ = self;</span>
+<span class="line" id="L290">        endpoints.deinit();</span>
+<span class="line" id="L291">    }</span>
+<span class="line" id="L292"></span>
+<span class="line" id="L293">    <span class="tok-comment">/// Call this to start listening. After this, no more endpoints can be</span></span>
+<span class="line" id="L294">    <span class="tok-comment">/// registered.</span></span>
+<span class="line" id="L295">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">listen</span>(self: *Self) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L296">        <span class="tok-kw">try</span> self.listener.listen();</span>
+<span class="line" id="L297">    }</span>
+<span class="line" id="L298"></span>
+<span class="line" id="L299">    <span class="tok-comment">/// Register an endpoint with this listener.</span></span>
+<span class="line" id="L300">    <span class="tok-comment">/// NOTE: endpoint paths are matched with startsWith -&gt; so use endpoints with distinctly starting names!!</span></span>
+<span class="line" id="L301">    <span class="tok-comment">/// If you try to register an endpoint whose path would shadow an already registered one, you will</span></span>
+<span class="line" id="L302">    <span class="tok-comment">/// receive an EndpointPathShadowError.</span></span>
+<span class="line" id="L303">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">register</span>(self: *Self, e: *Endpoint) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L304">        _ = self;</span>
+<span class="line" id="L305">        <span class="tok-kw">for</span> (endpoints.items) |other| {</span>
+<span class="line" id="L306">            <span class="tok-kw">if</span> (std.mem.startsWith(</span>
+<span class="line" id="L307">                <span class="tok-type">u8</span>,</span>
+<span class="line" id="L308">                other.settings.path,</span>
+<span class="line" id="L309">                e.settings.path,</span>
+<span class="line" id="L310">            ) <span class="tok-kw">or</span> std.mem.startsWith(</span>
+<span class="line" id="L311">                <span class="tok-type">u8</span>,</span>
+<span class="line" id="L312">                e.settings.path,</span>
+<span class="line" id="L313">                other.settings.path,</span>
+<span class="line" id="L314">            )) {</span>
+<span class="line" id="L315">                <span class="tok-kw">return</span> EndpointListenerError.EndpointPathShadowError;</span>
+<span class="line" id="L316">            }</span>
+<span class="line" id="L317">        }</span>
+<span class="line" id="L318">        <span class="tok-kw">try</span> endpoints.append(e);</span>
+<span class="line" id="L319">    }</span>
+<span class="line" id="L320"></span>
+<span class="line" id="L321">    <span class="tok-kw">fn</span> <span class="tok-fn">onRequest</span>(r: Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L322">        <span class="tok-kw">if</span> (r.path) |p| {</span>
+<span class="line" id="L323">            <span class="tok-kw">for</span> (endpoints.items) |e| {</span>
+<span class="line" id="L324">                <span class="tok-kw">if</span> (std.mem.startsWith(<span class="tok-type">u8</span>, p, e.settings.path)) {</span>
+<span class="line" id="L325">                    e.onRequest(r);</span>
+<span class="line" id="L326">                    <span class="tok-kw">return</span>;</span>
+<span class="line" id="L327">                }</span>
+<span class="line" id="L328">            }</span>
+<span class="line" id="L329">        }</span>
+<span class="line" id="L330">        <span class="tok-comment">// if set, call the user-provided default callback</span>
+</span>
+<span class="line" id="L331">        <span class="tok-kw">if</span> (on_request) |foo| {</span>
+<span class="line" id="L332">            foo(r);</span>
+<span class="line" id="L333">        }</span>
+<span class="line" id="L334">    }</span>
+<span class="line" id="L335">};</span>
+<span class="line" id="L336"></span>
+</code></pre></body>
+</html>
