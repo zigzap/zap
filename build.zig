@@ -49,7 +49,7 @@ pub fn build(b: *std.Build) !void {
         .{ .name = "hello", .src = "examples/hello/hello.zig" },
         .{ .name = "https", .src = "examples/https/https.zig" },
         .{ .name = "hello2", .src = "examples/hello2/hello2.zig" },
-        .{ .name = "hello3", .src = "examples/hello3/hello3.zig" },
+        .{ .name = "simple_router", .src = "examples/simple_router/simple_router.zig" },
         .{ .name = "routes", .src = "examples/routes/routes.zig" },
         .{ .name = "serve", .src = "examples/serve/serve.zig" },
         .{ .name = "hello_json", .src = "examples/hello_json/hello_json.zig" },
