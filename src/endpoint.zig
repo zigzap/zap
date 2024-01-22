@@ -244,7 +244,7 @@ pub const EndpointListenerError = error{
     EndpointPathShadowError,
 };
 
-/// The listener with ednpoint support
+/// The listener with endpoint support
 ///
 /// NOTE: It switches on path.startsWith -> so use endpoints with distinctly starting names!!
 pub const Listener = struct {
