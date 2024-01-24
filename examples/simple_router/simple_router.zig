@@ -103,6 +103,8 @@ pub fn main() !void {
     // start worker threads
     zap.start(.{
         .threads = 2,
-        .workers = 2,
+
+        // Must be 1 if state is shared
+        .workers = 1,
     });
 }

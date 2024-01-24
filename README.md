@@ -132,8 +132,11 @@ port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
   - run it like this: `ZAP_USE_OPENSSL=true zig build run-https`  
     OR like this: `zig build -Dopenssl=true run-https`
   - it will tell you how to generate certificates
-- [**Router support**](examples/simple_router/simple_router.zig): You can now use
-  simple router by path. Also example with self capture helper func.
+- [**simple_router**](examples/simple_router/simple_router.zig): See how you
+  can use `zap.Router` to dispatch to handlers by HTTP path. It also features
+  `zap.RequestHandler` to capture the "self" pointer of the container of the
+  handler functions.
+
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
 projects, serving thousands of concurrent clients.
