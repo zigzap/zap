@@ -73,7 +73,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     var simpleRouter = zap.Router.init(allocator, .{
         .not_found = not_found,

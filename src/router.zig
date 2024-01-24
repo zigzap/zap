@@ -45,7 +45,7 @@ pub fn handle_func(self: *Self, path: []const u8, h: zap.HttpRequestFn) !void {
 pub fn serve(self: *Self, r: zap.Request) void {
     const path = if (r.path) |p| p else "/";
 
-    var route = self.routes.get(path);
+    const route = self.routes.get(path);
 
     if (route) |handler| {
         handler(r);
