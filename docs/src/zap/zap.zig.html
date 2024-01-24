@@ -168,381 +168,383 @@
 <span class="line" id="L52"><span class="tok-comment">/// ```</span></span>
 <span class="line" id="L53"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Endpoint = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;endpoint.zig&quot;</span>);</span>
 <span class="line" id="L54"></span>
-<span class="line" id="L55"><span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
-<span class="line" id="L56"><span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http.zig&quot;</span>);</span>
-<span class="line" id="L57"></span>
-<span class="line" id="L58"><span class="tok-comment">/// A struct to handle Mustache templating.</span></span>
-<span class="line" id="L59"><span class="tok-comment">///</span></span>
-<span class="line" id="L60"><span class="tok-comment">/// This is a wrapper around fiobj's mustache template handling.</span></span>
-<span class="line" id="L61"><span class="tok-comment">/// See http://facil.io/0.7.x/fiobj_mustache for more information.</span></span>
-<span class="line" id="L62"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Mustache = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;mustache.zig&quot;</span>);</span>
-<span class="line" id="L63"></span>
-<span class="line" id="L64"><span class="tok-comment">/// Authenticators</span></span>
-<span class="line" id="L65"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Auth = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http_auth.zig&quot;</span>);</span>
-<span class="line" id="L66"></span>
-<span class="line" id="L67"><span class="tok-comment">/// Http request and supporting types.</span></span>
-<span class="line" id="L68"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Request = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;request.zig&quot;</span>);</span>
-<span class="line" id="L69"></span>
-<span class="line" id="L70"><span class="tok-comment">/// Middleware support.</span></span>
-<span class="line" id="L71"><span class="tok-comment">/// Contains a special Listener and a Handler struct that support chaining</span></span>
-<span class="line" id="L72"><span class="tok-comment">/// requests handlers, with an optional stop once a handler indicates it</span></span>
-<span class="line" id="L73"><span class="tok-comment">/// processed the request. Also sports an EndpointHandler for using regular zap</span></span>
-<span class="line" id="L74"><span class="tok-comment">/// Endpoints as Handlers.</span></span>
-<span class="line" id="L75"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Middleware = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;middleware.zig&quot;</span>);</span>
-<span class="line" id="L76"></span>
-<span class="line" id="L77"><span class="tok-comment">/// Websocket API</span></span>
-<span class="line" id="L78"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> WebSockets = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;websockets.zig&quot;</span>);</span>
-<span class="line" id="L79"></span>
-<span class="line" id="L80"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Log = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;log.zig&quot;</span>);</span>
-<span class="line" id="L81"><span class="tok-kw">const</span> http = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http.zig&quot;</span>);</span>
-<span class="line" id="L82"></span>
-<span class="line" id="L83"><span class="tok-kw">const</span> util = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L55"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Router = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;router.zig&quot;</span>);</span>
+<span class="line" id="L56"></span>
+<span class="line" id="L57"><span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L58"><span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http.zig&quot;</span>);</span>
+<span class="line" id="L59"></span>
+<span class="line" id="L60"><span class="tok-comment">/// A struct to handle Mustache templating.</span></span>
+<span class="line" id="L61"><span class="tok-comment">///</span></span>
+<span class="line" id="L62"><span class="tok-comment">/// This is a wrapper around fiobj's mustache template handling.</span></span>
+<span class="line" id="L63"><span class="tok-comment">/// See http://facil.io/0.7.x/fiobj_mustache for more information.</span></span>
+<span class="line" id="L64"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Mustache = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;mustache.zig&quot;</span>);</span>
+<span class="line" id="L65"></span>
+<span class="line" id="L66"><span class="tok-comment">/// Authenticators</span></span>
+<span class="line" id="L67"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Auth = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http_auth.zig&quot;</span>);</span>
+<span class="line" id="L68"></span>
+<span class="line" id="L69"><span class="tok-comment">/// Http request and supporting types.</span></span>
+<span class="line" id="L70"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Request = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;request.zig&quot;</span>);</span>
+<span class="line" id="L71"></span>
+<span class="line" id="L72"><span class="tok-comment">/// Middleware support.</span></span>
+<span class="line" id="L73"><span class="tok-comment">/// Contains a special Listener and a Handler struct that support chaining</span></span>
+<span class="line" id="L74"><span class="tok-comment">/// requests handlers, with an optional stop once a handler indicates it</span></span>
+<span class="line" id="L75"><span class="tok-comment">/// processed the request. Also sports an EndpointHandler for using regular zap</span></span>
+<span class="line" id="L76"><span class="tok-comment">/// Endpoints as Handlers.</span></span>
+<span class="line" id="L77"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Middleware = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;middleware.zig&quot;</span>);</span>
+<span class="line" id="L78"></span>
+<span class="line" id="L79"><span class="tok-comment">/// Websocket API</span></span>
+<span class="line" id="L80"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> WebSockets = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;websockets.zig&quot;</span>);</span>
+<span class="line" id="L81"></span>
+<span class="line" id="L82"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Log = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;log.zig&quot;</span>);</span>
+<span class="line" id="L83"><span class="tok-kw">const</span> http = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;http.zig&quot;</span>);</span>
 <span class="line" id="L84"></span>
-<span class="line" id="L85"><span class="tok-comment">// TODO: replace with comptime debug logger like in log.zig</span>
+<span class="line" id="L85"><span class="tok-kw">const</span> util = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;util.zig&quot;</span>);</span>
+<span class="line" id="L86"></span>
+<span class="line" id="L87"><span class="tok-comment">// TODO: replace with comptime debug logger like in log.zig</span>
 </span>
-<span class="line" id="L86"><span class="tok-kw">var</span> _debug: <span class="tok-type">bool</span> = <span class="tok-null">false</span>;</span>
-<span class="line" id="L87"></span>
-<span class="line" id="L88"><span class="tok-comment">/// Start the IO reactor</span></span>
-<span class="line" id="L89"><span class="tok-comment">///</span></span>
-<span class="line" id="L90"><span class="tok-comment">/// Will start listeners etc.</span></span>
-<span class="line" id="L91"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">start</span>(args: fio.fio_start_args) <span class="tok-type">void</span> {</span>
-<span class="line" id="L92">    fio.fio_start(args);</span>
-<span class="line" id="L93">}</span>
-<span class="line" id="L94"></span>
-<span class="line" id="L95"><span class="tok-comment">/// Stop ZAP:</span></span>
-<span class="line" id="L96"><span class="tok-comment">///</span></span>
-<span class="line" id="L97"><span class="tok-comment">/// 1. Stop accepting further incoming requests</span></span>
-<span class="line" id="L98"><span class="tok-comment">/// 2. Wait for all running request handlers to return</span></span>
-<span class="line" id="L99"><span class="tok-comment">/// 3. return from `zap.start(...)`</span></span>
-<span class="line" id="L100"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">stop</span>() <span class="tok-type">void</span> {</span>
-<span class="line" id="L101">    fio.fio_stop();</span>
-<span class="line" id="L102">}</span>
-<span class="line" id="L103"></span>
-<span class="line" id="L104"><span class="tok-comment">/// Extremely simplistic zap debug function.</span></span>
-<span class="line" id="L105"><span class="tok-comment">/// TODO: re-wwrite logging or use std.log</span></span>
-<span class="line" id="L106"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">debug</span>(<span class="tok-kw">comptime</span> fmt: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, args: <span class="tok-kw">anytype</span>) <span class="tok-type">void</span> {</span>
-<span class="line" id="L107">    <span class="tok-kw">if</span> (_debug) {</span>
-<span class="line" id="L108">        std.debug.print(<span class="tok-str">&quot;[zap] - &quot;</span> ++ fmt, args);</span>
-<span class="line" id="L109">    }</span>
-<span class="line" id="L110">}</span>
-<span class="line" id="L111"></span>
-<span class="line" id="L112"><span class="tok-comment">/// Enable zap debug logging</span></span>
-<span class="line" id="L113"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">enableDebugLog</span>() <span class="tok-type">void</span> {</span>
-<span class="line" id="L114">    _debug = <span class="tok-null">true</span>;</span>
-<span class="line" id="L115">}</span>
-<span class="line" id="L116"></span>
-<span class="line" id="L117"><span class="tok-comment">/// start Zap with debug logging on</span></span>
-<span class="line" id="L118"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">startWithLogging</span>(args: fio.fio_start_args) <span class="tok-type">void</span> {</span>
-<span class="line" id="L119">    debug = <span class="tok-null">true</span>;</span>
-<span class="line" id="L120">    fio.fio_start(args);</span>
-<span class="line" id="L121">}</span>
-<span class="line" id="L122"></span>
-<span class="line" id="L123"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ListenError = <span class="tok-kw">error</span>{</span>
-<span class="line" id="L124">    AlreadyListening,</span>
-<span class="line" id="L125">    ListenError,</span>
-<span class="line" id="L126">};</span>
-<span class="line" id="L127"></span>
-<span class="line" id="L128"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpError = <span class="tok-kw">error</span>{</span>
-<span class="line" id="L129">    HttpSendBody,</span>
-<span class="line" id="L130">    HttpSetContentType,</span>
-<span class="line" id="L131">    HttpSetHeader,</span>
-<span class="line" id="L132">    HttpParseBody,</span>
-<span class="line" id="L133">    HttpIterParams,</span>
-<span class="line" id="L134">    SetCookie,</span>
-<span class="line" id="L135">    SendFile,</span>
-<span class="line" id="L136">};</span>
-<span class="line" id="L137"></span>
-<span class="line" id="L138"><span class="tok-comment">/// Http Content Type enum.</span></span>
-<span class="line" id="L139"><span class="tok-comment">/// Needs some love.</span></span>
-<span class="line" id="L140"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ContentType = <span class="tok-kw">enum</span> {</span>
-<span class="line" id="L141">    TEXT,</span>
-<span class="line" id="L142">    HTML,</span>
-<span class="line" id="L143">    JSON,</span>
-<span class="line" id="L144">    <span class="tok-comment">// TODO: more content types</span>
+<span class="line" id="L88"><span class="tok-kw">var</span> _debug: <span class="tok-type">bool</span> = <span class="tok-null">false</span>;</span>
+<span class="line" id="L89"></span>
+<span class="line" id="L90"><span class="tok-comment">/// Start the IO reactor</span></span>
+<span class="line" id="L91"><span class="tok-comment">///</span></span>
+<span class="line" id="L92"><span class="tok-comment">/// Will start listeners etc.</span></span>
+<span class="line" id="L93"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">start</span>(args: fio.fio_start_args) <span class="tok-type">void</span> {</span>
+<span class="line" id="L94">    fio.fio_start(args);</span>
+<span class="line" id="L95">}</span>
+<span class="line" id="L96"></span>
+<span class="line" id="L97"><span class="tok-comment">/// Stop ZAP:</span></span>
+<span class="line" id="L98"><span class="tok-comment">///</span></span>
+<span class="line" id="L99"><span class="tok-comment">/// 1. Stop accepting further incoming requests</span></span>
+<span class="line" id="L100"><span class="tok-comment">/// 2. Wait for all running request handlers to return</span></span>
+<span class="line" id="L101"><span class="tok-comment">/// 3. return from `zap.start(...)`</span></span>
+<span class="line" id="L102"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">stop</span>() <span class="tok-type">void</span> {</span>
+<span class="line" id="L103">    fio.fio_stop();</span>
+<span class="line" id="L104">}</span>
+<span class="line" id="L105"></span>
+<span class="line" id="L106"><span class="tok-comment">/// Extremely simplistic zap debug function.</span></span>
+<span class="line" id="L107"><span class="tok-comment">/// TODO: re-wwrite logging or use std.log</span></span>
+<span class="line" id="L108"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">debug</span>(<span class="tok-kw">comptime</span> fmt: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>, args: <span class="tok-kw">anytype</span>) <span class="tok-type">void</span> {</span>
+<span class="line" id="L109">    <span class="tok-kw">if</span> (_debug) {</span>
+<span class="line" id="L110">        std.debug.print(<span class="tok-str">&quot;[zap] - &quot;</span> ++ fmt, args);</span>
+<span class="line" id="L111">    }</span>
+<span class="line" id="L112">}</span>
+<span class="line" id="L113"></span>
+<span class="line" id="L114"><span class="tok-comment">/// Enable zap debug logging</span></span>
+<span class="line" id="L115"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">enableDebugLog</span>() <span class="tok-type">void</span> {</span>
+<span class="line" id="L116">    _debug = <span class="tok-null">true</span>;</span>
+<span class="line" id="L117">}</span>
+<span class="line" id="L118"></span>
+<span class="line" id="L119"><span class="tok-comment">/// start Zap with debug logging on</span></span>
+<span class="line" id="L120"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">startWithLogging</span>(args: fio.fio_start_args) <span class="tok-type">void</span> {</span>
+<span class="line" id="L121">    debug = <span class="tok-null">true</span>;</span>
+<span class="line" id="L122">    fio.fio_start(args);</span>
+<span class="line" id="L123">}</span>
+<span class="line" id="L124"></span>
+<span class="line" id="L125"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ListenError = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L126">    AlreadyListening,</span>
+<span class="line" id="L127">    ListenError,</span>
+<span class="line" id="L128">};</span>
+<span class="line" id="L129"></span>
+<span class="line" id="L130"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpError = <span class="tok-kw">error</span>{</span>
+<span class="line" id="L131">    HttpSendBody,</span>
+<span class="line" id="L132">    HttpSetContentType,</span>
+<span class="line" id="L133">    HttpSetHeader,</span>
+<span class="line" id="L134">    HttpParseBody,</span>
+<span class="line" id="L135">    HttpIterParams,</span>
+<span class="line" id="L136">    SetCookie,</span>
+<span class="line" id="L137">    SendFile,</span>
+<span class="line" id="L138">};</span>
+<span class="line" id="L139"></span>
+<span class="line" id="L140"><span class="tok-comment">/// Http Content Type enum.</span></span>
+<span class="line" id="L141"><span class="tok-comment">/// Needs some love.</span></span>
+<span class="line" id="L142"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> ContentType = <span class="tok-kw">enum</span> {</span>
+<span class="line" id="L143">    TEXT,</span>
+<span class="line" id="L144">    HTML,</span>
+<span class="line" id="L145">    JSON,</span>
+<span class="line" id="L146">    <span class="tok-comment">// TODO: more content types</span>
 </span>
-<span class="line" id="L145">};</span>
-<span class="line" id="L146"></span>
-<span class="line" id="L147"><span class="tok-comment">/// Used internally: facilio Http request callback function type</span></span>
-<span class="line" id="L148"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FioHttpRequestFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>;</span>
-<span class="line" id="L149"></span>
-<span class="line" id="L150"><span class="tok-comment">/// Zap Http request callback function type.</span></span>
-<span class="line" id="L151"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpRequestFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (Request) <span class="tok-type">void</span>;</span>
-<span class="line" id="L152"></span>
-<span class="line" id="L153"><span class="tok-comment">/// websocket connection upgrade callback type</span></span>
-<span class="line" id="L154"><span class="tok-comment">/// fn(request, targetstring)</span></span>
-<span class="line" id="L155"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpUpgradeFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (r: Request, target_protocol: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
-<span class="line" id="L156"></span>
-<span class="line" id="L157"><span class="tok-comment">/// http finish, called when zap finishes. You get your udata back in the</span></span>
-<span class="line" id="L158"><span class="tok-comment">/// HttpFinishSetting struct.</span></span>
-<span class="line" id="L159"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpFinishSettings = [*c]fio.struct_http_settings_s;</span>
-<span class="line" id="L160"></span>
-<span class="line" id="L161"><span class="tok-comment">/// Http finish callback type</span></span>
-<span class="line" id="L162"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpFinishFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (HttpFinishSettings) <span class="tok-type">void</span>;</span>
-<span class="line" id="L163"></span>
-<span class="line" id="L164"><span class="tok-comment">/// Listener settings</span></span>
-<span class="line" id="L165"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpListenerSettings = <span class="tok-kw">struct</span> {</span>
-<span class="line" id="L166">    port: <span class="tok-type">usize</span>,</span>
-<span class="line" id="L167">    interface: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L168">    on_request: ?HttpRequestFn,</span>
-<span class="line" id="L169">    on_response: ?HttpRequestFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L170">    on_upgrade: ?HttpUpgradeFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L171">    on_finish: ?HttpFinishFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L172">    <span class="tok-comment">// provide any pointer in there for &quot;user data&quot;. it will be passed pack in</span>
+<span class="line" id="L147">};</span>
+<span class="line" id="L148"></span>
+<span class="line" id="L149"><span class="tok-comment">/// Used internally: facilio Http request callback function type</span></span>
+<span class="line" id="L150"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FioHttpRequestFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span>;</span>
+<span class="line" id="L151"></span>
+<span class="line" id="L152"><span class="tok-comment">/// Zap Http request callback function type.</span></span>
+<span class="line" id="L153"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpRequestFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (Request) <span class="tok-type">void</span>;</span>
+<span class="line" id="L154"></span>
+<span class="line" id="L155"><span class="tok-comment">/// websocket connection upgrade callback type</span></span>
+<span class="line" id="L156"><span class="tok-comment">/// fn(request, targetstring)</span></span>
+<span class="line" id="L157"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpUpgradeFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (r: Request, target_protocol: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) <span class="tok-type">void</span>;</span>
+<span class="line" id="L158"></span>
+<span class="line" id="L159"><span class="tok-comment">/// http finish, called when zap finishes. You get your udata back in the</span></span>
+<span class="line" id="L160"><span class="tok-comment">/// HttpFinishSetting struct.</span></span>
+<span class="line" id="L161"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpFinishSettings = [*c]fio.struct_http_settings_s;</span>
+<span class="line" id="L162"></span>
+<span class="line" id="L163"><span class="tok-comment">/// Http finish callback type</span></span>
+<span class="line" id="L164"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpFinishFn = *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (HttpFinishSettings) <span class="tok-type">void</span>;</span>
+<span class="line" id="L165"></span>
+<span class="line" id="L166"><span class="tok-comment">/// Listener settings</span></span>
+<span class="line" id="L167"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpListenerSettings = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L168">    port: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L169">    interface: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L170">    on_request: ?HttpRequestFn,</span>
+<span class="line" id="L171">    on_response: ?HttpRequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L172">    on_upgrade: ?HttpUpgradeFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L173">    on_finish: ?HttpFinishFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L174">    <span class="tok-comment">// provide any pointer in there for &quot;user data&quot;. it will be passed pack in</span>
 </span>
-<span class="line" id="L173">    <span class="tok-comment">// on_finish()'s copy of the struct_http_settings_s</span>
+<span class="line" id="L175">    <span class="tok-comment">// on_finish()'s copy of the struct_http_settings_s</span>
 </span>
-<span class="line" id="L174">    udata: ?*<span class="tok-type">anyopaque</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L175">    public_folder: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L176">    max_clients: ?<span class="tok-type">isize</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L177">    max_body_size: ?<span class="tok-type">usize</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L178">    timeout: ?<span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L179">    log: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
-<span class="line" id="L180">    ws_timeout: <span class="tok-type">u8</span> = <span class="tok-number">40</span>,</span>
-<span class="line" id="L181">    ws_max_msg_size: <span class="tok-type">usize</span> = <span class="tok-number">262144</span>,</span>
-<span class="line" id="L182">    tls: ?Tls = <span class="tok-null">null</span>,</span>
-<span class="line" id="L183">};</span>
-<span class="line" id="L184"></span>
-<span class="line" id="L185"><span class="tok-comment">/// Http listener</span></span>
-<span class="line" id="L186"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpListener = <span class="tok-kw">struct</span> {</span>
-<span class="line" id="L187">    settings: HttpListenerSettings,</span>
-<span class="line" id="L188"></span>
-<span class="line" id="L189">    <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
-<span class="line" id="L190">    <span class="tok-kw">var</span> the_one_and_only_listener: ?*HttpListener = <span class="tok-null">null</span>;</span>
-<span class="line" id="L191"></span>
-<span class="line" id="L192">    <span class="tok-comment">/// Create a listener</span></span>
-<span class="line" id="L193">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(settings: HttpListenerSettings) Self {</span>
-<span class="line" id="L194">        std.debug.assert(settings.on_request != <span class="tok-null">null</span>);</span>
-<span class="line" id="L195">        <span class="tok-kw">return</span> .{</span>
-<span class="line" id="L196">            .settings = settings,</span>
-<span class="line" id="L197">        };</span>
-<span class="line" id="L198">    }</span>
-<span class="line" id="L199"></span>
-<span class="line" id="L200">    <span class="tok-comment">// we could make it dynamic by passing a HttpListener via udata</span>
+<span class="line" id="L176">    udata: ?*<span class="tok-type">anyopaque</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L177">    public_folder: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L178">    max_clients: ?<span class="tok-type">isize</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L179">    max_body_size: ?<span class="tok-type">usize</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L180">    timeout: ?<span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L181">    log: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
+<span class="line" id="L182">    ws_timeout: <span class="tok-type">u8</span> = <span class="tok-number">40</span>,</span>
+<span class="line" id="L183">    ws_max_msg_size: <span class="tok-type">usize</span> = <span class="tok-number">262144</span>,</span>
+<span class="line" id="L184">    tls: ?Tls = <span class="tok-null">null</span>,</span>
+<span class="line" id="L185">};</span>
+<span class="line" id="L186"></span>
+<span class="line" id="L187"><span class="tok-comment">/// Http listener</span></span>
+<span class="line" id="L188"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> HttpListener = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L189">    settings: HttpListenerSettings,</span>
+<span class="line" id="L190"></span>
+<span class="line" id="L191">    <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L192">    <span class="tok-kw">var</span> the_one_and_only_listener: ?*HttpListener = <span class="tok-null">null</span>;</span>
+<span class="line" id="L193"></span>
+<span class="line" id="L194">    <span class="tok-comment">/// Create a listener</span></span>
+<span class="line" id="L195">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(settings: HttpListenerSettings) Self {</span>
+<span class="line" id="L196">        std.debug.assert(settings.on_request != <span class="tok-null">null</span>);</span>
+<span class="line" id="L197">        <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L198">            .settings = settings,</span>
+<span class="line" id="L199">        };</span>
+<span class="line" id="L200">    }</span>
+<span class="line" id="L201"></span>
+<span class="line" id="L202">    <span class="tok-comment">// we could make it dynamic by passing a HttpListener via udata</span>
 </span>
-<span class="line" id="L201">    <span class="tok-comment">/// Used internally: the listener's facilio request callback</span></span>
-<span class="line" id="L202">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyRequestCallBack</span>(r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
-<span class="line" id="L203">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
-<span class="line" id="L204">            <span class="tok-kw">var</span> req: Request = .{</span>
-<span class="line" id="L205">                .path = util.fio2str(r.*.path),</span>
-<span class="line" id="L206">                .query = util.fio2str(r.*.query),</span>
-<span class="line" id="L207">                .body = util.fio2str(r.*.body),</span>
-<span class="line" id="L208">                .method = util.fio2str(r.*.method),</span>
-<span class="line" id="L209">                .h = r,</span>
-<span class="line" id="L210">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
-<span class="line" id="L211">                ._user_context = <span class="tok-null">undefined</span>,</span>
-<span class="line" id="L212">            };</span>
-<span class="line" id="L213">            req._is_finished = &amp;req._is_finished_request_global;</span>
-<span class="line" id="L214"></span>
-<span class="line" id="L215">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
-<span class="line" id="L216">            req._user_context = &amp;user_context;</span>
-<span class="line" id="L217"></span>
-<span class="line" id="L218">            req.markAsFinished(<span class="tok-null">false</span>);</span>
-<span class="line" id="L219">            std.debug.assert(l.settings.on_request != <span class="tok-null">null</span>);</span>
-<span class="line" id="L220">            <span class="tok-kw">if</span> (l.settings.on_request) |on_request| {</span>
-<span class="line" id="L221">                <span class="tok-comment">// l.settings.on_request.?(req);</span>
+<span class="line" id="L203">    <span class="tok-comment">/// Used internally: the listener's facilio request callback</span></span>
+<span class="line" id="L204">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyRequestCallBack</span>(r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L205">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
+<span class="line" id="L206">            <span class="tok-kw">var</span> req: Request = .{</span>
+<span class="line" id="L207">                .path = util.fio2str(r.*.path),</span>
+<span class="line" id="L208">                .query = util.fio2str(r.*.query),</span>
+<span class="line" id="L209">                .body = util.fio2str(r.*.body),</span>
+<span class="line" id="L210">                .method = util.fio2str(r.*.method),</span>
+<span class="line" id="L211">                .h = r,</span>
+<span class="line" id="L212">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
+<span class="line" id="L213">                ._user_context = <span class="tok-null">undefined</span>,</span>
+<span class="line" id="L214">            };</span>
+<span class="line" id="L215">            req._is_finished = &amp;req._is_finished_request_global;</span>
+<span class="line" id="L216"></span>
+<span class="line" id="L217">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
+<span class="line" id="L218">            req._user_context = &amp;user_context;</span>
+<span class="line" id="L219"></span>
+<span class="line" id="L220">            req.markAsFinished(<span class="tok-null">false</span>);</span>
+<span class="line" id="L221">            std.debug.assert(l.settings.on_request != <span class="tok-null">null</span>);</span>
+<span class="line" id="L222">            <span class="tok-kw">if</span> (l.settings.on_request) |on_request| {</span>
+<span class="line" id="L223">                <span class="tok-comment">// l.settings.on_request.?(req);</span>
 </span>
-<span class="line" id="L222">                on_request(req);</span>
-<span class="line" id="L223">            }</span>
-<span class="line" id="L224">        }</span>
-<span class="line" id="L225">    }</span>
-<span class="line" id="L226"></span>
-<span class="line" id="L227">    <span class="tok-comment">/// Used internally: the listener's facilio response callback</span></span>
-<span class="line" id="L228">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyResponseCallBack</span>(r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
-<span class="line" id="L229">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
-<span class="line" id="L230">            <span class="tok-kw">var</span> req: Request = .{</span>
-<span class="line" id="L231">                .path = util.fio2str(r.*.path),</span>
-<span class="line" id="L232">                .query = util.fio2str(r.*.query),</span>
-<span class="line" id="L233">                .body = util.fio2str(r.*.body),</span>
-<span class="line" id="L234">                .method = util.fio2str(r.*.method),</span>
-<span class="line" id="L235">                .h = r,</span>
-<span class="line" id="L236">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
-<span class="line" id="L237">                ._user_context = <span class="tok-null">undefined</span>,</span>
-<span class="line" id="L238">            };</span>
-<span class="line" id="L239">            req._is_finished = &amp;req._is_finished_request_global;</span>
-<span class="line" id="L240"></span>
-<span class="line" id="L241">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
-<span class="line" id="L242">            req._user_context = &amp;user_context;</span>
-<span class="line" id="L243"></span>
-<span class="line" id="L244">            l.settings.on_response.?(req);</span>
-<span class="line" id="L245">        }</span>
-<span class="line" id="L246">    }</span>
-<span class="line" id="L247"></span>
-<span class="line" id="L248">    <span class="tok-comment">/// Used internally: the listener's facilio upgrade callback</span></span>
-<span class="line" id="L249">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyUpgradeCallBack</span>(r: [*c]fio.http_s, target: [*c]<span class="tok-type">u8</span>, target_len: <span class="tok-type">usize</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
-<span class="line" id="L250">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
-<span class="line" id="L251">            <span class="tok-kw">var</span> req: Request = .{</span>
-<span class="line" id="L252">                .path = util.fio2str(r.*.path),</span>
-<span class="line" id="L253">                .query = util.fio2str(r.*.query),</span>
-<span class="line" id="L254">                .body = util.fio2str(r.*.body),</span>
-<span class="line" id="L255">                .method = util.fio2str(r.*.method),</span>
-<span class="line" id="L256">                .h = r,</span>
-<span class="line" id="L257">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
-<span class="line" id="L258">                ._user_context = <span class="tok-null">undefined</span>,</span>
-<span class="line" id="L259">            };</span>
-<span class="line" id="L260">            <span class="tok-kw">const</span> zigtarget: []<span class="tok-type">u8</span> = target[<span class="tok-number">0</span>..target_len];</span>
-<span class="line" id="L261">            req._is_finished = &amp;req._is_finished_request_global;</span>
-<span class="line" id="L262"></span>
-<span class="line" id="L263">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
-<span class="line" id="L264">            req._user_context = &amp;user_context;</span>
-<span class="line" id="L265"></span>
-<span class="line" id="L266">            l.settings.on_upgrade.?(req, zigtarget);</span>
-<span class="line" id="L267">        }</span>
-<span class="line" id="L268">    }</span>
-<span class="line" id="L269"></span>
-<span class="line" id="L270">    <span class="tok-comment">/// Used internally: the listener's facilio finish callback</span></span>
-<span class="line" id="L271">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyFinishCallBack</span>(s: [*c]fio.struct_http_settings_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
-<span class="line" id="L272">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
-<span class="line" id="L273">            l.settings.on_finish.?(s);</span>
-<span class="line" id="L274">        }</span>
-<span class="line" id="L275">    }</span>
-<span class="line" id="L276"></span>
-<span class="line" id="L277">    <span class="tok-comment">/// Start listening</span></span>
-<span class="line" id="L278">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">listen</span>(self: *Self) !<span class="tok-type">void</span> {</span>
-<span class="line" id="L279">        <span class="tok-kw">var</span> pfolder: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;</span>
-<span class="line" id="L280">        <span class="tok-kw">var</span> pfolder_len: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;</span>
-<span class="line" id="L281"></span>
-<span class="line" id="L282">        <span class="tok-kw">if</span> (self.settings.public_folder) |pf| {</span>
-<span class="line" id="L283">            debug(<span class="tok-str">&quot;HttpListener.listen(): public folder is {s}\n&quot;</span>, .{pf});</span>
-<span class="line" id="L284">            pfolder_len = pf.len;</span>
-<span class="line" id="L285">            pfolder = pf.ptr;</span>
-<span class="line" id="L286">        }</span>
-<span class="line" id="L287"></span>
-<span class="line" id="L288">        <span class="tok-kw">const</span> x: fio.http_settings_s = .{</span>
-<span class="line" id="L289">            .on_request = <span class="tok-kw">if</span> (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
-<span class="line" id="L290">            .on_upgrade = <span class="tok-kw">if</span> (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
-<span class="line" id="L291">            .on_response = <span class="tok-kw">if</span> (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
-<span class="line" id="L292">            .on_finish = <span class="tok-kw">if</span> (self.settings.on_finish) |_| Self.theOneAndOnlyFinishCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
-<span class="line" id="L293">            .udata = <span class="tok-null">null</span>,</span>
-<span class="line" id="L294">            .public_folder = pfolder,</span>
-<span class="line" id="L295">            .public_folder_length = pfolder_len,</span>
-<span class="line" id="L296">            .max_header_size = <span class="tok-number">32</span> * <span class="tok-number">1024</span>,</span>
-<span class="line" id="L297">            .max_body_size = self.settings.max_body_size <span class="tok-kw">orelse</span> <span class="tok-number">50</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,</span>
-<span class="line" id="L298">            <span class="tok-comment">// fio provides good default:</span>
+<span class="line" id="L224">                on_request(req);</span>
+<span class="line" id="L225">            }</span>
+<span class="line" id="L226">        }</span>
+<span class="line" id="L227">    }</span>
+<span class="line" id="L228"></span>
+<span class="line" id="L229">    <span class="tok-comment">/// Used internally: the listener's facilio response callback</span></span>
+<span class="line" id="L230">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyResponseCallBack</span>(r: [*c]fio.http_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L231">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
+<span class="line" id="L232">            <span class="tok-kw">var</span> req: Request = .{</span>
+<span class="line" id="L233">                .path = util.fio2str(r.*.path),</span>
+<span class="line" id="L234">                .query = util.fio2str(r.*.query),</span>
+<span class="line" id="L235">                .body = util.fio2str(r.*.body),</span>
+<span class="line" id="L236">                .method = util.fio2str(r.*.method),</span>
+<span class="line" id="L237">                .h = r,</span>
+<span class="line" id="L238">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
+<span class="line" id="L239">                ._user_context = <span class="tok-null">undefined</span>,</span>
+<span class="line" id="L240">            };</span>
+<span class="line" id="L241">            req._is_finished = &amp;req._is_finished_request_global;</span>
+<span class="line" id="L242"></span>
+<span class="line" id="L243">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
+<span class="line" id="L244">            req._user_context = &amp;user_context;</span>
+<span class="line" id="L245"></span>
+<span class="line" id="L246">            l.settings.on_response.?(req);</span>
+<span class="line" id="L247">        }</span>
+<span class="line" id="L248">    }</span>
+<span class="line" id="L249"></span>
+<span class="line" id="L250">    <span class="tok-comment">/// Used internally: the listener's facilio upgrade callback</span></span>
+<span class="line" id="L251">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyUpgradeCallBack</span>(r: [*c]fio.http_s, target: [*c]<span class="tok-type">u8</span>, target_len: <span class="tok-type">usize</span>) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L252">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
+<span class="line" id="L253">            <span class="tok-kw">var</span> req: Request = .{</span>
+<span class="line" id="L254">                .path = util.fio2str(r.*.path),</span>
+<span class="line" id="L255">                .query = util.fio2str(r.*.query),</span>
+<span class="line" id="L256">                .body = util.fio2str(r.*.body),</span>
+<span class="line" id="L257">                .method = util.fio2str(r.*.method),</span>
+<span class="line" id="L258">                .h = r,</span>
+<span class="line" id="L259">                ._is_finished_request_global = <span class="tok-null">false</span>,</span>
+<span class="line" id="L260">                ._user_context = <span class="tok-null">undefined</span>,</span>
+<span class="line" id="L261">            };</span>
+<span class="line" id="L262">            <span class="tok-kw">const</span> zigtarget: []<span class="tok-type">u8</span> = target[<span class="tok-number">0</span>..target_len];</span>
+<span class="line" id="L263">            req._is_finished = &amp;req._is_finished_request_global;</span>
+<span class="line" id="L264"></span>
+<span class="line" id="L265">            <span class="tok-kw">var</span> user_context: Request.UserContext = .{};</span>
+<span class="line" id="L266">            req._user_context = &amp;user_context;</span>
+<span class="line" id="L267"></span>
+<span class="line" id="L268">            l.settings.on_upgrade.?(req, zigtarget);</span>
+<span class="line" id="L269">        }</span>
+<span class="line" id="L270">    }</span>
+<span class="line" id="L271"></span>
+<span class="line" id="L272">    <span class="tok-comment">/// Used internally: the listener's facilio finish callback</span></span>
+<span class="line" id="L273">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">theOneAndOnlyFinishCallBack</span>(s: [*c]fio.struct_http_settings_s) <span class="tok-kw">callconv</span>(.C) <span class="tok-type">void</span> {</span>
+<span class="line" id="L274">        <span class="tok-kw">if</span> (the_one_and_only_listener) |l| {</span>
+<span class="line" id="L275">            l.settings.on_finish.?(s);</span>
+<span class="line" id="L276">        }</span>
+<span class="line" id="L277">    }</span>
+<span class="line" id="L278"></span>
+<span class="line" id="L279">    <span class="tok-comment">/// Start listening</span></span>
+<span class="line" id="L280">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">listen</span>(self: *Self) !<span class="tok-type">void</span> {</span>
+<span class="line" id="L281">        <span class="tok-kw">var</span> pfolder: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;</span>
+<span class="line" id="L282">        <span class="tok-kw">var</span> pfolder_len: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;</span>
+<span class="line" id="L283"></span>
+<span class="line" id="L284">        <span class="tok-kw">if</span> (self.settings.public_folder) |pf| {</span>
+<span class="line" id="L285">            debug(<span class="tok-str">&quot;HttpListener.listen(): public folder is {s}\n&quot;</span>, .{pf});</span>
+<span class="line" id="L286">            pfolder_len = pf.len;</span>
+<span class="line" id="L287">            pfolder = pf.ptr;</span>
+<span class="line" id="L288">        }</span>
+<span class="line" id="L289"></span>
+<span class="line" id="L290">        <span class="tok-kw">const</span> x: fio.http_settings_s = .{</span>
+<span class="line" id="L291">            .on_request = <span class="tok-kw">if</span> (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L292">            .on_upgrade = <span class="tok-kw">if</span> (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L293">            .on_response = <span class="tok-kw">if</span> (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L294">            .on_finish = <span class="tok-kw">if</span> (self.settings.on_finish) |_| Self.theOneAndOnlyFinishCallBack <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L295">            .udata = <span class="tok-null">null</span>,</span>
+<span class="line" id="L296">            .public_folder = pfolder,</span>
+<span class="line" id="L297">            .public_folder_length = pfolder_len,</span>
+<span class="line" id="L298">            .max_header_size = <span class="tok-number">32</span> * <span class="tok-number">1024</span>,</span>
+<span class="line" id="L299">            .max_body_size = self.settings.max_body_size <span class="tok-kw">orelse</span> <span class="tok-number">50</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,</span>
+<span class="line" id="L300">            <span class="tok-comment">// fio provides good default:</span>
 </span>
-<span class="line" id="L299">            .max_clients = self.settings.max_clients <span class="tok-kw">orelse</span> <span class="tok-number">0</span>,</span>
-<span class="line" id="L300">            .tls = <span class="tok-kw">if</span> (self.settings.tls) |tls| tls.fio_tls <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
-<span class="line" id="L301">            .reserved1 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L302">            .reserved2 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L303">            .reserved3 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L304">            .ws_max_msg_size = <span class="tok-number">0</span>,</span>
-<span class="line" id="L305">            .timeout = self.settings.timeout <span class="tok-kw">orelse</span> <span class="tok-number">5</span>,</span>
-<span class="line" id="L306">            .ws_timeout = self.settings.ws_timeout,</span>
-<span class="line" id="L307">            .log = <span class="tok-kw">if</span> (self.settings.log) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
-<span class="line" id="L308">            .is_client = <span class="tok-number">0</span>,</span>
-<span class="line" id="L309">        };</span>
-<span class="line" id="L310">        <span class="tok-comment">// TODO: BUG: without this print/sleep statement, -Drelease* loop forever</span>
+<span class="line" id="L301">            .max_clients = self.settings.max_clients <span class="tok-kw">orelse</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L302">            .tls = <span class="tok-kw">if</span> (self.settings.tls) |tls| tls.fio_tls <span class="tok-kw">else</span> <span class="tok-null">null</span>,</span>
+<span class="line" id="L303">            .reserved1 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L304">            .reserved2 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L305">            .reserved3 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L306">            .ws_max_msg_size = <span class="tok-number">0</span>,</span>
+<span class="line" id="L307">            .timeout = self.settings.timeout <span class="tok-kw">orelse</span> <span class="tok-number">5</span>,</span>
+<span class="line" id="L308">            .ws_timeout = self.settings.ws_timeout,</span>
+<span class="line" id="L309">            .log = <span class="tok-kw">if</span> (self.settings.log) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L310">            .is_client = <span class="tok-number">0</span>,</span>
+<span class="line" id="L311">        };</span>
+<span class="line" id="L312">        <span class="tok-comment">// TODO: BUG: without this print/sleep statement, -Drelease* loop forever</span>
 </span>
-<span class="line" id="L311">        <span class="tok-comment">// in debug2 and debug3 of hello example</span>
+<span class="line" id="L313">        <span class="tok-comment">// in debug2 and debug3 of hello example</span>
 </span>
-<span class="line" id="L312">        <span class="tok-comment">// std.debug.print(&quot;X\n&quot;, .{});</span>
+<span class="line" id="L314">        <span class="tok-comment">// std.debug.print(&quot;X\n&quot;, .{});</span>
 </span>
-<span class="line" id="L313">        <span class="tok-comment">// TODO: still happening?</span>
+<span class="line" id="L315">        <span class="tok-comment">// TODO: still happening?</span>
 </span>
-<span class="line" id="L314">        std.time.sleep(<span class="tok-number">500</span> * std.time.ns_per_ms);</span>
-<span class="line" id="L315"></span>
-<span class="line" id="L316">        <span class="tok-kw">var</span> portbuf: [<span class="tok-number">100</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;</span>
-<span class="line" id="L317">        <span class="tok-kw">const</span> printed_port = <span class="tok-kw">try</span> std.fmt.bufPrintZ(&amp;portbuf, <span class="tok-str">&quot;{d}&quot;</span>, .{self.settings.port});</span>
-<span class="line" id="L318"></span>
-<span class="line" id="L319">        <span class="tok-kw">const</span> ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);</span>
-<span class="line" id="L320">        <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) {</span>
-<span class="line" id="L321">            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.ListenError;</span>
-<span class="line" id="L322">        }</span>
-<span class="line" id="L323"></span>
-<span class="line" id="L324">        <span class="tok-comment">// set ourselves up to handle requests:</span>
+<span class="line" id="L316">        std.time.sleep(<span class="tok-number">500</span> * std.time.ns_per_ms);</span>
+<span class="line" id="L317"></span>
+<span class="line" id="L318">        <span class="tok-kw">var</span> portbuf: [<span class="tok-number">100</span>]<span class="tok-type">u8</span> = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L319">        <span class="tok-kw">const</span> printed_port = <span class="tok-kw">try</span> std.fmt.bufPrintZ(&amp;portbuf, <span class="tok-str">&quot;{d}&quot;</span>, .{self.settings.port});</span>
+<span class="line" id="L320"></span>
+<span class="line" id="L321">        <span class="tok-kw">const</span> ret = fio.http_listen(printed_port.ptr, self.settings.interface, x);</span>
+<span class="line" id="L322">        <span class="tok-kw">if</span> (ret == -<span class="tok-number">1</span>) {</span>
+<span class="line" id="L323">            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.ListenError;</span>
+<span class="line" id="L324">        }</span>
+<span class="line" id="L325"></span>
+<span class="line" id="L326">        <span class="tok-comment">// set ourselves up to handle requests:</span>
 </span>
-<span class="line" id="L325">        <span class="tok-comment">// TODO: do we mind the race condition?</span>
+<span class="line" id="L327">        <span class="tok-comment">// TODO: do we mind the race condition?</span>
 </span>
-<span class="line" id="L326">        <span class="tok-comment">// the HttpRequestFn will check if this is null and not process</span>
+<span class="line" id="L328">        <span class="tok-comment">// the HttpRequestFn will check if this is null and not process</span>
 </span>
-<span class="line" id="L327">        <span class="tok-comment">// the request if it isn't set. hence, if started under full load, the</span>
+<span class="line" id="L329">        <span class="tok-comment">// the request if it isn't set. hence, if started under full load, the</span>
 </span>
-<span class="line" id="L328">        <span class="tok-comment">// first request(s) might not be serviced, as long as it takes from</span>
+<span class="line" id="L330">        <span class="tok-comment">// first request(s) might not be serviced, as long as it takes from</span>
 </span>
-<span class="line" id="L329">        <span class="tok-comment">// fio.http_listen() to here</span>
+<span class="line" id="L331">        <span class="tok-comment">// fio.http_listen() to here</span>
 </span>
-<span class="line" id="L330">        Self.the_one_and_only_listener = self;</span>
-<span class="line" id="L331">    }</span>
-<span class="line" id="L332">};</span>
-<span class="line" id="L333"></span>
-<span class="line" id="L334"><span class="tok-comment">/// Low-level API</span></span>
-<span class="line" id="L335"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> LowLevel = <span class="tok-kw">struct</span> {</span>
-<span class="line" id="L336">    <span class="tok-comment">/// lower level listening, if you don't want to use a listener but rather use</span></span>
-<span class="line" id="L337">    <span class="tok-comment">/// the listen() function.</span></span>
-<span class="line" id="L338">    <span class="tok-kw">pub</span> <span class="tok-kw">const</span> ListenSettings = <span class="tok-kw">struct</span> {</span>
-<span class="line" id="L339">        on_request: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L340">        on_upgrade: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L341">        on_response: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L342">        on_finish: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
-<span class="line" id="L343">        public_folder: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
-<span class="line" id="L344">        max_header_size: <span class="tok-type">usize</span> = <span class="tok-number">32</span> * <span class="tok-number">1024</span>,</span>
-<span class="line" id="L345">        max_body_size: <span class="tok-type">usize</span> = <span class="tok-number">50</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,</span>
-<span class="line" id="L346">        max_clients: <span class="tok-type">isize</span> = <span class="tok-number">100</span>,</span>
-<span class="line" id="L347">        keepalive_timeout_s: <span class="tok-type">u8</span> = <span class="tok-number">5</span>,</span>
-<span class="line" id="L348">        log: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
-<span class="line" id="L349"></span>
-<span class="line" id="L350">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L332">        Self.the_one_and_only_listener = self;</span>
+<span class="line" id="L333">    }</span>
+<span class="line" id="L334">};</span>
+<span class="line" id="L335"></span>
+<span class="line" id="L336"><span class="tok-comment">/// Low-level API</span></span>
+<span class="line" id="L337"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> LowLevel = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L338">    <span class="tok-comment">/// lower level listening, if you don't want to use a listener but rather use</span></span>
+<span class="line" id="L339">    <span class="tok-comment">/// the listen() function.</span></span>
+<span class="line" id="L340">    <span class="tok-kw">pub</span> <span class="tok-kw">const</span> ListenSettings = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L341">        on_request: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L342">        on_upgrade: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L343">        on_response: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L344">        on_finish: ?FioHttpRequestFn = <span class="tok-null">null</span>,</span>
+<span class="line" id="L345">        public_folder: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>,</span>
+<span class="line" id="L346">        max_header_size: <span class="tok-type">usize</span> = <span class="tok-number">32</span> * <span class="tok-number">1024</span>,</span>
+<span class="line" id="L347">        max_body_size: <span class="tok-type">usize</span> = <span class="tok-number">50</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,</span>
+<span class="line" id="L348">        max_clients: <span class="tok-type">isize</span> = <span class="tok-number">100</span>,</span>
+<span class="line" id="L349">        keepalive_timeout_s: <span class="tok-type">u8</span> = <span class="tok-number">5</span>,</span>
+<span class="line" id="L350">        log: <span class="tok-type">bool</span> = <span class="tok-null">false</span>,</span>
 <span class="line" id="L351"></span>
-<span class="line" id="L352">        <span class="tok-comment">/// Create settings with defaults</span></span>
-<span class="line" id="L353">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>() Self {</span>
-<span class="line" id="L354">            <span class="tok-kw">return</span> .{};</span>
-<span class="line" id="L355">        }</span>
-<span class="line" id="L356">    };</span>
-<span class="line" id="L357"></span>
-<span class="line" id="L358">    <span class="tok-comment">/// Low level listen function</span></span>
-<span class="line" id="L359">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">listen</span>(port: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, interface: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, settings: ListenSettings) ListenError!<span class="tok-type">void</span> {</span>
-<span class="line" id="L360">        <span class="tok-kw">var</span> pfolder: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;</span>
-<span class="line" id="L361">        <span class="tok-kw">var</span> pfolder_len: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;</span>
-<span class="line" id="L362"></span>
-<span class="line" id="L363">        <span class="tok-kw">if</span> (settings.public_folder) |pf| {</span>
-<span class="line" id="L364">            pfolder_len = pf.len;</span>
-<span class="line" id="L365">            pfolder = pf.ptr;</span>
-<span class="line" id="L366">        }</span>
-<span class="line" id="L367">        <span class="tok-kw">const</span> x: fio.http_settings_s = .{</span>
-<span class="line" id="L368">            .on_request = settings.on_request,</span>
-<span class="line" id="L369">            .on_upgrade = settings.on_upgrade,</span>
-<span class="line" id="L370">            .on_response = settings.on_response,</span>
-<span class="line" id="L371">            .on_finish = settings.on_finish,</span>
-<span class="line" id="L372">            .udata = <span class="tok-null">null</span>,</span>
-<span class="line" id="L373">            .public_folder = pfolder,</span>
-<span class="line" id="L374">            .public_folder_length = pfolder_len,</span>
-<span class="line" id="L375">            .max_header_size = settings.max_header_size,</span>
-<span class="line" id="L376">            .max_body_size = settings.max_body_size,</span>
-<span class="line" id="L377">            .max_clients = settings.max_clients,</span>
-<span class="line" id="L378">            .tls = <span class="tok-null">null</span>,</span>
-<span class="line" id="L379">            .reserved1 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L380">            .reserved2 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L381">            .reserved3 = <span class="tok-number">0</span>,</span>
-<span class="line" id="L382">            .ws_max_msg_size = settings.ws_max_msg_size,</span>
-<span class="line" id="L383">            .timeout = settings.keepalive_timeout_s,</span>
-<span class="line" id="L384">            .ws_timeout = <span class="tok-number">0</span>,</span>
-<span class="line" id="L385">            .log = <span class="tok-kw">if</span> (settings.log) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
-<span class="line" id="L386">            .is_client = <span class="tok-number">0</span>,</span>
-<span class="line" id="L387">        };</span>
-<span class="line" id="L388">        <span class="tok-comment">// TODO: BUG: without this print/sleep statement, -Drelease* loop forever</span>
+<span class="line" id="L352">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L353"></span>
+<span class="line" id="L354">        <span class="tok-comment">/// Create settings with defaults</span></span>
+<span class="line" id="L355">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>() Self {</span>
+<span class="line" id="L356">            <span class="tok-kw">return</span> .{};</span>
+<span class="line" id="L357">        }</span>
+<span class="line" id="L358">    };</span>
+<span class="line" id="L359"></span>
+<span class="line" id="L360">    <span class="tok-comment">/// Low level listen function</span></span>
+<span class="line" id="L361">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">listen</span>(port: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, interface: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span>, settings: ListenSettings) ListenError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L362">        <span class="tok-kw">var</span> pfolder: [*c]<span class="tok-kw">const</span> <span class="tok-type">u8</span> = <span class="tok-null">null</span>;</span>
+<span class="line" id="L363">        <span class="tok-kw">var</span> pfolder_len: <span class="tok-type">usize</span> = <span class="tok-number">0</span>;</span>
+<span class="line" id="L364"></span>
+<span class="line" id="L365">        <span class="tok-kw">if</span> (settings.public_folder) |pf| {</span>
+<span class="line" id="L366">            pfolder_len = pf.len;</span>
+<span class="line" id="L367">            pfolder = pf.ptr;</span>
+<span class="line" id="L368">        }</span>
+<span class="line" id="L369">        <span class="tok-kw">const</span> x: fio.http_settings_s = .{</span>
+<span class="line" id="L370">            .on_request = settings.on_request,</span>
+<span class="line" id="L371">            .on_upgrade = settings.on_upgrade,</span>
+<span class="line" id="L372">            .on_response = settings.on_response,</span>
+<span class="line" id="L373">            .on_finish = settings.on_finish,</span>
+<span class="line" id="L374">            .udata = <span class="tok-null">null</span>,</span>
+<span class="line" id="L375">            .public_folder = pfolder,</span>
+<span class="line" id="L376">            .public_folder_length = pfolder_len,</span>
+<span class="line" id="L377">            .max_header_size = settings.max_header_size,</span>
+<span class="line" id="L378">            .max_body_size = settings.max_body_size,</span>
+<span class="line" id="L379">            .max_clients = settings.max_clients,</span>
+<span class="line" id="L380">            .tls = <span class="tok-null">null</span>,</span>
+<span class="line" id="L381">            .reserved1 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L382">            .reserved2 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L383">            .reserved3 = <span class="tok-number">0</span>,</span>
+<span class="line" id="L384">            .ws_max_msg_size = settings.ws_max_msg_size,</span>
+<span class="line" id="L385">            .timeout = settings.keepalive_timeout_s,</span>
+<span class="line" id="L386">            .ws_timeout = <span class="tok-number">0</span>,</span>
+<span class="line" id="L387">            .log = <span class="tok-kw">if</span> (settings.log) <span class="tok-number">1</span> <span class="tok-kw">else</span> <span class="tok-number">0</span>,</span>
+<span class="line" id="L388">            .is_client = <span class="tok-number">0</span>,</span>
+<span class="line" id="L389">        };</span>
+<span class="line" id="L390">        <span class="tok-comment">// TODO: BUG: without this print/sleep statement, -Drelease* loop forever</span>
 </span>
-<span class="line" id="L389">        <span class="tok-comment">// in debug2 and debug3 of hello example</span>
+<span class="line" id="L391">        <span class="tok-comment">// in debug2 and debug3 of hello example</span>
 </span>
-<span class="line" id="L390">        <span class="tok-comment">// std.debug.print(&quot;X\n&quot;, .{});</span>
+<span class="line" id="L392">        <span class="tok-comment">// std.debug.print(&quot;X\n&quot;, .{});</span>
 </span>
-<span class="line" id="L391">        <span class="tok-comment">// TODO: still happening?</span>
+<span class="line" id="L393">        <span class="tok-comment">// TODO: still happening?</span>
 </span>
-<span class="line" id="L392">        std.time.sleep(<span class="tok-number">500</span> * std.time.ns_per_ms);</span>
-<span class="line" id="L393"></span>
-<span class="line" id="L394">        <span class="tok-kw">if</span> (fio.http_listen(port, interface, x) == -<span class="tok-number">1</span>) {</span>
-<span class="line" id="L395">            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.ListenError;</span>
-<span class="line" id="L396">        }</span>
-<span class="line" id="L397">    }</span>
-<span class="line" id="L398"></span>
-<span class="line" id="L399">    <span class="tok-comment">/// lower level sendBody</span></span>
-<span class="line" id="L400">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendBody</span>(request: [*c]fio.http_s, body: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) HttpError!<span class="tok-type">void</span> {</span>
-<span class="line" id="L401">        <span class="tok-kw">const</span> ret = fio.http_send_body(request, <span class="tok-builtin">@as</span>(</span>
-<span class="line" id="L402">            *<span class="tok-type">anyopaque</span>,</span>
-<span class="line" id="L403">            <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(body.ptr)),</span>
-<span class="line" id="L404">        ), body.len);</span>
-<span class="line" id="L405">        debug(<span class="tok-str">&quot;sendBody(): ret = {}\n&quot;</span>, .{ret});</span>
-<span class="line" id="L406">        <span class="tok-kw">if</span> (ret != -<span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSendBody;</span>
-<span class="line" id="L407">    }</span>
-<span class="line" id="L408">};</span>
-<span class="line" id="L409"></span>
+<span class="line" id="L394">        std.time.sleep(<span class="tok-number">500</span> * std.time.ns_per_ms);</span>
+<span class="line" id="L395"></span>
+<span class="line" id="L396">        <span class="tok-kw">if</span> (fio.http_listen(port, interface, x) == -<span class="tok-number">1</span>) {</span>
+<span class="line" id="L397">            <span class="tok-kw">return</span> <span class="tok-kw">error</span>.ListenError;</span>
+<span class="line" id="L398">        }</span>
+<span class="line" id="L399">    }</span>
+<span class="line" id="L400"></span>
+<span class="line" id="L401">    <span class="tok-comment">/// lower level sendBody</span></span>
+<span class="line" id="L402">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">sendBody</span>(request: [*c]fio.http_s, body: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) HttpError!<span class="tok-type">void</span> {</span>
+<span class="line" id="L403">        <span class="tok-kw">const</span> ret = fio.http_send_body(request, <span class="tok-builtin">@as</span>(</span>
+<span class="line" id="L404">            *<span class="tok-type">anyopaque</span>,</span>
+<span class="line" id="L405">            <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(body.ptr)),</span>
+<span class="line" id="L406">        ), body.len);</span>
+<span class="line" id="L407">        debug(<span class="tok-str">&quot;sendBody(): ret = {}\n&quot;</span>, .{ret});</span>
+<span class="line" id="L408">        <span class="tok-kw">if</span> (ret != -<span class="tok-number">1</span>) <span class="tok-kw">return</span> <span class="tok-kw">error</span>.HttpSendBody;</span>
+<span class="line" id="L409">    }</span>
+<span class="line" id="L410">};</span>
+<span class="line" id="L411"></span>
 </code></pre></body>
 </html>

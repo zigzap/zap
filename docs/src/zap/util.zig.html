@@ -114,95 +114,113 @@
 <body>
 <pre><code><span class="line" id="L1"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
 <span class="line" id="L2"><span class="tok-kw">const</span> fio = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;fio.zig&quot;</span>);</span>
-<span class="line" id="L3"></span>
-<span class="line" id="L4"><span class="tok-comment">/// Used internally: convert a FIO object into its string representation.</span></span>
-<span class="line" id="L5"><span class="tok-comment">/// note: since this is called from within request functions, we don't make</span></span>
-<span class="line" id="L6"><span class="tok-comment">/// copies. Also, we return temp memory from fio. -&gt; don't hold on to it outside</span></span>
-<span class="line" id="L7"><span class="tok-comment">/// of a request function. FIO temp memory strings do not need to be freed.</span></span>
-<span class="line" id="L8"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio2str</span>(o: fio.FIOBJ) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
-<span class="line" id="L9">    <span class="tok-kw">if</span> (o == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
-<span class="line" id="L10">    <span class="tok-kw">const</span> x: fio.fio_str_info_s = fio.fiobj_obj2cstr(o);</span>
-<span class="line" id="L11">    <span class="tok-kw">if</span> (x.data == <span class="tok-number">0</span>)</span>
-<span class="line" id="L12">        <span class="tok-kw">return</span> <span class="tok-null">null</span>; <span class="tok-comment">// TODO: should we return an error? Actually, looking at fiobj_obj2cstr, this is unreachable</span>
-</span>
-<span class="line" id="L13">    <span class="tok-kw">return</span> x.data[<span class="tok-number">0</span>..x.len];</span>
-<span class="line" id="L14">}</span>
+<span class="line" id="L3"><span class="tok-kw">const</span> zap = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;zap.zig&quot;</span>);</span>
+<span class="line" id="L4"></span>
+<span class="line" id="L5"><span class="tok-comment">/// capture self for RequestFn signature support</span></span>
+<span class="line" id="L6"><span class="tok-kw">pub</span> <span class="tok-kw">inline</span> <span class="tok-kw">fn</span> <span class="tok-fn">RequestHandler</span>(self: <span class="tok-kw">anytype</span>, func: *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (<span class="tok-builtin">@TypeOf</span>(self), zap.Request) <span class="tok-type">void</span>) *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L7">    <span class="tok-kw">return</span> (<span class="tok-kw">opaque</span> {</span>
+<span class="line" id="L8">        <span class="tok-kw">var</span> hidden_self: <span class="tok-builtin">@TypeOf</span>(self) = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L9">        <span class="tok-kw">var</span> hidden_func: *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (<span class="tok-builtin">@TypeOf</span>(self), zap.Request) <span class="tok-type">void</span> = <span class="tok-null">undefined</span>;</span>
+<span class="line" id="L10">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(h_self: <span class="tok-builtin">@TypeOf</span>(self), h_func: *<span class="tok-kw">const</span> <span class="tok-kw">fn</span> (<span class="tok-builtin">@TypeOf</span>(self), zap.Request) <span class="tok-type">void</span>) *<span class="tok-kw">const</span> <span class="tok-builtin">@TypeOf</span>(run) {</span>
+<span class="line" id="L11">            hidden_self = h_self;</span>
+<span class="line" id="L12">            hidden_func = h_func;</span>
+<span class="line" id="L13">            <span class="tok-kw">return</span> &amp;run;</span>
+<span class="line" id="L14">        }</span>
 <span class="line" id="L15"></span>
-<span class="line" id="L16"><span class="tok-comment">/// A &quot;string&quot; type used internally that carries a flag whether its buffer needs</span></span>
-<span class="line" id="L17"><span class="tok-comment">/// to be freed or not - and honors it in `deinit()`. That way, it's always</span></span>
-<span class="line" id="L18"><span class="tok-comment">/// safe to call deinit().</span></span>
-<span class="line" id="L19"><span class="tok-comment">/// For instance, slices taken directly from the zap.Request need not be freed.</span></span>
-<span class="line" id="L20"><span class="tok-comment">/// But the ad-hoc created string representation of a float parameter must be</span></span>
-<span class="line" id="L21"><span class="tok-comment">/// freed after use.</span></span>
-<span class="line" id="L22"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FreeOrNot = <span class="tok-kw">struct</span> {</span>
-<span class="line" id="L23">    str: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
-<span class="line" id="L24">    freeme: <span class="tok-type">bool</span>,</span>
-<span class="line" id="L25">    allocator: ?std.mem.Allocator = <span class="tok-null">null</span>,</span>
-<span class="line" id="L26"></span>
-<span class="line" id="L27">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-kw">const</span> <span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
-<span class="line" id="L28">        <span class="tok-kw">if</span> (self.freeme) {</span>
-<span class="line" id="L29">            self.allocator.?.free(self.str);</span>
-<span class="line" id="L30">        }</span>
-<span class="line" id="L31">    }</span>
-<span class="line" id="L32">};</span>
+<span class="line" id="L16">        <span class="tok-kw">fn</span> <span class="tok-fn">run</span>(req: zap.Request) <span class="tok-type">void</span> {</span>
+<span class="line" id="L17">            hidden_func(hidden_self, req);</span>
+<span class="line" id="L18">        }</span>
+<span class="line" id="L19">    }).init(self, func);</span>
+<span class="line" id="L20">}</span>
+<span class="line" id="L21"></span>
+<span class="line" id="L22"><span class="tok-comment">/// Used internally: convert a FIO object into its string representation.</span></span>
+<span class="line" id="L23"><span class="tok-comment">/// note: since this is called from within request functions, we don't make</span></span>
+<span class="line" id="L24"><span class="tok-comment">/// copies. Also, we return temp memory from fio. -&gt; don't hold on to it outside</span></span>
+<span class="line" id="L25"><span class="tok-comment">/// of a request function. FIO temp memory strings do not need to be freed.</span></span>
+<span class="line" id="L26"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio2str</span>(o: fio.FIOBJ) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
+<span class="line" id="L27">    <span class="tok-kw">if</span> (o == <span class="tok-number">0</span>) <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L28">    <span class="tok-kw">const</span> x: fio.fio_str_info_s = fio.fiobj_obj2cstr(o);</span>
+<span class="line" id="L29">    <span class="tok-kw">if</span> (x.data == <span class="tok-number">0</span>)</span>
+<span class="line" id="L30">        <span class="tok-kw">return</span> <span class="tok-null">null</span>; <span class="tok-comment">// TODO: should we return an error? Actually, looking at fiobj_obj2cstr, this is unreachable</span>
+</span>
+<span class="line" id="L31">    <span class="tok-kw">return</span> x.data[<span class="tok-number">0</span>..x.len];</span>
+<span class="line" id="L32">}</span>
 <span class="line" id="L33"></span>
-<span class="line" id="L34"><span class="tok-comment">/// Used internally: convert a FIO object into its string representation.</span></span>
-<span class="line" id="L35"><span class="tok-comment">/// Depending on the type of the object, a buffer will be created. Hence a</span></span>
-<span class="line" id="L36"><span class="tok-comment">/// FreeOrNot type is used as the return type.</span></span>
-<span class="line" id="L37"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio2strAllocOrNot</span>(a: std.mem.Allocator, o: fio.FIOBJ, always_alloc: <span class="tok-type">bool</span>) !FreeOrNot {</span>
-<span class="line" id="L38">    <span class="tok-kw">if</span> (o == <span class="tok-number">0</span>) <span class="tok-kw">return</span> .{ .str = <span class="tok-str">&quot;null&quot;</span>, .freeme = <span class="tok-null">false</span> };</span>
-<span class="line" id="L39">    <span class="tok-kw">if</span> (o == fio.FIOBJ_INVALID) <span class="tok-kw">return</span> .{ .str = <span class="tok-str">&quot;invalid&quot;</span>, .freeme = <span class="tok-null">false</span> };</span>
-<span class="line" id="L40">    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (fio.fiobj_type(o)) {</span>
-<span class="line" id="L41">        fio.FIOBJ_T_TRUE =&gt; .{ .str = <span class="tok-str">&quot;true&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
-<span class="line" id="L42">        fio.FIOBJ_T_FALSE =&gt; .{ .str = <span class="tok-str">&quot;false&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
-<span class="line" id="L43">        <span class="tok-comment">// according to fio2str above, the orelse should never happen</span>
-</span>
-<span class="line" id="L44">        fio.FIOBJ_T_NUMBER =&gt; .{ .str = <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>), .freeme = <span class="tok-null">true</span>, .allocator = a },</span>
-<span class="line" id="L45">        fio.FIOBJ_T_FLOAT =&gt; .{ .str = <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>), .freeme = <span class="tok-null">true</span>, .allocator = a },</span>
-<span class="line" id="L46">        <span class="tok-comment">// the string comes out of the request, so it is safe to not make a copy</span>
-</span>
-<span class="line" id="L47">        fio.FIOBJ_T_STRING =&gt; .{ .str = <span class="tok-kw">if</span> (always_alloc) <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;&quot;</span>) <span class="tok-kw">else</span> fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;&quot;</span>, .freeme = <span class="tok-kw">if</span> (always_alloc) <span class="tok-null">true</span> <span class="tok-kw">else</span> <span class="tok-null">false</span>, .allocator = a },</span>
-<span class="line" id="L48">        <span class="tok-kw">else</span> =&gt; .{ .str = <span class="tok-str">&quot;unknown_type&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
-<span class="line" id="L49">    };</span>
-<span class="line" id="L50">}</span>
+<span class="line" id="L34"><span class="tok-comment">/// A &quot;string&quot; type used internally that carries a flag whether its buffer needs</span></span>
+<span class="line" id="L35"><span class="tok-comment">/// to be freed or not - and honors it in `deinit()`. That way, it's always</span></span>
+<span class="line" id="L36"><span class="tok-comment">/// safe to call deinit().</span></span>
+<span class="line" id="L37"><span class="tok-comment">/// For instance, slices taken directly from the zap.Request need not be freed.</span></span>
+<span class="line" id="L38"><span class="tok-comment">/// But the ad-hoc created string representation of a float parameter must be</span></span>
+<span class="line" id="L39"><span class="tok-comment">/// freed after use.</span></span>
+<span class="line" id="L40"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> FreeOrNot = <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L41">    str: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>,</span>
+<span class="line" id="L42">    freeme: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L43">    allocator: ?std.mem.Allocator = <span class="tok-null">null</span>,</span>
+<span class="line" id="L44"></span>
+<span class="line" id="L45">    <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">deinit</span>(self: *<span class="tok-kw">const</span> <span class="tok-builtin">@This</span>()) <span class="tok-type">void</span> {</span>
+<span class="line" id="L46">        <span class="tok-kw">if</span> (self.freeme) {</span>
+<span class="line" id="L47">            self.allocator.?.free(self.str);</span>
+<span class="line" id="L48">        }</span>
+<span class="line" id="L49">    }</span>
+<span class="line" id="L50">};</span>
 <span class="line" id="L51"></span>
-<span class="line" id="L52"><span class="tok-comment">/// Used internally: convert a zig slice into a FIO string.</span></span>
-<span class="line" id="L53"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">str2fio</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) fio.fio_str_info_s {</span>
-<span class="line" id="L54">    <span class="tok-kw">return</span> .{</span>
-<span class="line" id="L55">        .data = toCharPtr(s),</span>
-<span class="line" id="L56">        .len = s.len,</span>
-<span class="line" id="L57">        .capa = s.len,</span>
-<span class="line" id="L58">    };</span>
-<span class="line" id="L59">}</span>
-<span class="line" id="L60"></span>
-<span class="line" id="L61"><span class="tok-comment">/// Used internally: convert a zig slice into a C pointer</span></span>
-<span class="line" id="L62"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">toCharPtr</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) [*c]<span class="tok-type">u8</span> {</span>
-<span class="line" id="L63">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(s.ptr)));</span>
-<span class="line" id="L64">}</span>
-<span class="line" id="L65"></span>
-<span class="line" id="L66"><span class="tok-comment">//</span>
+<span class="line" id="L52"><span class="tok-comment">/// Used internally: convert a FIO object into its string representation.</span></span>
+<span class="line" id="L53"><span class="tok-comment">/// Depending on the type of the object, a buffer will be created. Hence a</span></span>
+<span class="line" id="L54"><span class="tok-comment">/// FreeOrNot type is used as the return type.</span></span>
+<span class="line" id="L55"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">fio2strAllocOrNot</span>(a: std.mem.Allocator, o: fio.FIOBJ, always_alloc: <span class="tok-type">bool</span>) !FreeOrNot {</span>
+<span class="line" id="L56">    <span class="tok-kw">if</span> (o == <span class="tok-number">0</span>) <span class="tok-kw">return</span> .{ .str = <span class="tok-str">&quot;null&quot;</span>, .freeme = <span class="tok-null">false</span> };</span>
+<span class="line" id="L57">    <span class="tok-kw">if</span> (o == fio.FIOBJ_INVALID) <span class="tok-kw">return</span> .{ .str = <span class="tok-str">&quot;invalid&quot;</span>, .freeme = <span class="tok-null">false</span> };</span>
+<span class="line" id="L58">    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (fio.fiobj_type(o)) {</span>
+<span class="line" id="L59">        fio.FIOBJ_T_TRUE =&gt; .{ .str = <span class="tok-str">&quot;true&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
+<span class="line" id="L60">        fio.FIOBJ_T_FALSE =&gt; .{ .str = <span class="tok-str">&quot;false&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
+<span class="line" id="L61">        <span class="tok-comment">// according to fio2str above, the orelse should never happen</span>
 </span>
-<span class="line" id="L67"><span class="tok-comment">// JSON helpers</span>
+<span class="line" id="L62">        fio.FIOBJ_T_NUMBER =&gt; .{ .str = <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>), .freeme = <span class="tok-null">true</span>, .allocator = a },</span>
+<span class="line" id="L63">        fio.FIOBJ_T_FLOAT =&gt; .{ .str = <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;null&quot;</span>), .freeme = <span class="tok-null">true</span>, .allocator = a },</span>
+<span class="line" id="L64">        <span class="tok-comment">// the string comes out of the request, so it is safe to not make a copy</span>
 </span>
-<span class="line" id="L68"><span class="tok-comment">//</span>
-</span>
+<span class="line" id="L65">        fio.FIOBJ_T_STRING =&gt; .{ .str = <span class="tok-kw">if</span> (always_alloc) <span class="tok-kw">try</span> a.dupe(<span class="tok-type">u8</span>, fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;&quot;</span>) <span class="tok-kw">else</span> fio2str(o) <span class="tok-kw">orelse</span> <span class="tok-str">&quot;&quot;</span>, .freeme = <span class="tok-kw">if</span> (always_alloc) <span class="tok-null">true</span> <span class="tok-kw">else</span> <span class="tok-null">false</span>, .allocator = a },</span>
+<span class="line" id="L66">        <span class="tok-kw">else</span> =&gt; .{ .str = <span class="tok-str">&quot;unknown_type&quot;</span>, .freeme = <span class="tok-null">false</span> },</span>
+<span class="line" id="L67">    };</span>
+<span class="line" id="L68">}</span>
 <span class="line" id="L69"></span>
-<span class="line" id="L70"><span class="tok-comment">/// Concenience: format an arbitrary value into a JSON string buffer.</span></span>
-<span class="line" id="L71"><span class="tok-comment">/// Provide your own buf; this function is NOT mutex-protected!</span></span>
-<span class="line" id="L72"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">stringifyBuf</span>(</span>
-<span class="line" id="L73">    buffer: []<span class="tok-type">u8</span>,</span>
-<span class="line" id="L74">    value: <span class="tok-kw">anytype</span>,</span>
-<span class="line" id="L75">    options: std.json.StringifyOptions,</span>
-<span class="line" id="L76">) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
-<span class="line" id="L77">    <span class="tok-kw">var</span> fba = std.heap.FixedBufferAllocator.init(buffer);</span>
-<span class="line" id="L78">    <span class="tok-kw">var</span> string = std.ArrayList(<span class="tok-type">u8</span>).init(fba.allocator());</span>
-<span class="line" id="L79">    <span class="tok-kw">if</span> (std.json.stringify(value, options, string.writer())) {</span>
-<span class="line" id="L80">        <span class="tok-kw">return</span> string.items;</span>
-<span class="line" id="L81">    } <span class="tok-kw">else</span> |_| { <span class="tok-comment">// error</span>
+<span class="line" id="L70"><span class="tok-comment">/// Used internally: convert a zig slice into a FIO string.</span></span>
+<span class="line" id="L71"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">str2fio</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) fio.fio_str_info_s {</span>
+<span class="line" id="L72">    <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L73">        .data = toCharPtr(s),</span>
+<span class="line" id="L74">        .len = s.len,</span>
+<span class="line" id="L75">        .capa = s.len,</span>
+<span class="line" id="L76">    };</span>
+<span class="line" id="L77">}</span>
+<span class="line" id="L78"></span>
+<span class="line" id="L79"><span class="tok-comment">/// Used internally: convert a zig slice into a C pointer</span></span>
+<span class="line" id="L80"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">toCharPtr</span>(s: []<span class="tok-kw">const</span> <span class="tok-type">u8</span>) [*c]<span class="tok-type">u8</span> {</span>
+<span class="line" id="L81">    <span class="tok-kw">return</span> <span class="tok-builtin">@as</span>([*c]<span class="tok-type">u8</span>, <span class="tok-builtin">@ptrFromInt</span>(<span class="tok-builtin">@intFromPtr</span>(s.ptr)));</span>
+<span class="line" id="L82">}</span>
+<span class="line" id="L83"></span>
+<span class="line" id="L84"><span class="tok-comment">//</span>
 </span>
-<span class="line" id="L82">        <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
-<span class="line" id="L83">    }</span>
-<span class="line" id="L84">}</span>
-<span class="line" id="L85"></span>
+<span class="line" id="L85"><span class="tok-comment">// JSON helpers</span>
+</span>
+<span class="line" id="L86"><span class="tok-comment">//</span>
+</span>
+<span class="line" id="L87"></span>
+<span class="line" id="L88"><span class="tok-comment">/// Concenience: format an arbitrary value into a JSON string buffer.</span></span>
+<span class="line" id="L89"><span class="tok-comment">/// Provide your own buf; this function is NOT mutex-protected!</span></span>
+<span class="line" id="L90"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">stringifyBuf</span>(</span>
+<span class="line" id="L91">    buffer: []<span class="tok-type">u8</span>,</span>
+<span class="line" id="L92">    value: <span class="tok-kw">anytype</span>,</span>
+<span class="line" id="L93">    options: std.json.StringifyOptions,</span>
+<span class="line" id="L94">) ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span> {</span>
+<span class="line" id="L95">    <span class="tok-kw">var</span> fba = std.heap.FixedBufferAllocator.init(buffer);</span>
+<span class="line" id="L96">    <span class="tok-kw">var</span> string = std.ArrayList(<span class="tok-type">u8</span>).init(fba.allocator());</span>
+<span class="line" id="L97">    <span class="tok-kw">if</span> (std.json.stringify(value, options, string.writer())) {</span>
+<span class="line" id="L98">        <span class="tok-kw">return</span> string.items;</span>
+<span class="line" id="L99">    } <span class="tok-kw">else</span> |_| { <span class="tok-comment">// error</span>
+</span>
+<span class="line" id="L100">        <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L101">    }</span>
+<span class="line" id="L102">}</span>
+<span class="line" id="L103"></span>
 </code></pre></body>
 </html>
