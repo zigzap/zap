@@ -52,6 +52,8 @@ pub const Tls = @import("tls.zig");
 /// ```
 pub const Endpoint = @import("endpoint.zig");
 
+pub const Router = @import("router.zig");
+
 pub usingnamespace @import("util.zig");
 pub usingnamespace @import("http.zig");
 
