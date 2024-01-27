@@ -184,6 +184,27 @@ pub const HttpListenerSettings = struct {
     tls: ?Tls = null,
 };
 
+fn methodToEnum(method: ?[]const u8) ?std.http.Method {
+    const Method = std.http.Method;
+    {
+        if (method) |m| {
+            if (std.mem.eql(u8, m, "GET"))
+                return Method.GET;
+            if (std.mem.eql(u8, m, "POST"))
+                return Method.POST;
+            if (std.mem.eql(u8, m, "PUT"))
+                return Method.PUT;
+            if (std.mem.eql(u8, m, "DELETE"))
+                return Method.DELETE;
+            if (std.mem.eql(u8, m, "PATCH"))
+                return Method.PATCH;
+            if (std.mem.eql(u8, m, "OPTIONS"))
+                return Method.OPTIONS;
+        }
+        return null;
+    }
+}
+
 /// Http listener
 pub const HttpListener = struct {
     settings: HttpListenerSettings,
@@ -207,7 +228,8 @@ pub const HttpListener = struct {
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
+                .method = methodToEnum(util.fio2str(r.*.method)),
+                .method_str = util.fio2str(r.*.method),
                 .h = r,
                 ._is_finished_request_global = false,
                 ._user_context = undefined,
@@ -233,7 +255,8 @@ pub const HttpListener = struct {
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
+                .method = methodToEnum(util.fio2str(r.*.method)),
+                .method_str = util.fio2str(r.*.method),
                 .h = r,
                 ._is_finished_request_global = false,
                 ._user_context = undefined,
@@ -254,7 +277,8 @@ pub const HttpListener = struct {
                 .path = util.fio2str(r.*.path),
                 .query = util.fio2str(r.*.query),
                 .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
+                .method = methodToEnum(util.fio2str(r.*.method)),
+                .method_str = util.fio2str(r.*.method),
                 .h = r,
                 ._is_finished_request_global = false,
                 ._user_context = undefined,

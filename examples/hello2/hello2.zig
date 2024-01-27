@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request(r: zap.Request) void {
-    const m = r.method orelse "";
+    const m = r.method_str orelse "";
     const p = r.path orelse "/";
     const qm = if (r.query) |_| "?" else "";
     const qq = r.query orelse "";
