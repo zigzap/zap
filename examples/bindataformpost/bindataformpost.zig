@@ -16,7 +16,7 @@ const Handler = struct {
         // check for query params (for ?terminate=true)
         r.parseQuery();
 
-        var param_count = r.getParamCount();
+        const param_count = r.getParamCount();
         std.log.info("param_count: {}", .{param_count});
 
         // iterate over all params
@@ -28,7 +28,8 @@ const Handler = struct {
         for (params.items) |kv| {
             if (kv.value) |v| {
                 std.debug.print("\n", .{});
-                std.log.info("Param `{s}` in owned list is {any}\n", .{ kv.key.str, v });
+                // TODO: Zig fails to format 'v':
+                // std.log.info("Param `{s}` in owned list is {any}\n", .{ kv.key.str, v });
                 switch (v) {
                     // single-file upload
                     zap.Request.HttpParam.Hash_Binfile => |*file| {
@@ -87,7 +88,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     Handler.alloc = allocator;
 

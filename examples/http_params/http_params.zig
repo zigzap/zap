@@ -61,9 +61,10 @@ pub fn main() !void {
             // iterate over all params
             const params = r.parametersToOwnedList(alloc, false) catch unreachable;
             defer params.deinit();
-            for (params.items) |kv| {
-                std.log.info("Param `{s}` is {any}", .{ kv.key.str, kv.value });
-            }
+            // for (params.items) |kv| {
+            //     // TODO: fmt can't format kv.value
+            //     // std.log.info("Param `{s}` is {any}", .{ kv.key.str, kv.value.? });
+            // }
 
             // let's get param "one" by name
             std.debug.print("\n", .{});
