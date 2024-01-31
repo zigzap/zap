@@ -60,19 +60,14 @@ fn nop(self: *Endpoint, r: Request) void {
 
 /// The global request handler for this Endpoint, called by the listener.
 pub fn onRequest(self: *Endpoint, r: zap.Request) void {
-    if (r.method) |m| {
-        if (std.mem.eql(u8, m, "GET"))
-            return self.settings.get.?(self, r);
-        if (std.mem.eql(u8, m, "POST"))
-            return self.settings.post.?(self, r);
-        if (std.mem.eql(u8, m, "PUT"))
-            return self.settings.put.?(self, r);
-        if (std.mem.eql(u8, m, "DELETE"))
-            return self.settings.delete.?(self, r);
-        if (std.mem.eql(u8, m, "PATCH"))
-            return self.settings.patch.?(self, r);
-        if (std.mem.eql(u8, m, "OPTIONS"))
-            return self.settings.options.?(self, r);
+    switch (r.method) {
+        .GET => self.settings.get.?(self, r),
+        .POST => self.settings.post.?(self, r),
+        .PUT => self.settings.put.?(self, r),
+        .DELETE => self.settings.delete.?(self, r),
+        .PATCH => self.settings.patch.?(self, r),
+        .OPTIONS => self.settings.options.?(self, r),
+        else => return,
     }
 }
 

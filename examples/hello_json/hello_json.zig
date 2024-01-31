@@ -7,8 +7,7 @@ const User = struct {
 };
 
 fn on_request(r: zap.Request) void {
-    if (!std.mem.eql(u8, r.method.?, "GET"))
-        return;
+    if (r.method.? != .GET) return;
 
     // /user/n
     if (r.path) |the_path| {
