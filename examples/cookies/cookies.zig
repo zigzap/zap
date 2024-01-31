@@ -11,12 +11,14 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
-    defer req.deinit();
+    try h.append("cookie", "ZIG_ZAP=awesome");
 
-    try req.headers.append("cookie", "ZIG_ZAP=awesome");
-    try req.start();
-    try req.wait();
+    var req = try http_client.fetch(a, .{
+        .location = .{ .uri = uri },
+        .method = .GET,
+        .headers = h,
+    });
+    defer req.deinit();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
@@ -28,7 +30,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
@@ -39,7 +41,7 @@ pub fn main() !void {
 
             r.parseCookies(false);
 
-            var cookie_count = r.getCookiesCount();
+            const cookie_count = r.getCookiesCount();
             std.log.info("cookie_count: {}", .{cookie_count});
 
             // iterate over all cookies as strings
@@ -52,11 +54,12 @@ pub fn main() !void {
 
             std.debug.print("\n", .{});
 
-            // // iterate over all cookies
+            // iterate over all cookies
             const cookies = r.cookiesToOwnedList(alloc, false) catch unreachable;
             defer cookies.deinit();
             for (cookies.items) |kv| {
-                std.log.info("cookie `{s}` is {any}", .{ kv.key.str, kv.value });
+                // TODO: compile error when trying to print 'kv.value'
+                std.log.info("cookie `{s}` is a {any}", .{ kv.key.str, @TypeOf(kv.value) });
             }
 
             // let's get cookie "ZIG_ZAP" by name
