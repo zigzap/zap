@@ -60,18 +60,15 @@ fn nop(self: *Endpoint, r: Request) void {
 
 /// The global request handler for this Endpoint, called by the listener.
 pub fn onRequest(self: *Endpoint, r: zap.Request) void {
-    const Method = std.http.Method;
-    return if (r.method) |m| {
-        switch (m) {
-            Method.GET => self.settings.get.?(self, r),
-            Method.POST => self.settings.post.?(self, r),
-            Method.PUT => self.settings.put.?(self, r),
-            Method.DELETE => self.settings.delete.?(self, r),
-            Method.PATCH => self.settings.patch.?(self, r),
-            Method.OPTIONS => self.settings.options.?(self, r),
-            else => return,
-        }
-    };
+    switch (r.method) {
+        .GET => self.settings.get.?(self, r),
+        .POST => self.settings.post.?(self, r),
+        .PUT => self.settings.put.?(self, r),
+        .DELETE => self.settings.delete.?(self, r),
+        .PATCH => self.settings.patch.?(self, r),
+        .OPTIONS => self.settings.options.?(self, r),
+        else => return,
+    }
 }
 
 /// Wrap an endpoint with an Authenticator -> new Endpoint of type Endpoint

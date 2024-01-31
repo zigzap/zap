@@ -266,7 +266,7 @@ pub const CookieArgs = struct {
 path: ?[]const u8,
 query: ?[]const u8,
 body: ?[]const u8,
-method: ?std.http.Method,
+method: http.Method,
 method_str: ?[]const u8,
 h: [*c]fio.http_s,
 
