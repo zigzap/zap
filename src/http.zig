@@ -1,3 +1,5 @@
+const std = @import("std");
+
 /// HTTP Status codes according to `rfc7231`
 /// https://tools.ietf.org/html/rfc7231#section-6
 /// (taken from https://github.com/Luukdegram/apple_pie/blob/master/src/response.zig)
@@ -105,3 +107,32 @@ pub const StatusCode = enum(u16) {
         };
     }
 };
+
+pub const Method = enum {
+    GET,
+    POST,
+    PUT,
+    DELETE,
+    PATCH,
+    OPTIONS,
+    UNKNOWN,
+};
+pub fn methodToEnum(method: ?[]const u8) Method {
+    {
+        if (method) |m| {
+            if (std.mem.eql(u8, m, "GET"))
+                return Method.GET;
+            if (std.mem.eql(u8, m, "POST"))
+                return Method.POST;
+            if (std.mem.eql(u8, m, "PUT"))
+                return Method.PUT;
+            if (std.mem.eql(u8, m, "DELETE"))
+                return Method.DELETE;
+            if (std.mem.eql(u8, m, "PATCH"))
+                return Method.PATCH;
+            if (std.mem.eql(u8, m, "OPTIONS"))
+                return Method.OPTIONS;
+        }
+        return Method.UNKNOWN;
+    }
+}
