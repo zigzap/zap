@@ -146,22 +146,21 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
+    // Note: you could/should consider setting the buffer size here
+    var req = try http_client.fetch(a, .{
+        .location = .{ .uri = uri },
+        .method = .GET,
+        .headers = h,
+    });
     defer req.deinit();
-
-    try req.start();
-    try req.wait();
-    // req.deinit() panics!
-    // defer req.deinit();
 
     // without this block, the tests sometimes get stuck which
     // might have to do with connection pooling and connections being in
     // a different state when all data has been read?!?
     {
-        var buffer: [1024]u8 = undefined;
-        // we know we won't receive a lot
-        const len = try req.reader().readAll(&buffer);
-        std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
+        if (req.body) |body| {
+            std.debug.print("RESPONSE:\n{s}\n", .{body});
+        }
     }
 
     zap.stop();
