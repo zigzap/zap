@@ -29,7 +29,7 @@ Exactly the goals I set out to achieve!
 
 ## Most FAQ:
 
-### Zap uses the latest stable zig release (0.11.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-0.12.0` branch but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you using it with zig master though.
+### Zap uses the latest stable zig release (0.11.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-0.12.0` branch but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
 
 - Q: **Where is the API documentation?**
     - A: Docs are a work in progress. You can check them out [here](https://zigzap.org/zap). The docs are based on the `zig-0.12.0` branch but apply to the current release (zig 0.11.0), too.
