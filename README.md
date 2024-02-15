@@ -26,6 +26,150 @@ that it proved to be:
 
 Exactly the goals I set out to achieve!
 
+![](./wrk/samples/README_req_per_sec.png)
+
+![](./wrk/samples/README_xfer_per_sec.png)
+
+
+## Getting started
+
+Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+[here](https://ziglang.org/download).
+
+```shell
+$ git clone https://github.com/zigzap/zap.git
+$ cd zap
+$ zig build run-hello
+$ # open http://localhost:3000 in your browser
+```
+
+... and open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Using ⚡zap⚡ in your own projects
+
+Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+[here](https://ziglang.org/download).
+
+If you don't have an existing zig project, create one like this:
+
+```shell
+$ mkdir zaptest && cd zaptest
+$ zig init-exe
+$ git init      ## (optional)
+```
+**Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
+`nix develop` to get a development shell providing zig and all
+dependencies to build and run the GO, python, and rust examples for the
+`wrk` performance tests. For the mere building of zap projects, 
+`nix develop .#build` will only fetch zig 0.11.0.
+
+With an existing Zig project, adding Zap to it is easy:
+
+1. Add zap to your `build.zig.zon`
+2. Add zap to your `build.zig`
+
+To add zap to `build.zig.zon`:
+
+<!-- INSERT_DEP_BEGIN -->
+```zig
+.{
+    .name = "My example project",
+    .version = "0.0.1",
+
+    .dependencies = .{
+        // zap v0.5.0
+        .zap = .{
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.5.0.tar.gz",
+            .hash = "1220aabff84ad1d800f5657d6a49cb90dab3799765811ada27faf527be45dd315a4d",
+        }
+    }
+}
+```
+<!-- INSERT_DEP_END -->
+
+Then, in your `build.zig`'s `build` function, add the following before
+`b.installArtifact(exe)`:
+
+```zig
+    const zap = b.dependency("zap", .{
+        .target = target,
+        .optimize = optimize,
+        .openssl = false, // set to true to enable TLS support
+    });
+    exe.addModule("zap", zap.module("zap"));
+    exe.linkLibrary(zap.artifact("facil.io"));
+```
+
+From then on, you can use the Zap package in your project. Check out the
+examples to see how to use Zap.
+
+
+## Examples
+
+You build and run the examples via:
+
+```shell
+$ zig build [EXAMPLE]
+$ ./zig-out/bin/[EXAMPLE]
+```
+
+... where `[EXAMPLE]` is one of `hello`, `routes`, `serve`, ... see the [list of
+examples above](#heres-what-works).
+
+Example: building and running the hello example:
+
+```shell
+$ zig build hello
+$ ./zig-out/bin/hello
+```
+
+To just run an example, like `routes`, without generating an executable, run:
+
+```shell
+$ zig build run-[EXAMPLE]
+```
+
+Example: building and running the routes example:
+
+```shell
+$ zig build run-routes
+```
+
+### [hello](examples/hello/hello.zig)
+
+```zig
+const std = @import("std");
+const zap = @import("zap");
+
+fn on_request(r: zap.Request) void {
+    if (r.path) |the_path| {
+        std.debug.print("PATH: {s}\n", .{the_path});
+    }
+
+    if (r.query) |the_query| {
+        std.debug.print("QUERY: {s}\n", .{the_query});
+    }
+    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+}
+
+pub fn main() !void {
+    var listener = zap.HttpListener.init(.{
+        .port = 3000,
+        .on_request = on_request,
+        .log = true,
+    });
+    try listener.listen();
+
+    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+
+    // start worker threads
+    zap.start(.{
+        .threads = 2,
+        .workers = 2,
+    });
+}
+```
+
 
 ## Most FAQ:
 
@@ -222,78 +366,6 @@ code leaks memory.
 
 
 
-## Getting started
-
-Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
-[here](https://ziglang.org/download).
-
-```shell
-$ git clone https://github.com/zigzap/zap.git
-$ cd zap
-$ zig build run-hello
-$ # open http://localhost:3000 in your browser
-```
-
-... and open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Using ⚡zap⚡ in your own projects
-
-Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
-[here](https://ziglang.org/download).
-
-If you don't have an existing zig project, create one like this:
-
-```shell
-$ mkdir zaptest && cd zaptest
-$ zig init-exe
-$ git init      ## (optional)
-```
-**Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
-`nix develop` to get a development shell providing zig and all
-dependencies to build and run the GO, python, and rust examples for the
-`wrk` performance tests. For the mere building of zap projects, 
-`nix develop .#build` will only fetch zig 0.11.0.
-
-With an existing Zig project, adding Zap to it is easy:
-
-1. Add zap to your `build.zig.zon`
-2. Add zap to your `build.zig`
-
-To add zap to `build.zig.zon`:
-
-<!-- INSERT_DEP_BEGIN -->
-```zig
-.{
-    .name = "My example project",
-    .version = "0.0.1",
-
-    .dependencies = .{
-        // zap v0.5.0
-        .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.5.0.tar.gz",
-            .hash = "1220aabff84ad1d800f5657d6a49cb90dab3799765811ada27faf527be45dd315a4d",
-        }
-    }
-}
-```
-<!-- INSERT_DEP_END -->
-
-Then, in your `build.zig`'s `build` function, add the following before
-`b.installArtifact(exe)`:
-
-```zig
-    const zap = b.dependency("zap", .{
-        .target = target,
-        .optimize = optimize,
-        .openssl = false, // set to true to enable TLS support
-    });
-    exe.addModule("zap", zap.module("zap"));
-    exe.linkLibrary(zap.artifact("facil.io"));
-```
-
-From then on, you can use the Zap package in your project. Check out the
-examples to see how to use Zap.
-
 ## Updating your project to the latest version of zap
 
 You can change the URL to Zap in your `build.zig.zon`
@@ -341,71 +413,6 @@ heart, you can always [buy me a coffee](https://buymeacoffee.com/renerocksai)
 ☕. All donations are welcomed 🙏 blazingly fast! That being said, just saying
 "hi" also works wonders with the smiles, warmth, and coziness 😊.
 
-## Examples
-
-You build and run the examples via:
-
-```shell
-$ zig build [EXAMPLE]
-$ ./zig-out/bin/[EXAMPLE]
-```
-
-... where `[EXAMPLE]` is one of `hello`, `routes`, `serve`, ... see the [list of
-examples above](#heres-what-works).
-
-Example: building and running the hello example:
-
-```shell
-$ zig build hello
-$ ./zig-out/bin/hello
-```
-
-To just run an example, like `routes`, without generating an executable, run:
-
-```shell
-$ zig build run-[EXAMPLE]
-```
-
-Example: building and running the routes example:
-
-```shell
-$ zig build run-routes
-```
-
-### [hello](examples/hello/hello.zig)
-
-```zig
-const std = @import("std");
-const zap = @import("zap");
-
-fn on_request(r: zap.Request) void {
-    if (r.path) |the_path| {
-        std.debug.print("PATH: {s}\n", .{the_path});
-    }
-
-    if (r.query) |the_query| {
-        std.debug.print("QUERY: {s}\n", .{the_query});
-    }
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
-}
-
-pub fn main() !void {
-    var listener = zap.HttpListener.init(.{
-        .port = 3000,
-        .on_request = on_request,
-        .log = true,
-    });
-    try listener.listen();
-
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-
-    // start worker threads
-    zap.start(.{
-        .threads = 2,
-        .workers = 2,
-    });
-}
-```
 
 
 
