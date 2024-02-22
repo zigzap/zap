@@ -766,7 +766,6 @@ pub const ParamSliceIterator = struct {
     amp_it: std.mem.TokenIterator(u8, .scalar),
 
     pub fn init(query: []const u8) @This() {
-        // const query = r.query orelse "";
         return .{
             .amp_it = std.mem.tokenizeScalar(u8, query, '&'),
         };
