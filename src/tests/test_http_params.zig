@@ -33,6 +33,8 @@ test "http parameters" {
         var strParams: ?zap.Request.HttpParamStrKVList = null;
         var params: ?zap.Request.HttpParamKVList = null;
         var paramOneStr: ?zap.FreeOrNot = null;
+        var paramOneSlice: ?[]const u8 = null;
+        var paramSlices: zap.Request.ParamSliceIterator = undefined;
 
         pub fn on_request(r: zap.Request) void {
             ran = true;
@@ -49,6 +51,14 @@ test "http parameters" {
             if (maybe_str) |*s| {
                 paramOneStr = s.*;
             }
+
+            paramOneSlice = blk: {
+                if (r.getParamSlice("one")) |val| break :blk alloc.dupe(u8, val) catch unreachable;
+                break :blk null;
+            };
+
+            // paramSlices = zap.Request.ParamSliceIterator.init(r);
+            paramSlices = r.getParamSlices();
         }
     };
 
@@ -85,12 +95,18 @@ test "http parameters" {
             // allocator.free(p);
             p.deinit();
         }
+
+        if (Handler.paramOneSlice) |p| {
+            Handler.alloc.free(p);
+        }
     }
 
     try std.testing.expectEqual(Handler.ran, true);
     try std.testing.expectEqual(Handler.param_count, 5);
     try std.testing.expect(Handler.paramOneStr != null);
     try std.testing.expectEqualStrings(Handler.paramOneStr.?.str, "1");
+    try std.testing.expect(Handler.paramOneSlice != null);
+    try std.testing.expectEqualStrings(Handler.paramOneSlice.?, "1");
     try std.testing.expect(Handler.strParams != null);
     for (Handler.strParams.?.items, 0..) |kv, i| {
         switch (i) {
@@ -116,6 +132,34 @@ test "http parameters" {
             },
             else => return error.TooManyArgs,
         }
+    }
+
+    var pindex: usize = 0;
+    while (Handler.paramSlices.next()) |param| {
+        switch (pindex) {
+            0 => {
+                try std.testing.expectEqualStrings(param.name, "one");
+                try std.testing.expectEqualStrings(param.value, "1");
+            },
+            1 => {
+                try std.testing.expectEqualStrings(param.name, "two");
+                try std.testing.expectEqualStrings(param.value, "2");
+            },
+            2 => {
+                try std.testing.expectEqualStrings(param.name, "string");
+                try std.testing.expectEqualStrings(param.value, "hello+world");
+            },
+            3 => {
+                try std.testing.expectEqualStrings(param.name, "float");
+                try std.testing.expectEqualStrings(param.value, "6.28");
+            },
+            4 => {
+                try std.testing.expectEqualStrings(param.name, "bool");
+                try std.testing.expectEqualStrings(param.value, "true");
+            },
+            else => return error.TooManyArgs,
+        }
+        pindex += 1;
     }
 
     for (Handler.params.?.items, 0..) |kv, i| {
