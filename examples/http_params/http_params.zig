@@ -47,6 +47,27 @@ pub fn main() !void {
             var param_count = r.getParamCount();
             std.log.info("param_count: {}", .{param_count});
 
+            // ================================================================
+            // Access RAW params from querystring
+            // ================================================================
+
+            // let's get param "one" by name
+            std.debug.print("\n", .{});
+            if (r.getParamSlice("one")) |maybe_str| {
+                std.log.info("Param one = {s}", .{maybe_str});
+            } else {
+                std.log.info("Param one not found!", .{});
+            }
+
+            var arg_it = r.getParamSlices();
+            while (arg_it.next()) |param| {
+                std.log.info("ParamStr `{s}` is `{s}`", .{ param.name, param.value });
+            }
+
+            // ================================================================
+            // Access DECODED and typed params
+            // ================================================================
+
             // iterate over all params as strings
             var strparams = r.parametersToOwnedStrList(alloc, false) catch unreachable;
             defer strparams.deinit();
@@ -82,15 +103,10 @@ pub fn main() !void {
             }
 
             // check if we received a terminate=true parameter
-            if (r.getParamStr(alloc, "terminate", false)) |maybe_str| {
-                if (maybe_str) |*s| {
-                    defer s.deinit();
-                    if (std.mem.eql(u8, s.str, "true")) {
-                        zap.stop();
-                    }
+            if (r.getParamSlice("terminate")) |maybe_str| {
+                if (std.mem.eql(u8, maybe_str, "true")) {
+                    zap.stop();
                 }
-            } else |err| {
-                std.log.err("cannot check for terminate param: {any}\n", .{err});
             }
         }
     };

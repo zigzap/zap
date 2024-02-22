@@ -737,3 +737,59 @@ pub fn getParamStr(self: *const Self, a: std.mem.Allocator, name: []const u8, al
     }
     return try util.fio2strAllocOrNot(a, value, always_alloc);
 }
+
+/// similar to getParamStr, except it will return the part of the querystring
+/// after the equals sign, non-decoded, and always as character slice.
+/// - no allocation!
+/// - does not requre parseQuery() or anything to be called in advance
+pub fn getParamSlice(self: *const Self, name: []const u8) ?[]const u8 {
+    if (self.query) |query| {
+        var amp_it = std.mem.tokenizeScalar(u8, query, '&');
+        while (amp_it.next()) |maybe_pair| {
+            if (std.mem.indexOfScalar(u8, maybe_pair, '=')) |pos_of_eq| {
+                const pname = maybe_pair[0..pos_of_eq];
+                if (std.mem.eql(u8, pname, name)) {
+                    if (maybe_pair.len > pos_of_eq) {
+                        const pval = maybe_pair[pos_of_eq + 1 ..];
+                        return pval;
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
+pub const ParameterSlices = struct { name: []const u8, value: []const u8 };
+
+pub const ParamSliceIterator = struct {
+    amp_it: std.mem.TokenIterator(u8, .scalar),
+
+    pub fn init(query: []const u8) @This() {
+        // const query = r.query orelse "";
+        return .{
+            .amp_it = std.mem.tokenizeScalar(u8, query, '&'),
+        };
+    }
+
+    pub fn next(self: *@This()) ?ParameterSlices {
+        while (self.amp_it.next()) |maybe_pair| {
+            if (std.mem.indexOfScalar(u8, maybe_pair, '=')) |pos_of_eq| {
+                const pname = maybe_pair[0..pos_of_eq];
+                if (maybe_pair.len > pos_of_eq) {
+                    const pval = maybe_pair[pos_of_eq + 1 ..];
+                    return .{ .name = pname, .value = pval };
+                }
+            }
+        }
+        return null;
+    }
+};
+
+/// Returns an iterator that yields all query parameters on next() in the
+/// form of a ParameterSlices struct { .name, .value }
+/// As with getParamSlice(), the value is not decoded
+pub fn getParamSlices(self: *const Self) ParamSliceIterator {
+    const query = self.query orelse "";
+    return ParamSliceIterator.init(query);
+}
