@@ -57,7 +57,6 @@ test "http parameters" {
                 break :blk null;
             };
 
-            // paramSlices = zap.Request.ParamSliceIterator.init(r);
             paramSlices = r.getParamSlices();
         }
     };

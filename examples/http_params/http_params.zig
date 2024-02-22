@@ -53,8 +53,8 @@ pub fn main() !void {
 
             // let's get param "one" by name
             std.debug.print("\n", .{});
-            if (r.getParamSlice("one")) |maybe_str| {
-                std.log.info("Param one = {s}", .{maybe_str});
+            if (r.getParamSlice("one")) |value| {
+                std.log.info("Param one = {s}", .{value});
             } else {
                 std.log.info("Param one not found!", .{});
             }
