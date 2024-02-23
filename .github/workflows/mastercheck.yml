@@ -25,6 +25,6 @@ jobs:
       - name: Check zig version
         run: zig version
       - name: Build all examples
-        run: ./build_all.sh
+        run: zig build all
       - name: Run all tests
         run: zig build test
