@@ -6,7 +6,7 @@ pub fn main() !void {
     }){};
     const allocator = gpa.allocator();
 
-    var server = std.http.Server.init(allocator, .{
+    var server = std.http.Server.init(.{
         .reuse_address = true,
     });
     defer server.deinit();

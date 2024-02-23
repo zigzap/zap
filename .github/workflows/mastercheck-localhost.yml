@@ -37,7 +37,7 @@ jobs:
           sleep 3
           zig build
       - name: Build all examples
-        run: ./build_all.sh
+        run: zig build all
       - name: Run authentication tests
         run: zig build test-authentication
       - name: Run http parameter tests
