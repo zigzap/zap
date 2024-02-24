@@ -52,7 +52,6 @@ jobs:
           TAG_NAME: ${{ steps.tag.outputs.version }}
         run: |
           tools/announceybot.exe update-readme "zig-0.12.0"
-          sed -i.bak 's/refs\/tags\///' README.md
   
       - name: Commit and push if it has changed
         run: |
