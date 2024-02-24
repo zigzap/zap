@@ -60,4 +60,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Update README"
-          git push origin master
+          git push origin zig-0.12.0
