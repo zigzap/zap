@@ -7,7 +7,7 @@ const User = struct {
 };
 
 fn on_request(r: zap.Request) void {
-    if (r.method != .GET) return;
+    if (r.methodAsEnum() != .GET) return;
 
     // /user/n
     if (r.path) |the_path| {

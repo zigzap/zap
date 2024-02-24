@@ -60,7 +60,7 @@ fn nop(self: *Endpoint, r: Request) void {
 
 /// The global request handler for this Endpoint, called by the listener.
 pub fn onRequest(self: *Endpoint, r: zap.Request) void {
-    switch (r.method) {
+    switch (r.methodAsEnum()) {
         .GET => self.settings.get.?(self, r),
         .POST => self.settings.post.?(self, r),
         .PUT => self.settings.put.?(self, r),
