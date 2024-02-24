@@ -2,7 +2,8 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn on_request(r: zap.Request) void {
-    const m = r.method_str orelse "";
+    const m = r.methodAsEnum();
+    const m_str = r.method orelse "";
     const p = r.path orelse "/";
     const qm = if (r.query) |_| "?" else "";
     const qq = r.query orelse "";
@@ -13,7 +14,7 @@ fn on_request(r: zap.Request) void {
     } else {
         std.debug.print(">> Special Header: <unknown>\n", .{});
     }
-    std.debug.print(">> {s} {s}{s}{s}\n", .{ m, p, qm, qq });
+    std.debug.print(">> {s}({}) {s}{s}{s}\n", .{ m_str, m, p, qm, qq });
 
     if (r.body) |the_body| {
         std.debug.print(">> BODY: {s}\n", .{the_body});
