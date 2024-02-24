@@ -8,7 +8,7 @@ on:
       - zig-0.12.0
     schedule:
       - cron: "0 0 * * *"
-  workflow_dispatch:
+    workflow_dispatch:
   
 jobs:
   ci:
