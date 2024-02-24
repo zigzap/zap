@@ -266,8 +266,7 @@ pub const CookieArgs = struct {
 path: ?[]const u8,
 query: ?[]const u8,
 body: ?[]const u8,
-method: http.Method,
-method_str: ?[]const u8,
+method: ?[]const u8,
 h: [*c]fio.http_s,
 
 /// NEVER touch this field!!!!
@@ -791,4 +790,8 @@ pub const ParamSliceIterator = struct {
 pub fn getParamSlices(self: *const Self) ParamSliceIterator {
     const query = self.query orelse "";
     return ParamSliceIterator.init(query);
+}
+
+pub fn methodAsEnum(self: *const Self) http.Method {
+    return http.methodToEnum(self.method);
 }
