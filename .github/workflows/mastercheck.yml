@@ -45,6 +45,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master
 
       - name: Build announceybot
         run: zig build announceybot
