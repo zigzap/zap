@@ -176,7 +176,7 @@
 <span class="line" id="L60"></span>
 <span class="line" id="L61"><span class="tok-comment">/// The global request handler for this Endpoint, called by the listener.</span></span>
 <span class="line" id="L62"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">onRequest</span>(self: *Endpoint, r: zap.Request) <span class="tok-type">void</span> {</span>
-<span class="line" id="L63">    <span class="tok-kw">switch</span> (r.method) {</span>
+<span class="line" id="L63">    <span class="tok-kw">switch</span> (r.methodAsEnum()) {</span>
 <span class="line" id="L64">        .GET =&gt; self.settings.get.?(self, r),</span>
 <span class="line" id="L65">        .POST =&gt; self.settings.post.?(self, r),</span>
 <span class="line" id="L66">        .PUT =&gt; self.settings.put.?(self, r),</span>

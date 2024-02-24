@@ -236,25 +236,15 @@
 <span class="line" id="L117">    OPTIONS,</span>
 <span class="line" id="L118">    UNKNOWN,</span>
 <span class="line" id="L119">};</span>
-<span class="line" id="L120"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">methodToEnum</span>(method: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) Method {</span>
-<span class="line" id="L121">    {</span>
-<span class="line" id="L122">        <span class="tok-kw">if</span> (method) |m| {</span>
-<span class="line" id="L123">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;GET&quot;</span>))</span>
-<span class="line" id="L124">                <span class="tok-kw">return</span> Method.GET;</span>
-<span class="line" id="L125">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;POST&quot;</span>))</span>
-<span class="line" id="L126">                <span class="tok-kw">return</span> Method.POST;</span>
-<span class="line" id="L127">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;PUT&quot;</span>))</span>
-<span class="line" id="L128">                <span class="tok-kw">return</span> Method.PUT;</span>
-<span class="line" id="L129">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;DELETE&quot;</span>))</span>
-<span class="line" id="L130">                <span class="tok-kw">return</span> Method.DELETE;</span>
-<span class="line" id="L131">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;PATCH&quot;</span>))</span>
-<span class="line" id="L132">                <span class="tok-kw">return</span> Method.PATCH;</span>
-<span class="line" id="L133">            <span class="tok-kw">if</span> (std.mem.eql(<span class="tok-type">u8</span>, m, <span class="tok-str">&quot;OPTIONS&quot;</span>))</span>
-<span class="line" id="L134">                <span class="tok-kw">return</span> Method.OPTIONS;</span>
-<span class="line" id="L135">        }</span>
-<span class="line" id="L136">        <span class="tok-kw">return</span> Method.UNKNOWN;</span>
-<span class="line" id="L137">    }</span>
-<span class="line" id="L138">}</span>
-<span class="line" id="L139"></span>
+<span class="line" id="L120"></span>
+<span class="line" id="L121"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">methodToEnum</span>(method: ?[]<span class="tok-kw">const</span> <span class="tok-type">u8</span>) Method {</span>
+<span class="line" id="L122">    {</span>
+<span class="line" id="L123">        <span class="tok-kw">if</span> (method) |m| {</span>
+<span class="line" id="L124">            <span class="tok-kw">return</span> std.meta.stringToEnum(Method, m) <span class="tok-kw">orelse</span> .UNKNOWN;</span>
+<span class="line" id="L125">        }</span>
+<span class="line" id="L126">        <span class="tok-kw">return</span> Method.UNKNOWN;</span>
+<span class="line" id="L127">    }</span>
+<span class="line" id="L128">}</span>
+<span class="line" id="L129"></span>
 </code></pre></body>
 </html>
