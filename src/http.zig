@@ -117,21 +117,11 @@ pub const Method = enum {
     OPTIONS,
     UNKNOWN,
 };
+
 pub fn methodToEnum(method: ?[]const u8) Method {
     {
         if (method) |m| {
-            if (std.mem.eql(u8, m, "GET"))
-                return Method.GET;
-            if (std.mem.eql(u8, m, "POST"))
-                return Method.POST;
-            if (std.mem.eql(u8, m, "PUT"))
-                return Method.PUT;
-            if (std.mem.eql(u8, m, "DELETE"))
-                return Method.DELETE;
-            if (std.mem.eql(u8, m, "PATCH"))
-                return Method.PATCH;
-            if (std.mem.eql(u8, m, "OPTIONS"))
-                return Method.OPTIONS;
+            return std.meta.stringToEnum(Method, m) orelse .UNKNOWN;
         }
         return Method.UNKNOWN;
     }
