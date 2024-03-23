@@ -11,13 +11,7 @@ pub fn build(b: *std.Build) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
-    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
-        // Alternatively, use an os env var to determine whether to build openssl support
-        if (std.os.getenv("ZAP_USE_OPENSSL")) |val| {
-            if (std.mem.eql(u8, val, "true")) break :blk true;
-        }
-        break :blk false;
-    };
+    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse false;
 
     // create a module to be used internally.
     const zap_module = b.addModule("zap", .{
