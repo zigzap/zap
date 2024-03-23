@@ -119,7 +119,7 @@ pub fn Handler(comptime ContextType: type) type {
         pub inline fn write(handle: WsHandle, message: []const u8, is_text: bool) WebSocketError!void {
             if (fio.websocket_write(
                 handle,
-                fio.str2fio(message),
+                util.str2fio(message),
                 if (is_text) 1 else 0,
             ) != 0) {
                 return error.WriteError;
