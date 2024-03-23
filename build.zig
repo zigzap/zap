@@ -33,14 +33,14 @@ pub fn build(b: *std.Build) !void {
 
     // -- Docs
     const docs_obj = b.addObject(.{
-        .name = "zap",
+        .name = "zap", // name doesn't seem to matter
         .root_source_file = .{ .path = "src/zap.zig" },
         .target = target,
         .optimize = .Debug,
     });
     const install_docs = b.addInstallDirectory(.{
         .install_dir = .prefix,
-        .install_subdir = "docs",
+        .install_subdir = "zap", // will also be the main namespace in the docs
         .source_dir = docs_obj.getEmittedDocs(),
     });
     b.step("docs", "Build docs").dependOn(&install_docs.step);
