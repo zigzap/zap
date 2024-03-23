@@ -28,7 +28,7 @@ fn usage() void {
         \\                   instructions
     ;
     std.debug.print("{s}", .{message});
-    std.os.exit(1);
+    std.process.exit(1);
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
@@ -336,7 +336,7 @@ fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
     defer allocator.free(url);
     sendToDiscord(allocator, url, announcement) catch |err| {
         std.debug.print("HTTP ERROR: {any}\n", .{err});
-        std.os.exit(1);
+        std.process.exit(1);
     };
 }
 
