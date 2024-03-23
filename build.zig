@@ -33,7 +33,7 @@ pub fn build(b: *std.Build) !void {
 
     // -- Docs
     const docs_obj = b.addObject(.{
-        .name = "docs",
+        .name = "zap",
         .root_source_file = .{ .path = "src/zap.zig" },
         .target = target,
         .optimize = .Debug,

@@ -1,1 +1,0 @@
-var typeKinds =["Unanalyzed","Type","Void","Bool","NoReturn","Int","Float","Pointer","Array","Struct","ComptimeExpr","ComptimeFloat","ComptimeInt","Undefined","Null","Optional","ErrorUnion","InferredErrorUnion","ErrorSet","Enum","Union","Fn","Opaque","Frame","AnyFrame","Vector","EnumLiteral"];
