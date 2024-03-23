@@ -131,9 +131,7 @@ what's necessary to show a feature.
     OR like this: `zig build -Dopenssl=true run-https`
   - it will tell you how to generate certificates
 - [**simple_router**](examples/simple_router/simple_router.zig): See how you
-  can use `zap.Router` to dispatch to handlers by HTTP path. It also features
-  `zap.RequestHandler` to capture the "self" pointer of the container of the
-  handler functions.
+  can use `zap.Router` to dispatch to handlers by HTTP path.
 
 I'll continue wrapping more of facil.io's functionality and adding stuff to zap
 to a point where I can use it as the JSON REST API backend for real research
