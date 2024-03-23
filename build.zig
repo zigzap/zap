@@ -5,7 +5,7 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     if (target.result.os.tag == .windows) {
         std.log.err("\x1b[31mPlatform Not Supported\x1b[0m\nCurrently, Facil.io and Zap are not compatible with Windows. Consider using Linux or Windows Subsystem for Linux (WSL) instead.\nFor more information, please see:\n- https://github.com/zigzap/zap#most-faq\n- https://facil.io/#forking-contributing-and-all-that-jazz\n", .{});
-        std.os.exit(1);
+        std.process.exit(1);
     }
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
