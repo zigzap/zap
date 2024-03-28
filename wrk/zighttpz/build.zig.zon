@@ -1,0 +1,11 @@
+.{
+    .name = "http.zig-test",
+    .version = "0.0.0",
+    .paths = .{""},
+    .dependencies = .{
+        .httpz = .{
+            .url = "https://github.com/karlseguin/http.zig/archive/ec59a3daccd5145601a18786ef033f4ff2392520.tar.gz",
+            .hash = "12209ba122606b92c7dfb0a7dfb9da5520ffa5df007b976774e91d01b2040b25fae4"
+        },
+    },
+}

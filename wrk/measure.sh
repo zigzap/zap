@@ -28,6 +28,15 @@ if [ "$SUBJECT" = "zigstd" ] ; then
     URL=http://127.0.0.1:3000
 fi
 
+if [ "$SUBJECT" = "zighttpz" ] ; then
+    pushd wrk/zighttpz
+        zig build -Doptimize=ReleaseFast > /dev/null
+        $TSK_SRV ../../zig-out/bin/wrk &
+        PID=$!
+        URL=http://127.0.0.1:3000
+    popd
+fi
+
 if [ "$SUBJECT" = "go" ] ; then
     cd wrk/go && go build main.go 
     $TSK_SRV ./main &
