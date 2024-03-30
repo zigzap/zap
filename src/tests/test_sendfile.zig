@@ -15,13 +15,19 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
-    defer req.deinit();
+    var result = try http_client.fetch(a,.{
+        .method = .GET,
+        .location = .{
+            .uri = uri,
+        },
+        .headers = h,
+    });
+    defer result.deinit();
 
-    try req.start();
-    try req.wait();
-    read_len = try req.readAll(&buffer);
-
+    if(result.body)|body|{
+        read_len = body.len;
+        std.mem.copyForwards(u8,&buffer,body);
+    }
     zap.stop();
 }
 
@@ -33,7 +39,7 @@ pub fn on_request(r: zap.Request) void {
 }
 
 test "send file" {
-    var allocator = std.testing.allocator;
+    const allocator = std.testing.allocator;
 
     // setup listener
     var listener = zap.HttpListener.init(

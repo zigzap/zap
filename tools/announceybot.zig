@@ -88,7 +88,7 @@ fn get_tag_annotation(allocator: std.mem.Allocator, tagname: []const u8) ![]cons
         tagname,
     };
 
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = allocator,
         .argv = &args,
     });
@@ -160,29 +160,22 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     var http_client: std.http.Client = .{ .allocator = allocator };
     defer http_client.deinit();
 
-    // request
-    var req = try http_client.request(.POST, uri, h, .{});
-    defer req.deinit();
-
-    req.transfer_encoding = .chunked;
-
-    // connect, send request
-    try req.start();
-
-    // send POST payload
-    try req.writer().writeAll(message_json);
-    try req.finish();
-
-    // wait for response
-    try req.wait();
-    var buffer: [1024]u8 = undefined;
-    _ = try req.readAll(&buffer);
+    var result = try http_client.fetch(allocator,.{
+        .method = .POST,
+        .location = .{
+            .uri = uri,
+        },
+        .payload = .{
+            .string = message_json,
+        },
+    });
+    defer result.deinit();
 }
 
 fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const u8) !void {
     // json payload
     // max size: 100kB
-    var buf: []u8 = try allocator.alloc(u8, 100 * 1024);
+    const buf: []u8 = try allocator.alloc(u8, 100 * 1024);
     defer allocator.free(buf);
     var fba = std.heap.FixedBufferAllocator.init(buf);
     var string = std.ArrayList(u8).init(fba.allocator());
@@ -399,7 +392,7 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
         // we need to put the \n back in.
         // TODO: change this by using some "search" iterator that just
         // returns indices etc
-        var output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
+        const output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
         defer allocator.free(output_line);
         _ = try writer.write(output_line);
     }

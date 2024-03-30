@@ -122,7 +122,7 @@ pub fn Basic(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
                     );
                     return .AuthFailed;
                 }
-                var decoded = buffer[0..decoded_size];
+                const decoded = buffer[0..decoded_size];
                 decoder.decode(decoded, encoded) catch |err| {
                     zap.debug(
                         "ERROR: UserPassAuth: unable to decode `{s}`: {any}\n",
@@ -400,7 +400,7 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
             lookup: *Lookup,
             args: UserPassSessionArgs,
         ) !Self {
-            var ret: Self = .{
+            const ret: Self = .{
                 .allocator = allocator,
                 .settings = .{
                     .usernameParam = try allocator.dupe(u8, args.usernameParam),

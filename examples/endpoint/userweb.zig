@@ -83,7 +83,7 @@ fn listUsers(self: *Self, r: zap.Request) void {
 fn postUser(e: *zap.Endpoint, r: zap.Request) void {
     const self = @fieldParentPtr(Self, "ep", e);
     if (r.body) |body| {
-        var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+        const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
             defer u.deinit();
             if (self._users.addByName(u.value.first_name, u.value.last_name)) |id| {
@@ -105,7 +105,7 @@ fn putUser(e: *zap.Endpoint, r: zap.Request) void {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
                 if (r.body) |body| {
-                    var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+                    const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
                     if (maybe_user) |u| {
                         defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;

@@ -11,11 +11,14 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
-    defer req.deinit();
-
-    try req.start();
-    try req.wait();
+    var result = try http_client.fetch(a,.{
+        .method = .GET,
+        .location = .{
+            .uri = uri,
+        },
+        .headers = h,
+    });
+    defer result.deinit();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
@@ -27,7 +30,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
@@ -44,7 +47,7 @@ pub fn main() !void {
             // check for query parameters
             r.parseQuery();
 
-            var param_count = r.getParamCount();
+            const param_count = r.getParamCount();
             std.log.info("param_count: {}", .{param_count});
 
             // ================================================================

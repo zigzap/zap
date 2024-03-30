@@ -41,12 +41,12 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
     user.lastnamelen = 0;
 
     if (first) |firstname| {
-        std.mem.copy(u8, user.firstnamebuf[0..], firstname);
+        std.mem.copyForwards(u8, user.firstnamebuf[0..], firstname);
         user.firstnamelen = firstname.len;
     }
 
     if (last) |lastname| {
-        std.mem.copy(u8, user.lastnamebuf[0..], lastname);
+        std.mem.copyForwards(u8, user.lastnamebuf[0..], lastname);
         user.lastnamelen = lastname.len;
     }
 
@@ -101,11 +101,11 @@ pub fn update(
         pUser.firstnamelen = 0;
         pUser.lastnamelen = 0;
         if (first) |firstname| {
-            std.mem.copy(u8, pUser.firstnamebuf[0..], firstname);
+            std.mem.copyForwards(u8, pUser.firstnamebuf[0..], firstname);
             pUser.firstnamelen = firstname.len;
         }
         if (last) |lastname| {
-            std.mem.copy(u8, pUser.lastnamebuf[0..], lastname);
+            std.mem.copyForwards(u8, pUser.lastnamebuf[0..], lastname);
             pUser.lastnamelen = lastname.len;
         }
     }

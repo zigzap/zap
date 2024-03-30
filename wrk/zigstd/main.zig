@@ -4,9 +4,9 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
-    var server = std.http.Server.init(allocator, .{
+    var server = std.http.Server.init(.{
         .reuse_address = true,
     });
     defer server.deinit();
@@ -30,7 +30,7 @@ pub fn main() !void {
         res.transfer_encoding = .{ .content_length = server_body.len };
         try res.headers.append("content-type", "text/plain");
         try res.headers.append("connection", "close");
-        try res.do();
+        try res.send();
 
         var buf: [128]u8 = undefined;
         _ = try res.readAll(&buf);
