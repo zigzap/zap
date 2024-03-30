@@ -160,7 +160,7 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     var http_client: std.http.Client = .{ .allocator = allocator };
     defer http_client.deinit();
 
-    var result = try http_client.fetch(allocator,.{
+    var result = try http_client.fetch(allocator, .{
         .method = .POST,
         .location = .{
             .uri = uri,

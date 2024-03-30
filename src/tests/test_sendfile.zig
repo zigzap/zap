@@ -15,7 +15,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var result = try http_client.fetch(a,.{
+    var result = try http_client.fetch(a, .{
         .method = .GET,
         .location = .{
             .uri = uri,
@@ -24,9 +24,9 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     });
     defer result.deinit();
 
-    if(result.body)|body|{
+    if (result.body) |body| {
         read_len = body.len;
-        std.mem.copyForwards(u8,&buffer,body);
+        std.mem.copyForwards(u8, &buffer, body);
     }
     zap.stop();
 }

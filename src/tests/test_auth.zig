@@ -146,7 +146,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var result = try http_client.fetch(a,.{
+    var result = try http_client.fetch(a, .{
         .location = .{
             .uri = uri,
         },
@@ -157,7 +157,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
     // might have to do with connection pooling and connections being in
     // a different state when all data has been read?!?
     {
-        if(result.body)|body|{
+        if (result.body) |body| {
             std.debug.print("RESPONSE:\n{s}\n", .{body[0..]});
         }
     }
