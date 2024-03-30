@@ -160,23 +160,16 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     var http_client: std.http.Client = .{ .allocator = allocator };
     defer http_client.deinit();
 
-    // request
-    var req = try http_client.open(.POST, uri, h, .{});
-    defer req.deinit();
-
-    req.transfer_encoding = .chunked;
-
-    // connect, send request
-    try req.send(.{});
-
-    // send POST payload
-    try req.writer().writeAll(message_json);
-    try req.finish();
-
-    // wait for response
-    try req.wait();
-    var buffer: [1024]u8 = undefined;
-    _ = try req.readAll(&buffer);
+    var result = try http_client.fetch(allocator,.{
+        .method = .POST,
+        .location = .{
+            .uri = uri,
+        },
+        .payload = .{
+            .string = message_json,
+        },
+    });
+    defer result.deinit();
 }
 
 fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const u8) !void {

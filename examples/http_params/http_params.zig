@@ -11,11 +11,14 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.open(.GET, uri, h, .{});
-    defer req.deinit();
-
-    try req.send(.{});
-    try req.wait();
+    var result = try http_client.fetch(a,.{
+        .method = .GET,
+        .location = .{
+            .uri = uri,
+        },
+        .headers = h,
+    });
+    defer result.deinit();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {

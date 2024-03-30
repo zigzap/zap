@@ -266,8 +266,7 @@ pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void 
 
         // computePackageHash will close the directory after completion
         // std.debug.print("abspath: {s}\n", .{cwd_absolute_path});
-        var cwd_copy = try fs.openDirAbsolute(cwd_absolute_path, .{});
-        errdefer cwd_copy.close();
+        const dir = try fs.openDirAbsolute(cwd_absolute_path, .{});
 
         var thread_pool: ThreadPool = undefined;
         try thread_pool.init(.{ .allocator = gpa });
@@ -281,7 +280,7 @@ pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void 
         };
         break :blk try computePackageHashExcludingDirectories(
             &thread_pool,
-            cwd_copy,
+            dir,
             excluded_directories,
         );
     };

@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) !void {
 
     const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
         // Alternatively, use an os env var to determine whether to build openssl support
-        if (std.posix.getenv("ZAP_USE_OPENSSL")) |val| {
+        if (std.os.getenv("ZAP_USE_OPENSSL")) |val| {
             if (std.mem.eql(u8, val, "true")) break :blk true;
         }
         break :blk false;
@@ -257,7 +257,7 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    var announceybot_step = b.step("announceybot", "Build announceybot");
+    const announceybot_step = b.step("announceybot", "Build announceybot");
     const announceybot_build_step = b.addInstallArtifact(announceybot_exe, .{});
     announceybot_step.dependOn(&announceybot_build_step.step);
     all_step.dependOn(&announceybot_build_step.step);
