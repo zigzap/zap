@@ -112,7 +112,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// GET: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates GET requests using the Authenticator.
         pub fn get(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {
@@ -132,7 +132,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// POST: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates POST requests using the Authenticator.
         pub fn post(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {
@@ -152,7 +152,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// PUT: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates PUT requests using the Authenticator.
         pub fn put(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {
@@ -172,7 +172,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// DELETE: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates DELETE requests using the Authenticator.
         pub fn delete(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {
@@ -192,7 +192,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// PATCH: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates PATCH requests using the Authenticator.
         pub fn patch(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {
@@ -212,7 +212,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
         /// OPTIONS: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates OPTIONS requests using the Authenticator.
         pub fn options(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr(Self, "auth_endpoint", e);
+            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
             switch (authEp.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => {
                     if (e.settings.unauthorized) |unauthorized| {

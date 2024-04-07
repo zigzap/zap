@@ -43,7 +43,7 @@ pub const Tls = @import("tls.zig");
 ///     }
 ///
 ///     fn get(e: *zap.Endpoint, r: zap.Request) void {
-///         const self: *StopEndpoint = @fieldParentPtr(StopEndpoint, "ep", e);
+///         const self: *StopEndpoint = @fieldParentPtr("ep", e);
 ///         _ = self;
 ///         _ = r;
 ///         zap.stop();
