@@ -73,7 +73,7 @@ pub fn build_facilio(
 
     // link in libopenssl and libcrypto on demand
     if (use_openssl) {
-        lib.linkSystemLibrary("ssl");
+        lib.linkSystemLibrary("openssl");
         lib.linkSystemLibrary("crypto");
     }
 
