@@ -28,7 +28,7 @@ fn usage() void {
         \\                   instructions
     ;
     std.debug.print("{s}", .{message});
-    std.os.exit(1);
+    std.posix.exit(1);
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
@@ -150,24 +150,26 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     // url
     const uri = try std.Uri.parse(url);
 
-    // http headers
-    var h = std.http.Headers{ .allocator = allocator };
-    defer h.deinit();
-    try h.append("accept", "*/*");
-    try h.append("Content-Type", "application/json");
-
     // client
     var http_client: std.http.Client = .{ .allocator = allocator };
     defer http_client.deinit();
 
+    var server_header_buffer: [2048]u8 = undefined;
+
     // request
-    var req = try http_client.open(.POST, uri, h, .{});
+    var req = try http_client.open(.POST, uri, .{
+        .server_header_buffer = &server_header_buffer, 
+        .extra_headers = &.{
+            .{ .name = "accept", .value = "*/*" },
+            .{ .name = "Content-Type", .value = "application/json" },
+        },
+    });
     defer req.deinit();
 
     req.transfer_encoding = .chunked;
 
     // connect, send request
-    try req.send(.{});
+    try req.send();
 
     // send POST payload
     try req.writer().writeAll(message_json);
@@ -336,7 +338,7 @@ fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
     defer allocator.free(url);
     sendToDiscord(allocator, url, announcement) catch |err| {
         std.debug.print("HTTP ERROR: {any}\n", .{err});
-        std.os.exit(1);
+        std.posix.exit(1);
     };
 }
 
