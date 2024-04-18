@@ -439,6 +439,46 @@ pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
     return util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));
 }
 
+pub const HttpHeaderCommon = enum(usize) {
+    /// Represents the HTTP Header "Accept".
+    accept = fio.HTTP_HEADER_ACCEPT,
+    /// Represents the HTTP Header "Cache-Control".
+    cache_control = fio.HTTP_HEADER_CACHE_CONTROL,
+    /// Represents the HTTP Header "Connection".
+    connection = fio.HTTP_HEADER_CONNECTION,
+    /// Represents the HTTP Header "Content-Encoding".
+    content_encoding = fio.HTTP_HEADER_CONTENT_ENCODING,
+    /// Represents the HTTP Header "Content-Length".
+    content_length = fio.HTTP_HEADER_CONTENT_LENGTH,
+    /// Represents the HTTP Header "Content-Range".
+    content_range = fio.HTTP_HEADER_CONTENT_RANGE,
+    /// Represents the HTTP Header "Content-Type".
+    content_type = fio.HTTP_HEADER_CONTENT_TYPE,
+    /// Represents the HTTP Header "Cookie".
+    cookie = fio.HTTP_HEADER_COOKIE,
+    /// Represents the HTTP Header "Date".
+    date = fio.HTTP_HEADER_DATE,
+    /// Represents the HTTP Header "Etag".
+    etag = fio.HTTP_HEADER_ETAG,
+    /// Represents the HTTP Header "Host".
+    host = fio.HTTP_HEADER_HOST,
+    /// Represents the HTTP Header "Last-Modified".
+    last_modifed = fio.HTTP_HEADER_LAST_MODIFIED,
+    /// Represents the HTTP Header "Origin".
+    origin = fio.HTTP_HEADER_ORIGIN,
+    /// Represents the HTTP Header "Set-Cookie".
+    set_cookie = fio.HTTP_HEADER_SET_COOKIE,
+    /// Represents the HTTP Header "Upgrade".
+    upgrade = fio.HTTP_HEADER_UPGRADE,
+};
+
+/// Returns the header value of a given common header key. Returned memory
+/// should not be freed.
+pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
+    const fiobj = zap.fio.fiobj_hash_get(self.h.*.headers, @intFromEnum(which));
+    return zap.fio2str(fiobj);
+}
+
 /// Set header.
 pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
     const hname: fio.fio_str_info_s = .{
