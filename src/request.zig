@@ -319,9 +319,9 @@ pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
 }
 
 /// Tries to send an error stack trace.
-pub fn sendError(self: *const Self, err: anyerror, errorcode_num: usize) void {
+pub fn sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) void {
     // TODO: query accept headers
-    if (self._internal_sendError(err, errorcode_num)) {
+    if (self._internal_sendError(err, err_trace, errorcode_num)) {
         return;
     } else |_| {
         self.sendBody(@errorName(err)) catch return;
@@ -329,7 +329,7 @@ pub fn sendError(self: *const Self, err: anyerror, errorcode_num: usize) void {
 }
 
 /// Used internally. Probably does not need to be public.
-pub fn _internal_sendError(self: *const Self, err: anyerror, errorcode_num: usize) !void {
+pub fn _internal_sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) !void {
     // TODO: query accept headers
     // TODO: let's hope 20k is enough. Maybe just really allocate here
     self.h.*.status = errorcode_num;
@@ -339,9 +339,12 @@ pub fn _internal_sendError(self: *const Self, err: anyerror, errorcode_num: usiz
     var writer = string.writer();
     try writer.print("ERROR: {any}\n\n", .{err});
 
-    const debugInfo = try std.debug.getSelfDebugInfo();
-    const ttyConfig: std.io.tty.Config = .no_color;
-    try std.debug.writeCurrentStackTrace(writer, debugInfo, ttyConfig, null);
+    if (err_trace) |trace| {
+        const debugInfo = try std.debug.getSelfDebugInfo();
+        const ttyConfig: std.io.tty.Config = .no_color;
+        try std.debug.writeStackTrace(trace, writer, fba.allocator(), debugInfo, ttyConfig);
+    }
+
     try self.sendBody(string.items);
 }
 
