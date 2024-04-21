@@ -11,7 +11,14 @@ pub fn build(b: *std.Build) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
-    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse false;
+
+    const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
+        // Alternatively, use an os env var to determine whether to build openssl support
+        if (std.posix.getenv("ZAP_USE_OPENSSL")) |val| {
+            if (std.mem.eql(u8, val, "true")) break :blk true;
+        }
+        break :blk false;
+    };
 
     // create a module to be used internally.
     const zap_module = b.addModule("zap", .{
@@ -27,14 +34,14 @@ pub fn build(b: *std.Build) !void {
 
     // -- Docs
     const docs_obj = b.addObject(.{
-        .name = "docs",
+        .name = "zap", // name doesn't seem to matter
         .root_source_file = .{ .path = "src/zap.zig" },
         .target = target,
         .optimize = .Debug,
     });
     const install_docs = b.addInstallDirectory(.{
         .install_dir = .prefix,
-        .install_subdir = "docs",
+        .install_subdir = "zap", // will also be the main namespace in the docs
         .source_dir = docs_obj.getEmittedDocs(),
     });
     b.step("docs", "Build docs").dependOn(&install_docs.step);

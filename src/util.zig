@@ -2,23 +2,6 @@ const std = @import("std");
 const fio = @import("fio.zig");
 const zap = @import("zap.zig");
 
-/// capture self for RequestFn signature support
-pub inline fn RequestHandler(self: anytype, func: *const fn (@TypeOf(self), zap.Request) void) *const fn (zap.Request) void {
-    return (opaque {
-        var hidden_self: @TypeOf(self) = undefined;
-        var hidden_func: *const fn (@TypeOf(self), zap.Request) void = undefined;
-        pub fn init(h_self: @TypeOf(self), h_func: *const fn (@TypeOf(self), zap.Request) void) *const @TypeOf(run) {
-            hidden_self = h_self;
-            hidden_func = h_func;
-            return &run;
-        }
-
-        fn run(req: zap.Request) void {
-            hidden_func(hidden_self, req);
-        }
-    }).init(self, func);
-}
-
 /// Used internally: convert a FIO object into its string representation.
 /// note: since this is called from within request functions, we don't make
 /// copies. Also, we return temp memory from fio. -> don't hold on to it outside

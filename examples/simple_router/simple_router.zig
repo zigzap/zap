@@ -82,17 +82,17 @@ pub fn main() !void {
 
     var somePackage = SomePackage.init(allocator, 1, 2);
 
-    try simpleRouter.handle_func("/", on_request_verbose);
+    try simpleRouter.handle_func_unbound("/", on_request_verbose);
 
-    try simpleRouter.handle_func("/geta", zap.RequestHandler(&somePackage, SomePackage.getA));
+    try simpleRouter.handle_func("/geta", &somePackage, &SomePackage.getA);
 
-    try simpleRouter.handle_func("/getb", zap.RequestHandler(&somePackage, SomePackage.getB));
+    try simpleRouter.handle_func("/getb", &somePackage, &SomePackage.getB);
 
-    try simpleRouter.handle_func("/inca", zap.RequestHandler(&somePackage, SomePackage.incrementA));
+    try simpleRouter.handle_func("/inca", &somePackage, &SomePackage.incrementA);
 
     var listener = zap.HttpListener.init(.{
         .port = 3000,
-        .on_request = zap.RequestHandler(&simpleRouter, &zap.Router.serve),
+        .on_request = simpleRouter.on_request_handler(),
         .log = true,
         .max_clients = 100000,
     });
