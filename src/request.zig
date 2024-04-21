@@ -439,6 +439,63 @@ pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
     return util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));
 }
 
+pub const HttpHeaderCommon = enum(usize) {
+    /// Represents the HTTP Header "Accept".
+    accept,
+    /// Represents the HTTP Header "Cache-Control".
+    cache_control,
+    /// Represents the HTTP Header "Connection".
+    connection,
+    /// Represents the HTTP Header "Content-Encoding".
+    content_encoding,
+    /// Represents the HTTP Header "Content-Length".
+    content_length,
+    /// Represents the HTTP Header "Content-Range".
+    content_range,
+    /// Represents the HTTP Header "Content-Type".
+    content_type,
+    /// Represents the HTTP Header "Cookie".
+    cookie,
+    /// Represents the HTTP Header "Date".
+    date,
+    /// Represents the HTTP Header "Etag".
+    etag,
+    /// Represents the HTTP Header "Host".
+    host,
+    /// Represents the HTTP Header "Last-Modified".
+    last_modifed,
+    /// Represents the HTTP Header "Origin".
+    origin,
+    /// Represents the HTTP Header "Set-Cookie".
+    set_cookie,
+    /// Represents the HTTP Header "Upgrade".
+    upgrade,
+};
+
+/// Returns the header value of a given common header key. Returned memory
+/// should not be freed.
+pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
+    const field = switch (which) {
+        .accept => fio.HTTP_HEADER_ACCEPT,
+        .cache_control => fio.HTTP_HEADER_CACHE_CONTROL,
+        .connection => fio.HTTP_HEADER_CONNECTION,
+        .content_encoding => fio.HTTP_HEADER_CONTENT_ENCODING,
+        .content_length => fio.HTTP_HEADER_CONTENT_LENGTH,
+        .content_range => fio.HTTP_HEADER_CONTENT_RANGE,
+        .content_type => fio.HTTP_HEADER_CONTENT_TYPE,
+        .cookie => fio.HTTP_HEADER_COOKIE,
+        .date => fio.HTTP_HEADER_DATE,
+        .etag => fio.HTTP_HEADER_ETAG,
+        .host => fio.HTTP_HEADER_HOST,
+        .last_modified => fio.HTTP_HEADER_LAST_MODIFIED,
+        .origin => fio.HTTP_HEADER_ORIGIN,
+        .set_cookie => fio.HTTP_HEADER_SET_COOKIE,
+        .upgrade => fio.HTTP_HEADER_UPGRADE,
+    };
+    const fiobj = zap.fio.fiobj_hash_get(self.h.*.headers, field);
+    return zap.fio2str(fiobj);
+}
+
 /// Set header.
 pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
     const hname: fio.fio_str_info_s = .{
