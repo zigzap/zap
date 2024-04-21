@@ -1,21 +1,20 @@
 name: Works with Zig master
 on: 
-  #   push:
-  #     branches:
-  #     - master
-  #   pull_request:
-  #     branches:
-  #     - master
-  #   schedule:
-  #     - cron: "0 0 * * *"
-  workflow_dispatch:
+    push:
+      branches:
+      - zig-0.12.0
+    pull_request:
+      branches:
+      - zig-0.12.0
+    schedule:
+      - cron: "0 0 * * *"
+    workflow_dispatch:
   
 jobs:
   ci:
     strategy:
       matrix:
-        # platform: [ubuntu-latest, windows-latest, macos-latest]
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
@@ -26,5 +25,46 @@ jobs:
         run: zig version
       - name: Build all examples
         run: zig build all
-      - name: Run all tests
-        run: zig build test
+      # Run tests separately so we can see more clearly which one fails
+      - name: Run mustache tests
+        run: zig build test-mustache
+      - name: Run httpparams tests
+        run: zig build test-httpparams
+      - name: Run sendfile tests
+        run: zig build test-sendfile
+      - name: Run authentication tests
+        run: zig build test-authentication
+      - name: Report end of tests
+        run: echo "tests finished"
+
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master
+
+      - name: Build announceybot
+        run: zig build announceybot
+
+      - name: Run script to update README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.tag.outputs.version }}
+        run: |
+          zig-out/bin/announceybot update-readme "zig-0.12.0"
+  
+      - name: Commit and push if it has changed
+        run: |
+          git diff
+          git checkout zig-0.12.0
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Update README"
+          git push origin zig-0.12.0
+>>>>>>> zig-0.12.0

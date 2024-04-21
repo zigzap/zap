@@ -28,7 +28,8 @@ fn usage() void {
         \\                   instructions
     ;
     std.debug.print("{s}", .{message});
-    std.os.exit(1);
+
+    std.process.exit(1);
 }
 
 var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
@@ -88,7 +89,7 @@ fn get_tag_annotation(allocator: std.mem.Allocator, tagname: []const u8) ![]cons
         tagname,
     };
 
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = allocator,
         .argv = &args,
     });
@@ -150,24 +151,26 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
     // url
     const uri = try std.Uri.parse(url);
 
-    // http headers
-    var h = std.http.Headers{ .allocator = allocator };
-    defer h.deinit();
-    try h.append("accept", "*/*");
-    try h.append("Content-Type", "application/json");
-
     // client
     var http_client: std.http.Client = .{ .allocator = allocator };
     defer http_client.deinit();
 
+    var server_header_buffer: [2048]u8 = undefined;
+
     // request
-    var req = try http_client.request(.POST, uri, h, .{});
+    var req = try http_client.open(.POST, uri, .{
+        .server_header_buffer = &server_header_buffer, 
+        .extra_headers = &.{
+            .{ .name = "accept", .value = "*/*" },
+            .{ .name = "Content-Type", .value = "application/json" },
+        },
+    });
     defer req.deinit();
 
     req.transfer_encoding = .chunked;
 
     // connect, send request
-    try req.start();
+    try req.send();
 
     // send POST payload
     try req.writer().writeAll(message_json);
@@ -182,7 +185,7 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
 fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const u8) !void {
     // json payload
     // max size: 100kB
-    var buf: []u8 = try allocator.alloc(u8, 100 * 1024);
+    const buf: []u8 = try allocator.alloc(u8, 100 * 1024);
     defer allocator.free(buf);
     var fba = std.heap.FixedBufferAllocator.init(buf);
     var string = std.ArrayList(u8).init(fba.allocator());
@@ -336,7 +339,7 @@ fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
     defer allocator.free(url);
     sendToDiscord(allocator, url, announcement) catch |err| {
         std.debug.print("HTTP ERROR: {any}\n", .{err});
-        std.os.exit(1);
+        std.process.exit(1);
     };
 }
 
@@ -399,7 +402,7 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
         // we need to put the \n back in.
         // TODO: change this by using some "search" iterator that just
         // returns indices etc
-        var output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
+        const output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
         defer allocator.free(output_line);
         _ = try writer.write(output_line);
     }

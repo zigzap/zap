@@ -1,1 +1,10 @@
-.{ .name = "zap", .version = "0.6.0" }
+.{
+    .name = "zap",
+    .version = "0.7.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "facil.io",
+    },
+}

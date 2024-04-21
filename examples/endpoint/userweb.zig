@@ -54,7 +54,8 @@ fn userIdFromPath(self: *Self, path: []const u8) ?usize {
 }
 
 fn getUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self = @fieldParentPtr(Self, "ep", e);
+    const self: *Self = @fieldParentPtr("ep", e);
+
     if (r.path) |path| {
         // /users
         if (path.len == e.settings.path.len) {
@@ -81,9 +82,9 @@ fn listUsers(self: *Self, r: zap.Request) void {
 }
 
 fn postUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self = @fieldParentPtr(Self, "ep", e);
+    const self: *Self = @fieldParentPtr("ep", e);
     if (r.body) |body| {
-        var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+        const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
             defer u.deinit();
             if (self._users.addByName(u.value.first_name, u.value.last_name)) |id| {
@@ -100,12 +101,12 @@ fn postUser(e: *zap.Endpoint, r: zap.Request) void {
 }
 
 fn putUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self = @fieldParentPtr(Self, "ep", e);
+    const self: *Self = @fieldParentPtr("ep", e);
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
                 if (r.body) |body| {
-                    var maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
+                    const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
                     if (maybe_user) |u| {
                         defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;
@@ -126,7 +127,7 @@ fn putUser(e: *zap.Endpoint, r: zap.Request) void {
 }
 
 fn deleteUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self = @fieldParentPtr(Self, "ep", e);
+    const self: *Self = @fieldParentPtr("ep", e);
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;

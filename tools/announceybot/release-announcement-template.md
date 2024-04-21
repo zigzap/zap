@@ -18,7 +18,10 @@ Modify your `build.zig.zon` like this:
         .zap = .{
             .url = "https://github.com/zigzap/zap/archive/refs/tags/{tag}.tar.gz",
             .hash = "{hash}",
-        }
+        },
+        .paths = .{
+            "",
+        },
     }
 }
 
