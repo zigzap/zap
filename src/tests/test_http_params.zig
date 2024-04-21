@@ -2,19 +2,13 @@ const std = @import("std");
 const zap = @import("zap");
 
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    const uri = try std.Uri.parse(url);
-
-    var h = std.http.Headers{ .allocator = a };
-    defer h.deinit();
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.open(.GET, uri, h, .{});
-    defer req.deinit();
+    _ = try http_client.fetch(.{
+        .location = .{ .url = url },
+    });
 
-    try req.send(.{});
-    try req.wait();
     zap.stop();
 }
 
