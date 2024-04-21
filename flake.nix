@@ -44,7 +44,7 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             # neovim-nightly-pkgs.neovim
-            zigpkgs."0.11.0"
+            zigpkgs."0.12.0"
             bat
             wrk
             python310
@@ -89,7 +89,7 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.11.0"
+            zigpkgs."0.12.0"
             pkgs.openssl
           ];
 
