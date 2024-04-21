@@ -60,7 +60,7 @@ const UserMiddleWare = struct {
     pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
 
         // this is how we would get our self pointer
-        const self: Self = @fieldParentPtr("handler", handler);
+        const self: *Self = @fieldParentPtr("handler", handler);
         _ = self;
 
         // do our work: fill in the user field of the context
@@ -105,7 +105,7 @@ const SessionMiddleWare = struct {
     // note that the first parameter is of type *Handler, not *Self !!!
     pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
         // this is how we would get our self pointer
-        const self: Self = @fieldParentPtr("handler", handler);
+        const self: *Self = @fieldParentPtr("handler", handler);
         _ = self;
 
         context.session = Session{
@@ -155,7 +155,7 @@ const HtmlEndpoint = struct {
     }
 
     pub fn get(ep: *zap.Endpoint, r: zap.Request) void {
-        const self: Self = @fieldParentPtr("ep", ep);
+        const self: *Self = @fieldParentPtr("ep", ep);
         _ = self;
 
         var buf: [1024]u8 = undefined;
