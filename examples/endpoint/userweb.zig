@@ -55,6 +55,7 @@ fn userIdFromPath(self: *Self, path: []const u8) ?usize {
 
 fn getUser(e: *zap.Endpoint, r: zap.Request) void {
     const self: *Self = @fieldParentPtr("ep", e);
+
     if (r.path) |path| {
         // /users
         if (path.len == e.settings.path.len) {
