@@ -317,8 +317,12 @@ pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
         return null;
     }
 }
-
 /// Tries to send an error stack trace.
+/// Use like this:
+/// ```zig
+/// const err = zap.HttpError; // this is to show that `err` is an Error
+/// r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505);
+/// ```
 pub fn sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) void {
     // TODO: query accept headers
     if (self._internal_sendError(err, err_trace, errorcode_num)) {
