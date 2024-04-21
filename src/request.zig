@@ -111,7 +111,7 @@ pub const HttpParamBinaryFile = struct {
     filename: ?[]const u8 = null,
 
     /// format function for printing file upload data
-    pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) std.os.WriteError!void {
+    pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
         const d = value.data orelse "\\0";
         const m = value.mimetype orelse "null";
         const f = value.filename orelse "null";
