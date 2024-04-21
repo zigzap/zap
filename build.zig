@@ -11,6 +11,7 @@ pub fn build(b: *std.Build) !void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const optimize = b.standardOptimizeOption(.{});
 
+
     const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
         // Alternatively, use an os env var to determine whether to build openssl support
         if (std.posix.getenv("ZAP_USE_OPENSSL")) |val| {

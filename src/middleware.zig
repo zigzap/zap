@@ -82,6 +82,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         /// If `breakOnFinish` is `true`, the handler will stop handing requests down the chain if
         /// the endpoint processed the request.
         pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
+
             const self: *Self = @fieldParentPtr("handler", handler);
             r.setUserContext(context);
             self.endpoint.onRequest(r);

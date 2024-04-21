@@ -5,16 +5,16 @@ const zap = @import("zap");
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     const uri = try std.Uri.parse(url);
 
-    var h = std.http.Headers{ .allocator = a };
-    defer h.deinit();
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.open(.GET, uri, h, .{});
+    var server_header_buffer: [2048]u8 = undefined;
+    var req = try http_client.open(.GET, uri, .{
+        .server_header_buffer = &server_header_buffer,
+    });
     defer req.deinit();
 
-    try req.send(.{});
+    try req.send();
     try req.wait();
 }
 
