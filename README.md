@@ -26,16 +26,16 @@ Exactly the goals I set out to achieve!
 
 ## Most FAQ:
 
-### Zap uses the latest stable zig release (0.1@.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-0.13.0` branch (coming soon) but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
+### Zap uses the latest stable zig release (0.1@.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-master` branch (coming soon) but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
 
 - Q: **Where is the API documentation?**
     - A: Docs are a work in progress. You can check them out [here](https://zigzap.org/zap).
     - A: Run `zig build run-docserver` to serve them locally.
 - Q: **Zap doesn't build with Zig master?**
-    - A: See the 0.13.0 branch (soon). An example of how to use it is
-      [here](https://github.com/zigzap/hello-0.13.0). Please note that the 0.13.0
-      branch is not the official master branch of ZAP. Yet. Until zig 0.13.0 is
-      released.
+    - A: See the zig-master branch (soon). An example of how to use it is
+      [here](https://github.com/zigzap/hello-0.13.0). Please note that the
+      zig-master branch is not the official master branch of ZAP. Yet. Until zig
+      0.13.0 is released.
 - Q: **Does ZAP work on Windows?**
     - A: No. This is due to the underlying facil.io C library. Future versions of
       facil.io might support Windows but there is no timeline yet. Your best options
