@@ -273,10 +273,10 @@ To add zap to `build.zig.zon`:
             .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.7.0.tar.gz",
             .hash = "1220a1cb1822ea77083045d246db5d7a6f07a8ddafa69c98dee367560f9ce667fd8d",
         },
-        .paths = .{
-            "",
-        },
-    }
+    },
+    .paths = .{
+        "",
+    },
 }
 ```
 <!-- INSERT_DEP_END -->
