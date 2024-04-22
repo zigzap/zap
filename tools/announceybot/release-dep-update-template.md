@@ -11,9 +11,9 @@
             .url = "https://github.com/zigzap/zap/archive/{tag}.tar.gz",
             .hash = "{hash}",
         },
-        .paths = .{
-            "",
-        },
-    }
+    },
+    .paths = .{
+        "",
+    },
 }
 ```
