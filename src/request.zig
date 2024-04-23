@@ -470,7 +470,7 @@ pub const HttpHeaderCommon = enum(usize) {
     /// Represents the HTTP Header "Host".
     host,
     /// Represents the HTTP Header "Last-Modified".
-    last_modifed,
+    last_modified,
     /// Represents the HTTP Header "Origin".
     origin,
     /// Represents the HTTP Header "Set-Cookie".
