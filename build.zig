@@ -19,15 +19,14 @@ pub fn build(b: *std.Build) !void {
         break :blk false;
     };
 
-    // create a module to be used internally.
+    const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
+
     const zap_module = b.addModule("zap", .{
         .root_source_file = .{ .path = "src/zap.zig" },
+        .target = target,
+        .optimize = optimize,
     });
-
-    // register the module so it can be referenced using the package manager.
-    // try b.modules.put(b.dupe("zap"), zap_module);
-
-    const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
+    zap_module.linkLibrary(facilio);
 
     const all_step = b.step("all", "build all examples");
 
@@ -101,7 +100,6 @@ pub fn build(b: *std.Build) !void {
         });
 
         example.root_module.addImport("zap", zap_module);
-        example.linkLibrary(facilio);
 
         // const example_run = example.run();
         const example_run = b.addRunArtifact(example);
@@ -139,7 +137,6 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    auth_tests.linkLibrary(facilio);
     auth_tests.root_module.addImport("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
@@ -152,7 +149,6 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    mustache_tests.linkLibrary(facilio);
     mustache_tests.root_module.addImport("zap", zap_module);
 
     const run_mustache_tests = b.addRunArtifact(mustache_tests);
@@ -166,7 +162,6 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    httpparams_tests.linkLibrary(facilio);
     httpparams_tests.root_module.addImport("zap", zap_module);
 
     const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
@@ -184,7 +179,6 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    sendfile_tests.linkLibrary(facilio);
     sendfile_tests.root_module.addImport("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
@@ -238,7 +232,6 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    docserver_exe.linkLibrary(facilio);
     docserver_exe.root_module.addImport("zap", zap_module);
     var docserver_step = b.step("docserver", "Build docserver");
     const docserver_build_step = b.addInstallArtifact(docserver_exe, .{});
