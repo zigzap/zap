@@ -247,6 +247,7 @@ pub fn build(b: *std.Build) !void {
 
     const docserver_run_step = b.step("run-docserver", "run the docserver");
     const docserver_run = b.addRunArtifact(docserver_exe);
+    docserver_run.addPrefixedDirectoryArg("--docs=", docs_obj.getEmittedBinDirectory());
     docserver_run_step.dependOn(&docserver_run.step);
     docserver_run_step.dependOn(docserver_step);
 
