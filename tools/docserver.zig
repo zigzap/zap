@@ -26,14 +26,7 @@ pub fn main() !void {
         }
     }
 
-    const ext = "wasm";
-    var buf: [0xF]u8 = undefined;
-    @memcpy(buf[0..ext.len], ext);
-
-    const mimetype = "application/wasm";
-    const fio_mimetype = zap.fio.fiobj_str_new(mimetype[0..], mimetype.len);
-
-    zap.fio.http_mimetype_register(buf[0..ext.len], ext.len, fio_mimetype);
+    zap.mimetypeRegister("wasm", "application/wasm");
 
     var listener = zap.HttpListener.init(.{
         .port = port,
