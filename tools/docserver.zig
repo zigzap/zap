@@ -26,6 +26,8 @@ pub fn main() !void {
         }
     }
 
+    zap.mimetypeRegister("wasm", "application/wasm");
+
     var listener = zap.HttpListener.init(.{
         .port = port,
         .on_request = on_request,
