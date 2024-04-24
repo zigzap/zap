@@ -122,6 +122,23 @@ pub fn startWithLogging(args: fio.fio_start_args) void {
     fio.fio_start(args);
 }
 
+/// Registers a new mimetype to be used for files ending with the given extension.
+pub fn mimetypeRegister(file_extension: []const u8, mime_type_str: []const u8) void {
+    // NOTE: facil.io is expecting a non-const pointer to u8 values, but it does not
+    // not appear to actually modify the value.  Here we do a const cast so
+    // that it is easy to pass static strings to http_mimetype_register without
+    // needing to allocate a buffer on the heap.
+    const extension = @constCast(file_extension);
+    const mimetype = fio.fiobj_str_new(mime_type_str.ptr, mime_type_str.len);
+
+    fio.http_mimetype_register(extension.ptr, extension.len, mimetype);
+}
+
+/// Clears the Mime-Type registry (it will be empty after this call).
+pub fn mimetypeClear() void {
+    fio.http_mimetype_clear();
+}
+
 pub const ListenError = error{
     AlreadyListening,
     ListenError,
