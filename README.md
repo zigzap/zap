@@ -292,7 +292,6 @@ Then, in your `build.zig`'s `build` function, add the following before
     });
 
     exe.root_module.addImport("zap", zap.module("zap"));
-    exe.linkLibrary(zap.artifact("facil.io"));
 ```
 
 From then on, you can use the Zap package in your project. Check out the
