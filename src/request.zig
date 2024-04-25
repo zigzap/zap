@@ -6,6 +6,8 @@ const fio = @import("fio.zig");
 const util = @import("util.zig");
 const zap = @import("zap.zig");
 
+const ContentType = zap.ContentType;
+
 pub const HttpError = error{
     HttpSendBody,
     HttpSetContentType,
@@ -14,15 +16,6 @@ pub const HttpError = error{
     HttpIterParams,
     SetCookie,
     SendFile,
-};
-
-/// Http Content Type enum.
-/// Needs some love.
-pub const ContentType = enum {
-    TEXT,
-    HTML,
-    JSON,
-    // TODO: more content types
 };
 
 /// Key value pair of strings from HTTP parameters
@@ -585,39 +578,77 @@ pub fn parseCookies(self: *const Self, url_encoded: bool) void {
 }
 
 pub const MIMEType = struct {
-    type: union(enum) {
+    type: Fragment,
+    subtype: Fragment,
+
+    const Fragment = union(enum) {
         glob,
         value: []const u8,
-        type: Type,
-    },
-    subtype: union(enum) {
-        glob,
-        value: []const u8,
-    },
-    const Type = enum {
-        application,
-        audio,
-        font,
-        example,
-        image,
-        message,
-        model,
-        multipart,
-        text,
-        video,
     };
 };
 
 pub const AcceptItem = struct {
     mimetype: MIMEType,
     q: f64,
+
+    pub fn lessThan(_: void, lhs: AcceptItem, rhs: AcceptItem) bool {
+        return lhs.q < rhs.q;
+    }
+
+    pub fn asCommon(item: AcceptItem) ?Common {
+        if (item.mimetype.type == .glob) {
+            if (item.mimetype.subtype == .glob) return .@"*/*";
+            return null;
+        }
+        if (std.mem.eql(u8, "text", item.mimetype.type.value)) {
+            if (item.mimetype.subtype == .glob) {
+                return .@"text/*";
+            } else if (std.mem.eql(u8, "html", item.mimetype.subtype.value)) {
+                return .@"text/html";
+            } else if (std.mem.eql(u8, "plain", item.mimetype.subtype.value)) {
+                return .@"text/plain";
+            }
+        } else if (std.mem.eql(u8, "application", item.mimetype.type.value)) {
+            if (item.mimetype.subtype == .glob) {
+                return .@"application/*";
+            } else if (std.mem.eql(u8, "xml", item.mimetype.subtype.value)) {
+                return .@"application/xml";
+            } else if (std.mem.eql(u8, "json", item.mimetype.subtype.value)) {
+                return .@"application/json";
+            } else if (std.mem.eql(u8, "xhtml+xml", item.mimetype.subtype.value)) {
+                return .@"application/xhtml+xml";
+            }
+        } else if (std.mem.eql(u8, "image", item.mimetype.type.value)) {
+            if (item.mimetype.subtype == .glob) {
+                return .@"image/*";
+            } else if (std.mem.eql(u8, "avif", item.mimetype.subtype.value)) {
+                return .@"image/avif";
+            } else if (std.mem.eql(u8, "webp", item.mimetype.subtype.value)) {
+                return .@"image/webp";
+            }
+        }
+
+        return null;
+    }
+
+    const Common = enum {
+        @"*/*",
+        @"text/*",
+        @"text/html",
+        @"text/plain",
+        @"application/*",
+        @"application/xhtml+xml",
+        @"application/xml",
+        @"application/json",
+        @"image/*",
+        @"image/avif",
+        @"image/webp",
+    };
 };
 
-/// Returns an unsorted list of `AcceptItem`s
-pub fn parseAcceptAlloc(self: *const Self, allocator: std.mem.Allocator) !std.ArrayList(AcceptItem) {
-    const accept_str = self.getHeaderCommon(.accept);
-
-    var list = std.ArrayList(AcceptItem).init(allocator);
+/// Parses `Accept:` http header into `list`.
+pub fn parseAccept(self: *const Self, list: *std.ArrayList(AcceptItem)) !void {
+    const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAccept;
 
     var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
     while (tok_iter.next()) |tok| {
@@ -633,19 +664,17 @@ pub fn parseAcceptAlloc(self: *const Self, allocator: std.mem.Allocator) !std.Ar
             break :q_factor parsed;
         };
 
-        var type_split_iter = std.mem.split(u8, mimetype_str, '/');
+        var type_split_iter = std.mem.split(u8, mimetype_str, "/");
 
         const mimetype_type_str = type_split_iter.next() orelse continue;
         const mimetype_subtype_str = type_split_iter.next() orelse continue;
 
-        const mimetype_type = if (std.mem.eql(u8, "*", mimetype_type_str))
+        const mimetype_type: MIMEType.Fragment = if (std.mem.eql(u8, "*", mimetype_type_str))
             .glob
-        else if (std.meta.stringToEnum(MIMEType.Type, mimetype_type_str)) |t|
-            .{ .type = t }
         else
             .{ .value = mimetype_type_str };
 
-        const mimetype_subtype = if (std.mem.eql(u8, "*", mimetype_subtype_str))
+        const mimetype_subtype: MIMEType.Fragment = if (std.mem.eql(u8, "*", mimetype_subtype_str))
             .glob
         else
             .{ .value = mimetype_subtype_str };
@@ -658,8 +687,11 @@ pub fn parseAcceptAlloc(self: *const Self, allocator: std.mem.Allocator) !std.Ar
             .q = q_factor,
         });
     }
+}
 
-    return list;
+/// Sorts list from `parseAccept`
+pub fn sortAccept(accept_list: []AcceptItem) void {
+    std.sort.insertion(AcceptItem, accept_list, {}, AcceptItem.lessThan);
 }
 
 /// Set a response cookie
