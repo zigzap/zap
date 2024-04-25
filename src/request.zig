@@ -584,6 +584,84 @@ pub fn parseCookies(self: *const Self, url_encoded: bool) void {
     fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
 }
 
+pub const MIMEType = struct {
+    type: union(enum) {
+        glob,
+        value: []const u8,
+        type: Type,
+    },
+    subtype: union(enum) {
+        glob,
+        value: []const u8,
+    },
+    const Type = enum {
+        application,
+        audio,
+        font,
+        example,
+        image,
+        message,
+        model,
+        multipart,
+        text,
+        video,
+    };
+};
+
+pub const AcceptItem = struct {
+    mimetype: MIMEType,
+    q: f64,
+};
+
+/// Returns an unsorted list of `AcceptItem`s
+pub fn parseAcceptAlloc(self: *const Self, allocator: std.mem.Allocator) !std.ArrayList(AcceptItem) {
+    const accept_str = self.getHeaderCommon(.accept);
+
+    var list = std.ArrayList(AcceptItem).init(allocator);
+
+    var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
+    while (tok_iter.next()) |tok| {
+        var split_iter = std.mem.split(u8, tok, ";");
+        const mimetype_str = split_iter.next().?;
+        const q_factor = q_factor: {
+            const q_factor_str = split_iter.next() orelse break :q_factor 1;
+            var eq_iter = std.mem.split(u8, q_factor_str, "=");
+            const q = eq_iter.next().?;
+            if (q[0] != 'q') break :q_factor 1;
+            const value = eq_iter.next() orelse break :q_factor 1;
+            const parsed = std.fmt.parseFloat(f64, value) catch break :q_factor 1;
+            break :q_factor parsed;
+        };
+
+        var type_split_iter = std.mem.split(u8, mimetype_str, '/');
+
+        const mimetype_type_str = type_split_iter.next() orelse continue;
+        const mimetype_subtype_str = type_split_iter.next() orelse continue;
+
+        const mimetype_type = if (std.mem.eql(u8, "*", mimetype_type_str))
+            .glob
+        else if (std.meta.stringToEnum(MIMEType.Type, mimetype_type_str)) |t|
+            .{ .type = t }
+        else
+            .{ .value = mimetype_type_str };
+
+        const mimetype_subtype = if (std.mem.eql(u8, "*", mimetype_subtype_str))
+            .glob
+        else
+            .{ .value = mimetype_subtype_str };
+
+        try list.append(.{
+            .mimetype = .{
+                .type = mimetype_type,
+                .subtype = mimetype_subtype,
+            },
+            .q = q_factor,
+        });
+    }
+
+    return list;
+}
+
 /// Set a response cookie
 pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
     const c: fio.http_cookie_args_s = .{
