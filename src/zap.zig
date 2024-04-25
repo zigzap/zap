@@ -159,8 +159,18 @@ pub const HttpError = error{
 pub const ContentType = enum {
     TEXT,
     HTML,
+    XML,
     JSON,
+    XHTML,
     // TODO: more content types
+
+    pub const string_map = std.ComptimeStringMap(ContentType, .{
+        .{ "text/plain", .TEXT },
+        .{ "text/html", .HTML },
+        .{ "application/xml", .XML },
+        .{ "application/json", .JSON },
+        .{ "application/xhtml+xml", .XHTML },
+    });
 };
 
 /// Used internally: facilio Http request callback function type

@@ -577,76 +577,30 @@ pub fn parseCookies(self: *const Self, url_encoded: bool) void {
     fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
 }
 
-pub const MIMEType = struct {
+pub const AcceptItem = struct {
+    raw: []const u8,
     type: Fragment,
     subtype: Fragment,
+    q: f64,
 
     const Fragment = union(enum) {
         glob,
         value: []const u8,
     };
-};
-
-pub const AcceptItem = struct {
-    mimetype: MIMEType,
-    q: f64,
 
     pub fn lessThan(_: void, lhs: AcceptItem, rhs: AcceptItem) bool {
         return lhs.q < rhs.q;
     }
 
-    pub fn asCommon(item: AcceptItem) ?Common {
-        if (item.mimetype.type == .glob) {
-            if (item.mimetype.subtype == .glob) return .@"*/*";
-            return null;
+    pub fn toContentType(item: AcceptItem) ?ContentType {
+        if (ContentType.string_map.get(item.raw)) |common| {
+            return common;
         }
-        if (std.mem.eql(u8, "text", item.mimetype.type.value)) {
-            if (item.mimetype.subtype == .glob) {
-                return .@"text/*";
-            } else if (std.mem.eql(u8, "html", item.mimetype.subtype.value)) {
-                return .@"text/html";
-            } else if (std.mem.eql(u8, "plain", item.mimetype.subtype.value)) {
-                return .@"text/plain";
-            }
-        } else if (std.mem.eql(u8, "application", item.mimetype.type.value)) {
-            if (item.mimetype.subtype == .glob) {
-                return .@"application/*";
-            } else if (std.mem.eql(u8, "xml", item.mimetype.subtype.value)) {
-                return .@"application/xml";
-            } else if (std.mem.eql(u8, "json", item.mimetype.subtype.value)) {
-                return .@"application/json";
-            } else if (std.mem.eql(u8, "xhtml+xml", item.mimetype.subtype.value)) {
-                return .@"application/xhtml+xml";
-            }
-        } else if (std.mem.eql(u8, "image", item.mimetype.type.value)) {
-            if (item.mimetype.subtype == .glob) {
-                return .@"image/*";
-            } else if (std.mem.eql(u8, "avif", item.mimetype.subtype.value)) {
-                return .@"image/avif";
-            } else if (std.mem.eql(u8, "webp", item.mimetype.subtype.value)) {
-                return .@"image/webp";
-            }
-        }
-
         return null;
     }
-
-    const Common = enum {
-        @"*/*",
-        @"text/*",
-        @"text/html",
-        @"text/plain",
-        @"application/*",
-        @"application/xhtml+xml",
-        @"application/xml",
-        @"application/json",
-        @"image/*",
-        @"image/avif",
-        @"image/webp",
-    };
 };
 
-/// Parses `Accept:` http header into `list`.
+/// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
 pub fn parseAccept(self: *const Self, list: *std.ArrayList(AcceptItem)) !void {
     const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAccept;
 
@@ -669,29 +623,21 @@ pub fn parseAccept(self: *const Self, list: *std.ArrayList(AcceptItem)) !void {
         const mimetype_type_str = type_split_iter.next() orelse continue;
         const mimetype_subtype_str = type_split_iter.next() orelse continue;
 
-        const mimetype_type: MIMEType.Fragment = if (std.mem.eql(u8, "*", mimetype_type_str))
-            .glob
-        else
-            .{ .value = mimetype_type_str };
-
-        const mimetype_subtype: MIMEType.Fragment = if (std.mem.eql(u8, "*", mimetype_subtype_str))
-            .glob
-        else
-            .{ .value = mimetype_subtype_str };
-
-        try list.append(.{
-            .mimetype = .{
-                .type = mimetype_type,
-                .subtype = mimetype_subtype,
-            },
+        const new_item: AcceptItem = .{
+            .raw = mimetype_str,
+            .type = if (std.mem.eql(u8, "*", mimetype_type_str)) .glob else .{ .value = mimetype_type_str },
+            .subtype = if (std.mem.eql(u8, "*", mimetype_subtype_str)) .glob else .{ .value = mimetype_subtype_str },
             .q = q_factor,
-        });
+        };
+        for (list.items, 1..) |item, i| {
+            if (AcceptItem.lessThan({}, new_item, item)) {
+                try list.insert(i, new_item);
+                break;
+            }
+        } else {
+            try list.append(new_item);
+        }
     }
-}
-
-/// Sorts list from `parseAccept`
-pub fn sortAccept(accept_list: []AcceptItem) void {
-    std.sort.insertion(AcceptItem, accept_list, {}, AcceptItem.lessThan);
 }
 
 /// Set a response cookie
