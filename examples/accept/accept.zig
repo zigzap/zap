@@ -6,11 +6,15 @@ var gpa = std.heap.GeneralPurposeAllocator(.{
 }){};
 
 fn on_request_verbose(r: zap.Request) void {
-    const allocator = gpa.allocator();
+    // use a local buffer for the parsed accept headers
+    var accept_buffer: [1024]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&accept_buffer);
+    const accept_allocator = fba.allocator();
+
     const content_type: zap.ContentType = content_type: {
-        var accept_list = std.ArrayList(zap.Request.AcceptItem).init(allocator);
+        var accept_list = r.parseAcceptHeaders(accept_allocator) catch break :content_type .HTML;
         defer accept_list.deinit();
-        r.parseAccept(&accept_list) catch break :content_type .HTML;
+
         for (accept_list.items) |accept| {
             break :content_type accept.toContentType() orelse continue;
         }

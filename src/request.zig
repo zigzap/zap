@@ -600,8 +600,14 @@ pub const AcceptItem = struct {
     }
 };
 
+/// List holding access headers parsed by parseAcceptHeaders()
+const AcceptHeaderList = std.ArrayList(AcceptItem);
+
 /// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
-pub fn parseAccept(self: *const Self, list: *std.ArrayList(AcceptItem)) !void {
+pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !AcceptHeaderList {
+    var list = AcceptHeaderList.init(allocator);
+    errdefer list.deinit();
+
     const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAccept;
 
     var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
@@ -638,6 +644,7 @@ pub fn parseAccept(self: *const Self, list: *std.ArrayList(AcceptItem)) !void {
             try list.append(new_item);
         }
     }
+    return list;
 }
 
 /// Set a response cookie
