@@ -118,7 +118,7 @@ pub fn enableDebugLog() void {
 
 /// start Zap with debug logging on
 pub fn startWithLogging(args: fio.fio_start_args) void {
-    debug = true;
+    _debug = true;
     fio.fio_start(args);
 }
 
