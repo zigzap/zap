@@ -605,10 +605,12 @@ const AcceptHeaderList = std.ArrayList(AcceptItem);
 
 /// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
 pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !AcceptHeaderList {
-    var list = AcceptHeaderList.init(allocator);
-    errdefer list.deinit();
+    const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAcceptHeader;
 
-    const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAccept;
+    const comma_count = std.mem.count(u8, accept_str, ",");
+
+    var list = try AcceptHeaderList.initCapacity(allocator, comma_count + 1);
+    errdefer list.deinit();
 
     var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
     while (tok_iter.next()) |tok| {
@@ -637,11 +639,11 @@ pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !Acce
         };
         for (list.items, 1..) |item, i| {
             if (AcceptItem.lessThan({}, new_item, item)) {
-                try list.insert(i, new_item);
+                list.insertAssumeCapacity(i, new_item);
                 break;
             }
         } else {
-            try list.append(new_item);
+            list.appendAssumeCapacity(new_item);
         }
     }
     return list;
