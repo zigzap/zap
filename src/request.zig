@@ -6,6 +6,8 @@ const fio = @import("fio.zig");
 const util = @import("util.zig");
 const zap = @import("zap.zig");
 
+const ContentType = zap.ContentType;
+
 pub const HttpError = error{
     HttpSendBody,
     HttpSetContentType,
@@ -14,15 +16,6 @@ pub const HttpError = error{
     HttpIterParams,
     SetCookie,
     SendFile,
-};
-
-/// Http Content Type enum.
-/// Needs some love.
-pub const ContentType = enum {
-    TEXT,
-    HTML,
-    JSON,
-    // TODO: more content types
 };
 
 /// Key value pair of strings from HTTP parameters
@@ -582,6 +575,78 @@ pub fn parseQuery(self: *const Self) void {
 /// Parse received cookie headers
 pub fn parseCookies(self: *const Self, url_encoded: bool) void {
     fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
+}
+
+pub const AcceptItem = struct {
+    raw: []const u8,
+    type: Fragment,
+    subtype: Fragment,
+    q: f64,
+
+    const Fragment = union(enum) {
+        glob,
+        value: []const u8,
+    };
+
+    pub fn lessThan(_: void, lhs: AcceptItem, rhs: AcceptItem) bool {
+        return lhs.q < rhs.q;
+    }
+
+    pub fn toContentType(item: AcceptItem) ?ContentType {
+        if (ContentType.string_map.get(item.raw)) |common| {
+            return common;
+        }
+        return null;
+    }
+};
+
+/// List holding access headers parsed by parseAcceptHeaders()
+const AcceptHeaderList = std.ArrayList(AcceptItem);
+
+/// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
+pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !AcceptHeaderList {
+    const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAcceptHeader;
+
+    const comma_count = std.mem.count(u8, accept_str, ",");
+
+    var list = try AcceptHeaderList.initCapacity(allocator, comma_count + 1);
+    errdefer list.deinit();
+
+    var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
+    while (tok_iter.next()) |tok| {
+        var split_iter = std.mem.split(u8, tok, ";");
+        const mimetype_str = split_iter.next().?;
+        const q_factor = q_factor: {
+            const q_factor_str = split_iter.next() orelse break :q_factor 1;
+            var eq_iter = std.mem.split(u8, q_factor_str, "=");
+            const q = eq_iter.next().?;
+            if (q[0] != 'q') break :q_factor 1;
+            const value = eq_iter.next() orelse break :q_factor 1;
+            const parsed = std.fmt.parseFloat(f64, value) catch break :q_factor 1;
+            break :q_factor parsed;
+        };
+
+        var type_split_iter = std.mem.split(u8, mimetype_str, "/");
+
+        const mimetype_type_str = type_split_iter.next() orelse continue;
+        const mimetype_subtype_str = type_split_iter.next() orelse continue;
+
+        const new_item: AcceptItem = .{
+            .raw = mimetype_str,
+            .type = if (std.mem.eql(u8, "*", mimetype_type_str)) .glob else .{ .value = mimetype_type_str },
+            .subtype = if (std.mem.eql(u8, "*", mimetype_subtype_str)) .glob else .{ .value = mimetype_subtype_str },
+            .q = q_factor,
+        };
+        for (list.items, 1..) |item, i| {
+            if (AcceptItem.lessThan({}, new_item, item)) {
+                list.insertAssumeCapacity(i, new_item);
+                break;
+            }
+        } else {
+            list.appendAssumeCapacity(new_item);
+        }
+    }
+    return list;
 }
 
 /// Set a response cookie

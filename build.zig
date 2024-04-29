@@ -70,6 +70,7 @@ pub fn build(b: *std.Build) !void {
         .{ .name = "middleware_with_endpoint", .src = "examples/middleware_with_endpoint/middleware_with_endpoint.zig" },
         .{ .name = "senderror", .src = "examples/senderror/senderror.zig" },
         .{ .name = "bindataformpost", .src = "examples/bindataformpost/bindataformpost.zig" },
+        .{ .name = "accept", .src = "examples/accept/accept.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
