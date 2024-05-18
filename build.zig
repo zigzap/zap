@@ -13,9 +13,10 @@ pub fn build(b: *std.Build) !void {
 
     const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
         // Alternatively, use an os env var to determine whether to build openssl support
-        if (std.posix.getenv("ZAP_USE_OPENSSL")) |val| {
+        if (std.process.getEnvVarOwned(b.allocator, "ZAP_USE_OPENSSL")) |val| {
+            defer b.allocator.free(val);
             if (std.mem.eql(u8, val, "true")) break :blk true;
-        }
+        } else |_| {}
         break :blk false;
     };
 
