@@ -32,14 +32,14 @@ pub fn build_facilio(
         try flags.append("-DHAVE_OPENSSL -DFIO_TLS_FOUND");
 
     // Include paths
-    lib.addIncludePath(.{ .path = subdir ++ "/." });
-    lib.addIncludePath(.{ .path = subdir ++ "/lib/facil" });
-    lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/fiobj" });
-    lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/cli" });
-    lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/http" });
-    lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/http/parsers" });
+    lib.addIncludePath(b.path(subdir ++ "/."));
+    lib.addIncludePath(b.path(subdir ++ "/lib/facil"));
+    lib.addIncludePath(b.path(subdir ++ "/lib/facil/fiobj"));
+    lib.addIncludePath(b.path(subdir ++ "/lib/facil/cli"));
+    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http"));
+    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http/parsers"));
     if (use_openssl)
-        lib.addIncludePath(.{ .path = subdir ++ "/lib/facil/tls" });
+        lib.addIncludePath(b.path(subdir ++ "/lib/facil/tls"));
 
     // C source files
     lib.addCSourceFiles(.{

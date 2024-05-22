@@ -22,7 +22,7 @@ pub fn build(b: *std.Build) !void {
     const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
 
     const zap_module = b.addModule("zap", .{
-        .root_source_file = .{ .path = "src/zap.zig" },
+        .root_source_file = b.path("src/zap.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -33,7 +33,7 @@ pub fn build(b: *std.Build) !void {
     // -- Docs
     const docs_obj = b.addObject(.{
         .name = "zap", // name doesn't seem to matter
-        .root_source_file = .{ .path = "src/zap.zig" },
+        .root_source_file = b.path("src/zap.zig"),
         .target = target,
         .optimize = .Debug,
     });
@@ -95,7 +95,7 @@ pub fn build(b: *std.Build) !void {
 
         var example = b.addExecutable(.{
             .name = ex_name,
-            .root_source_file = .{ .path = ex_src },
+            .root_source_file = b.path(ex_src),
             .target = target,
             .optimize = optimize,
         });
@@ -134,7 +134,7 @@ pub fn build(b: *std.Build) !void {
     //
     const auth_tests = b.addTest(.{
         .name = "auth_tests",
-        .root_source_file = .{ .path = "src/tests/test_auth.zig" },
+        .root_source_file = b.path("src/tests/test_auth.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -146,7 +146,7 @@ pub fn build(b: *std.Build) !void {
     // mustache tests
     const mustache_tests = b.addTest(.{
         .name = "mustache_tests",
-        .root_source_file = .{ .path = "src/tests/test_mustache.zig" },
+        .root_source_file = b.path("src/tests/test_mustache.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -158,7 +158,7 @@ pub fn build(b: *std.Build) !void {
     // http paramters (qyery, body) tests
     const httpparams_tests = b.addTest(.{
         .name = "http_params_tests",
-        .root_source_file = .{ .path = "src/tests/test_http_params.zig" },
+        .root_source_file = b.path("src/tests/test_http_params.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -175,7 +175,7 @@ pub fn build(b: *std.Build) !void {
     // http paramters (qyery, body) tests
     const sendfile_tests = b.addTest(.{
         .name = "sendfile_tests",
-        .root_source_file = .{ .path = "src/tests/test_sendfile.zig" },
+        .root_source_file = b.path("src/tests/test_sendfile.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -215,7 +215,7 @@ pub fn build(b: *std.Build) !void {
     //
     const pkghash_exe = b.addExecutable(.{
         .name = "pkghash",
-        .root_source_file = .{ .path = "./tools/pkghash.zig" },
+        .root_source_file = b.path("./tools/pkghash.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -229,7 +229,7 @@ pub fn build(b: *std.Build) !void {
     //
     const docserver_exe = b.addExecutable(.{
         .name = "docserver",
-        .root_source_file = .{ .path = "./tools/docserver.zig" },
+        .root_source_file = b.path("./tools/docserver.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -253,7 +253,7 @@ pub fn build(b: *std.Build) !void {
     //
     const announceybot_exe = b.addExecutable(.{
         .name = "announceybot",
-        .root_source_file = .{ .path = "./tools/announceybot.zig" },
+        .root_source_file = b.path("./tools/announceybot.zig"),
         .target = target,
         .optimize = optimize,
     });
