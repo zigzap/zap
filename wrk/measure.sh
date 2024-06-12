@@ -84,8 +84,8 @@ if [ "$SUBJECT" = "csharp" ] ; then
 fi
 
 if [ "$SUBJECT" = "cpp-beast" ] ; then
-    cd wrk/cpp && zig build -Doptimize=ReleaseFast
-    $TSK_SRV ./zig-out/bin/cpp-beast 127.0.0.1 8070 . &
+    cd wrk/cpp && cmake -B build/ . && cmake --build build/
+    $TSK_SRV ./build/cpp_beast 127.0.0.1 8070 . &
     PID=$!
     URL=http://127.0.0.1:8070
 fi
