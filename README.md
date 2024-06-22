@@ -1,5 +1,3 @@
-
-
 # ⚡zap⚡ - blazingly fast backends in zig
 
 ![](https://github.com/zigzap/zap/actions/workflows/build-zig-11.yml/badge.svg) ![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jQAAN6Ubyj)
@@ -26,18 +24,18 @@ that it proved to be:
 
 Exactly the goals I set out to achieve!
 
-
 ## Most FAQ:
 
-### Zap uses the latest stable zig release (0.11.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-0.12.0` branch but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
+### Zap uses the latest stable zig release (0.1@.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-master` branch (coming soon) but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
 
 - Q: **Where is the API documentation?**
-    - A: Docs are a work in progress. You can check them out [here](https://zigzap.org/zap). The docs are based on the `zig-0.12.0` branch but apply to the current release (zig 0.11.0), too.
+    - A: Docs are a work in progress. You can check them out [here](https://zigzap.org/zap).
+    - A: Run `zig build run-docserver` to serve them locally.
 - Q: **Zap doesn't build with Zig master?**
-    - A: See the 0.12.0 branch. An example of how to use it is
-      [here](https://github.com/zigzap/hello-0.12.0). Please note that the 0.12.0
-      branch is not the official master branch of ZAP. Yet. Until zig 0.12.0 is
-      released.
+    - A: See the zig-master branch (soon). An example of how to use it is
+      [here](https://github.com/zigzap/hello-0.13.0). Please note that the
+      zig-master branch is not the official master branch of ZAP. Yet. Until zig
+      0.13.0 is released.
 - Q: **Does ZAP work on Windows?**
     - A: No. This is due to the underlying facil.io C library. Future versions of
       facil.io might support Windows but there is no timeline yet. Your best options
@@ -56,6 +54,10 @@ Exactly the goals I set out to achieve!
 I recommend checking out **Endpoint-based examples for more realistic
 use cases**. Most of the examples are super stripped down to only include 
 what's necessary to show a feature.
+
+**NOTE: To see API docs, run `zig build run-docserver`.** To specify a custom
+port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
+--docs=path/to/docs`.
 
 - **Super easy build process**: Zap's `build.zig` now uses the new Zig package
   manager for its C-dependencies, no git submodules anymore.
@@ -222,7 +224,7 @@ code leaks memory.
 
 ## Getting started
 
-Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+Make sure you have zig 0.12.0 installed. Fetch it from
 [here](https://ziglang.org/download).
 
 ```shell
@@ -236,7 +238,7 @@ $ # open http://localhost:3000 in your browser
 
 ## Using ⚡zap⚡ in your own projects
 
-Make sure you have **the latest zig release (0.11.0)** installed. Fetch it from
+Make sure you have **the latest zig release (0.12.0)** installed. Fetch it from
 [here](https://ziglang.org/download).
 
 If you don't have an existing zig project, create one like this:
@@ -250,7 +252,7 @@ $ git init      ## (optional)
 `nix develop` to get a development shell providing zig and all
 dependencies to build and run the GO, python, and rust examples for the
 `wrk` performance tests. For the mere building of zap projects, 
-`nix develop .#build` will only fetch zig 0.11.0.
+`nix develop .#build` will only fetch zig 0.11.0. TODO: upgrade to zig 0.12.
 
 With an existing Zig project, adding Zap to it is easy:
 
@@ -266,12 +268,15 @@ To add zap to `build.zig.zon`:
     .version = "0.0.1",
 
     .dependencies = .{
-        // zap v0.6.0
+        // zap v0.7.0
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.6.0.tar.gz",
-            .hash = "1220a5a1e6b18fa384d8a98e5d5a25720ddadbcfed01da2e4ca55c7cfb3dc1caa62a",
-        }
-    }
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.7.0.tar.gz",
+            .hash = "12203126ff24e8018655eb7444c91f0d527d1213af16fcf2a578281abc994d01cc46",
+        },
+    },
+    .paths = .{
+        "",
+    },
 }
 ```
 <!-- INSERT_DEP_END -->
@@ -285,8 +290,8 @@ Then, in your `build.zig`'s `build` function, add the following before
         .optimize = optimize,
         .openssl = false, // set to true to enable TLS support
     });
-    exe.addModule("zap", zap.module("zap"));
-    exe.linkLibrary(zap.artifact("facil.io"));
+
+    exe.root_module.addImport("zap", zap.module("zap"));
 ```
 
 From then on, you can use the Zap package in your project. Check out the
@@ -404,28 +409,4 @@ pub fn main() !void {
     });
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

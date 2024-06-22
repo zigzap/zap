@@ -50,7 +50,7 @@ pub fn Handler(comptime ContextType: type) type {
 
         /// This function will end the HTTP stage of the connection and attempt to "upgrade" to a WebSockets connection.
         pub fn upgrade(h: [*c]fio.http_s, settings: *WebSocketSettings) WebSocketError!void {
-            var fio_settings: fio.websocket_settings_s = .{
+            const fio_settings: fio.websocket_settings_s = .{
                 .on_message = internal_on_message,
                 .on_open = internal_on_open,
                 .on_ready = internal_on_ready,
@@ -64,8 +64,8 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_message(handle: WsHandle, msg: fio.fio_str_info_s, is_text: u8) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
-            var message = msg.data[0..msg.len];
+            const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
+            const message = msg.data[0..msg.len];
             if (user_provided_settings) |settings| {
                 if (settings.on_message) |on_message| {
                     on_message(settings.context, handle, message, is_text == 1);
@@ -74,7 +74,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_open(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
+            const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_open) |on_open| {
                     on_open(settings.context, handle);
@@ -83,7 +83,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_ready(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
+            const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_ready) |on_ready| {
                     on_ready(settings.context, handle);
@@ -92,7 +92,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_shutdown(handle: WsHandle) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
+            const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_shutdown) |on_shutdown| {
                     on_shutdown(settings.context, handle);
@@ -101,7 +101,7 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         fn internal_on_close(uuid: isize, udata: ?*anyopaque) callconv(.C) void {
-            var user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(udata)));
+            const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(udata)));
             if (user_provided_settings) |settings| {
                 if (settings.on_close) |on_close| {
                     on_close(settings.context, uuid);
@@ -119,7 +119,7 @@ pub fn Handler(comptime ContextType: type) type {
         pub inline fn write(handle: WsHandle, message: []const u8, is_text: bool) WebSocketError!void {
             if (fio.websocket_write(
                 handle,
-                fio.str2fio(message),
+                util.str2fio(message),
                 if (is_text) 1 else 0,
             ) != 0) {
                 return error.WriteError;
@@ -192,7 +192,7 @@ pub fn Handler(comptime ContextType: type) type {
         /// we need it to look up the ziggified callbacks.
         pub inline fn subscribe(handle: WsHandle, args: *SubscribeArgs) WebSocketError!usize {
             if (handle == null) return error.SubscribeError;
-            var fio_args: fio.websocket_subscribe_s_zigcompat = .{
+            const fio_args: fio.websocket_subscribe_s_zigcompat = .{
                 .ws = handle.?,
                 .channel = util.str2fio(args.channel),
                 .on_message = if (args.on_message) |_| internal_subscription_on_message else null,

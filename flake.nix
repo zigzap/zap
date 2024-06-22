@@ -44,7 +44,7 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             # neovim-nightly-pkgs.neovim
-            zigpkgs."0.11.0"
+            zigpkgs."0.12.0"
             bat
             wrk
             python310
@@ -89,7 +89,8 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.11.0"
+            zigpkgs."0.12.0"
+            pkgs.openssl
           ];
 
           buildInputs = with pkgs; [
@@ -103,6 +104,28 @@
             # once we set SHELL to point to the interactive bash, neovim will 
             # launch the correct $SHELL in its :terminal 
             export SHELL=${pkgs.bashInteractive}/bin/bash
+            export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:${pkgs.icu.out}/lib:${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
+          '';
+        };
+
+        devShells.masta = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            zigpkgs.master
+            pkgs.openssl
+          ];
+
+          buildInputs = with pkgs; [
+            # we need a version of bash capable of being interactive
+            # as opposed to a bash just used for building this flake 
+            # in non-interactive mode
+            bashInteractive 
+          ];
+
+          shellHook = ''
+            # once we set SHELL to point to the interactive bash, neovim will 
+            # launch the correct $SHELL in its :terminal 
+            export SHELL=${pkgs.bashInteractive}/bin/bash
+            export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:${pkgs.icu.out}/lib:${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
           '';
         };
 

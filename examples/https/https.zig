@@ -30,7 +30,7 @@ fn help_and_exit(filename: []const u8, err: anyerror) void {
     ,
         .{ filename, err },
     );
-    std.os.exit(1);
+    std.process.exit(1);
 }
 pub fn main() !void {
     const CERT_FILE = "mycert.pem";

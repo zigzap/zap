@@ -71,7 +71,7 @@ pub const usage_pkg =
 ;
 
 pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",
@@ -97,7 +97,7 @@ pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
 }
 
 pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.exec(.{
+    const result = try std.ChildProcess.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",
@@ -266,8 +266,8 @@ pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void 
 
         // computePackageHash will close the directory after completion
         // std.debug.print("abspath: {s}\n", .{cwd_absolute_path});
-        var cwd_copy = try fs.openIterableDirAbsolute(cwd_absolute_path, .{});
-        errdefer cwd_copy.dir.close();
+        var cwd_copy = try fs.openDirAbsolute(cwd_absolute_path, .{});
+        errdefer cwd_copy.close();
 
         var thread_pool: ThreadPool = undefined;
         try thread_pool.init(.{ .allocator = gpa });
@@ -281,7 +281,7 @@ pub fn cmdPkg(gpa: Allocator, arena: Allocator, args: []const []const u8) !void 
         };
         break :blk try computePackageHashExcludingDirectories(
             &thread_pool,
-            .{ .dir = cwd_copy.dir },
+            cwd_copy,
             excluded_directories,
         );
     };
@@ -355,7 +355,7 @@ fn isExecutable(file: fs.File) !bool {
 
 pub fn computePackageHashExcludingDirectories(
     thread_pool: *ThreadPool,
-    pkg_dir: fs.IterableDir,
+    pkg_dir: fs.Dir,
     excluded_directories: []const []const u8,
 ) ![Manifest.Hash.digest_length]u8 {
     const gpa = thread_pool.allocator;
@@ -405,7 +405,7 @@ pub fn computePackageHashExcludingDirectories(
                 .failure = undefined, // to be populated by the worker
             };
             wait_group.start();
-            try thread_pool.spawn(workerHashFile, .{ pkg_dir.dir, hashed_file, &wait_group });
+            try thread_pool.spawn(workerHashFile, .{ pkg_dir, hashed_file, &wait_group });
 
             try all_files.append(hashed_file);
         }

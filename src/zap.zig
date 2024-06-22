@@ -43,7 +43,7 @@ pub const Tls = @import("tls.zig");
 ///     }
 ///
 ///     fn get(e: *zap.Endpoint, r: zap.Request) void {
-///         const self: *StopEndpoint = @fieldParentPtr(StopEndpoint, "ep", e);
+///         const self: *StopEndpoint = @fieldParentPtr("ep", e);
 ///         _ = self;
 ///         _ = r;
 ///         zap.stop();
@@ -118,8 +118,25 @@ pub fn enableDebugLog() void {
 
 /// start Zap with debug logging on
 pub fn startWithLogging(args: fio.fio_start_args) void {
-    debug = true;
+    _debug = true;
     fio.fio_start(args);
+}
+
+/// Registers a new mimetype to be used for files ending with the given extension.
+pub fn mimetypeRegister(file_extension: []const u8, mime_type_str: []const u8) void {
+    // NOTE: facil.io is expecting a non-const pointer to u8 values, but it does not
+    // not appear to actually modify the value.  Here we do a const cast so
+    // that it is easy to pass static strings to http_mimetype_register without
+    // needing to allocate a buffer on the heap.
+    const extension = @constCast(file_extension);
+    const mimetype = fio.fiobj_str_new(mime_type_str.ptr, mime_type_str.len);
+
+    fio.http_mimetype_register(extension.ptr, extension.len, mimetype);
+}
+
+/// Clears the Mime-Type registry (it will be empty after this call).
+pub fn mimetypeClear() void {
+    fio.http_mimetype_clear();
 }
 
 pub const ListenError = error{
@@ -142,8 +159,18 @@ pub const HttpError = error{
 pub const ContentType = enum {
     TEXT,
     HTML,
+    XML,
     JSON,
+    XHTML,
     // TODO: more content types
+
+    pub const string_map = std.ComptimeStringMap(ContentType, .{
+        .{ "text/plain", .TEXT },
+        .{ "text/html", .HTML },
+        .{ "application/xml", .XML },
+        .{ "application/json", .JSON },
+        .{ "application/xhtml+xml", .XHTML },
+    });
 };
 
 /// Used internally: facilio Http request callback function type

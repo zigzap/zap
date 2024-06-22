@@ -7,20 +7,16 @@ var read_len: ?usize = null;
 const testfile = @embedFile("testfile.txt");
 
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    const uri = try std.Uri.parse(url);
-
-    var h = std.http.Headers{ .allocator = a };
-    defer h.deinit();
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
-
-    var req = try http_client.request(.GET, uri, h, .{});
-    defer req.deinit();
-
-    try req.start();
-    try req.wait();
-    read_len = try req.readAll(&buffer);
+    var response = std.ArrayList(u8).init(a);
+    defer response.deinit();
+    _ = try http_client.fetch(.{
+        .location = .{ .url = url },
+        .response_storage = .{ .dynamic = &response },
+    });
+    read_len = response.items.len;
+    @memcpy(buffer[0..read_len.?], response.items);
 
     zap.stop();
 }
@@ -33,7 +29,7 @@ pub fn on_request(r: zap.Request) void {
 }
 
 test "send file" {
-    var allocator = std.testing.allocator;
+    const allocator = std.testing.allocator;
 
     // setup listener
     var listener = zap.HttpListener.init(

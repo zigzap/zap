@@ -41,7 +41,7 @@ fn setupUserData(a: std.mem.Allocator) !void {
 }
 
 pub fn main() !void {
-    var a = std.heap.page_allocator;
+    const a = std.heap.page_allocator;
     try setupUserData(a);
     var listener = zap.HttpListener.init(.{
         .port = 3000,
@@ -63,6 +63,6 @@ pub fn main() !void {
     // start worker threads
     zap.start(.{
         .threads = 2,
-        .workers = 2,
+        .workers = 1, // user map cannot be shared among multiple worker processes
     });
 }

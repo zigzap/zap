@@ -6,9 +6,14 @@
     .dependencies = .{
         // zap {tag}
         .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/{tag}.tar.gz",
+            // when tagged:
+            // .url = "https://github.com/zigzap/zap/archive/refs/tags/{tag}.tar.gz",
+            .url = "https://github.com/zigzap/zap/archive/{tag}.tar.gz",
             .hash = "{hash}",
-        }
-    }
+        },
+    },
+    .paths = .{
+        "",
+    },
 }
 ```

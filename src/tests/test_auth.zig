@@ -1,12 +1,9 @@
 const std = @import("std");
 const zap = @import("zap");
-// const Authenticators = @import("http_auth.zig");
 const Authenticators = zap.Auth;
 const Endpoint = zap.Endpoint;
 const fio = zap;
-// const fio = @import("fio.zig");
 const util = zap;
-// const util = @import("util.zig");
 
 test "BearerAuthSingle authenticate" {
     const a = std.testing.allocator;
@@ -132,37 +129,34 @@ const ClientAuthReqHeaderFields = struct {
 };
 
 fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !void {
-    const uri = try std.Uri.parse(url);
-
-    var h = std.http.Headers{ .allocator = a };
-    defer h.deinit();
-
-    if (auth) |auth_fields| {
-        const authstring = try std.fmt.allocPrint(a, "{s}{s}", .{ auth_fields.auth.str(), auth_fields.token });
-        defer a.free(authstring);
-        try h.append(auth_fields.auth.headerFieldStrHeader(), authstring);
-    }
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var req = try http_client.request(.GET, uri, h, .{});
-    defer req.deinit();
-
-    try req.start();
-    try req.wait();
-    // req.deinit() panics!
-    // defer req.deinit();
-
-    // without this block, the tests sometimes get stuck which
-    // might have to do with connection pooling and connections being in
-    // a different state when all data has been read?!?
-    {
-        var buffer: [1024]u8 = undefined;
-        // we know we won't receive a lot
-        const len = try req.reader().readAll(&buffer);
-        std.debug.print("RESPONSE:\n{s}\n", .{buffer[0..len]});
-    }
+    var auth_buf: [256]u8 = undefined;
+    const auth_string: []const u8 = blk: {
+        if (auth) |auth_fields| {
+            const authstring = try std.fmt.bufPrint(&auth_buf, "{s}{s}", .{ auth_fields.auth.str(), auth_fields.token });
+            break :blk authstring;
+        } else {
+            break :blk "";
+        }
+    };
+    _ = try http_client.fetch(.{
+        .location = .{ .url = url },
+        .headers = .{
+            .authorization = .omit,
+        },
+        .extra_headers = blk: {
+            if (auth) |auth_fields| {
+                break :blk &.{.{
+                    .name = auth_fields.auth.headerFieldStrHeader(),
+                    .value = auth_string,
+                }};
+            } else {
+                break :blk &.{};
+            }
+        },
+    });
 
     zap.stop();
 }

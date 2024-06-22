@@ -28,8 +28,11 @@ Here is a complete `build.zig.zon` example:
         .zap = .{
             .url = "https://github.com/zigzap/zap/archive/refs/tags/{tag}.tar.gz",
             .hash = "{hash}",
-        }
-    }
+        },
+    },
+    .paths = .{
+        "",
+    },
 }
 
 ```
@@ -41,7 +44,8 @@ Then, in your `build.zig`'s `build` function, add the following before
     const zap = b.dependency("zap", .{
         .target = target,
         .optimize = optimize,
+        .openssl = false, // set to true to enable TLS support
     });
-    exe.addModule("zap", zap.module("zap"));
+    exe.root_module.addImport("zap", zap.module("zap"));
     exe.linkLibrary(zap.artifact("facil.io"));
 ```

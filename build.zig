@@ -1,11 +1,11 @@
 const std = @import("std");
 const build_facilio = @import("facil.io/build.zig").build_facilio;
 
-pub fn build(b: *std.build.Builder) !void {
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
-    if (target.getOsTag() == .windows) {
+    if (target.result.os.tag == .windows) {
         std.log.err("\x1b[31mPlatform Not Supported\x1b[0m\nCurrently, Facil.io and Zap are not compatible with Windows. Consider using Linux or Windows Subsystem for Linux (WSL) instead.\nFor more information, please see:\n- https://github.com/zigzap/zap#most-faq\n- https://facil.io/#forking-contributing-and-all-that-jazz\n", .{});
-        std.os.exit(1);
+        std.process.exit(1);
     }
     // Standard release options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
@@ -13,23 +13,38 @@ pub fn build(b: *std.build.Builder) !void {
 
     const use_openssl = b.option(bool, "openssl", "Use system-installed openssl for TLS support in zap") orelse blk: {
         // Alternatively, use an os env var to determine whether to build openssl support
-        if (std.os.getenv("ZAP_USE_OPENSSL")) |val| {
+        if (std.process.getEnvVarOwned(b.allocator, "ZAP_USE_OPENSSL")) |val| {
+            defer b.allocator.free(val);
             if (std.mem.eql(u8, val, "true")) break :blk true;
-        }
+        } else |_| {}
         break :blk false;
     };
 
-    // create a module to be used internally.
-    var zap_module = b.createModule(.{
-        .source_file = .{ .path = "src/zap.zig" },
-    });
-
-    // register the module so it can be referenced using the package manager.
-    try b.modules.put(b.dupe("zap"), zap_module);
-
     const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
 
+    const zap_module = b.addModule("zap", .{
+        .root_source_file = b.path("src/zap.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    zap_module.linkLibrary(facilio);
+
     const all_step = b.step("all", "build all examples");
+
+    // -- Docs
+    const docs_obj = b.addObject(.{
+        .name = "zap", // name doesn't seem to matter
+        .root_source_file = b.path("src/zap.zig"),
+        .target = target,
+        .optimize = .Debug,
+    });
+    const install_docs = b.addInstallDirectory(.{
+        .install_dir = .prefix,
+        .install_subdir = "zap", // will also be the main namespace in the docs
+        .source_dir = docs_obj.getEmittedDocs(),
+    });
+    b.step("docs", "Build docs").dependOn(&install_docs.step);
+    // --
 
     inline for ([_]struct {
         name: []const u8,
@@ -56,6 +71,7 @@ pub fn build(b: *std.build.Builder) !void {
         .{ .name = "middleware_with_endpoint", .src = "examples/middleware_with_endpoint/middleware_with_endpoint.zig" },
         .{ .name = "senderror", .src = "examples/senderror/senderror.zig" },
         .{ .name = "bindataformpost", .src = "examples/bindataformpost/bindataformpost.zig" },
+        .{ .name = "accept", .src = "examples/accept/accept.zig" },
     }) |excfg| {
         const ex_name = excfg.name;
         const ex_src = excfg.src;
@@ -80,13 +96,12 @@ pub fn build(b: *std.build.Builder) !void {
 
         var example = b.addExecutable(.{
             .name = ex_name,
-            .root_source_file = .{ .path = ex_src },
+            .root_source_file = b.path(ex_src),
             .target = target,
             .optimize = optimize,
         });
 
-        example.linkLibrary(facilio);
-        example.addModule("zap", zap_module);
+        example.root_module.addImport("zap", zap_module);
 
         // const example_run = example.run();
         const example_run = b.addRunArtifact(example);
@@ -120,12 +135,11 @@ pub fn build(b: *std.build.Builder) !void {
     //
     const auth_tests = b.addTest(.{
         .name = "auth_tests",
-        .root_source_file = .{ .path = "src/tests/test_auth.zig" },
+        .root_source_file = b.path("src/tests/test_auth.zig"),
         .target = target,
         .optimize = optimize,
     });
-    auth_tests.linkLibrary(facilio);
-    auth_tests.addModule("zap", zap_module);
+    auth_tests.root_module.addImport("zap", zap_module);
 
     const run_auth_tests = b.addRunArtifact(auth_tests);
     const install_auth_tests = b.addInstallArtifact(auth_tests, .{});
@@ -133,12 +147,11 @@ pub fn build(b: *std.build.Builder) !void {
     // mustache tests
     const mustache_tests = b.addTest(.{
         .name = "mustache_tests",
-        .root_source_file = .{ .path = "src/tests/test_mustache.zig" },
+        .root_source_file = b.path("src/tests/test_mustache.zig"),
         .target = target,
         .optimize = optimize,
     });
-    mustache_tests.linkLibrary(facilio);
-    mustache_tests.addModule("zap", zap_module);
+    mustache_tests.root_module.addImport("zap", zap_module);
 
     const run_mustache_tests = b.addRunArtifact(mustache_tests);
     const install_mustache_tests = b.addInstallArtifact(mustache_tests, .{});
@@ -146,13 +159,13 @@ pub fn build(b: *std.build.Builder) !void {
     // http paramters (qyery, body) tests
     const httpparams_tests = b.addTest(.{
         .name = "http_params_tests",
-        .root_source_file = .{ .path = "src/tests/test_http_params.zig" },
+        .root_source_file = b.path("src/tests/test_http_params.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    httpparams_tests.linkLibrary(facilio);
-    httpparams_tests.addModule("zap", zap_module);
+    httpparams_tests.root_module.addImport("zap", zap_module);
+
     const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
     // TODO: for some reason, tests aren't run more than once unless
     //       dependencies have changed.
@@ -163,13 +176,12 @@ pub fn build(b: *std.build.Builder) !void {
     // http paramters (qyery, body) tests
     const sendfile_tests = b.addTest(.{
         .name = "sendfile_tests",
-        .root_source_file = .{ .path = "src/tests/test_sendfile.zig" },
+        .root_source_file = b.path("src/tests/test_sendfile.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    sendfile_tests.linkLibrary(facilio);
-    sendfile_tests.addModule("zap", zap_module);
+    sendfile_tests.root_module.addImport("zap", zap_module);
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
 
@@ -202,9 +214,9 @@ pub fn build(b: *std.build.Builder) !void {
     //
     // pkghash
     //
-    var pkghash_exe = b.addExecutable(.{
+    const pkghash_exe = b.addExecutable(.{
         .name = "pkghash",
-        .root_source_file = .{ .path = "./tools/pkghash.zig" },
+        .root_source_file = b.path("./tools/pkghash.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -214,11 +226,35 @@ pub fn build(b: *std.build.Builder) !void {
     all_step.dependOn(&pkghash_build_step.step);
 
     //
+    // docserver
+    //
+    const docserver_exe = b.addExecutable(.{
+        .name = "docserver",
+        .root_source_file = b.path("./tools/docserver.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    docserver_exe.root_module.addImport("zap", zap_module);
+    var docserver_step = b.step("docserver", "Build docserver");
+    const docserver_build_step = b.addInstallArtifact(docserver_exe, .{});
+    docserver_step.dependOn(&docserver_build_step.step);
+    docserver_step.dependOn(&install_docs.step);
+
+    const docserver_run_step = b.step("run-docserver", "run the docserver");
+    const docserver_run = b.addRunArtifact(docserver_exe);
+    docserver_run.addPrefixedDirectoryArg("--docs=", docs_obj.getEmittedDocs());
+
+    docserver_run_step.dependOn(&docserver_run.step);
+    docserver_run_step.dependOn(docserver_step);
+
+    all_step.dependOn(&docserver_build_step.step);
+
+    //
     // announceybot
     //
-    var announceybot_exe = b.addExecutable(.{
+    const announceybot_exe = b.addExecutable(.{
         .name = "announceybot",
-        .root_source_file = .{ .path = "./tools/announceybot.zig" },
+        .root_source_file = b.path("./tools/announceybot.zig"),
         .target = target,
         .optimize = optimize,
     });
