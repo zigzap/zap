@@ -132,6 +132,7 @@ pub const StatusCode = enum(u16) {
 
 pub const Method = enum {
     GET,
+    HEAD,
     POST,
     PUT,
     DELETE,
