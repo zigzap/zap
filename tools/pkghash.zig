@@ -71,7 +71,7 @@ pub const usage_pkg =
 ;
 
 pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.run(.{
+    const result = try std.process.Child.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",
@@ -97,7 +97,7 @@ pub fn gitLatestTag(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
 }
 
 pub fn gitFileList(gpa: Allocator, pkg_dir: []const u8) ![]const u8 {
-    const result = try std.ChildProcess.run(.{
+    const result = try std.process.Child.run(.{
         .allocator = gpa,
         .argv = &.{
             "git",
@@ -449,7 +449,7 @@ pub fn computePackageHashForFileList(
         var wait_group: WaitGroup = .{};
         defer wait_group.wait();
 
-        var it = std.mem.split(u8, file_list, "\n");
+        var it = std.mem.splitScalar(u8, file_list, '\n');
 
         while (it.next()) |entry| {
             if (entry.len > 0) {

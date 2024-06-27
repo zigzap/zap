@@ -89,7 +89,7 @@ fn get_tag_annotation(allocator: std.mem.Allocator, tagname: []const u8) ![]cons
         tagname,
     };
 
-    const result = try std.ChildProcess.run(.{
+    const result = try std.process.Child.run(.{
         .allocator = allocator,
         .argv = &args,
     });
@@ -159,7 +159,7 @@ fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json
 
     // request
     var req = try http_client.open(.POST, uri, .{
-        .server_header_buffer = &server_header_buffer, 
+        .server_header_buffer = &server_header_buffer,
         .extra_headers = &.{
             .{ .name = "accept", .value = "*/*" },
             .{ .name = "Content-Type", .value = "application/json" },
@@ -382,7 +382,7 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
 
     // iterate over lines
     var in_replace_block: bool = false;
-    var line_it = std.mem.split(u8, readme, "\n");
+    var line_it = std.mem.splitScalar(u8, readme, '\n');
     while (line_it.next()) |line| {
         if (in_replace_block) {
             if (std.mem.startsWith(u8, line, REPLACE_END_MARKER)) {

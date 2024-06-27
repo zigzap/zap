@@ -164,7 +164,7 @@ pub const ContentType = enum {
     XHTML,
     // TODO: more content types
 
-    pub const string_map = std.ComptimeStringMap(ContentType, .{
+    pub const string_map = std.StaticStringMap(ContentType).initComptime(.{
         .{ "text/plain", .TEXT },
         .{ "text/html", .HTML },
         .{ "application/xml", .XML },

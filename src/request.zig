@@ -612,13 +612,13 @@ pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !Acce
     var list = try AcceptHeaderList.initCapacity(allocator, comma_count + 1);
     errdefer list.deinit();
 
-    var tok_iter = std.mem.tokenize(u8, accept_str, ", ");
+    var tok_iter = std.mem.splitSequence(u8, accept_str, ", ");
     while (tok_iter.next()) |tok| {
-        var split_iter = std.mem.split(u8, tok, ";");
+        var split_iter = std.mem.splitScalar(u8, tok, ';');
         const mimetype_str = split_iter.next().?;
         const q_factor = q_factor: {
             const q_factor_str = split_iter.next() orelse break :q_factor 1;
-            var eq_iter = std.mem.split(u8, q_factor_str, "=");
+            var eq_iter = std.mem.splitScalar(u8, q_factor_str, '=');
             const q = eq_iter.next().?;
             if (q[0] != 'q') break :q_factor 1;
             const value = eq_iter.next() orelse break :q_factor 1;
@@ -626,7 +626,7 @@ pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !Acce
             break :q_factor parsed;
         };
 
-        var type_split_iter = std.mem.split(u8, mimetype_str, "/");
+        var type_split_iter = std.mem.splitScalar(u8, mimetype_str, '/');
 
         const mimetype_type_str = type_split_iter.next() orelse continue;
         const mimetype_subtype_str = type_split_iter.next() orelse continue;

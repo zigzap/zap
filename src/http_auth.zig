@@ -132,7 +132,7 @@ pub fn Basic(comptime Lookup: type, comptime kind: BasicAuthStrategy) type {
                 };
                 // we have decoded
                 // we can split
-                var it = std.mem.split(u8, decoded, ":");
+                var it = std.mem.splitScalar(u8, decoded, ':');
                 const user = it.next();
                 const pass = it.next();
                 if (user == null or pass == null) {
