@@ -27,12 +27,12 @@ Exactly the goals I set out to achieve!
 ## FAQ:
 
 - Q: **What version of Zig does Zap support?**
-    - Zap uses the latest stable zig release (0.13.0), so you don't have to keep 
-      up with frequent breaking changes. It's an "LTS feature". 
+    - Zap uses the latest stable zig release (0.13.0), so you don't have to keep
+      up with frequent breaking changes. It's an "LTS feature".
 - Q: **Can Zap build with Zig's master branch?**
-    - See the `zig-master` branch. An example of how to use it is 
-      [here](https://github.com/zigzap/hello-master). Please note that the 
-      zig-master branch is not the official master branch of ZAP. Be aware that 
+    - See the `zig-master` branch. An example of how to use it is
+      [here](https://github.com/zigzap/hello-master). Please note that the
+      zig-master branch is not the official master branch of ZAP. Be aware that
       I don't provide `build.zig.zon` snippets or tagged releases for it for
       the time being. If you know what you are doing, that shouldn't stop you
       from using it with zig master though.
