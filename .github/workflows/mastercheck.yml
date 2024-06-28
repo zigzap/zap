@@ -2,10 +2,10 @@ name: Works with Zig master
 on: 
     push:
       branches:
-      - zig-0.13.0
+      - zig-master
     pull_request:
       branches:
-      - zig-0.13.0
+      - zig-master
     schedule:
       - cron: "0 0 * * *"
     workflow_dispatch:
@@ -57,13 +57,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ steps.tag.outputs.version }}
         run: |
-          zig-out/bin/announceybot update-readme "zig-0.13.0"
+          zig-out/bin/announceybot update-readme "zig-master"
   
       - name: Commit and push if it has changed
         run: |
           git diff
-          git checkout zig-0.13.0
+          git checkout zig-master
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Update README"
-          git push origin zig-0.13.0
+          git push origin zig-master
