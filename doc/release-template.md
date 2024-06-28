@@ -41,5 +41,4 @@ Then, in your `build.zig`'s `build` function, add the following before
         .openssl = false, // set to true to enable TLS support
     });
     exe.root_module.addImport("zap", zap.module("zap"));
-    exe.linkLibrary(zap.artifact("facil.io"));
 ```
