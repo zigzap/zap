@@ -10,14 +10,14 @@ microframework for web applications.
 
 What I needed as a replacement was a blazingly fast and robust HTTP server that
 I could use with Zig, and I chose to wrap the superb evented networking C
-library [facil.io](https://facil.io). Zap wraps and patches [facil.io - the C web application
-framework](https://facil.io).
+library [facil.io](https://facil.io). Zap wraps and patches [facil.io - the C
+web application framework](https://facil.io).
 
 ## **⚡ZAP⚡ IS FAST, ROBUST, AND STABLE**
 
 
-After having used ZAP in production for over 6 months, I can confidently assert
-that it proved to be:
+After having used ZAP in production for a year, I can confidently assert that it
+proved to be:
 
 - ⚡ **blazingly fast** ⚡
 - 💪 **extremely robust** 💪
@@ -26,26 +26,32 @@ Exactly the goals I set out to achieve!
 
 ## Most FAQ:
 
-### Zap uses the latest stable zig release (0.1@.0) for a reason. So you don't have to keep up with frequent breaking changes. It's an "LTS feature". If you want to use zig master, use the `zig-master` branch (coming soon) but be aware that I don't provide `build.zig.zon` snippets or tagged releases for it for the time being. If you know what you are doing, that shouldn't stop you from using it with zig master though.
+### Zap uses the latest stable zig release (0.13.0) for a reason. So you don't
+have to keep up with frequent breaking changes. It's an "LTS feature". If you
+want to use zig master, use the `zig-master` branch but be aware that I don't
+provide `build.zig.zon` snippets or tagged releases for it for the time being.
+If you know what you are doing, that shouldn't stop you from using it with zig
+master though.
 
 - Q: **Where is the API documentation?**
-    - A: Docs are a work in progress. You can check them out [here](https://zigzap.org/zap).
+    - A: Docs are a work in progress. You can check them out
+      [here](https://zigzap.org/zap).
     - A: Run `zig build run-docserver` to serve them locally.
 - Q: **Zap doesn't build with Zig master?**
-    - A: See the zig-master branch (soon). An example of how to use it is
-      [here](https://github.com/zigzap/hello-0.13.0). Please note that the
+    - A: See the zig-master branch. An example of how to use it is
+      [here](https://github.com/zigzap/hello-master). Please note that the
       zig-master branch is not the official master branch of ZAP. Yet. Until zig
       0.13.0 is released.
 - Q: **Does ZAP work on Windows?**
-    - A: No. This is due to the underlying facil.io C library. Future versions of
-      facil.io might support Windows but there is no timeline yet. Your best options
-      on Windows are WSL2 or a docker container.
+    - A: No. This is due to the underlying facil.io C library. Future versions
+      of facil.io might support Windows but there is no timeline yet. Your best
+      options on Windows are WSL2 or a docker container.
 - Q: **Does ZAP support TLS / HTTPS?**
     - A: Yes, ZAP supports using the system's openssl. See the
-      [https](./examples/https/https.zig) example and make sure to build with the
-      `-Dopenssl` flag or the environment variable `ZAP_USE_OPENSSL=true`:
-      - `.openssl = true,` (in dependent projects' build.zig, `b.dependency("zap"
-        .{...})`)
+      [https](./examples/https/https.zig) example and make sure to build with
+      the `-Dopenssl` flag or the environment variable `ZAP_USE_OPENSSL=true`:
+      - `.openssl = true,` (in dependent projects' build.zig,
+        `b.dependency("zap" .{...})`)
       - `ZAP_USE_OPENSSL=true zig build https`
       - `zig build -Dopenssl=true https`
 
@@ -224,7 +230,7 @@ code leaks memory.
 
 ## Getting started
 
-Make sure you have zig 0.12.0 installed. Fetch it from
+Make sure you have **zig 0.13.0** installed. Fetch it from
 [here](https://ziglang.org/download).
 
 ```shell
@@ -238,21 +244,21 @@ $ # open http://localhost:3000 in your browser
 
 ## Using ⚡zap⚡ in your own projects
 
-Make sure you have **the latest zig release (0.12.0)** installed. Fetch it from
+Make sure you have **the latest zig release (0.13.0)** installed. Fetch it from
 [here](https://ziglang.org/download).
 
 If you don't have an existing zig project, create one like this:
 
 ```shell
 $ mkdir zaptest && cd zaptest
-$ zig init-exe
+$ zig init
 $ git init      ## (optional)
 ```
 **Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
 `nix develop` to get a development shell providing zig and all
 dependencies to build and run the GO, python, and rust examples for the
 `wrk` performance tests. For the mere building of zap projects, 
-`nix develop .#build` will only fetch zig 0.11.0. TODO: upgrade to zig 0.12.
+`nix develop .#build` will only fetch zig 0.11.0. TODO: upgrade to latest zig.
 
 With an existing Zig project, adding Zap to it is easy:
 
