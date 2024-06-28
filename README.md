@@ -277,7 +277,7 @@ To add zap to `build.zig.zon`:
         // zap v0.7.0
         .zap = .{
             .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.7.0.tar.gz",
-            .hash = "12203126ff24e8018655eb7444c91f0d527d1213af16fcf2a578281abc994d01cc46",
+            .hash = "12209936c3333b53b53edcf453b1670babb9ae8c2197b1ca627c01e72670e20c1a21",
         },
     },
     .paths = .{
