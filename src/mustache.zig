@@ -15,7 +15,7 @@ extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: f
 extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 
 /// Load arguments used when creating a new Mustache instance.
-pub const MustacheLoadArgs = struct {
+pub const LoadArgs = struct {
     /// Filename. This enables partial templates on filesystem.
     filename: ?[]const u8 = null,
 
@@ -51,7 +51,7 @@ pub const Error = error{
 
 /// Create a new `Mustache` instance; `deinit()` should be called to free
 /// the object after usage.
-pub fn init(load_args: MustacheLoadArgs) Error!Self {
+pub fn init(load_args: LoadArgs) Error!Self {
     var err: mustache_error_en = undefined;
 
     const args: MustacheLoadArgsFio = .{
