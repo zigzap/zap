@@ -123,19 +123,17 @@ const SessionMiddleWare = struct {
 //
 // !!!! ENDPOINT !!!
 //
-// We define an endpoint as we usually would.
-// NO ROUTING IS PERFORMED
-// as we are just going to wrap it in a bunch of Middleware components
-// and therefore NOT using an endpoint listener that would the routing for us
+// We define an endpoint as we usually would; however,
+// NO ROUTING IS PERFORMED BY DEFAULT!
 //
-// Hence, the endpoint should check r.path in its on_request to check wether
-// it is adressed or not.
+// This can be changed using the EndpointHandlerOptions passed into the
+// EndpointHandler.init() method.
 //
 // N.B. the EndpointHandler checks if the endpoint turned the request into
 // "finished" state, e.g. by sending anything. If the endpoint didn't finish the
 // request, the EndpointHandler will pass the request on to the next handler in
-// the chain if there is one. See also the EndpointHandler's `breakOnFinish`
-// parameter.
+// the chain if there is one. See also the EndpointHandlerOptions's
+// `breakOnFinish` parameter.
 //
 const HtmlEndpoint = struct {
     ep: zap.Endpoint = undefined,
@@ -210,7 +208,7 @@ pub fn main() !void {
     var htmlHandler = zap.Middleware.EndpointHandler(Handler, Context).init(
         htmlEndpoint.endpoint(), // the endpoint
         null, // no other handler (we are the last in the chain)
-        true, // break on finish. See EndpointHandler for this. Not applicable here.
+        .{}, // We can set custom EndpointHandlerOptions here
     );
 
     // we wrap it in the session Middleware component
