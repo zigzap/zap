@@ -2,8 +2,8 @@
   description = "zap dev shell";
 
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";   // GLIBC problem!
-    nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";   # GLIBC problem!
+    # nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     # required for latest zig
@@ -43,8 +43,10 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
+            liburing
             # neovim-nightly-pkgs.neovim
-            zigpkgs."0.12.0"
+            zig
+            # zigpkgs."0.12.0"
             bat
             wrk
             python310
@@ -89,7 +91,7 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.12.0"
+            zig
             pkgs.openssl
           ];
 
@@ -110,7 +112,7 @@
 
         devShells.masta = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs.master
+            zig
             pkgs.openssl
           ];
 
