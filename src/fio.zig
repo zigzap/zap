@@ -11,8 +11,16 @@ pub const fio_url_s = extern struct {
     target: fio_str_info_s,
 };
 pub extern fn fio_url_parse(url: [*c]const u8, length: usize) fio_url_s;
+
+/// Negative thread / worker values indicate a fraction of the number of CPU cores. i.e., -2 will normally indicate "half" (1/2) the number of cores.
+/// 
+/// If one value is set to zero, it will be the absolute value of the other value. i.e.: if .threads == -2 and .workers == 0, than facil.io will run 2 worker processes with (cores/2) threads per process.
 pub const struct_fio_start_args = extern struct {
+    /// The number of threads to run in the thread pool.
     threads: i16,
+    /// The number of worker processes to run (in addition to a root process)
+    ///
+    /// This invokes facil.io's cluster mode, where a crashed worker will be automatically re-spawned and "hot restart" is enabled (using the USR1 signal).
     workers: i16,
 };
 pub const fio_start_args = struct_fio_start_args;
