@@ -9,6 +9,11 @@ SUBJECT=$1
 TSK_SRV="taskset -c 0,1,2,3"
 TSK_LOAD="taskset -c 4,5,6,7"
 
+if [ $(echo $(uname)) = "Darwin" ] ; then
+    TSK_SRV=""
+    TSK_LOAD=""
+fi
+
 if [ "$SUBJECT" = "" ] ; then
     echo "usage: $0 subject    # subject: zig or go"
     exit 1
@@ -17,6 +22,14 @@ fi
 if [ "$SUBJECT" = "zig-zap" ] ; then
     zig build -Doptimize=ReleaseFast wrk > /dev/null
     $TSK_SRV ./zig-out/bin/wrk &
+    PID=$!
+    URL=http://127.0.0.1:3000
+fi
+
+if [ "$SUBJECT" = "httpz" ] ; then
+    cd wrk/httpz
+    zig build -Doptimize=ReleaseFast > /dev/null
+    $TSK_SRV ./zig-out/bin/httpz &
     PID=$!
     URL=http://127.0.0.1:3000
 fi
