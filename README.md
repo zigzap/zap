@@ -24,30 +24,28 @@ proved to be:
 
 Exactly the goals I set out to achieve!
 
-## Most FAQ:
+## FAQ:
 
-### Zap uses the latest stable zig release (0.13.0) for a reason. So you don't
-have to keep up with frequent breaking changes. It's an "LTS feature". If you
-want to use zig master, use the `zig-master` branch but be aware that I don't
-provide `build.zig.zon` snippets or tagged releases for it for the time being.
-If you know what you are doing, that shouldn't stop you from using it with zig
-master though.
-
+- Q: **What version of Zig does Zap support?**
+    - Zap uses the latest stable zig release (0.13.0), so you don't have to keep 
+      up with frequent breaking changes. It's an "LTS feature". 
+- Q: **Can Zap build with Zig's master branch?**
+    - See the `zig-master` branch. An example of how to use it is 
+      [here](https://github.com/zigzap/hello-master). Please note that the 
+      zig-master branch is not the official master branch of ZAP. Be aware that 
+      I don't provide `build.zig.zon` snippets or tagged releases for it for
+      the time being. If you know what you are doing, that shouldn't stop you
+      from using it with zig master though.
 - Q: **Where is the API documentation?**
-    - A: Docs are a work in progress. You can check them out
+    - Docs are a work in progress. You can check them out
       [here](https://zigzap.org/zap).
-    - A: Run `zig build run-docserver` to serve them locally.
-- Q: **Zap doesn't build with Zig master?**
-    - A: See the zig-master branch. An example of how to use it is
-      [here](https://github.com/zigzap/hello-master). Please note that the
-      zig-master branch is not the official master branch of ZAP. Yet. Until zig
-      0.13.0 is released.
+    - Run `zig build run-docserver` to serve them locally.
 - Q: **Does ZAP work on Windows?**
-    - A: No. This is due to the underlying facil.io C library. Future versions
+    - No. This is due to the underlying facil.io C library. Future versions
       of facil.io might support Windows but there is no timeline yet. Your best
       options on Windows are WSL2 or a docker container.
 - Q: **Does ZAP support TLS / HTTPS?**
-    - A: Yes, ZAP supports using the system's openssl. See the
+    - Yes, ZAP supports using the system's openssl. See the
       [https](./examples/https/https.zig) example and make sure to build with
       the `-Dopenssl` flag or the environment variable `ZAP_USE_OPENSSL=true`:
       - `.openssl = true,` (in dependent projects' build.zig,
