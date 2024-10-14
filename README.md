@@ -58,7 +58,7 @@ master though.
 ## Here's what works
 
 I recommend checking out **Endpoint-based examples for more realistic
-use cases**. Most of the examples are super stripped down to only include 
+use cases**. Most of the examples are super stripped down to only include
 what's necessary to show a feature.
 
 **NOTE: To see API docs, run `zig build run-docserver`.** To specify a custom
@@ -132,10 +132,10 @@ port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
   call `r.sendError(err, status_code)` when you catch an error and a stack trace
   will be returned to the client / browser.
 - [**HTTPS**](examples/https/https.zig): Shows how easy it is to use facil.io's
-  openssl support. Must be compiled with `-Dopenssl=true` or the environment 
+  openssl support. Must be compiled with `-Dopenssl=true` or the environment
   variable `ZAP_USE_OPENSSL` set to `true` and requires openssl dev dependencies
   (headers, lib) to be installed on the system.
-  - run it like this: `ZAP_USE_OPENSSL=true zig build run-https`  
+  - run it like this: `ZAP_USE_OPENSSL=true zig build run-https`
     OR like this: `zig build -Dopenssl=true run-https`
   - it will tell you how to generate certificates
 - [**simple_router**](examples/simple_router/simple_router.zig): See how you
@@ -181,7 +181,7 @@ simplistic testing scenario.
 
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
-... of reasonable performance 😎. 
+... of reasonable performance 😎.
 
 I can rest my case that developing ZAP was a good idea because it's faster than
 both alternatives: a) staying with Python, and b) creating a GO + Zig hybrid.
@@ -257,7 +257,7 @@ $ git init      ## (optional)
 **Note**: Nix/NixOS users are lucky; you can use the existing `flake.nix` and run
 `nix develop` to get a development shell providing zig and all
 dependencies to build and run the GO, python, and rust examples for the
-`wrk` performance tests. For the mere building of zap projects, 
+`wrk` performance tests. For the mere building of zap projects,
 `nix develop .#build` will only fetch zig 0.11.0. TODO: upgrade to latest zig.
 
 With an existing Zig project, adding Zap to it is easy:
@@ -265,25 +265,11 @@ With an existing Zig project, adding Zap to it is easy:
 1. Add zap to your `build.zig.zon`
 2. Add zap to your `build.zig`
 
-To add zap to `build.zig.zon`:
+In your zig project folder (where `build.zig` is located), run:
 
 <!-- INSERT_DEP_BEGIN -->
-```zig
-.{
-    .name = "My example project",
-    .version = "0.0.1",
-
-    .dependencies = .{
-        // zap v0.8.0
-        .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/v0.8.0.tar.gz",
-            .hash = "12209936c3333b53b53edcf453b1670babb9ae8c2197b1ca627c01e72670e20c1a21",
-        },
-    },
-    .paths = .{
-        "",
-    },
-}
+```
+zig fetch --save "git+https://github.com/zigzap/zap#v0.8.0"
 ```
 <!-- INSERT_DEP_END -->
 

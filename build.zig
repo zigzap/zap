@@ -212,20 +212,6 @@ pub fn build(b: *std.Build) !void {
     test_step.dependOn(&run_sendfile_tests.step);
 
     //
-    // pkghash
-    //
-    const pkghash_exe = b.addExecutable(.{
-        .name = "pkghash",
-        .root_source_file = b.path("./tools/pkghash.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    var pkghash_step = b.step("pkghash", "Build pkghash");
-    const pkghash_build_step = b.addInstallArtifact(pkghash_exe, .{});
-    pkghash_step.dependOn(&pkghash_build_step.step);
-    all_step.dependOn(&pkghash_build_step.step);
-
-    //
     // docserver
     //
     const docserver_exe = b.addExecutable(.{
