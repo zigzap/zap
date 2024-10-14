@@ -8,8 +8,6 @@ on:
       - zig-master
     schedule:
       - cron: "0 0 * * *"
-      branches:
-      - zig-master
     workflow_dispatch:
 
 jobs:
