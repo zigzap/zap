@@ -99,7 +99,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
             const self: *Self = @fieldParentPtr("handler", handler);
             r.setUserContext(context);
-            if (!self.options.checkPath or
+            if (self.options.checkPath and
                 std.mem.startsWith(u8, r.path orelse "", self.endpoint.settings.path))
             {
                 self.endpoint.onRequest(r);
