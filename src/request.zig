@@ -431,8 +431,10 @@ pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void
     }
 }
 
-/// Returns the header value of given key name. Returned mem is temp.
-/// Do not free it.
+/// Returns the header value of given key name.
+/// NOTE that header-names are lowerased automatically while parsing the request.
+///     so please only use lowercase keys!
+/// Returned mem is temp. Do not free it.
 pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
     const hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);
     defer fio.fiobj_free_wrapped(hname);

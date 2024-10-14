@@ -51,23 +51,38 @@ pub fn Handler(comptime ContextType: anytype) type {
     };
 }
 
+/// Options used to change the behavior of an `EndpointHandler`
+pub const EndpointHandlerOptions = struct {
+    /// If `true`, the handler will stop handing requests down the chain if the
+    /// endpoint processed the request.
+    breakOnFinish: bool = true,
+
+    /// If `true`, the handler will only execute against requests that match
+    /// the endpoint's `path` setting.
+    checkPath: bool = false,
+};
+
 /// A convenience handler for artibrary zap.Endpoint
 pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,
         endpoint: *zap.Endpoint,
-        breakOnFinish: bool,
+        options: EndpointHandlerOptions,
 
         const Self = @This();
 
         /// Create an endpointhandler from an endpoint and pass in the next (other) handler in the chain.
-        /// If `breakOnFinish` is `true`, the handler will stop handing requests down the chain if
-        /// the endpoint processed the request.
-        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, breakOnFinish: bool) Self {
+        ///
+        /// By default no routing is performed on requests. This behavior can be changed by setting
+        /// `checkPath` in the provided options.
+        ///
+        /// If the `breakOnFinish` option is `true`, the handler will stop handing requests down the chain
+        /// if the endpoint processed the request.
+        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, options: EndpointHandlerOptions) Self {
             return .{
                 .handler = HandlerType.init(onRequest, other),
                 .endpoint = endpoint,
-                .breakOnFinish = breakOnFinish,
+                .options = options,
             };
         }
 
@@ -84,10 +99,14 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
             const self: *Self = @fieldParentPtr("handler", handler);
             r.setUserContext(context);
-            self.endpoint.onRequest(r);
+            if (!self.options.checkPath or
+                std.mem.startsWith(u8, r.path orelse "", self.endpoint.settings.path))
+            {
+                self.endpoint.onRequest(r);
+            }
 
             // if the request was handled by the endpoint, we may break the chain here
-            if (r.isFinished() and self.breakOnFinish) {
+            if (r.isFinished() and self.options.breakOnFinish) {
                 return true;
             }
             return self.handler.handleOther(r, context);

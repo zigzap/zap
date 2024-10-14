@@ -15,7 +15,7 @@ extern fn fiobj_mustache_build2(dest: fio.FIOBJ, mustache: ?*mustache_s, data: f
 extern fn fiobj_mustache_free(mustache: ?*mustache_s) void;
 
 /// Load arguments used when creating a new Mustache instance.
-pub const MustacheLoadArgs = struct {
+pub const LoadArgs = struct {
     /// Filename. This enables partial templates on filesystem.
     filename: ?[]const u8 = null,
 
@@ -51,7 +51,7 @@ pub const Error = error{
 
 /// Create a new `Mustache` instance; `deinit()` should be called to free
 /// the object after usage.
-pub fn init(load_args: MustacheLoadArgs) Error!Self {
+pub fn init(load_args: LoadArgs) Error!Self {
     var err: mustache_error_en = undefined;
 
     const args: MustacheLoadArgsFio = .{
@@ -113,7 +113,7 @@ pub fn deinit(self: *Self) void {
 // pub extern fn fiobj_mustache_build2(dest: FIOBJ, mustache: ?*mustache_s, data: FIOBJ) FIOBJ;
 
 /// The result from calling `build`.
-const MustacheBuildResult = struct {
+pub const BuildResult = struct {
     fiobj_result: fio.FIOBJ = 0,
 
     /// Holds the context converted into a fiobj.
@@ -121,13 +121,13 @@ const MustacheBuildResult = struct {
     fiobj_context: fio.FIOBJ = 0,
 
     /// Free the data backing a `MustacheBuildResult` instance.
-    pub fn deinit(m: *const MustacheBuildResult) void {
+    pub fn deinit(m: *const BuildResult) void {
         fio.fiobj_free_wrapped(m.fiobj_result);
         fio.fiobj_free_wrapped(m.fiobj_context);
     }
 
     /// Retrieve a string representation of the built template.
-    pub fn str(m: *const MustacheBuildResult) ?[]const u8 {
+    pub fn str(m: *const BuildResult) ?[]const u8 {
         return util.fio2str(m.fiobj_result);
     }
 };
@@ -137,13 +137,13 @@ const MustacheBuildResult = struct {
 // TODO: The build may be slow because it needs to convert zig types to facil.io
 // types. However, this needs to be investigated into.
 // See `fiobjectify` for more information.
-pub fn build(self: *Self, data: anytype) MustacheBuildResult {
+pub fn build(self: *Self, data: anytype) BuildResult {
     const T = @TypeOf(data);
     if (@typeInfo(T) != .Struct) {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");
     }
 
-    var result: MustacheBuildResult = .{};
+    var result: BuildResult = .{};
 
     result.fiobj_context = fiobjectify(data);
     result.fiobj_result = fiobj_mustache_build(self.handle, result.fiobj_context);
