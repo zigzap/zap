@@ -139,7 +139,7 @@ pub const BuildResult = struct {
 // See `fiobjectify` for more information.
 pub fn build(self: *Self, data: anytype) BuildResult {
     const T = @TypeOf(data);
-    if (@typeInfo(T) != .Struct) {
+    if (@typeInfo(T) != .@"struct") {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");
     }
 
@@ -157,29 +157,29 @@ fn fiobjectify(
 ) fio.FIOBJ {
     const T = @TypeOf(value);
     switch (@typeInfo(T)) {
-        .Float, .ComptimeFloat => {
+        .float, .comptime_float => {
             return fio.fiobj_float_new(value);
         },
-        .Int, .ComptimeInt => {
+        .int, .comptime_int => {
             return fio.fiobj_num_new_bignum(value);
         },
-        .Bool => {
+        .bool => {
             return if (value) fio.fiobj_true() else fio.fiobj_false();
         },
-        .Null => {
+        .null => {
             return 0;
         },
-        .Optional => {
+        .optional => {
             if (value) |payload| {
                 return fiobjectify(payload);
             } else {
                 return fiobjectify(null);
             }
         },
-        .Enum => {
+        .@"enum" => {
             return fio.fiobj_num_new_bignum(@intFromEnum(value));
         },
-        .Union => {
+        .@"union" => {
             const info = @typeInfo(T).Union;
             if (info.tag_type) |UnionTagType| {
                 inline for (info.fields) |u_field| {
@@ -191,7 +191,7 @@ fn fiobjectify(
                 @compileError("Unable to fiobjectify untagged union '" ++ @typeName(T) ++ "'");
             }
         },
-        .Struct => |S| {
+        .@"struct" => |S| {
             // create a new fio hashmap
             const m = fio.fiobj_hash_new();
             // std.debug.print("new struct\n", .{});
@@ -211,10 +211,10 @@ fn fiobjectify(
             }
             return m;
         },
-        .ErrorSet => return fiobjectify(@as([]const u8, @errorName(value))),
-        .Pointer => |ptr_info| switch (ptr_info.size) {
+        .error_set => return fiobjectify(@as([]const u8, @errorName(value))),
+        .pointer => |ptr_info| switch (ptr_info.size) {
             .One => switch (@typeInfo(ptr_info.child)) {
-                .Array => {
+                .array => {
                     const Slice = []const std.meta.Elem(ptr_info.child);
                     return fiobjectify(@as(Slice, value));
                 },
@@ -239,8 +239,8 @@ fn fiobjectify(
             },
             else => @compileError("Unable to fiobjectify type '" ++ @typeName(T) ++ "'"),
         },
-        .Array => return fiobjectify(&value),
-        .Vector => |info| {
+        .array => return fiobjectify(&value),
+        .vector => |info| {
             const array: [info.len]info.child = value;
             return fiobjectify(&array);
         },
