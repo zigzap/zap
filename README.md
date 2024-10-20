@@ -269,7 +269,7 @@ In your zig project folder (where `build.zig` is located), run:
 
 <!-- INSERT_DEP_BEGIN -->
 ```
-zig fetch --save "git+https://github.com/zigzap/zap#v0.9.0"
+zig fetch --save "git+https://github.com/zigzap/zap#v0.9.1"
 ```
 <!-- INSERT_DEP_END -->
 
@@ -401,6 +401,7 @@ pub fn main() !void {
     });
 }
 ```
+
 
 
 
