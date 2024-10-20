@@ -6,25 +6,10 @@ __**New release {tag}!**__
 
 **Using it**
 
-Modify your `build.zig.zon` like this:
+In your zig project folder (where `build.zig` is located), run:
 
-```zig
-.{
-    .name = "My example project",
-    .version = "0.0.1",
-
-    .dependencies = .{
-        // zap {tag}
-        .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/refs/tags/{tag}.tar.gz",
-            .hash = "{hash}",
-        },
-    },
-    .paths = .{
-        "",
-    },
-}
-
+```
+zig fetch --save "git+https://github.com/zigzap/zap#{tag}"
 ```
 
 See the release page: https://github.com/zigzap/zap/releases/{tag} for more information!

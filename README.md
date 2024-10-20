@@ -265,25 +265,11 @@ With an existing Zig project, adding Zap to it is easy:
 1. Add zap to your `build.zig.zon`
 2. Add zap to your `build.zig`
 
-To add zap to `build.zig.zon`:
+In your zig project folder (where `build.zig` is located), run:
 
 <!-- INSERT_DEP_BEGIN -->
-```zig
-.{
-    .name = "My example project",
-    .version = "0.0.1",
-
-    .dependencies = .{
-        // zap v0.8.0
-        .zap = .{
-            .url = "https://github.com/zigzap/zap/archive/v0.8.0.tar.gz",
-            .hash = "12209936c3333b53b53edcf453b1670babb9ae8c2197b1ca627c01e72670e20c1a21",
-        },
-    },
-    .paths = .{
-        "",
-    },
-}
+```
+zig fetch --save "git+https://github.com/zigzap/zap#v0.9.0"
 ```
 <!-- INSERT_DEP_END -->
 
@@ -415,5 +401,6 @@ pub fn main() !void {
     });
 }
 ```
+
 
 

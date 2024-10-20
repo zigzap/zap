@@ -1,6 +1,7 @@
+// for use inside of github, build with
+// zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall announceybot
+// then copy to ./announceybot.exe
 const std = @import("std");
-const PkgHash = @import("pkghash.zig");
-const Manifest = @import("Manifest.zig");
 
 const README_PATH = "README.md";
 const README_MAX_SIZE = 25 * 1024;
@@ -105,30 +106,6 @@ fn get_tag_annotation(allocator: std.mem.Allocator, tagname: []const u8) ![]cons
     return try allocator.dupe(u8, return_string);
 }
 
-/// you need to have checked out the git tag!
-fn getPkgHash(allocator: std.mem.Allocator) ![]const u8 {
-    const cwd = std.fs.cwd();
-    const cwd_absolute_path = try cwd.realpathAlloc(allocator, ".");
-    defer allocator.free(cwd_absolute_path);
-    const hash = blk: {
-        const result = try PkgHash.gitFileList(allocator, cwd_absolute_path);
-        defer allocator.free(result);
-
-        var thread_pool: std.Thread.Pool = undefined;
-        try thread_pool.init(.{ .allocator = allocator });
-        defer thread_pool.deinit();
-
-        break :blk try PkgHash.computePackageHashForFileList(
-            &thread_pool,
-            cwd,
-            result,
-        );
-    };
-
-    const digest = Manifest.hexDigest(hash);
-    return try allocator.dupe(u8, digest[0..]);
-}
-
 const RenderParams = struct {
     tag: ?[]const u8 = null,
     hash: ?[]const u8 = null,
@@ -137,14 +114,11 @@ const RenderParams = struct {
 
 fn renderTemplate(allocator: std.mem.Allocator, template: []const u8, substitutes: RenderParams) ![]const u8 {
     const the_tag = substitutes.tag orelse "";
-    const the_hash = substitutes.hash orelse "";
     const the_anno = substitutes.annotation orelse "";
 
     const s1 = try std.mem.replaceOwned(u8, allocator, template, "{tag}", the_tag);
     defer allocator.free(s1);
-    const s2 = try std.mem.replaceOwned(u8, allocator, s1, "{hash}", the_hash);
-    defer allocator.free(s2);
-    return try std.mem.replaceOwned(u8, allocator, s2, "{annotation}", the_anno);
+    return try std.mem.replaceOwned(u8, allocator, s1, "{annotation}", the_anno);
 }
 
 fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json: []const u8) !void {
@@ -324,12 +298,9 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
 fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
     const annotation = try get_tag_annotation(allocator, tag);
     defer allocator.free(annotation);
-    const hash = try getPkgHash(allocator);
-    defer allocator.free(hash);
 
     const announcement = try renderTemplate(allocator, RELEASE_ANNOUNCEMENT_TEMPLATE, .{
         .tag = tag,
-        .hash = hash,
         .annotation = annotation,
     });
 
@@ -346,12 +317,9 @@ fn command_announce(allocator: std.mem.Allocator, tag: []const u8) !void {
 fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
     const annotation = try get_tag_annotation(allocator, tag);
     defer allocator.free(annotation);
-    const hash = try getPkgHash(allocator);
-    defer allocator.free(hash);
 
     const release_notes = try renderTemplate(allocator, RELEASE_NOTES_TEMPLATE, .{
         .tag = tag,
-        .hash = hash,
         .annotation = annotation,
     });
     defer allocator.free(release_notes);
@@ -360,12 +328,9 @@ fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
 fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
     const annotation = try get_tag_annotation(allocator, tag);
     defer allocator.free(annotation);
-    const hash = try getPkgHash(allocator);
-    defer allocator.free(hash);
 
     const update_part = try renderTemplate(allocator, README_UPDATE_TEMPLATE, .{
         .tag = tag,
-        .hash = hash,
         .annotation = annotation,
     });
     defer allocator.free(update_part);

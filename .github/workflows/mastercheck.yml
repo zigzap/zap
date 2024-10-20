@@ -1,5 +1,5 @@
 name: Works with Zig master
-on: 
+on:
     push:
       branches:
       - zig-master
@@ -9,7 +9,7 @@ on:
     schedule:
       - cron: "0 0 * * *"
     workflow_dispatch:
-  
+
 jobs:
   ci:
     strategy:
@@ -18,6 +18,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: zig-master
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: master
