@@ -30,6 +30,8 @@ pub const Settings = struct {
     options: ?RequestFn = null,
     /// Only applicable to Authenticating Endpoint: handler for unauthorized requests
     unauthorized: ?RequestFn = null,
+    // callback to any unset request type
+    unset: ?RequestFn = null,
 };
 
 settings: Settings,
@@ -41,13 +43,14 @@ pub fn init(s: Settings) Endpoint {
     return .{
         .settings = .{
             .path = s.path,
-            .get = s.get orelse &nop,
-            .post = s.post orelse &nop,
-            .put = s.put orelse &nop,
-            .delete = s.delete orelse &nop,
-            .patch = s.patch orelse &nop,
-            .options = s.options orelse &nop,
-            .unauthorized = s.unauthorized orelse &nop,
+            .get = s.get orelse s.unset orelse &nop,
+            .post = s.post orelse s.unset orelse &nop,
+            .put = s.put orelse s.unset orelse &nop,
+            .delete = s.delete orelse s.unset orelse &nop,
+            .patch = s.patch orelse s.unset orelse &nop,
+            .options = s.options orelse s.unset orelse &nop,
+            .unauthorized = s.unauthorized orelse s.unset orelse &nop,
+            .unset = s.unset orelse &nop,
         },
     };
 }
@@ -98,6 +101,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
                     .patch = if (e.settings.patch != null) patch else null,
                     .options = if (e.settings.options != null) options else null,
                     .unauthorized = e.settings.unauthorized,
+                    .unset = e.settings.unset,
                 }),
             };
         }
