@@ -14,6 +14,7 @@ pub fn init(
         .ep = zap.Endpoint.init(.{
             .path = path,
             .get = get,
+            .unset = zap.Endpoint.dummy_handler,
         }),
     };
 }

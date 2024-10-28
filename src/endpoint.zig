@@ -43,20 +43,20 @@ pub fn init(s: Settings) Endpoint {
     return .{
         .settings = .{
             .path = s.path,
-            .get = s.get orelse s.unset orelse &nop,
-            .post = s.post orelse s.unset orelse &nop,
-            .put = s.put orelse s.unset orelse &nop,
-            .delete = s.delete orelse s.unset orelse &nop,
-            .patch = s.patch orelse s.unset orelse &nop,
-            .options = s.options orelse s.unset orelse &nop,
-            .unauthorized = s.unauthorized orelse s.unset orelse &nop,
-            .unset = s.unset orelse &nop,
+            .get = s.get orelse s.unset orelse @panic("Endpoint handler `.get` is unset, and no `.unset` handler is provided."),
+            .post = s.post orelse s.unset orelse @panic("Endpoint handler `.post` is unset, and no `.unset` handler is provided."),
+            .put = s.put orelse s.unset orelse @panic("Endpoint handler `.put` is unset, and no `.unset` handler is provided."),
+            .delete = s.delete orelse s.unset orelse @panic("Endpoint handler `.delete` is unset, and no `.unset` handler is provided."),
+            .patch = s.patch orelse s.unset orelse @panic("Endpoint handler `.patch` is unset, and no `.unset` handler is provided."),
+            .options = s.options orelse s.unset orelse @panic("Endpoint handler `.options` is unset, and no `.unset` handler is provided."),
+            .unauthorized = s.unauthorized orelse s.unset orelse @panic("Endpoint handler `.unauthorized` is unset, and no `.unset` handler is provided."),
+            .unset = s.unset,
         },
     };
 }
 
 // no operation. Dummy handler function for ignoring unset request types.
-fn nop(self: *Endpoint, r: Request) void {
+pub fn dummy_handler(self: *Endpoint, r: Request) void {
     _ = self;
     _ = r;
 }

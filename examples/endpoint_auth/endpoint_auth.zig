@@ -42,6 +42,7 @@ pub fn main() !void {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = zap.Endpoint.dummy_handler,
     });
 
     // create authenticator
