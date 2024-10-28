@@ -1,3 +1,9 @@
+.zig-cache/
+/release/
+/debug/
+/build/
+/build-*/
+/docgen_tmp/
 zig-out/
 zig-cache/
 *.tar.gz
