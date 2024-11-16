@@ -191,6 +191,7 @@ test "BearerAuthSingle authenticateRequest OK" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     // create authenticator
@@ -244,6 +245,7 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     const Set = std.StringHashMap(void);
@@ -301,6 +303,7 @@ test "BearerAuthMulti authenticateRequest OK" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     // create authenticator
@@ -352,6 +355,7 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     // create authenticator
@@ -403,6 +407,7 @@ test "BasicAuth Token68 authenticateRequest" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
     // create a set of Token68 entries
     const Set = std.StringHashMap(void);
@@ -459,6 +464,7 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
     // create a set of Token68 entries
     const Set = std.StringHashMap(void);
@@ -514,6 +520,7 @@ test "BasicAuth UserPass authenticateRequest" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     // create a set of User -> Pass entries
@@ -580,6 +587,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
         .path = "/test",
         .get = endpoint_http_get,
         .unauthorized = endpoint_http_unauthorized,
+        .unset = Endpoint.dummy_handler,
     });
 
     // create a set of User -> Pass entries

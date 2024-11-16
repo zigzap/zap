@@ -228,7 +228,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
                         return;
                     }
                 },
-                .AuthOK => authEp.ep.settings.put.?(authEp.ep, r),
+                .AuthOK => authEp.ep.settings.options.?(authEp.ep, r),
                 .Handled => {},
             }
         }
