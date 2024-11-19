@@ -1,6 +1,11 @@
 .{
     .name = "zap",
     .version = "0.8.0",
+    .dependencies = .{
+        .@"facil.io" = .{
+            .path = "./facil.io",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",

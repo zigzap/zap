@@ -1,5 +1,5 @@
 zig-out/
-zig-cache/
+.zig-cache/
 *.tar.gz
 flake.lock.bak
 tmp/

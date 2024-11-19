@@ -1,8 +1,20 @@
 const std = @import("std");
 
+pub fn build(b: *std.Build) !void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+    const use_openssl = b.option(bool, "use_openssl", "Use OpenSSL") orelse false;
+
+    const upstream = b.dependency("facil.io", .{ .target = target, .optimize = optimize });
+
+    const lib = try build_facilio(b, upstream, target, optimize, use_openssl);
+
+    b.installArtifact(lib);
+}
+
 pub fn build_facilio(
-    comptime subdir: []const u8,
     b: *std.Build,
+    upstream: *std.Build.Dependency,
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
     use_openssl: bool,
@@ -14,7 +26,7 @@ pub fn build_facilio(
     });
 
     // Generate flags
-    var flags = std.ArrayList([]const u8).init(std.heap.page_allocator);
+    var flags = std.ArrayList([]const u8).init(b.allocator);
     if (optimize != .Debug) try flags.append("-Os");
     try flags.append("-Wno-return-type-c-linkage");
     try flags.append("-fno-sanitize=undefined");
@@ -32,43 +44,52 @@ pub fn build_facilio(
         try flags.append("-DHAVE_OPENSSL -DFIO_TLS_FOUND");
 
     // Include paths
-    lib.addIncludePath(b.path(subdir ++ "/."));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/fiobj"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/cli"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http/parsers"));
+    lib.addIncludePath(upstream.path("."));
+    lib.addIncludePath(upstream.path("lib/facil"));
+    lib.addIncludePath(upstream.path("lib/facil/fiobj"));
+    lib.addIncludePath(upstream.path("lib/facil/cli"));
+    lib.addIncludePath(upstream.path("lib/facil/http"));
+    lib.addIncludePath(upstream.path("lib/facil/http/parsers"));
     if (use_openssl)
-        lib.addIncludePath(b.path(subdir ++ "/lib/facil/tls"));
+        lib.addIncludePath(upstream.path("lib/facil/tls"));
+
+    lib.addCSourceFiles(.{
+        .root = b.path("."),
+        .files = &.{
+            "src/fio_zig.c",
+        },
+        .flags = flags.items,
+    });
 
     // C source files
     lib.addCSourceFiles(.{
+        .root = upstream.path("."),
         .files = &.{
-            subdir ++ "/lib/facil/fio.c",
-            subdir ++ "/lib/facil/fio_zig.c",
-            subdir ++ "/lib/facil/http/http.c",
-            subdir ++ "/lib/facil/http/http1.c",
-            subdir ++ "/lib/facil/http/websockets.c",
-            subdir ++ "/lib/facil/http/http_internal.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_numbers.c",
-            subdir ++ "/lib/facil/fiobj/fio_siphash.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_str.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_ary.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_data.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_hash.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_json.c",
-            subdir ++ "/lib/facil/fiobj/fiobject.c",
-            subdir ++ "/lib/facil/fiobj/fiobj_mustache.c",
-            subdir ++ "/lib/facil/cli/fio_cli.c",
+            "lib/facil/fio.c",
+            "lib/facil/http/http.c",
+            "lib/facil/http/http1.c",
+            "lib/facil/http/websockets.c",
+            "lib/facil/http/http_internal.c",
+            "lib/facil/fiobj/fiobj_numbers.c",
+            "lib/facil/fiobj/fio_siphash.c",
+            "lib/facil/fiobj/fiobj_str.c",
+            "lib/facil/fiobj/fiobj_ary.c",
+            "lib/facil/fiobj/fiobj_data.c",
+            "lib/facil/fiobj/fiobj_hash.c",
+            "lib/facil/fiobj/fiobj_json.c",
+            "lib/facil/fiobj/fiobject.c",
+            "lib/facil/fiobj/fiobj_mustache.c",
+            "lib/facil/cli/fio_cli.c",
         },
         .flags = flags.items,
     });
 
     if (use_openssl) {
         lib.addCSourceFiles(.{
+            .root = upstream.path("."),
             .files = &.{
-                subdir ++ "/lib/facil/tls/fio_tls_openssl.c",
-                subdir ++ "/lib/facil/tls/fio_tls_missing.c",
+                "lib/facil/tls/fio_tls_openssl.c",
+                "lib/facil/tls/fio_tls_missing.c",
             },
             .flags = flags.items,
         });
@@ -82,8 +103,6 @@ pub fn build_facilio(
         lib.linkSystemLibrary("ssl");
         lib.linkSystemLibrary("crypto");
     }
-
-    b.installArtifact(lib);
 
     return lib;
 }

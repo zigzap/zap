@@ -1,5 +1,4 @@
 const std = @import("std");
-const build_facilio = @import("facil.io/build.zig").build_facilio;
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -20,14 +19,18 @@ pub fn build(b: *std.Build) !void {
         break :blk false;
     };
 
-    const facilio = try build_facilio("facil.io", b, target, optimize, use_openssl);
+    const facilio = b.dependency("facil.io", .{
+        .target = target,
+        .optimize = optimize,
+        .use_openssl = use_openssl,
+    });
 
     const zap_module = b.addModule("zap", .{
         .root_source_file = b.path("src/zap.zig"),
         .target = target,
         .optimize = optimize,
     });
-    zap_module.linkLibrary(facilio);
+    zap_module.linkLibrary(facilio.artifact("facil.io"));
 
     const all_step = b.step("all", "build all examples");
 
