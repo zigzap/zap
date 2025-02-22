@@ -339,7 +339,7 @@ pub fn _internal_sendError(self: *const Self, err: anyerror, err_trace: ?std.bui
     if (err_trace) |trace| {
         const debugInfo = try std.debug.getSelfDebugInfo();
         const ttyConfig: std.io.tty.Config = .no_color;
-        try std.debug.writeStackTrace(trace, writer, fba.allocator(), debugInfo, ttyConfig);
+        try std.debug.writeStackTrace(trace, writer, debugInfo, ttyConfig);
     }
 
     try self.sendBody(string.items);
