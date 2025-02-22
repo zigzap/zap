@@ -213,7 +213,7 @@ fn fiobjectify(
         },
         .error_set => return fiobjectify(@as([]const u8, @errorName(value))),
         .pointer => |ptr_info| switch (ptr_info.size) {
-            .One => switch (@typeInfo(ptr_info.child)) {
+            .one => switch (@typeInfo(ptr_info.child)) {
                 .array => {
                     const Slice = []const std.meta.Elem(ptr_info.child);
                     return fiobjectify(@as(Slice, value));
@@ -224,7 +224,7 @@ fn fiobjectify(
                 },
             },
             // TODO: .Many when there is a sentinel (waiting for https://github.com/ziglang/zig/pull/3972)
-            .Slice => {
+            .slice => {
                 // std.debug.print("new slice\n", .{});
                 if (ptr_info.child == u8 and std.unicode.utf8ValidateSlice(value)) {
                     return fio.fiobj_str_new(util.toCharPtr(value), value.len);
