@@ -64,9 +64,9 @@ pub fn main() !void {
     std.debug.print("", .{});
     std.debug.print(
         \\
-        \\   ***********************************************
-        \\   *** Try me with: curl -k -v localhost:4443/ ***
-        \\   ***********************************************
+        \\   *******************************************************
+        \\   *** Try me with: curl -k -v https://localhost:4443/ ***
+        \\   *******************************************************
         \\
         \\Your browser may lie to you, indicate a non-secure connection because of the self-created certificate, and make you believe that HTTPS / TLS "does not work".
         \\
