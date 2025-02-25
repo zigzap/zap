@@ -7,10 +7,13 @@ serverPort = 8080
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(bytes("HI FROM PYTHON!!!", "utf-8"))
+        try:
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(bytes("HI FROM PYTHON!!!", "utf-8"))
+        except:
+            pass
 
     def log_message(self, format, *args):
         return

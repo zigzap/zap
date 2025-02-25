@@ -49,6 +49,7 @@
             wrk
             python3
             python3Packages.sanic
+            python3Packages.setuptools
             python3Packages.matplotlib
             poetry
             poetry
