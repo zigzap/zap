@@ -84,7 +84,7 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.13.0"
+            zigpkgs."0.14.0"
             pkgs.openssl
           ];
 
