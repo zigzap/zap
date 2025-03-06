@@ -74,6 +74,41 @@ pub fn handle_func_unbound(self: *Self, path: []const u8, h: zap.HttpRequestFn) 
 pub fn handle_func(self: *Self, path: []const u8, instance: *anyopaque, handler: anytype) !void {
     // TODO: assert type of instance has handler
 
+    // Introspection checks on handler type
+    comptime {
+        const hand_info = @typeInfo(@TypeOf(handler));
+
+        // Need to check:
+        // 1) handler is function pointer
+        const f = blk: {
+            if (hand_info == .Pointer) {
+                const inner = @typeInfo(hand_info.Pointer.child);
+                if (inner == .Fn) {
+                    break :blk inner.Fn;
+                }
+            }
+            @compileError("Expected handler to be a function pointer. Found " ++
+                @typeName(@TypeOf(handler)));
+        };
+
+        // 2) snd arg is zap.Request
+        if (f.params.len != 2) {
+            @compileError("Expected handler to have two paramters");
+        }
+        const arg_type = f.params[1].type.?;
+        if (arg_type != zap.Request) {
+            @compileError("Expected handler's second argument to be of type zap.Request. Found " ++
+                @typeName(arg_type));
+        }
+
+        // 3) handler returns void
+        const ret_info = @typeInfo(f.return_type.?);
+        if (ret_info != .Void) {
+            @compileError("Expected handler's return type to be void. Found " ++
+                @typeName(f.return_type.?));
+        }
+    }
+
     if (path.len == 0) {
         return RouterError.EmptyPath;
     }
