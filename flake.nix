@@ -38,7 +38,8 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.14.0"
+              # TODO: re-enable this once it is fixed: zigpkgs."0.14.0"
+            zigpkgs.master
             bat
             wrk
             python3
@@ -84,7 +85,8 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            zigpkgs."0.14.0"
+            # zigpkgs."0.14.0"
+            zigpkgs.master
             pkgs.openssl
           ];
 
