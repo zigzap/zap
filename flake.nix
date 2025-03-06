@@ -9,10 +9,6 @@
     # required for latest zig
     zig.url = "github:mitchellh/zig-overlay";
 
-    # required for latest neovim
-    # neovim-flake.url = "github:neovim/neovim?dir=contrib";
-    # neovim-flake.inputs.nixpkgs.follows = "nixpkgs";
-
     # Used for shell.nix
     flake-compat = {
       url = github:edolstra/flake-compat;
@@ -30,7 +26,6 @@
       # Other overlays
       (final: prev: {
         zigpkgs = inputs.zig.packages.${prev.system};
-        # neovim-nightly-pkgs = inputs.neovim-flake.packages.${prev.system};
       })
     ];
 
@@ -43,8 +38,7 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            # neovim-nightly-pkgs.neovim
-            zigpkgs."0.13.0"
+            zigpkgs."0.14.0"
             bat
             wrk
             python3

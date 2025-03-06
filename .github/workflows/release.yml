@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       id-token: write
       contents: write
 
@@ -24,15 +24,6 @@ jobs:
       id: tag
       run: |
         echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
-
-    # we don't build pkghash, we provide it in ./tools
-    # - uses: goto-bus-stop/setup-zig@v2
-    #   with:
-    #     version: master
-    # - name: Check zig version
-    #   run: zig version
-    # - name: Build pkghash tool
-    #   run: zig build pkghash
 
     - name: Generate release notes
       id: release_notes
