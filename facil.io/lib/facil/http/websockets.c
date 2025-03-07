@@ -96,7 +96,7 @@ void free_ws_buffer(ws_s *owner, struct buffer_s buff) {
 Create/Destroy the websocket object (prototypes)
 */
 
-static ws_s *new_websocket();
+static ws_s *new_websocket(intptr_t uuid);
 static void destroy_ws(ws_s *ws);
 
 /*******************************************************************************
