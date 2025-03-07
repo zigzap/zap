@@ -30,6 +30,8 @@ pub const Settings = struct {
     options: ?RequestFn = null,
     /// Only applicable to Authenticating Endpoint: handler for unauthorized requests
     unauthorized: ?RequestFn = null,
+    // callback to any unset request type
+    unset: ?RequestFn = null,
 };
 
 settings: Settings,
@@ -41,19 +43,20 @@ pub fn init(s: Settings) Endpoint {
     return .{
         .settings = .{
             .path = s.path,
-            .get = s.get orelse &nop,
-            .post = s.post orelse &nop,
-            .put = s.put orelse &nop,
-            .delete = s.delete orelse &nop,
-            .patch = s.patch orelse &nop,
-            .options = s.options orelse &nop,
-            .unauthorized = s.unauthorized orelse &nop,
+            .get = s.get orelse s.unset orelse @panic("Endpoint handler `.get` is unset, and no `.unset` handler is provided."),
+            .post = s.post orelse s.unset orelse @panic("Endpoint handler `.post` is unset, and no `.unset` handler is provided."),
+            .put = s.put orelse s.unset orelse @panic("Endpoint handler `.put` is unset, and no `.unset` handler is provided."),
+            .delete = s.delete orelse s.unset orelse @panic("Endpoint handler `.delete` is unset, and no `.unset` handler is provided."),
+            .patch = s.patch orelse s.unset orelse @panic("Endpoint handler `.patch` is unset, and no `.unset` handler is provided."),
+            .options = s.options orelse s.unset orelse @panic("Endpoint handler `.options` is unset, and no `.unset` handler is provided."),
+            .unauthorized = s.unauthorized orelse s.unset orelse @panic("Endpoint handler `.unauthorized` is unset, and no `.unset` handler is provided."),
+            .unset = s.unset,
         },
     };
 }
 
 // no operation. Dummy handler function for ignoring unset request types.
-fn nop(self: *Endpoint, r: Request) void {
+pub fn dummy_handler(self: *Endpoint, r: Request) void {
     _ = self;
     _ = r;
 }
@@ -98,6 +101,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
                     .patch = if (e.settings.patch != null) patch else null,
                     .options = if (e.settings.options != null) options else null,
                     .unauthorized = e.settings.unauthorized,
+                    .unset = e.settings.unset,
                 }),
             };
         }
@@ -224,7 +228,7 @@ pub fn Authenticating(comptime Authenticator: type) type {
                         return;
                     }
                 },
-                .AuthOK => authEp.ep.settings.put.?(authEp.ep, r),
+                .AuthOK => authEp.ep.settings.options.?(authEp.ep, r),
                 .Handled => {},
             }
         }

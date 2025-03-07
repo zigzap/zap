@@ -33,6 +33,7 @@ pub const Tls = @import("tls.zig");
 ///             .ep = zap.Endpoint.init(.{
 ///                 .path = path,
 ///                 .get = get,
+///                 .unset = Endpoint.dummy_handler,
 ///             }),
 ///         };
 ///     }

@@ -144,6 +144,7 @@ const HtmlEndpoint = struct {
             .ep = zap.Endpoint.init(.{
                 .path = "/doesn't+matter",
                 .get = get,
+                .unset = zap.Endpoint.dummy_handler,
             }),
         };
     }
