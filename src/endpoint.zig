@@ -9,6 +9,34 @@ const Request = zap.Request;
 const ListenerSettings = zap.HttpListenerSettings;
 const HttpListener = zap.HttpListener;
 
+pub fn checkEndpointType(T: type) void {
+    if (@hasField(T, "path")) {
+        if (@FieldType(T, "path") != []const u8) {
+            @compileError(@typeName(@FieldType(T, "path")) ++ " has wrong type, expected: []const u8");
+        }
+    } else {
+        @compileError(@typeName(T) ++ " has no path field");
+    }
+
+    const methods_to_check = [_][]const u8{
+        "get",
+        "post",
+        "put",
+        "delete",
+        "patch",
+        "options",
+    };
+    inline for (methods_to_check) |method| {
+        if (@hasDecl(T, method)) {
+            if (@TypeOf(@field(T, method)) != fn (_: *T, _: Request) void) {
+                @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Request) void));
+            }
+        } else {
+            @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
+        }
+    }
+}
+
 const EndpointWrapper = struct {
     pub const Wrapper = struct {
         call: *const fn (*Wrapper, zap.Request) void = undefined,
@@ -53,6 +81,7 @@ const EndpointWrapper = struct {
     }
 
     pub fn init(T: type, value: *T) EndpointWrapper.Wrap(T) {
+        checkEndpointType(T);
         var ret: EndpointWrapper.Wrap(T) = .{
             .wrapped = value,
             .wrapper = .{ .path = value.path },
@@ -218,6 +247,7 @@ pub const Listener = struct {
             }
         }
         const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
+        checkEndpointType(EndpointType);
         const wrapper = try self.allocator.create(EndpointWrapper.Wrap(EndpointType));
         wrapper.* = EndpointWrapper.init(EndpointType, e);
         try endpoints.append(self.allocator, &wrapper.wrapper);
