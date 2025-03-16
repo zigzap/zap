@@ -4,12 +4,12 @@ const UserWeb = @import("userweb.zig");
 const StopEndpoint = @import("stopendpoint.zig");
 
 // this is just to demo that we can catch arbitrary slugs as fallback
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("REQUESTED PATH: {s}\n", .{the_path});
     }
 
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+    try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
 pub fn main() !void {

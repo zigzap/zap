@@ -6,6 +6,7 @@ const zap = @import("zap");
 pub const Self = @This();
 
 path: []const u8,
+error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
 pub fn init(path: []const u8) Self {
     return .{
@@ -13,14 +14,14 @@ pub fn init(path: []const u8) Self {
     };
 }
 
-pub fn get(e: *Self, r: zap.Request) void {
+pub fn get(e: *Self, r: zap.Request) anyerror!void {
     _ = e;
     _ = r;
     zap.stop();
 }
 
-pub fn post(_: *Self, _: zap.Request) void {}
-pub fn put(_: *Self, _: zap.Request) void {}
-pub fn delete(_: *Self, _: zap.Request) void {}
-pub fn patch(_: *Self, _: zap.Request) void {}
-pub fn options(_: *Self, _: zap.Request) void {}
+pub fn post(_: *Self, _: zap.Request) anyerror!void {}
+pub fn put(_: *Self, _: zap.Request) anyerror!void {}
+pub fn delete(_: *Self, _: zap.Request) anyerror!void {}
+pub fn patch(_: *Self, _: zap.Request) anyerror!void {}
+pub fn options(_: *Self, _: zap.Request) anyerror!void {}

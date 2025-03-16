@@ -30,7 +30,7 @@ test "http parameters" {
         var paramOneSlice: ?[]const u8 = null;
         var paramSlices: zap.Request.ParamSliceIterator = undefined;
 
-        pub fn on_request(r: zap.Request) void {
+        pub fn on_request(r: zap.Request) !void {
             ran = true;
             r.parseQuery();
             param_count = r.getParamCount();

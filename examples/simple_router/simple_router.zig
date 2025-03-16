@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 const Allocator = std.mem.Allocator;
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -28,7 +28,7 @@ pub const SomePackage = struct {
         };
     }
 
-    pub fn getA(self: *Self, req: zap.Request) void {
+    pub fn getA(self: *Self, req: zap.Request) !void {
         std.log.warn("get_a_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -41,7 +41,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn getB(self: *Self, req: zap.Request) void {
+    pub fn getB(self: *Self, req: zap.Request) !void {
         std.log.warn("get_b_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -54,7 +54,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn incrementA(self: *Self, req: zap.Request) void {
+    pub fn incrementA(self: *Self, req: zap.Request) !void {
         std.log.warn("increment_a_requested", .{});
 
         self.a += 1;
@@ -63,10 +63,10 @@ pub const SomePackage = struct {
     }
 };
 
-fn not_found(req: zap.Request) void {
+fn not_found(req: zap.Request) !void {
     std.debug.print("not found handler", .{});
 
-    req.sendBody("Not found") catch return;
+    try req.sendBody("Not found");
 }
 
 pub fn main() !void {

@@ -1,7 +1,7 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     const m = r.methodAsEnum();
     const m_str = r.method orelse "";
     const p = r.path orelse "/";
@@ -20,8 +20,8 @@ fn on_request(r: zap.Request) void {
         std.debug.print(">> BODY: {s}\n", .{the_body});
     }
 
-    r.setContentTypeFromPath() catch return;
-    r.sendBody(
+    try r.setContentTypeFromPath();
+    try r.sendBody(
         \\ <html><body>
         \\   <h1>Hello from ZAP!!!</h1>
         \\   <form action="/" method="post">
@@ -32,7 +32,7 @@ fn on_request(r: zap.Request) void {
         \\     <button>Send</button>
         \\   </form>
         \\ </body></html>
-    ) catch return;
+    );
 }
 
 pub fn main() !void {

@@ -13,24 +13,25 @@ const HTTP_RESPONSE: []const u8 =
 const Endpoint = struct {
     // the slug
     path: []const u8,
+    error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
     // authenticated requests go here
-    pub fn get(_: *Endpoint, r: zap.Request) void {
+    pub fn get(_: *Endpoint, r: zap.Request) !void {
         r.sendBody(HTTP_RESPONSE) catch return;
     }
 
     // just for fun, we also catch the unauthorized callback
-    pub fn unauthorized(_: *Endpoint, r: zap.Request) void {
+    pub fn unauthorized(_: *Endpoint, r: zap.Request) !void {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
     }
 
     // not implemented, don't care
-    pub fn post(_: *Endpoint, _: zap.Request) void {}
-    pub fn put(_: *Endpoint, _: zap.Request) void {}
-    pub fn delete(_: *Endpoint, _: zap.Request) void {}
-    pub fn patch(_: *Endpoint, _: zap.Request) void {}
-    pub fn options(_: *Endpoint, _: zap.Request) void {}
+    pub fn post(_: *Endpoint, _: zap.Request) !void {}
+    pub fn put(_: *Endpoint, _: zap.Request) !void {}
+    pub fn delete(_: *Endpoint, _: zap.Request) !void {}
+    pub fn patch(_: *Endpoint, _: zap.Request) !void {}
+    pub fn options(_: *Endpoint, _: zap.Request) !void {}
 };
 
 pub fn main() !void {

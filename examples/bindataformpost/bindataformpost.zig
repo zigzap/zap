@@ -4,7 +4,7 @@ const zap = @import("zap");
 const Handler = struct {
     var alloc: std.mem.Allocator = undefined;
 
-    pub fn on_request(r: zap.Request) void {
+    pub fn on_request(r: zap.Request) !void {
         // parse for FORM (body) parameters first
         r.parseBody() catch |err| {
             std.log.err("Parse Body error: {any}. Expected if body is empty", .{err});
@@ -24,7 +24,7 @@ const Handler = struct {
         //
         // HERE WE HANDLE THE BINARY FILE
         //
-        const params = r.parametersToOwnedList(Handler.alloc, false) catch unreachable;
+        const params = try r.parametersToOwnedList(Handler.alloc, false);
         defer params.deinit();
         for (params.items) |kv| {
             if (kv.value) |v| {
@@ -82,7 +82,7 @@ const Handler = struct {
         } else |err| {
             std.log.err("cannot check for terminate param: {any}\n", .{err});
         }
-        r.sendJson("{ \"ok\": true }") catch unreachable;
+        try r.sendJson("{ \"ok\": true }");
     }
 };
 

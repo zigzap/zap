@@ -25,38 +25,38 @@ const img = @embedFile("./html/Ziggy_the_Ziguana.svg.png");
 var authenticator: Authenticator = undefined;
 
 // the login page (embedded)
-fn on_login(r: zap.Request) void {
-    r.sendBody(loginpage) catch return;
+fn on_login(r: zap.Request) !void {
+    try r.sendBody(loginpage);
 }
 
 // the "normal page"
-fn on_normal_page(r: zap.Request) void {
+fn on_normal_page(r: zap.Request) !void {
     zap.debug("on_normal_page()\n", .{});
-    r.sendBody(
+    try r.sendBody(
         \\ <html><body>
         \\ <h1>Hello from ZAP!!!</h1>
         \\ <p>You are logged in!!!</>
         \\ <center><a href="/logout">logout</a></center>
         \\ </body></html>
-    ) catch return;
+    );
 }
 
 // the logged-out page
-fn on_logout(r: zap.Request) void {
+fn on_logout(r: zap.Request) !void {
     zap.debug("on_logout()\n", .{});
     authenticator.logout(&r);
     // note, the link below doesn't matter as the authenticator will send us
     // straight to the /login page
-    r.sendBody(
+    try r.sendBody(
         \\ <html><body>
         \\ <p>You are logged out!!!</p>
         \\ <br>
         \\ <p> <a href="/">Log back in</a></p>
         \\ </body></html>
-    ) catch return;
+    );
 }
 
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     switch (authenticator.authenticateRequest(&r)) {
         .Handled => {
             // the authenticator handled the entire request for us.
@@ -80,8 +80,8 @@ fn on_request(r: zap.Request) void {
                 // the authenticator. Hence, we name the img for the /login
                 // page: /login/Ziggy....png
                 if (std.mem.startsWith(u8, p, "/login/Ziggy_the_Ziguana.svg.png")) {
-                    r.setContentTypeFromPath() catch unreachable;
-                    r.sendBody(img) catch unreachable;
+                    try r.setContentTypeFromPath();
+                    try r.sendBody(img);
                     return;
                 }
 

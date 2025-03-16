@@ -32,7 +32,7 @@ pub fn main() !void {
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
 
-        pub fn on_request(r: zap.Request) void {
+        pub fn on_request(r: zap.Request) !void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
@@ -69,7 +69,7 @@ pub fn main() !void {
             // ================================================================
 
             // iterate over all params as strings
-            var strparams = r.parametersToOwnedStrList(alloc, false) catch unreachable;
+            var strparams = try r.parametersToOwnedStrList(alloc, false);
             defer strparams.deinit();
             std.debug.print("\n", .{});
             for (strparams.items) |kv| {
@@ -79,7 +79,7 @@ pub fn main() !void {
             std.debug.print("\n", .{});
 
             // iterate over all params
-            const params = r.parametersToOwnedList(alloc, false) catch unreachable;
+            const params = try r.parametersToOwnedList(alloc, false);
             defer params.deinit();
             for (params.items) |kv| {
                 std.log.info("Param `{s}` is {any}", .{ kv.key.str, kv.value });

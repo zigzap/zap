@@ -1,8 +1,8 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request_minimal(r: zap.Request) void {
-    r.sendBody("Hello from ZAP!!!") catch return;
+fn on_request_minimal(r: zap.Request) !void {
+    try r.sendBody("Hello from ZAP!!!");
 }
 
 pub fn main() !void {

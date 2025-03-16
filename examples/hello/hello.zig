@@ -1,7 +1,7 @@
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -9,11 +9,11 @@ fn on_request_verbose(r: zap.Request) void {
     if (r.query) |the_query| {
         std.debug.print("QUERY: {s}\n", .{the_query});
     }
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+    try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
-fn on_request_minimal(r: zap.Request) void {
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+fn on_request_minimal(r: zap.Request) !void {
+    try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
 pub fn main() !void {

@@ -55,6 +55,16 @@ const std = @import("std");
 const zap = @import("zap.zig");
 const auth = @import("http_auth.zig");
 
+/// Endpoint request error handling strategy
+pub const ErrorStrategy = enum {
+    /// log errors to console
+    log_to_console,
+    /// log errors to console AND generate a HTML response
+    log_to_response,
+    /// raise errors -> TODO: clarify: where can they be caught? in App.run()
+    raise,
+};
+
 // zap types
 const Request = zap.Request;
 const ListenerSettings = zap.HttpListenerSettings;
@@ -69,6 +79,14 @@ pub fn checkEndpointType(T: type) void {
         @compileError(@typeName(T) ++ " has no path field");
     }
 
+    if (@hasField(T, "error_strategy")) {
+        if (@FieldType(T, "error_strategy") != ErrorStrategy) {
+            @compileError(@typeName(@FieldType(T, "error_strategy")) ++ " has wrong type, expected: zap.Endpoint.ErrorStrategy");
+        }
+    } else {
+        @compileError(@typeName(T) ++ " has no error_strategy field");
+    }
+
     const methods_to_check = [_][]const u8{
         "get",
         "post",
@@ -79,8 +97,8 @@ pub fn checkEndpointType(T: type) void {
     };
     inline for (methods_to_check) |method| {
         if (@hasDecl(T, method)) {
-            if (@TypeOf(@field(T, method)) != fn (_: *T, _: Request) void) {
-                @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Request) void));
+            if (@TypeOf(@field(T, method)) != fn (_: *T, _: Request) anyerror!void) {
+                @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Request) anyerror!void));
             }
         } else {
             @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
@@ -88,58 +106,65 @@ pub fn checkEndpointType(T: type) void {
     }
 }
 
-const EndpointWrapper = struct {
-    pub const Wrapper = struct {
-        call: *const fn (*Wrapper, zap.Request) void = undefined,
+pub const Wrapper = struct {
+    pub const Internal = struct {
+        call: *const fn (*Internal, zap.Request) anyerror!void = undefined,
         path: []const u8,
-        destroy: *const fn (allocator: std.mem.Allocator, *Wrapper) void = undefined,
+        destroy: *const fn (allocator: std.mem.Allocator, *Internal) void = undefined,
     };
     pub fn Wrap(T: type) type {
         return struct {
             wrapped: *T,
-            wrapper: Wrapper,
+            wrapper: Internal,
 
             const Self = @This();
 
-            pub fn unwrap(wrapper: *Wrapper) *Self {
+            pub fn unwrap(wrapper: *Internal) *Self {
                 const self: *Self = @alignCast(@fieldParentPtr("wrapper", wrapper));
                 return self;
             }
 
-            pub fn destroy(allocator: std.mem.Allocator, wrapper: *Wrapper) void {
+            pub fn destroy(allocator: std.mem.Allocator, wrapper: *Internal) void {
                 const self: *Self = @alignCast(@fieldParentPtr("wrapper", wrapper));
                 allocator.destroy(self);
             }
 
-            pub fn onRequestWrapped(wrapper: *Wrapper, r: zap.Request) void {
+            pub fn onRequestWrapped(wrapper: *Internal, r: zap.Request) !void {
                 var self: *Self = Self.unwrap(wrapper);
-                self.onRequest(r);
+                try self.onRequest(r);
             }
 
-            pub fn onRequest(self: *Self, r: zap.Request) void {
-                switch (r.methodAsEnum()) {
-                    .GET => return self.wrapped.*.get(r),
-                    .POST => return self.wrapped.*.post(r),
-                    .PUT => return self.wrapped.*.put(r),
-                    .DELETE => return self.wrapped.*.delete(r),
-                    .PATCH => return self.wrapped.*.patch(r),
-                    .OPTIONS => return self.wrapped.*.options(r),
-                    else => {
-                        // TODO: log that method is ignored
-                    },
+            pub fn onRequest(self: *Self, r: zap.Request) !void {
+                const ret = switch (r.methodAsEnum()) {
+                    .GET => self.wrapped.*.get(r),
+                    .POST => self.wrapped.*.post(r),
+                    .PUT => self.wrapped.*.put(r),
+                    .DELETE => self.wrapped.*.delete(r),
+                    .PATCH => self.wrapped.*.patch(r),
+                    .OPTIONS => self.wrapped.*.options(r),
+                    else => error.UnsupportedHtmlRequestMethod,
+                };
+                if (ret) {
+                    // handled without error
+                } else |err| {
+                    switch (self.wrapped.*.error_strategy) {
+                        .raise => return err,
+                        .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
+                        .log_to_console => zap.debug("Error in {} {s} : {}", .{ Self, r.method orelse "(no method)", err }),
+                    }
                 }
             }
         };
     }
 
-    pub fn init(T: type, value: *T) EndpointWrapper.Wrap(T) {
+    pub fn init(T: type, value: *T) Wrapper.Wrap(T) {
         checkEndpointType(T);
-        var ret: EndpointWrapper.Wrap(T) = .{
+        var ret: Wrapper.Wrap(T) = .{
             .wrapped = value,
             .wrapper = .{ .path = value.path },
         };
-        ret.wrapper.call = EndpointWrapper.Wrap(T).onRequestWrapped;
-        ret.wrapper.destroy = EndpointWrapper.Wrap(T).destroy;
+        ret.wrapper.call = Wrapper.Wrap(T).onRequestWrapped;
+        ret.wrapper.destroy = Wrapper.Wrap(T).destroy;
         return ret;
     }
 };
@@ -150,6 +175,7 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         authenticator: *Authenticator,
         ep: *EndpointType,
         path: []const u8,
+        error_strategy: ErrorStrategy,
         const Self = @This();
 
         /// Init the authenticating endpoint. Pass in a pointer to the endpoint
@@ -160,61 +186,62 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
                 .authenticator = authenticator,
                 .ep = e,
                 .path = e.path,
+                .error_strategy = e.error_strategy,
             };
         }
 
         /// Authenticates GET requests using the Authenticator.
-        pub fn get(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn get(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.get(r),
                 .Handled => {},
-            }
+            };
         }
 
         /// Authenticates POST requests using the Authenticator.
-        pub fn post(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn post(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.post(r),
                 .Handled => {},
-            }
+            };
         }
 
         /// Authenticates PUT requests using the Authenticator.
-        pub fn put(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn put(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.put(r),
                 .Handled => {},
-            }
+            };
         }
 
         /// Authenticates DELETE requests using the Authenticator.
-        pub fn delete(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn delete(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.delete(r),
                 .Handled => {},
-            }
+            };
         }
 
         /// Authenticates PATCH requests using the Authenticator.
-        pub fn patch(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn patch(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.patch(r),
                 .Handled => {},
-            }
+            };
         }
 
         /// Authenticates OPTIONS requests using the Authenticator.
-        pub fn options(self: *Self, r: zap.Request) void {
-            switch (self.authenticator.authenticateRequest(&r)) {
+        pub fn options(self: *Self, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.put(r),
                 .Handled => {},
-            }
+            };
         }
     };
 }
@@ -237,7 +264,7 @@ pub const Listener = struct {
     const Self = @This();
 
     /// Internal static struct of member endpoints
-    var endpoints: std.ArrayListUnmanaged(*EndpointWrapper.Wrapper) = .empty;
+    var endpoints: std.ArrayListUnmanaged(*Wrapper.Internal) = .empty;
 
     /// Internal, static request handler callback. Will be set to the optional,
     /// user-defined request callback that only gets called if no endpoints match
@@ -303,23 +330,22 @@ pub const Listener = struct {
         }
         const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
         checkEndpointType(EndpointType);
-        const wrapper = try self.allocator.create(EndpointWrapper.Wrap(EndpointType));
-        wrapper.* = EndpointWrapper.init(EndpointType, e);
+        const wrapper = try self.allocator.create(Wrapper.Wrap(EndpointType));
+        wrapper.* = Wrapper.init(EndpointType, e);
         try endpoints.append(self.allocator, &wrapper.wrapper);
     }
 
-    fn onRequest(r: Request) void {
+    fn onRequest(r: Request) !void {
         if (r.path) |p| {
             for (endpoints.items) |wrapper| {
                 if (std.mem.startsWith(u8, p, wrapper.path)) {
-                    wrapper.call(wrapper, r);
-                    return;
+                    return try wrapper.call(wrapper, r);
                 }
             }
         }
         // if set, call the user-provided default callback
         if (on_request) |foo| {
-            foo(r);
+            try foo(r);
         }
     }
 };

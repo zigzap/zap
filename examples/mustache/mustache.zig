@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 const Mustache = @import("zap").Mustache;
 
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     const template =
         \\ {{=<< >>=}}
         \\ * Users:

@@ -132,7 +132,7 @@ pub const ContentType = enum {
 pub const FioHttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 
 /// Zap Http request callback function type.
-pub const HttpRequestFn = *const fn (Request) void;
+pub const HttpRequestFn = *const fn (Request) anyerror!void;
 
 /// websocket connection upgrade callback type
 /// fn(request, targetstring)
@@ -202,8 +202,10 @@ pub const HttpListener = struct {
             req.markAsFinished(false);
             std.debug.assert(l.settings.on_request != null);
             if (l.settings.on_request) |on_request| {
-                // l.settings.on_request.?(req);
-                on_request(req);
+                on_request(req) catch |err| {
+                    // TODO: log / handle the error in a better way
+                    std.debug.print("zap on_request error: {}", .{err});
+                };
             }
         }
     }
@@ -225,7 +227,10 @@ pub const HttpListener = struct {
             var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
-            l.settings.on_response.?(req);
+            l.settings.on_response.?(req) catch |err| {
+                // TODO: log / handle the error in a better way
+                std.debug.print("zap on_response error: {}", .{err});
+            };
         }
     }
 

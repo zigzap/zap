@@ -74,12 +74,12 @@ pub fn stringifyBuf(
     buffer: []u8,
     value: anytype,
     options: std.json.StringifyOptions,
-) ?[]const u8 {
+) ![]const u8 {
     var fba = std.heap.FixedBufferAllocator.init(buffer);
     var string = std.ArrayList(u8).init(fba.allocator());
     if (std.json.stringify(value, options, string.writer())) {
         return string.items;
-    } else |_| { // error
-        return null;
+    } else |err| { // error
+        return err;
     }
 }

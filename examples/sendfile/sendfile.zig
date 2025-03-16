@@ -6,7 +6,7 @@ var read_len: ?usize = null;
 
 const testfile = @embedFile("testfile.txt");
 
-pub fn on_request(r: zap.Request) void {
+pub fn on_request(r: zap.Request) !void {
     // Sends a file if present in the filesystem orelse returns an error.
     //
     // - efficiently sends a file using gzip compression

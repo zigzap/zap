@@ -11,6 +11,7 @@ alloc: std.mem.Allocator = undefined,
 _users: Users = undefined,
 
 path: []const u8,
+error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
 pub fn init(
     a: std.mem.Allocator,
@@ -42,8 +43,8 @@ fn userIdFromPath(self: *Self, path: []const u8) ?usize {
     return null;
 }
 
-pub fn put(_: *Self, _: zap.Request) void {}
-pub fn get(self: *Self, r: zap.Request) void {
+pub fn put(_: *Self, _: zap.Request) anyerror!void {}
+pub fn get(self: *Self, r: zap.Request) anyerror!void {
     if (r.path) |path| {
         // /users
         if (path.len == self.path.len) {
@@ -52,33 +53,31 @@ pub fn get(self: *Self, r: zap.Request) void {
         var jsonbuf: [256]u8 = undefined;
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |user| {
-                if (zap.util.stringifyBuf(&jsonbuf, user, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, user, .{});
+                try r.sendJson(json);
             }
         }
     }
 }
 
-fn listUsers(self: *Self, r: zap.Request) void {
+fn listUsers(self: *Self, r: zap.Request) !void {
     if (self._users.toJSON()) |json| {
         defer self.alloc.free(json);
-        r.sendJson(json) catch return;
+        try r.sendJson(json);
     } else |err| {
-        std.debug.print("LIST error: {}\n", .{err});
+        return err;
     }
 }
 
-pub fn post(self: *Self, r: zap.Request) void {
+pub fn post(self: *Self, r: zap.Request) anyerror!void {
     if (r.body) |body| {
         const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
             defer u.deinit();
             if (self._users.addByName(u.value.first_name, u.value.last_name)) |id| {
                 var jsonbuf: [128]u8 = undefined;
-                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                try r.sendJson(json);
             } else |err| {
                 std.debug.print("ADDING error: {}\n", .{err});
                 return;
@@ -87,7 +86,7 @@ pub fn post(self: *Self, r: zap.Request) void {
     }
 }
 
-pub fn patch(self: *Self, r: zap.Request) void {
+pub fn patch(self: *Self, r: zap.Request) anyerror!void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
@@ -97,13 +96,11 @@ pub fn patch(self: *Self, r: zap.Request) void {
                         defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;
                         if (self._users.update(id, u.value.first_name, u.value.last_name)) {
-                            if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                                r.sendJson(json) catch return;
-                            }
+                            const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                            try r.sendJson(json);
                         } else {
-                            if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                                r.sendJson(json) catch return;
-                            }
+                            const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{});
+                            try r.sendJson(json);
                         }
                     }
                 }
@@ -112,26 +109,24 @@ pub fn patch(self: *Self, r: zap.Request) void {
     }
 }
 
-pub fn delete(self: *Self, r: zap.Request) void {
+pub fn delete(self: *Self, r: zap.Request) anyerror!void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;
             if (self._users.delete(id)) {
-                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                try r.sendJson(json);
             } else {
-                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{});
+                try r.sendJson(json);
             }
         }
     }
 }
 
-pub fn options(_: *Self, r: zap.Request) void {
-    r.setHeader("Access-Control-Allow-Origin", "*") catch return;
-    r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") catch return;
+pub fn options(_: *Self, r: zap.Request) anyerror!void {
+    try r.setHeader("Access-Control-Allow-Origin", "*");
+    try r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     r.setStatus(zap.http.StatusCode.no_content);
     r.markAsFinished(true);
 }

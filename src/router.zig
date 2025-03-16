@@ -21,7 +21,7 @@ pub const Options = struct {
 };
 
 const CallbackTag = enum { bound, unbound };
-const BoundHandler = *fn (*const anyopaque, zap.Request) void;
+const BoundHandler = *fn (*const anyopaque, zap.Request) anyerror!void;
 const Callback = union(CallbackTag) {
     bound: struct { instance: usize, handler: usize },
     unbound: zap.HttpRequestFn,
@@ -94,24 +94,24 @@ pub fn on_request_handler(self: *Self) zap.HttpRequestFn {
     return zap_on_request;
 }
 
-fn zap_on_request(r: zap.Request) void {
+fn zap_on_request(r: zap.Request) !void {
     return serve(_instance, r);
 }
 
-fn serve(self: *Self, r: zap.Request) void {
+fn serve(self: *Self, r: zap.Request) !void {
     const path = r.path orelse "/";
 
     if (self.routes.get(path)) |routeInfo| {
         switch (routeInfo) {
-            .bound => |b| @call(.auto, @as(BoundHandler, @ptrFromInt(b.handler)), .{ @as(*anyopaque, @ptrFromInt(b.instance)), r }),
-            .unbound => |h| h(r),
+            .bound => |b| try @call(.auto, @as(BoundHandler, @ptrFromInt(b.handler)), .{ @as(*anyopaque, @ptrFromInt(b.instance)), r }),
+            .unbound => |h| try h(r),
         }
     } else if (self.not_found) |handler| {
         // not found handler
-        handler(r);
+        try handler(r);
     } else {
         // default 404 output
         r.setStatus(.not_found);
-        r.sendBody("404 Not Found") catch return;
+        try r.sendBody("404 Not Found");
     }
 }

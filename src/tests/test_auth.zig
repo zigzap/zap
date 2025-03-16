@@ -149,8 +149,9 @@ fn makeRequestThread(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReq
 
 pub const Endpoint = struct {
     path: []const u8,
+    error_strategy: zap.Endpoint.ErrorStrategy = .raise,
 
-    pub fn get(e: *Endpoint, r: zap.Request) void {
+    pub fn get(e: *Endpoint, r: zap.Request) !void {
         _ = e;
         r.sendBody(HTTP_RESPONSE) catch return;
         received_response = HTTP_RESPONSE;
@@ -158,7 +159,7 @@ pub const Endpoint = struct {
         zap.stop();
     }
 
-    pub fn unauthorized(e: *Endpoint, r: zap.Request) void {
+    pub fn unauthorized(e: *Endpoint, r: zap.Request) !void {
         _ = e;
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
@@ -166,11 +167,11 @@ pub const Endpoint = struct {
         std.time.sleep(1 * std.time.ns_per_s);
         zap.stop();
     }
-    pub fn post(_: *Endpoint, _: zap.Request) void {}
-    pub fn put(_: *Endpoint, _: zap.Request) void {}
-    pub fn delete(_: *Endpoint, _: zap.Request) void {}
-    pub fn patch(_: *Endpoint, _: zap.Request) void {}
-    pub fn options(_: *Endpoint, _: zap.Request) void {}
+    pub fn post(_: *Endpoint, _: zap.Request) !void {}
+    pub fn put(_: *Endpoint, _: zap.Request) !void {}
+    pub fn delete(_: *Endpoint, _: zap.Request) !void {}
+    pub fn patch(_: *Endpoint, _: zap.Request) !void {}
+    pub fn options(_: *Endpoint, _: zap.Request) !void {}
 };
 //
 // end of http client code

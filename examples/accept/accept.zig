@@ -5,7 +5,7 @@ var gpa = std.heap.GeneralPurposeAllocator(.{
     .thread_safe = true,
 }){};
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     // use a local buffer for the parsed accept headers
     var accept_buffer: [1024]u8 = undefined;
     var fba = std.heap.FixedBufferAllocator.init(&accept_buffer);
@@ -21,38 +21,38 @@ fn on_request_verbose(r: zap.Request) void {
         break :content_type .HTML;
     };
 
-    r.setContentType(content_type) catch return;
+    try r.setContentType(content_type);
     switch (content_type) {
         .TEXT => {
-            r.sendBody("Hello from ZAP!!!") catch return;
+            try r.sendBody("Hello from ZAP!!!");
         },
         .HTML => {
-            r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+            try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
         },
         .XML => {
-            r.sendBody(
+            try r.sendBody(
                 \\<?xml version="1.0" encoding="UTF-8"?>
                 \\<message>
                 \\    <warning>
                 \\        Hello from ZAP!!!
                 \\    </warning>
                 \\</message>
-            ) catch return;
+            );
         },
         .JSON => {
             var buffer: [128]u8 = undefined;
-            const json = zap.util.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{}) orelse return;
-            r.sendJson(json) catch return;
+            const json = try zap.util.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{});
+            try r.sendJson(json);
         },
         .XHTML => {
-            r.sendBody(
+            try r.sendBody(
                 \\<?xml version="1.0" encoding="UTF-8"?>
                 \\<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
                 \\  <body>
                 \\    <h1>Hello from ZAP!!!</h1>
                 \\  </body>
                 \\</html>    
-            ) catch return;
+            );
         },
     }
 }
