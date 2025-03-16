@@ -9,222 +9,130 @@ const Request = zap.Request;
 const ListenerSettings = zap.HttpListenerSettings;
 const HttpListener = zap.HttpListener;
 
-/// Type of the request function callbacks.
-pub const RequestFn = *const fn (self: *Endpoint, r: Request) void;
-
-/// Settings to initialize an Endpoint
-pub const Settings = struct {
-    /// path / slug of the endpoint
-    path: []const u8,
-    /// callback to GET request handler
-    get: ?RequestFn = null,
-    /// callback to POST request handler
-    post: ?RequestFn = null,
-    /// callback to PUT request handler
-    put: ?RequestFn = null,
-    /// callback to DELETE request handler
-    delete: ?RequestFn = null,
-    /// callback to PATCH request handler
-    patch: ?RequestFn = null,
-    /// callback to OPTIONS request handler
-    options: ?RequestFn = null,
-    /// Only applicable to Authenticating Endpoint: handler for unauthorized requests
-    unauthorized: ?RequestFn = null,
-};
-
-settings: Settings,
-
-/// Initialize the endpoint.
-/// Set only the callbacks you need. Requests of HTTP methods without a
-/// provided callback will be ignored.
-pub fn init(s: Settings) Endpoint {
-    return .{
-        .settings = .{
-            .path = s.path,
-            .get = s.get orelse &nop,
-            .post = s.post orelse &nop,
-            .put = s.put orelse &nop,
-            .delete = s.delete orelse &nop,
-            .patch = s.patch orelse &nop,
-            .options = s.options orelse &nop,
-            .unauthorized = s.unauthorized orelse &nop,
-        },
+const EndpointWrapper = struct {
+    pub const Wrapper = struct {
+        call: *const fn (*Wrapper, zap.Request) void = undefined,
+        path: []const u8,
+        destroy: *const fn (allocator: std.mem.Allocator, *Wrapper) void = undefined,
     };
-}
+    pub fn Wrap(T: type) type {
+        return struct {
+            wrapped: *T,
+            wrapper: Wrapper,
 
-// no operation. Dummy handler function for ignoring unset request types.
-fn nop(self: *Endpoint, r: Request) void {
-    _ = self;
-    _ = r;
-}
+            const Self = @This();
 
-/// The global request handler for this Endpoint, called by the listener.
-pub fn onRequest(self: *Endpoint, r: zap.Request) void {
-    switch (r.methodAsEnum()) {
-        .GET => self.settings.get.?(self, r),
-        .POST => self.settings.post.?(self, r),
-        .PUT => self.settings.put.?(self, r),
-        .DELETE => self.settings.delete.?(self, r),
-        .PATCH => self.settings.patch.?(self, r),
-        .OPTIONS => self.settings.options.?(self, r),
-        else => return,
+            pub fn unwrap(wrapper: *Wrapper) *Self {
+                const self: *Self = @alignCast(@fieldParentPtr("wrapper", wrapper));
+                return self;
+            }
+
+            pub fn destroy(allocator: std.mem.Allocator, wrapper: *Wrapper) void {
+                const self: *Self = @alignCast(@fieldParentPtr("wrapper", wrapper));
+                allocator.destroy(self);
+            }
+
+            pub fn onRequestWrapped(wrapper: *Wrapper, r: zap.Request) void {
+                var self: *Self = Self.unwrap(wrapper);
+                self.onRequest(r);
+            }
+
+            pub fn onRequest(self: *Self, r: zap.Request) void {
+                switch (r.methodAsEnum()) {
+                    .GET => return self.wrapped.*.get(r),
+                    .POST => return self.wrapped.*.post(r),
+                    .PUT => return self.wrapped.*.put(r),
+                    .DELETE => return self.wrapped.*.delete(r),
+                    .PATCH => return self.wrapped.*.patch(r),
+                    .OPTIONS => return self.wrapped.*.options(r),
+                    else => {},
+                }
+                // TODO: log that req fn is not implemented on this EP
+            }
+        };
     }
-}
+
+    pub fn init(T: type, value: *T) EndpointWrapper.Wrap(T) {
+        var ret: EndpointWrapper.Wrap(T) = .{
+            .wrapped = value,
+            .wrapper = .{ .path = value.path },
+        };
+        ret.wrapper.call = EndpointWrapper.Wrap(T).onRequestWrapped;
+        ret.wrapper.destroy = EndpointWrapper.Wrap(T).destroy;
+        return ret;
+    }
+};
 
 /// Wrap an endpoint with an Authenticator -> new Endpoint of type Endpoint
 /// is available via the `endpoint()` function.
-pub fn Authenticating(comptime Authenticator: type) type {
+pub fn Authenticating(EndpointType: type, Authenticator: type) type {
     return struct {
         authenticator: *Authenticator,
-        ep: *Endpoint,
-        auth_endpoint: Endpoint,
+        ep: *EndpointType,
+        path: []const u8,
         const Self = @This();
 
         /// Init the authenticating endpoint. Pass in a pointer to the endpoint
         /// you want to wrap, and the Authenticator that takes care of authenticating
         /// requests.
-        pub fn init(e: *Endpoint, authenticator: *Authenticator) Self {
+        pub fn init(e: *EndpointType, authenticator: *Authenticator) Self {
             return .{
                 .authenticator = authenticator,
                 .ep = e,
-                .auth_endpoint = Endpoint.init(.{
-                    .path = e.settings.path,
-                    // we override only the set ones. the other ones
-                    // are set to null anyway -> will be nopped out
-                    .get = if (e.settings.get != null) get else null,
-                    .post = if (e.settings.post != null) post else null,
-                    .put = if (e.settings.put != null) put else null,
-                    .delete = if (e.settings.delete != null) delete else null,
-                    .patch = if (e.settings.patch != null) patch else null,
-                    .options = if (e.settings.options != null) options else null,
-                    .unauthorized = e.settings.unauthorized,
-                }),
+                .path = e.path,
             };
         }
 
-        /// Get the auth endpoint struct of type Endpoint so it can be stored in the listener.
-        /// When the listener calls the auth_endpoint, onRequest will have
-        /// access to all of this via fieldParentPtr
-        pub fn endpoint(self: *Self) *Endpoint {
-            return &self.auth_endpoint;
-        }
-
-        /// GET: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates GET requests using the Authenticator.
-        pub fn get(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.get.?(authEp.ep, r),
+        pub fn get(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.get(r),
                 .Handled => {},
             }
         }
 
-        /// POST: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates POST requests using the Authenticator.
-        pub fn post(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.post.?(authEp.ep, r),
+        pub fn post(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.post(r),
                 .Handled => {},
             }
         }
 
-        /// PUT: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates PUT requests using the Authenticator.
-        pub fn put(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.put.?(authEp.ep, r),
+        pub fn put(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.put(r),
                 .Handled => {},
             }
         }
 
-        /// DELETE: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates DELETE requests using the Authenticator.
-        pub fn delete(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.delete.?(authEp.ep, r),
+        pub fn delete(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.delete(r),
                 .Handled => {},
             }
         }
 
-        /// PATCH: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates PATCH requests using the Authenticator.
-        pub fn patch(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.patch.?(authEp.ep, r),
+        pub fn patch(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.patch(r),
                 .Handled => {},
             }
         }
 
-        /// OPTIONS: here, the auth_endpoint will be passed in as endpoint.
         /// Authenticates OPTIONS requests using the Authenticator.
-        pub fn options(e: *Endpoint, r: zap.Request) void {
-            const authEp: *Self = @fieldParentPtr("auth_endpoint", e);
-            switch (authEp.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => {
-                    if (e.settings.unauthorized) |unauthorized| {
-                        unauthorized(authEp.ep, r);
-                        return;
-                    } else {
-                        r.setStatus(.unauthorized);
-                        r.sendBody("UNAUTHORIZED") catch return;
-                        return;
-                    }
-                },
-                .AuthOK => authEp.ep.settings.put.?(authEp.ep, r),
+        pub fn options(self: *Self, r: zap.Request) void {
+            switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.put(r),
                 .Handled => {},
             }
         }
@@ -249,7 +157,7 @@ pub const Listener = struct {
     const Self = @This();
 
     /// Internal static struct of member endpoints
-    var endpoints: std.ArrayList(*Endpoint) = undefined;
+    var endpoints: std.ArrayListUnmanaged(*EndpointWrapper.Wrapper) = .empty;
 
     /// Internal, static request handler callback. Will be set to the optional,
     /// user-defined request callback that only gets called if no endpoints match
@@ -260,12 +168,10 @@ pub const Listener = struct {
     /// callback in the provided ListenerSettings, this request callback will be
     /// called every time a request arrives that no endpoint matches.
     pub fn init(a: std.mem.Allocator, l: ListenerSettings) Self {
-        endpoints = std.ArrayList(*Endpoint).init(a);
-
         // take copy of listener settings before modifying the callback field
         var ls = l;
 
-        // override the settings with our internal, actul callback function
+        // override the settings with our internal, actual callback function
         // so that "we" will be called on request
         ls.on_request = Listener.onRequest;
 
@@ -281,8 +187,10 @@ pub const Listener = struct {
     /// Registered endpoints will not be de-initialized automatically; just removed
     /// from the internal map.
     pub fn deinit(self: *Self) void {
-        _ = self;
-        endpoints.deinit();
+        for (endpoints.items) |endpoint_wrapper| {
+            endpoint_wrapper.destroy(self.allocator, endpoint_wrapper);
+        }
+        endpoints.deinit(self.allocator);
     }
 
     /// Call this to start listening. After this, no more endpoints can be
@@ -295,29 +203,31 @@ pub const Listener = struct {
     /// NOTE: endpoint paths are matched with startsWith -> so use endpoints with distinctly starting names!!
     /// If you try to register an endpoint whose path would shadow an already registered one, you will
     /// receive an EndpointPathShadowError.
-    pub fn register(self: *Self, e: *Endpoint) !void {
-        _ = self;
+    pub fn register(self: *Self, e: anytype) !void {
         for (endpoints.items) |other| {
             if (std.mem.startsWith(
                 u8,
-                other.settings.path,
-                e.settings.path,
+                other.path,
+                e.path,
             ) or std.mem.startsWith(
                 u8,
-                e.settings.path,
-                other.settings.path,
+                e.path,
+                other.path,
             )) {
                 return EndpointListenerError.EndpointPathShadowError;
             }
         }
-        try endpoints.append(e);
+        const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
+        const wrapper = try self.allocator.create(EndpointWrapper.Wrap(EndpointType));
+        wrapper.* = EndpointWrapper.init(EndpointType, e);
+        try endpoints.append(self.allocator, &wrapper.wrapper);
     }
 
     fn onRequest(r: Request) void {
         if (r.path) |p| {
-            for (endpoints.items) |e| {
-                if (std.mem.startsWith(u8, p, e.settings.path)) {
-                    e.onRequest(r);
+            for (endpoints.items) |wrapper| {
+                if (std.mem.startsWith(u8, p, wrapper.path)) {
+                    wrapper.call(wrapper, r);
                     return;
                 }
             }

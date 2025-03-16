@@ -5,25 +5,22 @@ const zap = @import("zap");
 /// the main thread usually continues at the instructions after the call to zap.start().
 pub const Self = @This();
 
-ep: zap.Endpoint = undefined,
+path: []const u8,
 
-pub fn init(
-    path: []const u8,
-) Self {
+pub fn init(path: []const u8) Self {
     return .{
-        .ep = zap.Endpoint.init(.{
-            .path = path,
-            .get = get,
-        }),
+        .path = path,
     };
 }
 
-pub fn endpoint(self: *Self) *zap.Endpoint {
-    return &self.ep;
-}
-
-fn get(e: *zap.Endpoint, r: zap.Request) void {
+pub fn get(e: *Self, r: zap.Request) void {
     _ = e;
     _ = r;
     zap.stop();
 }
+
+pub fn post(_: *Self, _: zap.Request) void {}
+pub fn put(_: *Self, _: zap.Request) void {}
+pub fn delete(_: *Self, _: zap.Request) void {}
+pub fn patch(_: *Self, _: zap.Request) void {}
+pub fn options(_: *Self, _: zap.Request) void {}

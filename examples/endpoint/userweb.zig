@@ -8,8 +8,9 @@ const User = Users.User;
 pub const Self = @This();
 
 alloc: std.mem.Allocator = undefined,
-ep: zap.Endpoint = undefined,
 _users: Users = undefined,
+
+path: []const u8,
 
 pub fn init(
     a: std.mem.Allocator,
@@ -18,15 +19,7 @@ pub fn init(
     return .{
         .alloc = a,
         ._users = Users.init(a),
-        .ep = zap.Endpoint.init(.{
-            .path = user_path,
-            .get = getUser,
-            .post = postUser,
-            .put = putUser,
-            .patch = putUser,
-            .delete = deleteUser,
-            .options = optionsUser,
-        }),
+        .path = user_path,
     };
 }
 
@@ -38,27 +31,22 @@ pub fn users(self: *Self) *Users {
     return &self._users;
 }
 
-pub fn endpoint(self: *Self) *zap.Endpoint {
-    return &self.ep;
-}
-
 fn userIdFromPath(self: *Self, path: []const u8) ?usize {
-    if (path.len >= self.ep.settings.path.len + 2) {
-        if (path[self.ep.settings.path.len] != '/') {
+    if (path.len >= self.path.len + 2) {
+        if (path[self.path.len] != '/') {
             return null;
         }
-        const idstr = path[self.ep.settings.path.len + 1 ..];
+        const idstr = path[self.path.len + 1 ..];
         return std.fmt.parseUnsigned(usize, idstr, 10) catch null;
     }
     return null;
 }
 
-fn getUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
-
+pub fn put(_: *Self, _: zap.Request) void {}
+pub fn get(self: *Self, r: zap.Request) void {
     if (r.path) |path| {
         // /users
-        if (path.len == e.settings.path.len) {
+        if (path.len == self.path.len) {
             return self.listUsers(r);
         }
         var jsonbuf: [256]u8 = undefined;
@@ -81,8 +69,7 @@ fn listUsers(self: *Self, r: zap.Request) void {
     }
 }
 
-fn postUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn post(self: *Self, r: zap.Request) void {
     if (r.body) |body| {
         const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
@@ -100,8 +87,7 @@ fn postUser(e: *zap.Endpoint, r: zap.Request) void {
     }
 }
 
-fn putUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn patch(self: *Self, r: zap.Request) void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
@@ -126,8 +112,7 @@ fn putUser(e: *zap.Endpoint, r: zap.Request) void {
     }
 }
 
-fn deleteUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn delete(self: *Self, r: zap.Request) void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;
@@ -144,8 +129,7 @@ fn deleteUser(e: *zap.Endpoint, r: zap.Request) void {
     }
 }
 
-fn optionsUser(e: *zap.Endpoint, r: zap.Request) void {
-    _ = e;
+pub fn options(_: *Self, r: zap.Request) void {
     r.setHeader("Access-Control-Allow-Origin", "*") catch return;
     r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") catch return;
     r.setStatus(zap.StatusCode.no_content);

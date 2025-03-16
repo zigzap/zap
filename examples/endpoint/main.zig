@@ -41,8 +41,8 @@ pub fn main() !void {
         var stopEp = StopEndpoint.init("/stop");
 
         // register endpoints with the listener
-        try listener.register(userWeb.endpoint());
-        try listener.register(stopEp.endpoint());
+        try listener.register(&userWeb);
+        try listener.register(&stopEp);
 
         // fake some users
         var uid: usize = undefined;
