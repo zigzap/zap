@@ -73,9 +73,10 @@ const EndpointWrapper = struct {
                     .DELETE => return self.wrapped.*.delete(r),
                     .PATCH => return self.wrapped.*.patch(r),
                     .OPTIONS => return self.wrapped.*.options(r),
-                    else => {},
+                    else => {
+                        // TODO: log that method is ignored
+                    },
                 }
-                // TODO: log that req fn is not implemented on this EP
             }
         };
     }
@@ -197,6 +198,10 @@ pub const Listener = struct {
     /// callback in the provided ListenerSettings, this request callback will be
     /// called every time a request arrives that no endpoint matches.
     pub fn init(a: std.mem.Allocator, l: ListenerSettings) Self {
+        // reset the global in case init is called multiple times, as is the
+        // case in the authentication tests
+        endpoints = .empty;
+
         // take copy of listener settings before modifying the callback field
         var ls = l;
 
