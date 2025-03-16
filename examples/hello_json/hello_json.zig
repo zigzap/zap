@@ -19,7 +19,7 @@ fn on_request(r: zap.Request) void {
 
         var buf: [100]u8 = undefined;
         var json_to_send: []const u8 = undefined;
-        if (zap.stringifyBuf(&buf, user, .{})) |json| {
+        if (zap.util.stringifyBuf(&buf, user, .{})) |json| {
             json_to_send = json;
         } else {
             json_to_send = "null";

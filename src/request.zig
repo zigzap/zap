@@ -495,7 +495,7 @@ pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
         .upgrade => fio.HTTP_HEADER_UPGRADE,
     };
     const fiobj = zap.fio.fiobj_hash_get(self.h.*.headers, field);
-    return zap.fio2str(fiobj);
+    return zap.util.fio2str(fiobj);
 }
 
 /// Set header.

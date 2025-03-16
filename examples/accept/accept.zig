@@ -41,7 +41,7 @@ fn on_request_verbose(r: zap.Request) void {
         },
         .JSON => {
             var buffer: [128]u8 = undefined;
-            const json = zap.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{}) orelse return;
+            const json = zap.util.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{}) orelse return;
             r.sendJson(json) catch return;
         },
         .XHTML => {

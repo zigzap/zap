@@ -52,7 +52,7 @@ pub fn get(self: *Self, r: zap.Request) void {
         var jsonbuf: [256]u8 = undefined;
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |user| {
-                if (zap.stringifyBuf(&jsonbuf, user, .{})) |json| {
+                if (zap.util.stringifyBuf(&jsonbuf, user, .{})) |json| {
                     r.sendJson(json) catch return;
                 }
             }
@@ -76,7 +76,7 @@ pub fn post(self: *Self, r: zap.Request) void {
             defer u.deinit();
             if (self._users.addByName(u.value.first_name, u.value.last_name)) |id| {
                 var jsonbuf: [128]u8 = undefined;
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
+                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     r.sendJson(json) catch return;
                 }
             } else |err| {
@@ -97,11 +97,11 @@ pub fn patch(self: *Self, r: zap.Request) void {
                         defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;
                         if (self._users.update(id, u.value.first_name, u.value.last_name)) {
-                            if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
+                            if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                                 r.sendJson(json) catch return;
                             }
                         } else {
-                            if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
+                            if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
                                 r.sendJson(json) catch return;
                             }
                         }
@@ -117,11 +117,11 @@ pub fn delete(self: *Self, r: zap.Request) void {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;
             if (self._users.delete(id)) {
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
+                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
                     r.sendJson(json) catch return;
                 }
             } else {
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
+                if (zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
                     r.sendJson(json) catch return;
                 }
             }
@@ -132,6 +132,6 @@ pub fn delete(self: *Self, r: zap.Request) void {
 pub fn options(_: *Self, r: zap.Request) void {
     r.setHeader("Access-Control-Allow-Origin", "*") catch return;
     r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") catch return;
-    r.setStatus(zap.StatusCode.no_content);
+    r.setStatus(zap.http.StatusCode.no_content);
     r.markAsFinished(true);
 }

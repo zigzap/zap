@@ -9,51 +9,9 @@ pub const fio = @import("fio.zig");
 /// Server-Side TLS function wrapper
 pub const Tls = @import("tls.zig");
 
-/// Endpoint and supporting types.
-/// Create one and define all callbacks. Then, pass it to a HttpListener's
-/// `register()` function to register with the listener.
-///
-/// **NOTE**: Endpoints must define the following:
-///
-/// ```zig
-/// path: []const u8,
-/// pub fn get(_: *Self, _: zap.Request) void {}
-/// pub fn post(_: *Self, _: zap.Request) void {}
-/// pub fn put(_: *Self, _: zap.Request) void {}
-/// pub fn delete(_: *Self, _: zap.Request) void {}
-/// pub fn patch(_: *Self, _: zap.Request) void {}
-/// pub fn options(_: *Self, _: zap.Request) void {}
-/// // optional, if auth stuff is used:
-/// pub fn unauthorized(_: *Self, _: zap.Request) void {}
-/// ```
-///
-/// Example:
-/// A simple endpoint listening on the /stop route that shuts down zap. The
-/// main thread usually continues at the instructions after the call to
-/// zap.start().
-///
-/// ```zig
-/// const StopEndpoint = struct {
-///
-///     pub fn init( path: []const u8,) StopEndpoint {
-///         return .{
-///             .path = path,
-///         };
-///     }
-///
-///     pub fn get(self: *StopEndpoint, r: zap.Request) void {
-///         _ = self;
-///         _ = r;
-///         zap.stop();
-///     }
-/// };
-/// ```
 pub const Endpoint = @import("endpoint.zig");
 
 pub const Router = @import("router.zig");
-
-pub usingnamespace @import("util.zig");
-pub usingnamespace @import("http.zig");
 
 /// A struct to handle Mustache templating.
 ///
@@ -78,9 +36,8 @@ pub const Middleware = @import("middleware.zig");
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
-const http = @import("http.zig");
-
-const util = @import("util.zig");
+pub const http = @import("http.zig");
+pub const util = @import("util.zig");
 
 // TODO: replace with comptime debug logger like in log.zig
 var _debug: bool = false;

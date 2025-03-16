@@ -26,7 +26,7 @@ test "http parameters" {
 
         var strParams: ?zap.Request.HttpParamStrKVList = null;
         var params: ?zap.Request.HttpParamKVList = null;
-        var paramOneStr: ?zap.FreeOrNot = null;
+        var paramOneStr: ?zap.util.FreeOrNot = null;
         var paramOneSlice: ?[]const u8 = null;
         var paramSlices: zap.Request.ParamSliceIterator = undefined;
 

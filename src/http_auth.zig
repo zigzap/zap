@@ -61,8 +61,9 @@ pub const AuthResult = enum {
     /// The authenticator handled the request that didn't pass authentication /
     /// authorization.
     /// This is used to implement authenticators that redirect to a login
-    /// page. An Authenticating endpoint will not do the default, which is trying
-    /// to call the `unauthorized` callback if one exists orelse ignore the request.
+    /// page. An Authenticating endpoint will not do the default, which is
+    /// trying to call the `unauthorized` callback. `unauthorized()` must be
+    /// implemented in the endpoint.
     Handled,
 };
 
@@ -338,7 +339,7 @@ pub const UserPassSessionArgs = struct {
     /// cookie max age in seconds; 0 -> session cookie
     cookieMaxAge: u8 = 0,
     /// redirect status code, defaults to 302 found
-    redirectCode: zap.StatusCode = .found,
+    redirectCode: zap.http.StatusCode = .found,
 };
 
 /// UserPassSession supports the following use case:
