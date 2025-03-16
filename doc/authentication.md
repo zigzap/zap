@@ -9,11 +9,13 @@ authentication, see the [UserPassSession](../src/http_auth.zig#L319) and its
 
 For convenience, Authenticator types exist that can authenticate requests.
 
-Zap also provides an `Endpoint.Authenticating` endpoint-wrapper. Have a look at the [example](../examples/endpoint_auth) and the [tests](../src/tests/test_auth.zig).
+Zap also provides an `Endpoint.Authenticating` endpoint-wrapper. Have a look at
+the [example](../examples/endpoint_auth) and the
+[tests](../src/tests/test_auth.zig).
 
 The following describes the Authenticator types. All of them provide the
-`authenticateRequest()` function, which takes a `zap.Request` and returns
-a bool value whether it could be authenticated or not.
+`authenticateRequest()` function, which takes a `zap.Request` and returns a bool
+value whether it could be authenticated or not.
 
 Further down, we show how to use the Authenticators, and also the
 `Endpoint.Authenticating`.
@@ -24,7 +26,7 @@ The `zap.Auth.Basic` Authenticator accepts 2 comptime values:
 
 - `Lookup`: either a map to look up passwords for users or a set to lookup
   base64 encoded tokens (user:pass -> base64-encode = token)
-- `kind` : 
+- `kind` :
     - `UserPass` : decode the authentication header, split into user and
       password, then lookup the password in the provided map and compare it.
     - `Token68` : don't bother decoding, the 'lookup' set is filled with
@@ -187,7 +189,8 @@ fn on_request(r: zap.Request) void {
 Here, we only show using one of the Authenticator types. See the tests for more
 examples.
 
-The `Endpoint.Authenticating` honors `.unauthorized` in the endpoint settings, where you can pass in a callback to deal with unauthorized requests. If you leave it to `null`, the endpoint will automatically reply with a `401 - Unauthorized` response.
+The `Endpoint.Authenticating` uses the `.unauthorized()` method of the endpoint
+to deal with unauthorized requests. `unauthorized` must be implemented.
 
 The example below should make clear how to wrap an endpoint into an
 `Endpoint.Authenticating`:
@@ -205,18 +208,20 @@ const HTTP_RESPONSE: []const u8 =
     \\ </body></html>
 ;
 
-// authenticated requests go here
-fn endpoint_http_get(e: *zap.Endpoint, r: zap.Request) void {
-    _ = e;
-    r.sendBody(HTTP_RESPONSE) catch return;
-}
+pub const Endpoint = struct {
+    path: []const u8,
 
-// just for fun, we also catch the unauthorized callback
-fn endpoint_http_unauthorized(e: *zap.Endpoint, r: zap.Request) void {
-    _ = e;
-    r.setStatus(.unauthorized);
-    r.sendBody("UNAUTHORIZED ACCESS") catch return;
-}
+    // authenticated requests go here
+    fn get(_: *Endpoint, r: zap.Request) void {
+        r.sendBody(HTTP_RESPONSE) catch return;
+    }
+
+    // just for fun, we also catch the unauthorized callback
+    fn unauthorized(_: *Endpoint, r: zap.Request) void {
+        r.setStatus(.unauthorized);
+        r.sendBody("UNAUTHORIZED ACCESS") catch return;
+    }
+};
 
 pub fn main() !void {
     // setup listener
@@ -233,11 +238,9 @@ pub fn main() !void {
     defer listener.deinit();
 
     // create mini endpoint
-    var ep = zap.Endpoint.init(.{
+    var ep : Endpoint = .{
         .path = "/test",
-        .get = endpoint_http_get,
-        .unauthorized = endpoint_http_unauthorized,
-    });
+    };
 
     // create authenticator
     const Authenticator = zap.Auth.BearerSingle;
@@ -245,15 +248,15 @@ pub fn main() !void {
     defer authenticator.deinit();
 
     // create authenticating endpoint
-    const BearerAuthEndpoint = zap.Endpoint.Authenticating(Authenticator);
+    const BearerAuthEndpoint = zap.Endpoint.Authenticating(Endpoint, Authenticator);
     var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
 
-    try listener.register(auth_ep.endpoint());
+    try listener.register(&auth_ep);
 
     listener.listen() catch {};
     std.debug.print(
         \\ Run the following:
-        \\ 
+        \\
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer ABCDEFG" -v
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer invalid" -v
         \\

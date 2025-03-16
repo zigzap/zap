@@ -1,8 +1,56 @@
+//! Endpoint and supporting types.
+//! Create one and define all callbacks. Then, pass it to a HttpListener's
+//! `register()` function to register with the listener.
+//!
+//! **NOTE**: Endpoints must implement the following "interface":
+//!
+//! ```zig
+//! /// The http request path / slug of the endpoint
+//! path: []const u8,
+//!
+//! /// Handlers by request method:
+//! pub fn get(_: *Self, _: zap.Request) void {}
+//! pub fn post(_: *Self, _: zap.Request) void {}
+//! pub fn put(_: *Self, _: zap.Request) void {}
+//! pub fn delete(_: *Self, _: zap.Request) void {}
+//! pub fn patch(_: *Self, _: zap.Request) void {}
+//! pub fn options(_: *Self, _: zap.Request) void {}
+//!
+//! // optional, if auth stuff is used:
+//! pub fn unauthorized(_: *Self, _: zap.Request) void {}
+//! ```
+//!
+//! Example:
+//! A simple endpoint listening on the /stop route that shuts down zap. The
+//! main thread usually continues at the instructions after the call to
+//! zap.start().
+//!
+//! ```zig
+//! const StopEndpoint = struct {
+//!
+//!     pub fn init( path: []const u8,) StopEndpoint {
+//!         return .{
+//!             .path = path,
+//!         };
+//!     }
+//!
+//!     pub fn post(_: *Self, _: zap.Request) void {}
+//!     pub fn put(_: *Self, _: zap.Request) void {}
+//!     pub fn delete(_: *Self, _: zap.Request) void {}
+//!     pub fn patch(_: *Self, _: zap.Request) void {}
+//!     pub fn options(_: *Self, _: zap.Request) void {}
+//!
+//!     pub fn get(self: *StopEndpoint, r: zap.Request) void {
+//!         _ = self;
+//!         _ = r;
+//!         zap.stop();
+//!     }
+//! };
+//! ```
+
 const std = @import("std");
 const zap = @import("zap.zig");
 const auth = @import("http_auth.zig");
-
-const Endpoint = @This();
 
 // zap types
 const Request = zap.Request;
@@ -93,8 +141,7 @@ const EndpointWrapper = struct {
     }
 };
 
-/// Wrap an endpoint with an Authenticator -> new Endpoint of type Endpoint
-/// is available via the `endpoint()` function.
+/// Wrap an endpoint with an Authenticator
 pub fn Authenticating(EndpointType: type, Authenticator: type) type {
     return struct {
         authenticator: *Authenticator,
