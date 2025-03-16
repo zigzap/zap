@@ -157,6 +157,8 @@ pub fn main() !void {
         defer authenticator.deinit();
 
         std.debug.print("Visit me on http://127.0.0.1:3000\n", .{});
+        std.debug.print("   Username: zap", .{});
+        std.debug.print("   Password: awesome", .{});
 
         // start worker threads
         zap.start(.{
