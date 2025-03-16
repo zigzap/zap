@@ -63,10 +63,10 @@ pub const EndpointHandlerOptions = struct {
 };
 
 /// A convenience handler for artibrary zap.Endpoint
-pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
+pub fn EndpointHandler(comptime HandlerType: anytype, comptime EndpointType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,
-        endpoint: *zap.Endpoint,
+        endpoint: *EndpointType,
         options: EndpointHandlerOptions,
 
         const Self = @This();
@@ -78,7 +78,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         ///
         /// If the `breakOnFinish` option is `true`, the handler will stop handing requests down the chain
         /// if the endpoint processed the request.
-        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, options: EndpointHandlerOptions) Self {
+        pub fn init(endpoint: *EndpointType, other: ?*HandlerType, options: EndpointHandlerOptions) Self {
             return .{
                 .handler = HandlerType.init(onRequest, other),
                 .endpoint = endpoint,
@@ -100,9 +100,17 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
             const self: *Self = @fieldParentPtr("handler", handler);
             r.setUserContext(context);
             if (!self.options.checkPath or
-                std.mem.startsWith(u8, r.path orelse "", self.endpoint.settings.path))
+                std.mem.startsWith(u8, r.path orelse "", self.endpoint.path))
             {
-                self.endpoint.onRequest(r);
+                switch (r.methodAsEnum()) {
+                    .GET => self.endpoint.*.get(r),
+                    .POST => self.endpoint.*.post(r),
+                    .PUT => self.endpoint.*.put(r),
+                    .DELETE => self.endpoint.*.delete(r),
+                    .PATCH => self.endpoint.*.patch(r),
+                    .OPTIONS => self.endpoint.*.options(r),
+                    else => {},
+                }
             }
 
             // if the request was handled by the endpoint, we may break the chain here

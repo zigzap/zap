@@ -136,26 +136,23 @@ const SessionMiddleWare = struct {
 // `breakOnFinish` parameter.
 //
 const HtmlEndpoint = struct {
-    ep: zap.Endpoint = undefined,
     const Self = @This();
+
+    path: []const u8 = "(undefined)",
 
     pub fn init() Self {
         return .{
-            .ep = zap.Endpoint.init(.{
-                .path = "/doesn't+matter",
-                .get = get,
-            }),
+            .path = "/doesn't+matter",
         };
     }
 
-    pub fn endpoint(self: *Self) *zap.Endpoint {
-        return &self.ep;
-    }
+    pub fn post(_: *HtmlEndpoint, _: zap.Request) void {}
+    pub fn put(_: *HtmlEndpoint, _: zap.Request) void {}
+    pub fn delete(_: *HtmlEndpoint, _: zap.Request) void {}
+    pub fn patch(_: *HtmlEndpoint, _: zap.Request) void {}
+    pub fn options(_: *HtmlEndpoint, _: zap.Request) void {}
 
-    pub fn get(ep: *zap.Endpoint, r: zap.Request) void {
-        const self: *Self = @fieldParentPtr("ep", ep);
-        _ = self;
-
+    pub fn get(_: *Self, r: zap.Request) void {
         var buf: [1024]u8 = undefined;
         var userFound: bool = false;
         var sessionFound: bool = false;
@@ -205,8 +202,8 @@ pub fn main() !void {
     var htmlEndpoint = HtmlEndpoint.init();
 
     // we wrap the endpoint with a middleware handler
-    var htmlHandler = zap.Middleware.EndpointHandler(Handler, Context).init(
-        htmlEndpoint.endpoint(), // the endpoint
+    var htmlHandler = zap.Middleware.EndpointHandler(Handler, HtmlEndpoint, Context).init(
+        &htmlEndpoint, // the endpoint
         null, // no other handler (we are the last in the chain)
         .{}, // We can set custom EndpointHandlerOptions here
     );
