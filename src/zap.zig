@@ -10,40 +10,38 @@ pub const fio = @import("fio.zig");
 pub const Tls = @import("tls.zig");
 
 /// Endpoint and supporting types.
-/// Create one and pass in your callbacks. Then,
-/// pass it to a HttpListener's `register()` function to register with the
-/// listener.
+/// Create one and define all callbacks. Then, pass it to a HttpListener's
+/// `register()` function to register with the listener.
 ///
-/// **NOTE**: A common endpoint pattern for zap is to create your own struct
-/// that embeds an Endpoint, provides specific callbacks, and uses
-/// `@fieldParentPtr` to get a reference to itself.
+/// **NOTE**: Endpoints must define the following:
+///
+/// ```zig
+/// path: []const u8,
+/// pub fn get(_: *Self, _: zap.Request) void {}
+/// pub fn post(_: *Self, _: zap.Request) void {}
+/// pub fn put(_: *Self, _: zap.Request) void {}
+/// pub fn delete(_: *Self, _: zap.Request) void {}
+/// pub fn patch(_: *Self, _: zap.Request) void {}
+/// pub fn options(_: *Self, _: zap.Request) void {}
+/// // optional, if auth stuff is used:
+/// pub fn unauthorized(_: *Self, _: zap.Request) void {}
+/// ```
 ///
 /// Example:
-/// A simple endpoint listening on the /stop route that shuts down zap.
-/// The main thread usually continues at the instructions after the call to zap.start().
+/// A simple endpoint listening on the /stop route that shuts down zap. The
+/// main thread usually continues at the instructions after the call to
+/// zap.start().
 ///
 /// ```zig
 /// const StopEndpoint = struct {
-///     ep: zap.Endpoint = undefined,
 ///
-///     pub fn init(
-///         path: []const u8,
-///     ) StopEndpoint {
+///     pub fn init( path: []const u8,) StopEndpoint {
 ///         return .{
-///             .ep = zap.Endpoint.init(.{
-///                 .path = path,
-///                 .get = get,
-///             }),
+///             .path = path,
 ///         };
 ///     }
 ///
-///     // access the internal Endpoint
-///     pub fn endpoint(self: *StopEndpoint) *zap.Endpoint {
-///         return &self.ep;
-///     }
-///
-///     fn get(e: *zap.Endpoint, r: zap.Request) void {
-///         const self: *StopEndpoint = @fieldParentPtr("ep", e);
+///     pub fn get(self: *StopEndpoint, r: zap.Request) void {
 ///         _ = self;
 ///         _ = r;
 ///         zap.stop();
