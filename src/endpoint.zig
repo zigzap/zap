@@ -1,6 +1,9 @@
 //! Endpoint and supporting types.
-//! Create one and define all callbacks. Then, pass it to a HttpListener's
-//! `register()` function to register with the listener.
+//!
+//! An Endpoint can be any zig struct that defines all the callbacks lilsted
+//! below.
+//! Pass an instance of an Endpoint struct  to zap.Endpoint.Listener.register()
+//! function to register with the listener.
 //!
 //! **NOTE**: Endpoints must implement the following "interface":
 //!
