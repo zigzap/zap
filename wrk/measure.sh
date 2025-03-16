@@ -5,9 +5,13 @@ DURATION_SECONDS=10
 
 SUBJECT=$1
 
-
+if echo $(uname) -eq "Darwin" ; then
+TSK_SRV=""
+TSK_LOAD=""
+else
 TSK_SRV="taskset -c 0,1,2,3"
 TSK_LOAD="taskset -c 4,5,6,7"
+fi
 
 if [ "$SUBJECT" = "" ] ; then
     echo "usage: $0 subject    # subject: zig or go"
@@ -29,7 +33,7 @@ if [ "$SUBJECT" = "zigstd" ] ; then
 fi
 
 if [ "$SUBJECT" = "go" ] ; then
-    cd wrk/go && go build main.go 
+    cd wrk/go && go build main.go
     $TSK_SRV ./main &
     PID=$!
     URL=http://127.0.0.1:8090/hello
@@ -94,7 +98,7 @@ sleep 1
 echo "========================================================================"
 echo "                          $SUBJECT"
 echo "========================================================================"
-$TSK_LOAD wrk -c $CONNECTIONS -t $THREADS -d $DURATION_SECONDS --latency $URL 
+$TSK_LOAD wrk -c $CONNECTIONS -t $THREADS -d $DURATION_SECONDS --latency $URL
 
 kill $PID
 
