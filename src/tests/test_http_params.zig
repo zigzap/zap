@@ -94,7 +94,6 @@ test "http parameters" {
     try std.testing.expectEqual(true, Handler.ran);
     try std.testing.expectEqual(5, Handler.param_count);
     try std.testing.expect(Handler.paramOneStr != null);
-    std.debug.print("\n\n=== Handler.paramOneStr = {s} = {*}\n\n", .{ Handler.paramOneStr.?, Handler.paramOneStr.?.ptr });
     try std.testing.expectEqualStrings("1", Handler.paramOneStr.?);
     try std.testing.expect(Handler.paramOneSlice != null);
     try std.testing.expectEqualStrings("1", Handler.paramOneSlice.?);
