@@ -98,8 +98,17 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\ 
+        \\ Test me with:
+        \\    curl http://localhost:3000/
+        \\    curl http://localhost:3000/geta
+        \\    curl http://localhost:3000/getb
+        \\    curl http://localhost:3000/inca
+        \\
+        \\
+    , .{});
     // start worker threads
     zap.start(.{
         .threads = 2,

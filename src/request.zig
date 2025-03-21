@@ -1,4 +1,6 @@
 const std = @import("std");
+const Allocator = std.mem.Allocator;
+
 const Log = @import("log.zig");
 const http = @import("http.zig");
 const fio = @import("fio.zig");
@@ -20,21 +22,18 @@ pub const HttpError = error{
 
 /// Key value pair of strings from HTTP parameters
 pub const HttpParamStrKV = struct {
-    key: util.FreeOrNot,
-    value: util.FreeOrNot,
-    pub fn deinit(self: *@This()) void {
-        self.key.deinit();
-        self.value.deinit();
-    }
+    key: []const u8,
+    value: []const u8,
 };
 
 /// List of key value pairs of Http param strings.
 pub const HttpParamStrKVList = struct {
     items: []HttpParamStrKV,
-    allocator: std.mem.Allocator,
+    allocator: Allocator,
     pub fn deinit(self: *@This()) void {
-        for (self.items) |*item| {
-            item.deinit();
+        for (self.items) |item| {
+            self.allocator.free(item.key);
+            self.allocator.free(item.value);
         }
         self.allocator.free(self.items);
     }
@@ -43,10 +42,13 @@ pub const HttpParamStrKVList = struct {
 /// List of key value pairs of Http params (might be of different types).
 pub const HttpParamKVList = struct {
     items: []HttpParamKV,
-    allocator: std.mem.Allocator,
+    allocator: Allocator,
     pub fn deinit(self: *const @This()) void {
-        for (self.items) |*item| {
-            item.deinit();
+        for (self.items) |item| {
+            self.allocator.free(item.key);
+            if (item.value) |v| {
+                v.free(self.allocator);
+            }
         }
         self.allocator.free(self.items);
     }
@@ -70,28 +72,31 @@ pub const HttpParam = union(HttpParamValueType) {
     Int: isize,
     Float: f64,
     /// we don't do writable strings here
-    String: util.FreeOrNot,
+    String: []const u8,
     /// value will always be null
     Unsupported: ?void,
     /// we assume hashes are because of file transmissions
     Hash_Binfile: HttpParamBinaryFile,
     /// value will always be null
     Array_Binfile: std.ArrayList(HttpParamBinaryFile),
+
+    pub fn free(self: HttpParam, alloc: Allocator) void {
+        switch (self) {
+            .String => |s| alloc.free(s),
+            .Array_Binfile => |a| {
+                a.deinit();
+            },
+            else => {
+                // nothing to free
+            },
+        }
+    }
 };
 
 /// Key value pair of one typed Http param
 pub const HttpParamKV = struct {
-    key: util.FreeOrNot,
+    key: []const u8,
     value: ?HttpParam,
-    pub fn deinit(self: *@This()) void {
-        self.key.deinit();
-        if (self.value) |p| {
-            switch (p) {
-                .String => |*s| s.deinit(),
-                else => {},
-            }
-        }
-    }
 };
 
 /// Struct representing an uploaded file.
@@ -112,7 +117,7 @@ pub const HttpParamBinaryFile = struct {
     }
 };
 
-fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
+fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
     const key_name = fio.fiobj_str_new("name", 4);
     const key_data = fio.fiobj_str_new("data", 4);
     const key_type = fio.fiobj_str_new("type", 4);
@@ -225,14 +230,15 @@ fn parseBinfilesFrom(a: std.mem.Allocator, o: fio.FIOBJ) !HttpParam {
 }
 
 /// Parse FIO object into a typed Http param. Supports file uploads.
-pub fn Fiobj2HttpParam(a: std.mem.Allocator, o: fio.FIOBJ, dupe_string: bool) !?HttpParam {
+/// Allocator is only used for file uploads.
+pub fn fiobj2HttpParam(a: Allocator, o: fio.FIOBJ) !?HttpParam {
     return switch (fio.fiobj_type(o)) {
         fio.FIOBJ_T_NULL => null,
         fio.FIOBJ_T_TRUE => .{ .Bool = true },
         fio.FIOBJ_T_FALSE => .{ .Bool = false },
         fio.FIOBJ_T_NUMBER => .{ .Int = fio.fiobj_obj2num(o) },
         fio.FIOBJ_T_FLOAT => .{ .Float = fio.fiobj_obj2float(o) },
-        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAllocOrNot(a, o, dupe_string) },
+        fio.FIOBJ_T_STRING => .{ .String = try util.fio2strAlloc(a, o) },
         fio.FIOBJ_T_ARRAY => {
             return .{ .Unsupported = null };
         },
@@ -423,6 +429,7 @@ pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void
         const e = ext[1..];
         const obj = fio.http_mimetype_find(@constCast(e.ptr), e.len);
 
+        // fio2str is OK since setHeader takes a copy
         if (util.fio2str(obj)) |mime_str| {
             try self.setHeader("content-type", mime_str);
         }
@@ -438,6 +445,8 @@ pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void
 pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
     const hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);
     defer fio.fiobj_free_wrapped(hname);
+    // fio2str is OK since headers are always strings -> slice is returned
+    // (and not a slice into some threadlocal "global")
     return util.fio2str(fio.fiobj_hash_get(self.h.*.headers, hname));
 }
 
@@ -495,6 +504,8 @@ pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
         .upgrade => fio.HTTP_HEADER_UPGRADE,
     };
     const fiobj = zap.fio.fiobj_hash_get(self.h.*.headers, field);
+    // fio2str is OK since headers are always strings -> slice is returned
+    // (and not a slice into some threadlocal "global")
     return zap.util.fio2str(fiobj);
 }
 
@@ -606,7 +617,7 @@ pub const AcceptItem = struct {
 const AcceptHeaderList = std.ArrayList(AcceptItem);
 
 /// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
-pub fn parseAcceptHeaders(self: *const Self, allocator: std.mem.Allocator) !AcceptHeaderList {
+pub fn parseAcceptHeaders(self: *const Self, allocator: Allocator) !AcceptHeaderList {
     const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAcceptHeader;
 
     const comma_count = std.mem.count(u8, accept_str, ",");
@@ -681,7 +692,7 @@ pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
 }
 
 /// Returns named cookie. Works like getParamStr().
-pub fn getCookieStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
+pub fn getCookieStr(self: *const Self, a: Allocator, name: []const u8) !?[]const u8 {
     if (self.h.*.cookies == 0) return null;
     const key = fio.fiobj_str_new(name.ptr, name.len);
     defer fio.fiobj_free_wrapped(key);
@@ -689,7 +700,9 @@ pub fn getCookieStr(self: *const Self, a: std.mem.Allocator, name: []const u8, a
     if (value == fio.FIOBJ_INVALID) {
         return null;
     }
-    return try util.fio2strAllocOrNot(a, value, always_alloc);
+    // we are not entirely sure if cookies fiobjs are always strings
+    // hence. fio2strAlloc
+    return try util.fio2strAlloc(a, value);
 }
 
 /// Returns the number of cookies after parsing.
@@ -708,15 +721,72 @@ pub fn getParamCount(self: *const Self) isize {
     return fio.fiobj_obj2num(self.h.*.params);
 }
 
+const CallbackContext_KV = struct {
+    allocator: Allocator,
+    params: *std.ArrayList(HttpParamKV),
+    last_error: ?anyerror = null,
+
+    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
+        const ctx: *@This() = @as(*@This(), @ptrCast(@alignCast(context_)));
+        // this is thread-safe, guaranteed by fio
+        const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        ctx.params.append(.{
+            .key = util.fio2strAlloc(ctx.allocator, fiobj_key) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+            .value = fiobj2HttpParam(ctx.allocator, fiobj_value) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+        }) catch |err| {
+            // what to do?
+            // signal the caller that an error occured by returning -1
+            // also, set the error
+            ctx.last_error = err;
+            return -1;
+        };
+        return 0;
+    }
+};
+
+const CallbackContext_StrKV = struct {
+    allocator: Allocator,
+    params: *std.ArrayList(HttpParamStrKV),
+    last_error: ?anyerror = null,
+
+    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
+        const ctx: *@This() = @as(*@This(), @ptrCast(@alignCast(context_)));
+        // this is thread-safe, guaranteed by fio
+        const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
+        ctx.params.append(.{
+            .key = util.fio2strAlloc(ctx.allocator, fiobj_key) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+            .value = util.fio2strAlloc(ctx.allocator, fiobj_value) catch |err| {
+                ctx.last_error = err;
+                return -1;
+            },
+        }) catch |err| {
+            // what to do?
+            // signal the caller that an error occured by returning -1
+            // also, set the error
+            ctx.last_error = err;
+            return -1;
+        };
+        return 0;
+    }
+};
+
 /// Same as parametersToOwnedStrList() but for cookies
-pub fn cookiesToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
+pub fn cookiesToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpParamStrKVList {
     var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
-    var context: _parametersToOwnedStrSliceContext = .{
+    var context: CallbackContext_StrKV = .{
         .params = &params,
         .allocator = a,
-        .always_alloc = always_alloc,
     };
-    const howmany = fio.fiobj_each1(self.h.*.cookies, 0, _each_nextParamStr, &context);
+    const howmany = fio.fiobj_each1(self.h.*.cookies, 0, CallbackContext_StrKV.callback, &context);
     if (howmany != self.getCookiesCount()) {
         return error.HttpIterParams;
     }
@@ -724,10 +794,10 @@ pub fn cookiesToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_all
 }
 
 /// Same as parametersToOwnedList() but for cookies
-pub fn cookiesToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
+pub fn cookiesToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
     var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
-    var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
-    const howmany = fio.fiobj_each1(self.h.*.cookies, 0, _each_nextParam, &context);
+    var context: CallbackContext_KV = .{ .params = &params, .allocator = a };
+    const howmany = fio.fiobj_each1(self.h.*.cookies, 0, CallbackContext_KV.callback, &context);
     if (howmany != self.getCookiesCount()) {
         return error.HttpIterParams;
     }
@@ -747,48 +817,19 @@ pub fn cookiesToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings:
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
 /// Returned list needs to be deinited.
-pub fn parametersToOwnedStrList(self: *const Self, a: std.mem.Allocator, always_alloc: bool) anyerror!HttpParamStrKVList {
+pub fn parametersToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpParamStrKVList {
     var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
-    var context: _parametersToOwnedStrSliceContext = .{
+
+    var context: CallbackContext_StrKV = .{
         .params = &params,
         .allocator = a,
-        .always_alloc = always_alloc,
     };
-    const howmany = fio.fiobj_each1(self.h.*.params, 0, _each_nextParamStr, &context);
+
+    const howmany = fio.fiobj_each1(self.h.*.params, 0, CallbackContext_StrKV.callback, &context);
     if (howmany != self.getParamCount()) {
         return error.HttpIterParams;
     }
     return .{ .items = try params.toOwnedSlice(), .allocator = a };
-}
-
-const _parametersToOwnedStrSliceContext = struct {
-    allocator: std.mem.Allocator,
-    params: *std.ArrayList(HttpParamStrKV),
-    last_error: ?anyerror = null,
-    always_alloc: bool,
-};
-
-fn _each_nextParamStr(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
-    const ctx: *_parametersToOwnedStrSliceContext = @as(*_parametersToOwnedStrSliceContext, @ptrCast(@alignCast(context)));
-    // this is thread-safe, guaranteed by fio
-    const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
-    ctx.params.append(.{
-        .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.always_alloc) catch |err| {
-            ctx.last_error = err;
-            return -1;
-        },
-        .value = util.fio2strAllocOrNot(ctx.allocator, fiobj_value, ctx.always_alloc) catch |err| {
-            ctx.last_error = err;
-            return -1;
-        },
-    }) catch |err| {
-        // what to do?
-        // signal the caller that an error occured by returning -1
-        // also, set the error
-        ctx.last_error = err;
-        return -1;
-    };
-    return 0;
 }
 
 /// Returns the query / body parameters as key/value pairs
@@ -804,47 +845,19 @@ fn _each_nextParamStr(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C)
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
 /// Returned slice needs to be freed.
-pub fn parametersToOwnedList(self: *const Self, a: std.mem.Allocator, dupe_strings: bool) !HttpParamKVList {
+pub fn parametersToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
     var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
-    var context: _parametersToOwnedSliceContext = .{ .params = &params, .allocator = a, .dupe_strings = dupe_strings };
-    const howmany = fio.fiobj_each1(self.h.*.params, 0, _each_nextParam, &context);
+
+    var context: CallbackContext_KV = .{ .params = &params, .allocator = a };
+
+    const howmany = fio.fiobj_each1(self.h.*.params, 0, CallbackContext_KV.callback, &context);
     if (howmany != self.getParamCount()) {
         return error.HttpIterParams;
     }
     return .{ .items = try params.toOwnedSlice(), .allocator = a };
 }
 
-const _parametersToOwnedSliceContext = struct {
-    params: *std.ArrayList(HttpParamKV),
-    last_error: ?anyerror = null,
-    allocator: std.mem.Allocator,
-    dupe_strings: bool,
-};
-
-fn _each_nextParam(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_int {
-    const ctx: *_parametersToOwnedSliceContext = @as(*_parametersToOwnedSliceContext, @ptrCast(@alignCast(context)));
-    // this is thread-safe, guaranteed by fio
-    const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
-    ctx.params.append(.{
-        .key = util.fio2strAllocOrNot(ctx.allocator, fiobj_key, ctx.dupe_strings) catch |err| {
-            ctx.last_error = err;
-            return -1;
-        },
-        .value = Fiobj2HttpParam(ctx.allocator, fiobj_value, ctx.dupe_strings) catch |err| {
-            ctx.last_error = err;
-            return -1;
-        },
-    }) catch |err| {
-        // what to do?
-        // signal the caller that an error occured by returning -1
-        // also, set the error
-        ctx.last_error = err;
-        return -1;
-    };
-    return 0;
-}
-
-/// get named parameter as string
+/// get named parameter (parsed) as string
 /// Supported param types that will be converted:
 ///
 /// - Bool
@@ -856,8 +869,8 @@ fn _each_nextParam(fiobj_value: fio.FIOBJ, context: ?*anyopaque) callconv(.C) c_
 /// So, for JSON body payloads: parse the body instead.
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
-/// The returned string needs to be deinited with .deinit()
-pub fn getParamStr(self: *const Self, a: std.mem.Allocator, name: []const u8, always_alloc: bool) !?util.FreeOrNot {
+/// The returned string needs to be deallocated.
+pub fn getParamStr(self: *const Self, a: Allocator, name: []const u8) !?[]const u8 {
     if (self.h.*.params == 0) return null;
     const key = fio.fiobj_str_new(name.ptr, name.len);
     defer fio.fiobj_free_wrapped(key);
@@ -865,7 +878,7 @@ pub fn getParamStr(self: *const Self, a: std.mem.Allocator, name: []const u8, al
     if (value == fio.FIOBJ_INVALID) {
         return null;
     }
-    return try util.fio2strAllocOrNot(a, value, always_alloc);
+    return try util.fio2strAlloc(a, value);
 }
 
 /// similar to getParamStr, except it will return the part of the querystring

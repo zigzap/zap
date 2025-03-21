@@ -66,7 +66,18 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\
+        \\ Test me with:
+        \\    curl --header "Accept: text/plain"            localhost:3000
+        \\    curl --header "Accept: text/html"             localhost:3000
+        \\    curl --header "Accept: application/xml"       localhost:3000
+        \\    curl --header "Accept: application/json"      localhost:3000
+        \\    curl --header "Accept: application/xhtml+xml" localhost:3000
+        \\
+        \\
+    , .{});
 
     // start worker threads
     zap.start(.{

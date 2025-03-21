@@ -450,15 +450,15 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
             r.parseCookies(false);
 
             // check for session cookie
-            if (r.getCookieStr(self.allocator, self.settings.cookieName, false)) |maybe_cookie| {
+            if (r.getCookieStr(self.allocator, self.settings.cookieName)) |maybe_cookie| {
                 if (maybe_cookie) |cookie| {
-                    defer cookie.deinit();
+                    defer self.allocator.free(cookie);
                     self.tokenLookupLock.lock();
                     defer self.tokenLookupLock.unlock();
-                    if (self.sessionTokens.getKeyPtr(cookie.str)) |keyPtr| {
+                    if (self.sessionTokens.getKeyPtr(cookie)) |keyPtr| {
                         const keySlice = keyPtr.*;
                         // if cookie is a valid session, remove it!
-                        _ = self.sessionTokens.remove(cookie.str);
+                        _ = self.sessionTokens.remove(cookie);
                         // only now can we let go of the cookie str slice that
                         // was used as the key
                         self.allocator.free(keySlice);
@@ -486,18 +486,18 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
             r.parseCookies(false);
 
             // check for session cookie
-            if (r.getCookieStr(self.allocator, self.settings.cookieName, false)) |maybe_cookie| {
+            if (r.getCookieStr(self.allocator, self.settings.cookieName)) |maybe_cookie| {
                 if (maybe_cookie) |cookie| {
-                    defer cookie.deinit();
+                    defer self.allocator.free(cookie);
                     // locked or unlocked token lookup
                     self.tokenLookupLock.lock();
                     defer self.tokenLookupLock.unlock();
-                    if (self.sessionTokens.contains(cookie.str)) {
+                    if (self.sessionTokens.contains(cookie)) {
                         // cookie is a valid session!
-                        zap.debug("Auth: COOKIE IS OK!!!!: {s}\n", .{cookie.str});
+                        zap.debug("Auth: COOKIE IS OK!!!!: {s}\n", .{cookie});
                         return .AuthOK;
                     } else {
-                        zap.debug("Auth: COOKIE IS BAD!!!!: {s}\n", .{cookie.str});
+                        zap.debug("Auth: COOKIE IS BAD!!!!: {s}\n", .{cookie});
                         // this is not necessarily a bad thing. it could be a
                         // stale cookie from a previous session. So let's check
                         // if username and password are being sent and correct.
@@ -508,27 +508,26 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
             }
 
             // get params of username and password
-            if (r.getParamStr(self.allocator, self.settings.usernameParam, false)) |maybe_username| {
-                if (maybe_username) |*username| {
-                    defer username.deinit();
-                    if (r.getParamStr(self.allocator, self.settings.passwordParam, false)) |maybe_pw| {
-                        if (maybe_pw) |*pw| {
-                            defer pw.deinit();
-
+            if (r.getParamStr(self.allocator, self.settings.usernameParam)) |maybe_username| {
+                if (maybe_username) |username| {
+                    defer self.allocator.free(username);
+                    if (r.getParamStr(self.allocator, self.settings.passwordParam)) |maybe_pw| {
+                        if (maybe_pw) |pw| {
+                            defer self.allocator.free(pw);
                             // now check
                             const correct_pw_optional = brk: {
                                 if (lockedPwLookups) {
                                     self.passwordLookupLock.lock();
                                     defer self.passwordLookupLock.unlock();
-                                    break :brk self.lookup.*.get(username.str);
+                                    break :brk self.lookup.*.get(username);
                                 } else {
-                                    break :brk self.lookup.*.get(username.str);
+                                    break :brk self.lookup.*.get(username);
                                 }
                             };
                             if (correct_pw_optional) |correct_pw| {
-                                if (std.mem.eql(u8, pw.str, correct_pw)) {
+                                if (std.mem.eql(u8, pw, correct_pw)) {
                                     // create session token
-                                    if (self.createAndStoreSessionToken(username.str, pw.str)) |token| {
+                                    if (self.createAndStoreSessionToken(username, pw)) |token| {
                                         defer self.allocator.free(token);
                                         // now set the cookie header
                                         if (r.setCookie(.{
@@ -549,12 +548,12 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
                             }
                         }
                     } else |err| {
-                        zap.debug("getParamSt() for password failed in UserPassSession: {any}", .{err});
+                        zap.debug("getParamStr() for password failed in UserPassSession: {any}", .{err});
                         return .AuthFailed;
                     }
                 }
             } else |err| {
-                zap.debug("getParamSt() for user failed in UserPassSession: {any}", .{err});
+                zap.debug("getParamStr() for user failed in UserPassSession: {any}", .{err});
                 return .AuthFailed;
             }
             return .AuthFailed;
