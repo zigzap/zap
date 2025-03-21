@@ -16,3 +16,6 @@ scratch
 .vs/
 **/*.perflog
 wrk/*.png
+mycert.pem
+release.md
+mykey.pem
