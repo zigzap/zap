@@ -30,6 +30,7 @@ pub const HttpParamStrKV = struct {
 pub const HttpParamStrKVList = struct {
     items: []HttpParamStrKV,
     allocator: Allocator,
+
     pub fn deinit(self: *HttpParamStrKVList) void {
         for (self.items) |item| {
             self.allocator.free(item.key);
@@ -535,6 +536,19 @@ pub fn setHeader(self: *const Request, name: []const u8, value: []const u8) Http
 
     if (ret == 0) return;
     return error.HttpSetHeader;
+}
+
+pub fn headersToOwnedList(self: *const Request, a: Allocator) !HttpParamStrKVList {
+    var headers = std.ArrayList(HttpParamStrKV).init(a);
+    var context: CallbackContext_StrKV = .{
+        .params = &headers,
+        .allocator = a,
+    };
+    const howmany = fio.fiobj_each1(self.h.*.headers, 0, CallbackContext_StrKV.callback, &context);
+    if (howmany != headers.items.len) {
+        return error.HttpIterHeaders;
+    }
+    return .{ .items = try headers.toOwnedSlice(), .allocator = a };
 }
 
 /// Set status by numeric value.
