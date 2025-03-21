@@ -26,9 +26,5 @@ pub fn create(comptime Context: type, context: *Context, opts: Opts) type {
         context: *Context = context,
         error_strategy: @TypeOf(opts.request_error_strategy) = opts.request_error_strategy,
         endpoints: std.StringArrayHashMapUnmanaged(*zap.Endpoint.Wrapper.Internal) = .empty,
-
-        // pub fn addEndpoint(slug: []const u8, endpoint: anytype) !zap.Endpoint {
-        //     // TODO: inspect endpoint: does it have
-        // }
     };
 }

@@ -26,7 +26,7 @@ test "http parameters" {
 
         var strParams: ?zap.Request.HttpParamStrKVList = null;
         var params: ?zap.Request.HttpParamKVList = null;
-        var paramOneStr: ?zap.util.FreeOrNot = null;
+        var paramOneStr: ?[]const u8 = null;
         var paramOneSlice: ?[]const u8 = null;
         var paramSlices: zap.Request.ParamSliceIterator = undefined;
 
@@ -36,20 +36,17 @@ test "http parameters" {
             param_count = r.getParamCount();
 
             // true -> make copies of temp strings
-            strParams = r.parametersToOwnedStrList(alloc, true) catch unreachable;
+            strParams = r.parametersToOwnedStrList(alloc) catch unreachable;
 
             // true -> make copies of temp strings
-            params = r.parametersToOwnedList(alloc, true) catch unreachable;
+            params = r.parametersToOwnedList(alloc) catch unreachable;
 
-            var maybe_str = r.getParamStr(alloc, "one", true) catch unreachable;
-            if (maybe_str) |*s| {
-                paramOneStr = s.*;
-            }
+            paramOneStr = r.getParamStr(alloc, "one") catch unreachable;
 
-            paramOneSlice = blk: {
-                if (r.getParamSlice("one")) |val| break :blk alloc.dupe(u8, val) catch unreachable;
-                break :blk null;
-            };
+            // we need to dupe it here because the request object r will get
+            // invalidated at the end of the function but we need to check
+            // its correctness later in the test
+            paramOneSlice = if (r.getParamSlice("one")) |slice| alloc.dupe(u8, slice) catch unreachable else null;
 
             paramSlices = r.getParamSlices();
         }
@@ -84,44 +81,44 @@ test "http parameters" {
         if (Handler.params) |*p| {
             p.deinit();
         }
-        if (Handler.paramOneStr) |*p| {
-            // allocator.free(p);
-            p.deinit();
+
+        if (Handler.paramOneStr) |p| {
+            allocator.free(p);
         }
 
         if (Handler.paramOneSlice) |p| {
-            Handler.alloc.free(p);
+            allocator.free(p);
         }
     }
 
-    try std.testing.expectEqual(Handler.ran, true);
-    try std.testing.expectEqual(Handler.param_count, 5);
+    try std.testing.expectEqual(true, Handler.ran);
+    try std.testing.expectEqual(5, Handler.param_count);
     try std.testing.expect(Handler.paramOneStr != null);
-    try std.testing.expectEqualStrings(Handler.paramOneStr.?.str, "1");
+    try std.testing.expectEqualStrings("1", Handler.paramOneStr.?);
     try std.testing.expect(Handler.paramOneSlice != null);
-    try std.testing.expectEqualStrings(Handler.paramOneSlice.?, "1");
+    try std.testing.expectEqualStrings("1", Handler.paramOneSlice.?);
     try std.testing.expect(Handler.strParams != null);
     for (Handler.strParams.?.items, 0..) |kv, i| {
         switch (i) {
             0 => {
-                try std.testing.expectEqualStrings(kv.key.str, "one");
-                try std.testing.expectEqualStrings(kv.value.str, "1");
+                try std.testing.expectEqualStrings("one", kv.key);
+                try std.testing.expectEqualStrings("1", kv.value);
             },
             1 => {
-                try std.testing.expectEqualStrings(kv.key.str, "two");
-                try std.testing.expectEqualStrings(kv.value.str, "2");
+                try std.testing.expectEqualStrings("two", kv.key);
+                try std.testing.expectEqualStrings("2", kv.value);
             },
             2 => {
-                try std.testing.expectEqualStrings(kv.key.str, "string");
-                try std.testing.expectEqualStrings(kv.value.str, "hello world");
+                try std.testing.expectEqualStrings("string", kv.key);
+                try std.testing.expectEqualStrings("hello world", kv.value);
             },
             3 => {
-                try std.testing.expectEqualStrings(kv.key.str, "float");
-                try std.testing.expectEqualStrings(kv.value.str, "6.28");
+                try std.testing.expectEqualStrings("float", kv.key);
+                try std.testing.expectEqualStrings("6.28", kv.value);
             },
             4 => {
-                try std.testing.expectEqualStrings(kv.key.str, "bool");
-                try std.testing.expectEqualStrings(kv.value.str, "true");
+                try std.testing.expectEqualStrings("bool", kv.key);
+                try std.testing.expectEqualStrings("true", kv.value);
             },
             else => return error.TooManyArgs,
         }
@@ -131,24 +128,24 @@ test "http parameters" {
     while (Handler.paramSlices.next()) |param| {
         switch (pindex) {
             0 => {
-                try std.testing.expectEqualStrings(param.name, "one");
-                try std.testing.expectEqualStrings(param.value, "1");
+                try std.testing.expectEqualStrings("one", param.name);
+                try std.testing.expectEqualStrings("1", param.value);
             },
             1 => {
-                try std.testing.expectEqualStrings(param.name, "two");
-                try std.testing.expectEqualStrings(param.value, "2");
+                try std.testing.expectEqualStrings("two", param.name);
+                try std.testing.expectEqualStrings("2", param.value);
             },
             2 => {
-                try std.testing.expectEqualStrings(param.name, "string");
-                try std.testing.expectEqualStrings(param.value, "hello+world");
+                try std.testing.expectEqualStrings("string", param.name);
+                try std.testing.expectEqualStrings("hello+world", param.value);
             },
             3 => {
-                try std.testing.expectEqualStrings(param.name, "float");
-                try std.testing.expectEqualStrings(param.value, "6.28");
+                try std.testing.expectEqualStrings("float", param.name);
+                try std.testing.expectEqualStrings("6.28", param.value);
             },
             4 => {
-                try std.testing.expectEqualStrings(param.name, "bool");
-                try std.testing.expectEqualStrings(param.value, "true");
+                try std.testing.expectEqualStrings("bool", param.name);
+                try std.testing.expectEqualStrings("true", param.value);
             },
             else => return error.TooManyArgs,
         }
@@ -158,42 +155,42 @@ test "http parameters" {
     for (Handler.params.?.items, 0..) |kv, i| {
         switch (i) {
             0 => {
-                try std.testing.expectEqualStrings(kv.key.str, "one");
+                try std.testing.expectEqualStrings("one", kv.key);
                 try std.testing.expect(kv.value != null);
                 switch (kv.value.?) {
-                    .Int => |n| try std.testing.expectEqual(n, 1),
+                    .Int => |n| try std.testing.expectEqual(1, n),
                     else => return error.InvalidHttpParamType,
                 }
             },
             1 => {
-                try std.testing.expectEqualStrings(kv.key.str, "two");
+                try std.testing.expectEqualStrings("two", kv.key);
                 try std.testing.expect(kv.value != null);
                 switch (kv.value.?) {
-                    .Int => |n| try std.testing.expectEqual(n, 2),
+                    .Int => |n| try std.testing.expectEqual(2, n),
                     else => return error.InvalidHttpParamType,
                 }
             },
             2 => {
-                try std.testing.expectEqualStrings(kv.key.str, "string");
+                try std.testing.expectEqualStrings("string", kv.key);
                 try std.testing.expect(kv.value != null);
                 switch (kv.value.?) {
-                    .String => |s| try std.testing.expectEqualStrings(s.str, "hello world"),
+                    .String => |s| try std.testing.expectEqualStrings("hello world", s),
                     else => return error.InvalidHttpParamType,
                 }
             },
             3 => {
-                try std.testing.expectEqualStrings(kv.key.str, "float");
+                try std.testing.expectEqualStrings("float", kv.key);
                 try std.testing.expect(kv.value != null);
                 switch (kv.value.?) {
-                    .Float => |f| try std.testing.expectEqual(f, 6.28),
+                    .Float => |f| try std.testing.expectEqual(6.28, f),
                     else => return error.InvalidHttpParamType,
                 }
             },
             4 => {
-                try std.testing.expectEqualStrings(kv.key.str, "bool");
+                try std.testing.expectEqualStrings("bool", kv.key);
                 try std.testing.expect(kv.value != null);
                 switch (kv.value.?) {
-                    .Bool => |b| try std.testing.expectEqual(b, true),
+                    .Bool => |b| try std.testing.expectEqual(true, b),
                     else => return error.InvalidHttpParamType,
                 }
             },

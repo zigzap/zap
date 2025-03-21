@@ -43,7 +43,18 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\
+        \\ Test me with:
+        \\    curl http://localhost:3000
+        \\    curl --header "special-header: test" localhost:3000
+        \\
+        \\ ... or open http://localhost:3000 in the browser
+        \\     and watch the log output here
+        \\
+        \\
+    , .{});
 
     // start worker threads
     zap.start(.{

@@ -21,6 +21,21 @@ fn on_request_verbose(r: zap.Request) !void {
         break :content_type .HTML;
     };
 
+    // just for fun: print ALL headers
+    var maybe_headers: ?zap.Request.HttpParamStrKVList = blk: {
+        const h = r.headersToOwnedList(gpa.allocator()) catch |err| {
+            std.debug.print("Error getting headers: {}\n", .{err});
+            break :blk null;
+        };
+        break :blk h;
+    };
+    if (maybe_headers) |*headers| {
+        defer headers.deinit();
+        for (headers.items) |header| {
+            std.debug.print("Header {s} = {s}\n", .{ header.key, header.value });
+        }
+    }
+
     try r.setContentType(content_type);
     switch (content_type) {
         .TEXT => {
@@ -66,7 +81,18 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\
+        \\ Test me with:
+        \\    curl --header "Accept: text/plain"            localhost:3000
+        \\    curl --header "Accept: text/html"             localhost:3000
+        \\    curl --header "Accept: application/xml"       localhost:3000
+        \\    curl --header "Accept: application/json"      localhost:3000
+        \\    curl --header "Accept: application/xhtml+xml" localhost:3000
+        \\
+        \\
+    , .{});
 
     // start worker threads
     zap.start(.{

@@ -72,6 +72,7 @@ fn on_request(r: zap.Request) !void {
         .AuthOK => {
             // the authenticator says it is ok to proceed as usual
             std.log.info("Auth OK", .{});
+
             // dispatch to target path
             if (r.path) |p| {
                 // used in the login page
@@ -124,6 +125,7 @@ pub fn main() !void {
     // to detect leaks
     {
         const allocator = gpa.allocator();
+
         var listener = zap.HttpListener.init(.{
             .port = 3000,
             .on_request = on_request,

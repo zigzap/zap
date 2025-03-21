@@ -13,7 +13,7 @@ pub const fio_url_s = extern struct {
 pub extern fn fio_url_parse(url: [*c]const u8, length: usize) fio_url_s;
 
 /// Negative thread / worker values indicate a fraction of the number of CPU cores. i.e., -2 will normally indicate "half" (1/2) the number of cores.
-/// 
+///
 /// If one value is set to zero, it will be the absolute value of the other value. i.e.: if .threads == -2 and .workers == 0, than facil.io will run 2 worker processes with (cores/2) threads per process.
 pub const struct_fio_start_args = extern struct {
     /// The number of threads to run in the thread pool.
@@ -420,7 +420,9 @@ pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
 // pub const http_cookie_args_s = opaque {};
 
 pub extern fn http_set_header(h: [*c]http_s, name: FIOBJ, value: FIOBJ) c_int;
+/// set header, copying the data
 pub extern fn http_set_header2(h: [*c]http_s, name: fio_str_info_s, value: fio_str_info_s) c_int;
+/// set cookie, taking ownership of data
 pub extern fn http_set_cookie(h: [*c]http_s, http_cookie_args_s) c_int;
 pub extern fn http_sendfile(h: [*c]http_s, fd: c_int, length: usize, offset: usize) c_int;
 pub extern fn http_sendfile2(h: [*c]http_s, prefix: [*c]const u8, prefix_len: usize, encoded: [*c]const u8, encoded_len: usize) c_int;
