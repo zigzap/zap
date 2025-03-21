@@ -30,7 +30,7 @@ pub const HttpParamStrKV = struct {
 pub const HttpParamStrKVList = struct {
     items: []HttpParamStrKV,
     allocator: Allocator,
-    pub fn deinit(self: *@This()) void {
+    pub fn deinit(self: *HttpParamStrKVList) void {
         for (self.items) |item| {
             self.allocator.free(item.key);
             self.allocator.free(item.value);
@@ -43,7 +43,7 @@ pub const HttpParamStrKVList = struct {
 pub const HttpParamKVList = struct {
     items: []HttpParamKV,
     allocator: Allocator,
-    pub fn deinit(self: *const @This()) void {
+    pub fn deinit(self: *const HttpParamKVList) void {
         for (self.items) |item| {
             self.allocator.free(item.key);
             if (item.value) |v| {
@@ -109,7 +109,7 @@ pub const HttpParamBinaryFile = struct {
     filename: ?[]const u8 = null,
 
     /// format function for printing file upload data
-    pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
+    pub fn format(value: HttpParamBinaryFile, comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
         const d = value.data orelse "\\0";
         const m = value.mimetype orelse "null";
         const f = value.filename orelse "null";
@@ -286,30 +286,30 @@ pub const UserContext = struct {
     user_context: ?*anyopaque = null,
 };
 
-const Self = @This();
+const Request = @This();
 
 /// mark the current request as finished. Important for middleware-style
 /// request handler chaining. Called when sending a body, redirecting, etc.
-pub fn markAsFinished(self: *const Self, finished: bool) void {
+pub fn markAsFinished(self: *const Request, finished: bool) void {
     // we might be a copy
     self._is_finished.* = finished;
 }
 
 /// tell whether request processing has finished. (e.g. response sent,
 /// redirected, ...)
-pub fn isFinished(self: *const Self) bool {
+pub fn isFinished(self: *const Request) bool {
     // we might be a copy
     return self._is_finished.*;
 }
 
 /// if you absolutely must, you can set any context on the request here
 // (note, this line is linked to from the readme) -- TODO: sync
-pub fn setUserContext(self: *const Self, context: *anyopaque) void {
+pub fn setUserContext(self: *const Request, context: *anyopaque) void {
     self._user_context.*.user_context = context;
 }
 
 /// get the associated user context of the request.
-pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
+pub fn getUserContext(self: *const Request, comptime Context: type) ?*Context {
     if (self._user_context.*.user_context) |ptr| {
         return @as(*Context, @ptrCast(@alignCast(ptr)));
     } else {
@@ -322,7 +322,7 @@ pub fn getUserContext(self: *const Self, comptime Context: type) ?*Context {
 /// const err = zap.HttpError; // this is to show that `err` is an Error
 /// r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505);
 /// ```
-pub fn sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) void {
+pub fn sendError(self: *const Request, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) void {
     // TODO: query accept headers
     if (self._internal_sendError(err, err_trace, errorcode_num)) {
         return;
@@ -332,7 +332,7 @@ pub fn sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.Stack
 }
 
 /// Used internally. Probably does not need to be public.
-pub fn _internal_sendError(self: *const Self, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) !void {
+pub fn _internal_sendError(self: *const Request, err: anyerror, err_trace: ?std.builtin.StackTrace, errorcode_num: usize) !void {
     // TODO: query accept headers
     // TODO: let's hope 20k is enough. Maybe just really allocate here
     self.h.*.status = errorcode_num;
@@ -352,7 +352,7 @@ pub fn _internal_sendError(self: *const Self, err: anyerror, err_trace: ?std.bui
 }
 
 /// Send body.
-pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
+pub fn sendBody(self: *const Request, body: []const u8) HttpError!void {
     const ret = fio.http_send_body(self.h, @as(
         *anyopaque,
         @ptrFromInt(@intFromPtr(body.ptr)),
@@ -363,7 +363,7 @@ pub fn sendBody(self: *const Self, body: []const u8) HttpError!void {
 }
 
 /// Set content type and send json buffer.
-pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
+pub fn sendJson(self: *const Request, json: []const u8) HttpError!void {
     if (self.setContentType(.JSON)) {
         if (fio.http_send_body(self.h, @as(
             *anyopaque,
@@ -374,7 +374,7 @@ pub fn sendJson(self: *const Self, json: []const u8) HttpError!void {
 }
 
 /// Set content type.
-pub fn setContentType(self: *const Self, c: ContentType) HttpError!void {
+pub fn setContentType(self: *const Request, c: ContentType) HttpError!void {
     const s = switch (c) {
         .TEXT => "text/plain",
         .JSON => "application/json",
@@ -385,7 +385,7 @@ pub fn setContentType(self: *const Self, c: ContentType) HttpError!void {
 }
 
 /// redirect to path with status code 302 by default
-pub fn redirectTo(self: *const Self, path: []const u8, code: ?http.StatusCode) HttpError!void {
+pub fn redirectTo(self: *const Request, path: []const u8, code: ?http.StatusCode) HttpError!void {
     self.setStatus(if (code) |status| status else .found);
     try self.setHeader("Location", path);
     try self.sendBody("moved");
@@ -394,7 +394,7 @@ pub fn redirectTo(self: *const Self, path: []const u8, code: ?http.StatusCode) H
 
 /// shows how to use the logger
 pub fn setContentTypeWithLogger(
-    self: *const Self,
+    self: *const Request,
     c: ContentType,
     logger: *const Log,
 ) HttpError!void {
@@ -408,7 +408,7 @@ pub fn setContentTypeWithLogger(
 }
 
 /// Tries to determine the content type by file extension of request path, and sets it.
-pub fn setContentTypeFromPath(self: *const Self) !void {
+pub fn setContentTypeFromPath(self: *const Request) !void {
     const t = fio.http_mimetype_find2(self.h.*.path);
     if (fio.is_invalid(t) == 1) return error.HttpSetContentType;
     const ret = fio.fiobj_hash_set(
@@ -422,7 +422,7 @@ pub fn setContentTypeFromPath(self: *const Self) !void {
 /// Tries to determine the content type by filename extension, and sets it.
 /// If the extension cannot be determined, NoExtensionInFilename error is
 /// returned.
-pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void {
+pub fn setContentTypeFromFilename(self: *const Request, filename: []const u8) !void {
     const ext = std.fs.path.extension(filename);
 
     if (ext.len > 1) {
@@ -442,7 +442,7 @@ pub fn setContentTypeFromFilename(self: *const Self, filename: []const u8) !void
 /// NOTE that header-names are lowerased automatically while parsing the request.
 ///     so please only use lowercase keys!
 /// Returned mem is temp. Do not free it.
-pub fn getHeader(self: *const Self, name: []const u8) ?[]const u8 {
+pub fn getHeader(self: *const Request, name: []const u8) ?[]const u8 {
     const hname = fio.fiobj_str_new(util.toCharPtr(name), name.len);
     defer fio.fiobj_free_wrapped(hname);
     // fio2str is OK since headers are always strings -> slice is returned
@@ -485,7 +485,7 @@ pub const HttpHeaderCommon = enum(usize) {
 
 /// Returns the header value of a given common header key. Returned memory
 /// should not be freed.
-pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
+pub fn getHeaderCommon(self: *const Request, which: HttpHeaderCommon) ?[]const u8 {
     const field = switch (which) {
         .accept => fio.HTTP_HEADER_ACCEPT,
         .cache_control => fio.HTTP_HEADER_CACHE_CONTROL,
@@ -510,7 +510,7 @@ pub fn getHeaderCommon(self: *const Self, which: HttpHeaderCommon) ?[]const u8 {
 }
 
 /// Set header.
-pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpError!void {
+pub fn setHeader(self: *const Request, name: []const u8, value: []const u8) HttpError!void {
     const hname: fio.fio_str_info_s = .{
         .data = util.toCharPtr(name),
         .len = name.len,
@@ -538,12 +538,12 @@ pub fn setHeader(self: *const Self, name: []const u8, value: []const u8) HttpErr
 }
 
 /// Set status by numeric value.
-pub fn setStatusNumeric(self: *const Self, status: usize) void {
+pub fn setStatusNumeric(self: *const Request, status: usize) void {
     self.h.*.status = status;
 }
 
 /// Set status by enum.
-pub fn setStatus(self: *const Self, status: http.StatusCode) void {
+pub fn setStatus(self: *const Request, status: http.StatusCode) void {
     self.h.*.status = @as(usize, @intCast(@intFromEnum(status)));
 }
 
@@ -558,7 +558,7 @@ pub fn setStatus(self: *const Self, status: http.StatusCode) void {
 ///
 /// Important: sets last-modified and cache-control headers with a max-age value of 1 hour!
 /// You can override that by setting those headers yourself, e.g.: setHeader("Cache-Control", "no-cache")
-pub fn sendFile(self: *const Self, file_path: []const u8) !void {
+pub fn sendFile(self: *const Request, file_path: []const u8) !void {
     if (fio.http_sendfile2(self.h, util.toCharPtr(file_path), file_path.len, null, 0) != 0)
         return error.SendFile;
     self.markAsFinished(true);
@@ -572,7 +572,7 @@ pub fn sendFile(self: *const Self, file_path: []const u8) !void {
 /// - application/x-www-form-urlencoded
 /// - application/json
 /// - multipart/form-data
-pub fn parseBody(self: *const Self) HttpError!void {
+pub fn parseBody(self: *const Request) HttpError!void {
     if (fio.http_parse_body(self.h) == -1) return error.HttpParseBody;
 }
 
@@ -581,12 +581,12 @@ pub fn parseBody(self: *const Self) HttpError!void {
 /// object that doesn't have a hash map at its root.
 ///
 /// Result is accessible via parametersToOwnedSlice(), parametersToOwnedStrSlice()
-pub fn parseQuery(self: *const Self) void {
+pub fn parseQuery(self: *const Request) void {
     fio.http_parse_query(self.h);
 }
 
 /// Parse received cookie headers
-pub fn parseCookies(self: *const Self, url_encoded: bool) void {
+pub fn parseCookies(self: *const Request, url_encoded: bool) void {
     fio.http_parse_cookies(self.h, if (url_encoded) 1 else 0);
 }
 
@@ -617,7 +617,7 @@ pub const AcceptItem = struct {
 const AcceptHeaderList = std.ArrayList(AcceptItem);
 
 /// Parses `Accept:` http header into `list`, ordered from highest q factor to lowest
-pub fn parseAcceptHeaders(self: *const Self, allocator: Allocator) !AcceptHeaderList {
+pub fn parseAcceptHeaders(self: *const Request, allocator: Allocator) !AcceptHeaderList {
     const accept_str = self.getHeaderCommon(.accept) orelse return error.NoAcceptHeader;
 
     const comma_count = std.mem.count(u8, accept_str, ",");
@@ -663,7 +663,7 @@ pub fn parseAcceptHeaders(self: *const Self, allocator: Allocator) !AcceptHeader
 }
 
 /// Set a response cookie
-pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
+pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
     const c: fio.http_cookie_args_s = .{
         .name = util.toCharPtr(args.name),
         .name_len = @as(isize, @intCast(args.name.len)),
@@ -692,7 +692,7 @@ pub fn setCookie(self: *const Self, args: CookieArgs) HttpError!void {
 }
 
 /// Returns named cookie. Works like getParamStr().
-pub fn getCookieStr(self: *const Self, a: Allocator, name: []const u8) !?[]const u8 {
+pub fn getCookieStr(self: *const Request, a: Allocator, name: []const u8) !?[]const u8 {
     if (self.h.*.cookies == 0) return null;
     const key = fio.fiobj_str_new(name.ptr, name.len);
     defer fio.fiobj_free_wrapped(key);
@@ -708,7 +708,7 @@ pub fn getCookieStr(self: *const Self, a: Allocator, name: []const u8) !?[]const
 /// Returns the number of cookies after parsing.
 ///
 /// Parse with parseCookies()
-pub fn getCookiesCount(self: *const Self) isize {
+pub fn getCookiesCount(self: *const Request) isize {
     if (self.h.*.cookies == 0) return 0;
     return fio.fiobj_obj2num(self.h.*.cookies);
 }
@@ -716,7 +716,7 @@ pub fn getCookiesCount(self: *const Self) isize {
 /// Returns the number of parameters after parsing.
 ///
 /// Parse with parseBody() and / or parseQuery()
-pub fn getParamCount(self: *const Self) isize {
+pub fn getParamCount(self: *const Request) isize {
     if (self.h.*.params == 0) return 0;
     return fio.fiobj_obj2num(self.h.*.params);
 }
@@ -727,7 +727,7 @@ const CallbackContext_KV = struct {
     last_error: ?anyerror = null,
 
     pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
-        const ctx: *@This() = @as(*@This(), @ptrCast(@alignCast(context_)));
+        const ctx: *CallbackContext_KV = @as(*CallbackContext_KV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
@@ -756,7 +756,7 @@ const CallbackContext_StrKV = struct {
     last_error: ?anyerror = null,
 
     pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
-        const ctx: *@This() = @as(*@This(), @ptrCast(@alignCast(context_)));
+        const ctx: *CallbackContext_StrKV = @as(*CallbackContext_StrKV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
         ctx.params.append(.{
@@ -780,7 +780,7 @@ const CallbackContext_StrKV = struct {
 };
 
 /// Same as parametersToOwnedStrList() but for cookies
-pub fn cookiesToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpParamStrKVList {
+pub fn cookiesToOwnedStrList(self: *const Request, a: Allocator) anyerror!HttpParamStrKVList {
     var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
     var context: CallbackContext_StrKV = .{
         .params = &params,
@@ -794,7 +794,7 @@ pub fn cookiesToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpParam
 }
 
 /// Same as parametersToOwnedList() but for cookies
-pub fn cookiesToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
+pub fn cookiesToOwnedList(self: *const Request, a: Allocator) !HttpParamKVList {
     var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getCookiesCount())));
     var context: CallbackContext_KV = .{ .params = &params, .allocator = a };
     const howmany = fio.fiobj_each1(self.h.*.cookies, 0, CallbackContext_KV.callback, &context);
@@ -817,7 +817,7 @@ pub fn cookiesToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
 /// Returned list needs to be deinited.
-pub fn parametersToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpParamStrKVList {
+pub fn parametersToOwnedStrList(self: *const Request, a: Allocator) anyerror!HttpParamStrKVList {
     var params = try std.ArrayList(HttpParamStrKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
 
     var context: CallbackContext_StrKV = .{
@@ -845,7 +845,7 @@ pub fn parametersToOwnedStrList(self: *const Self, a: Allocator) anyerror!HttpPa
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
 /// Returned slice needs to be freed.
-pub fn parametersToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
+pub fn parametersToOwnedList(self: *const Request, a: Allocator) !HttpParamKVList {
     var params = try std.ArrayList(HttpParamKV).initCapacity(a, @as(usize, @intCast(self.getParamCount())));
 
     var context: CallbackContext_KV = .{ .params = &params, .allocator = a };
@@ -870,7 +870,7 @@ pub fn parametersToOwnedList(self: *const Self, a: Allocator) !HttpParamKVList {
 ///
 /// Requires parseBody() and/or parseQuery() have been called.
 /// The returned string needs to be deallocated.
-pub fn getParamStr(self: *const Self, a: Allocator, name: []const u8) !?[]const u8 {
+pub fn getParamStr(self: *const Request, a: Allocator, name: []const u8) !?[]const u8 {
     if (self.h.*.params == 0) return null;
     const key = fio.fiobj_str_new(name.ptr, name.len);
     defer fio.fiobj_free_wrapped(key);
@@ -885,7 +885,7 @@ pub fn getParamStr(self: *const Self, a: Allocator, name: []const u8) !?[]const 
 /// after the equals sign, non-decoded, and always as character slice.
 /// - no allocation!
 /// - does not requre parseQuery() or anything to be called in advance
-pub fn getParamSlice(self: *const Self, name: []const u8) ?[]const u8 {
+pub fn getParamSlice(self: *const Request, name: []const u8) ?[]const u8 {
     if (self.query) |query| {
         var amp_it = std.mem.tokenizeScalar(u8, query, '&');
         while (amp_it.next()) |maybe_pair| {
@@ -908,13 +908,13 @@ pub const ParameterSlices = struct { name: []const u8, value: []const u8 };
 pub const ParamSliceIterator = struct {
     amp_it: std.mem.TokenIterator(u8, .scalar),
 
-    pub fn init(query: []const u8) @This() {
+    pub fn init(query: []const u8) ParamSliceIterator {
         return .{
             .amp_it = std.mem.tokenizeScalar(u8, query, '&'),
         };
     }
 
-    pub fn next(self: *@This()) ?ParameterSlices {
+    pub fn next(self: *ParamSliceIterator) ?ParameterSlices {
         while (self.amp_it.next()) |maybe_pair| {
             if (std.mem.indexOfScalar(u8, maybe_pair, '=')) |pos_of_eq| {
                 const pname = maybe_pair[0..pos_of_eq];
@@ -931,11 +931,11 @@ pub const ParamSliceIterator = struct {
 /// Returns an iterator that yields all query parameters on next() in the
 /// form of a ParameterSlices struct { .name, .value }
 /// As with getParamSlice(), the value is not decoded
-pub fn getParamSlices(self: *const Self) ParamSliceIterator {
+pub fn getParamSlices(self: *const Request) ParamSliceIterator {
     const query = self.query orelse "";
     return ParamSliceIterator.init(query);
 }
 
-pub fn methodAsEnum(self: *const Self) http.Method {
+pub fn methodAsEnum(self: *const Request) http.Method {
     return http.methodToEnum(self.method);
 }

@@ -42,7 +42,6 @@ test "http parameters" {
             params = r.parametersToOwnedList(alloc) catch unreachable;
 
             paramOneStr = r.getParamStr(alloc, "one") catch unreachable;
-            std.debug.print("\n\nparamOneStr = {s} = {*} \n\n", .{ paramOneStr.?, paramOneStr.?.ptr });
 
             // we need to dupe it here because the request object r will get
             // invalidated at the end of the function but we need to check

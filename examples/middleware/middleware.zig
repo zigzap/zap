@@ -6,8 +6,6 @@ const SharedAllocator = struct {
     // static
     var allocator: std.mem.Allocator = undefined;
 
-    const Self = @This();
-
     // just a convenience function
     pub fn init(a: std.mem.Allocator) void {
         allocator = a;
@@ -43,8 +41,6 @@ const Handler = zap.Middleware.Handler(Context);
 const UserMiddleWare = struct {
     handler: Handler,
 
-    const Self = @This();
-
     // Just some arbitrary struct we want in the per-request context
     // note: it MUST have all default values!!!
     // note: it MUST have all default values!!!
@@ -57,22 +53,22 @@ const UserMiddleWare = struct {
         email: []const u8 = undefined,
     };
 
-    pub fn init(other: ?*Handler) Self {
+    pub fn init(other: ?*Handler) UserMiddleWare {
         return .{
             .handler = Handler.init(onRequest, other),
         };
     }
 
     // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
+    pub fn getHandler(self: *UserMiddleWare) *Handler {
         return &self.handler;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
+    // note that the first parameter is of type *Handler, not *UserMiddleWare !!!
     pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) !bool {
 
         // this is how we would get our self pointer
-        const self: *Self = @fieldParentPtr("handler", handler);
+        const self: *UserMiddleWare = @fieldParentPtr("handler", handler);
         _ = self;
 
         // do our work: fill in the user field of the context
@@ -92,8 +88,6 @@ const UserMiddleWare = struct {
 const SessionMiddleWare = struct {
     handler: Handler,
 
-    const Self = @This();
-
     // Just some arbitrary struct we want in the per-request context
     // note: it MUST have all default values!!!
     const Session = struct {
@@ -101,21 +95,21 @@ const SessionMiddleWare = struct {
         token: []const u8 = undefined,
     };
 
-    pub fn init(other: ?*Handler) Self {
+    pub fn init(other: ?*Handler) SessionMiddleWare {
         return .{
             .handler = Handler.init(onRequest, other),
         };
     }
 
     // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
+    pub fn getHandler(self: *SessionMiddleWare) *Handler {
         return &self.handler;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
+    // note that the first parameter is of type *Handler, not *SessionMiddleWare !!!
     pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) !bool {
         // this is how we would get our self pointer
-        const self: *Self = @fieldParentPtr("handler", handler);
+        const self: *SessionMiddleWare = @fieldParentPtr("handler", handler);
         _ = self;
 
         context.session = Session{
@@ -134,24 +128,22 @@ const SessionMiddleWare = struct {
 const HtmlMiddleWare = struct {
     handler: Handler,
 
-    const Self = @This();
-
-    pub fn init(other: ?*Handler) Self {
+    pub fn init(other: ?*Handler) HtmlMiddleWare {
         return .{
             .handler = Handler.init(onRequest, other),
         };
     }
 
     // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
+    pub fn getHandler(self: *HtmlMiddleWare) *Handler {
         return &self.handler;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
+    // note that the first parameter is of type *Handler, not *HtmlMiddleWare !!!
     pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) !bool {
 
         // this is how we would get our self pointer
-        const self: *Self = @fieldParentPtr("handler", handler);
+        const self: *HtmlMiddleWare = @fieldParentPtr("handler", handler);
         _ = self;
 
         std.debug.print("\n\nHtmlMiddleware: handling request with context: {any}\n\n", .{context});

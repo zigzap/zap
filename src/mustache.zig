@@ -2,7 +2,7 @@ const std = @import("std");
 const fio = @import("fio.zig");
 const util = @import("util.zig");
 
-const Self = @This();
+const Mustache = @This();
 
 const struct_mustache_s = opaque {};
 const mustache_s = struct_mustache_s;
@@ -51,7 +51,7 @@ pub const Error = error{
 
 /// Create a new `Mustache` instance; `deinit()` should be called to free
 /// the object after usage.
-pub fn init(load_args: LoadArgs) Error!Self {
+pub fn init(load_args: LoadArgs) Error!Mustache {
     var err: mustache_error_en = undefined;
 
     const args: MustacheLoadArgsFio = .{
@@ -72,7 +72,7 @@ pub fn init(load_args: LoadArgs) Error!Self {
 
     const ret = fiobj_mustache_new(args);
     switch (err) {
-        0 => return Self{
+        0 => return Mustache{
             .handle = ret.?,
         },
         1 => return Error.MUSTACHE_ERR_TOO_DEEP,
@@ -93,18 +93,18 @@ pub fn init(load_args: LoadArgs) Error!Self {
 
 /// Convenience function to create a new `Mustache` instance with in-memory data loaded;
 /// `deinit()` should be called to free the object after usage..
-pub fn fromData(data: []const u8) Error!Self {
-    return Self.init(.{ .data = data });
+pub fn fromData(data: []const u8) Error!Mustache {
+    return Mustache.init(.{ .data = data });
 }
 
 /// Convenience function to create a new `Mustache` instance with file-based data loaded;
 /// `deinit()` should be called to free the object after usage..
-pub fn fromFile(filename: []const u8) Error!Self {
-    return Self.init(.{ .filename = filename });
+pub fn fromFile(filename: []const u8) Error!Mustache {
+    return Mustache.init(.{ .filename = filename });
 }
 
 /// Free the data backing a `Mustache` instance.
-pub fn deinit(self: *Self) void {
+pub fn deinit(self: *Mustache) void {
     fiobj_mustache_free(self.handle);
 }
 
@@ -137,7 +137,7 @@ pub const BuildResult = struct {
 // TODO: The build may be slow because it needs to convert zig types to facil.io
 // types. However, this needs to be investigated into.
 // See `fiobjectify` for more information.
-pub fn build(self: *Self, data: anytype) BuildResult {
+pub fn build(self: *Mustache, data: anytype) BuildResult {
     const T = @TypeOf(data);
     if (@typeInfo(T) != .@"struct") {
         @compileError("No struct: '" ++ @typeName(T) ++ "'");

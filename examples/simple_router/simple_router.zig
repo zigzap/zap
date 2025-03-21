@@ -14,13 +14,11 @@ fn on_request_verbose(r: zap.Request) !void {
 }
 
 pub const SomePackage = struct {
-    const Self = @This();
-
     allocator: Allocator,
     a: i8,
     b: i8,
 
-    pub fn init(allocator: Allocator, a: i8, b: i8) Self {
+    pub fn init(allocator: Allocator, a: i8, b: i8) SomePackage {
         return .{
             .allocator = allocator,
             .a = a,
@@ -28,7 +26,7 @@ pub const SomePackage = struct {
         };
     }
 
-    pub fn getA(self: *Self, req: zap.Request) !void {
+    pub fn getA(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("get_a_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -41,7 +39,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn getB(self: *Self, req: zap.Request) !void {
+    pub fn getB(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("get_b_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -54,7 +52,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn incrementA(self: *Self, req: zap.Request) !void {
+    pub fn incrementA(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("increment_a_requested", .{});
 
         self.a += 1;

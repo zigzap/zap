@@ -170,11 +170,10 @@ pub const HttpListenerSettings = struct {
 pub const HttpListener = struct {
     settings: HttpListenerSettings,
 
-    const Self = @This();
     var the_one_and_only_listener: ?*HttpListener = null;
 
     /// Create a listener
-    pub fn init(settings: HttpListenerSettings) Self {
+    pub fn init(settings: HttpListenerSettings) HttpListener {
         std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
@@ -264,7 +263,7 @@ pub const HttpListener = struct {
     }
 
     /// Start listening
-    pub fn listen(self: *Self) !void {
+    pub fn listen(self: *HttpListener) !void {
         var pfolder: [*c]const u8 = null;
         var pfolder_len: usize = 0;
 
@@ -275,10 +274,10 @@ pub const HttpListener = struct {
         }
 
         const x: fio.http_settings_s = .{
-            .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
-            .on_upgrade = if (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack else null,
-            .on_response = if (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack else null,
-            .on_finish = if (self.settings.on_finish) |_| Self.theOneAndOnlyFinishCallBack else null,
+            .on_request = if (self.settings.on_request) |_| HttpListener.theOneAndOnlyRequestCallBack else null,
+            .on_upgrade = if (self.settings.on_upgrade) |_| HttpListener.theOneAndOnlyUpgradeCallBack else null,
+            .on_response = if (self.settings.on_response) |_| HttpListener.theOneAndOnlyResponseCallBack else null,
+            .on_finish = if (self.settings.on_finish) |_| HttpListener.theOneAndOnlyFinishCallBack else null,
             .udata = null,
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
@@ -316,7 +315,7 @@ pub const HttpListener = struct {
         // the request if it isn't set. hence, if started under full load, the
         // first request(s) might not be serviced, as long as it takes from
         // fio.http_listen() to here
-        Self.the_one_and_only_listener = self;
+        HttpListener.the_one_and_only_listener = self;
     }
 };
 
@@ -336,10 +335,8 @@ pub const LowLevel = struct {
         keepalive_timeout_s: u8 = 5,
         log: bool = false,
 
-        const Self = @This();
-
         /// Create settings with defaults
-        pub fn init() Self {
+        pub fn init() ListenSettings {
             return .{};
         }
     };
