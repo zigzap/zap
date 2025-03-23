@@ -96,22 +96,58 @@ test OldBind {
     try std.testing.expectEqualStrings("Goodbye, Alice!\n", try bound_farewell.call(.{"Goodbye"}));
 }
 
+/// Creates a function type with instance pointer prepended to args
+fn PrependFnArg(Func: type, Instance: type) type {
+    const InstancePtr = *Instance;
+
+    // Get the function type
+    const fn_info = @typeInfo(Func);
+    if (fn_info != .@"fn") {
+        @compileError("Second argument must be a function");
+    }
+
+    // Create new parameter list with instance pointer prepended
+    comptime var new_params: [fn_info.@"fn".params.len + 1]std.builtin.Type.Fn.Param = undefined;
+    new_params[0] = .{
+        .is_generic = false,
+        .is_noalias = false,
+        .type = InstancePtr,
+    };
+
+    // Copy original parameters
+    for (fn_info.@"fn".params, 0..) |param, i| {
+        new_params[i + 1] = param;
+    }
+
+    // Return the new function type
+    return @Type(.{
+        .@"fn" = .{
+            .calling_convention = fn_info.@"fn".calling_convention,
+            .is_generic = fn_info.@"fn".is_generic,
+            .is_var_args = fn_info.@"fn".is_var_args,
+            .return_type = fn_info.@"fn".return_type,
+            .params = &new_params,
+        },
+    });
+}
 /// Bind functions like `fn(a: X, b: Y)` to an instance of a struct. When called, the instance's `pub fn(self: *This(), a: X, b: Y)` is called.
 ///
 /// make callbacks stateful when they're not meant to be?
 // pub fn Bound(Instance: type, Func: type, func: anytype) type {
-pub fn Bound(Instance: type, Func: type, DFunc: type) type {
+pub fn Bind(Instance: type, Func: type) type {
 
     // TODO: construct DFunc on-the-fly
 
     // Verify Func is a function type
     const func_info = @typeInfo(Func);
-    // if (func_info != .@"fn") {
-    //     @compileError("Bound expexts a function type as second parameter");
-    // }
+    if (func_info != .@"fn") {
+        @compileError("Bound expexts a function type as second parameter");
+    }
+
+    const InstanceMethod = PrependFnArg(Func, Instance);
     return struct {
         instance: *Instance,
-        foo: *const DFunc,
+        foo: *const InstanceMethod,
 
         const BoundFunction = @This();
 
@@ -120,13 +156,13 @@ pub fn Bound(Instance: type, Func: type, DFunc: type) type {
         }
 
         // convenience init
-        pub fn init(instance_: *Instance, foo_: *const DFunc) BoundFunction {
+        pub fn init(instance_: *Instance, foo_: *const InstanceMethod) BoundFunction {
             return .{ .instance = instance_, .foo = foo_ };
         }
     };
 }
 
-test Bound {
+test Bind {
     const Person = struct {
         name: []const u8,
         _buf: [1024]u8 = undefined,
@@ -140,7 +176,7 @@ test Bound {
 
     var alice: Person = .{ .name = "Alice" };
 
-    const bound_greet = Bound(Person, CallBack, @TypeOf(Person.speak)).init(&alice, &Person.speak);
+    const bound_greet = Bind(Person, CallBack).init(&alice, &Person.speak);
 
     const greeting = try bound_greet.call(.{"Hello"});
 
