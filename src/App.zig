@@ -55,24 +55,24 @@ pub fn Create(comptime Context: type) type {
                 pub fn Wrap(T: type) type {
                     return struct {
                         wrapped: *T,
-                        wrapper: Interface,
+                        interface: Interface,
                         opts: Opts,
                         app_context: *Context,
 
                         const Wrapped = @This();
 
-                        pub fn unwrap(wrapper: *Interface) *Wrapped {
-                            const self: *Wrapped = @alignCast(@fieldParentPtr("wrapper", wrapper));
+                        pub fn unwrap(interface: *Interface) *Wrapped {
+                            const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
                             return self;
                         }
 
                         pub fn destroy(allocator: Allocator, wrapper: *Interface) void {
-                            const self: *Wrapped = @alignCast(@fieldParentPtr("wrapper", wrapper));
+                            const self: *Wrapped = @alignCast(@fieldParentPtr("interface", wrapper));
                             allocator.destroy(self);
                         }
 
-                        pub fn onRequestWrapped(wrapper: *Interface, r: zap.Request) !void {
-                            var self: *Wrapped = Wrapped.unwrap(wrapper);
+                        pub fn onRequestWrapped(interface: *Interface, r: zap.Request) !void {
+                            var self: *Wrapped = Wrapped.unwrap(interface);
                             const arena = try get_arena();
                             try self.onRequest(arena.allocator(), self.app_context, r);
                             arena.reset(.{ .retain_capacity = self.opts.arena_retain_capacity });
