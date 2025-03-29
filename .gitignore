@@ -16,3 +16,4 @@ scratch
 .vs/
 **/*.perflog
 wrk/*.png
+.zig-cache/
