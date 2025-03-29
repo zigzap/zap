@@ -8,18 +8,18 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const ArenaAllocator = std.heap.ArenaAllocator;
-const RwLock = std.Thread.RwLock;
+const Thread = std.Thread;
+const RwLock = Thread.RwLock;
 
 const zap = @import("zap.zig");
 const Request = zap.Request;
+const HttpListener = zap.HttpListener;
 
-pub const Opts = struct {
+pub const AppOpts = struct {
     /// ErrorStrategy for (optional) request handler if no endpoint matches
     default_error_strategy: zap.Endpoint.ErrorStrategy = .log_to_console,
     arena_retain_capacity: usize = 16 * 1024 * 1024,
 };
-
-threadlocal var _arena: ?ArenaAllocator = null;
 
 /// creates an App with custom app context
 pub fn Create(comptime Context: type) type {
@@ -31,12 +31,22 @@ pub fn Create(comptime Context: type) type {
         const InstanceData = struct {
             context: *Context = undefined,
             gpa: Allocator = undefined,
-            opts: Opts = undefined,
-            endpoints: std.StringArrayHashMapUnmanaged(*Endpoint.Interface) = .empty,
+            opts: AppOpts = undefined,
+            // endpoints: std.StringArrayHashMapUnmanaged(*Endpoint.Interface) = .empty,
+            endpoints: std.ArrayListUnmanaged(*Endpoint.Interface) = .empty,
 
             there_can_be_only_one: bool = false,
-            track_arenas: std.ArrayListUnmanaged(*ArenaAllocator) = .empty,
+            track_arenas: std.AutoHashMapUnmanaged(Thread.Id, ArenaAllocator) = .empty,
             track_arena_lock: RwLock = .{},
+
+            /// the internal http listener
+            listener: HttpListener = undefined,
+
+            /// function pointer to handler for otherwise unhandled requests
+            /// Will automatically be set if your Context provides an unhandled
+            /// function of type `fn(*Context, Allocator, Request)`
+            ///
+            unhandled: ?*const fn (*Context, Allocator, Request) anyerror!void = null,
         };
         var _static: InstanceData = .{};
 
@@ -47,15 +57,16 @@ pub fn Create(comptime Context: type) type {
 
         pub const Endpoint = struct {
             pub const Interface = struct {
-                call: *const fn (*Interface, zap.Request) anyerror!void = undefined,
+                call: *const fn (*Interface, Request) anyerror!void = undefined,
                 path: []const u8,
-                destroy: *const fn (allocator: Allocator, *Interface) void = undefined,
+                destroy: *const fn (*Interface, Allocator) void = undefined,
             };
             pub fn Wrap(T: type) type {
                 return struct {
                     wrapped: *T,
                     interface: Interface,
-                    opts: Opts,
+
+                    // tbh: unnecessary, since we have it in _static
                     app_context: *Context,
 
                     const Wrapped = @This();
@@ -65,19 +76,19 @@ pub fn Create(comptime Context: type) type {
                         return self;
                     }
 
-                    pub fn destroy(allocator: Allocator, wrapper: *Interface) void {
-                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", wrapper));
+                    pub fn destroy(interface: *Interface, allocator: Allocator) void {
+                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
                         allocator.destroy(self);
                     }
 
-                    pub fn onRequestWrapped(interface: *Interface, r: zap.Request) !void {
+                    pub fn onRequestWrapped(interface: *Interface, r: Request) !void {
                         var self: *Wrapped = Wrapped.unwrap(interface);
-                        const arena = try get_arena();
+                        var arena = try get_arena();
                         try self.onRequest(arena.allocator(), self.app_context, r);
-                        arena.reset(.{ .retain_capacity = self.opts.arena_retain_capacity });
+                        _ = arena.reset(.{ .retain_with_limit = _static.opts.arena_retain_capacity });
                     }
 
-                    pub fn onRequest(self: *Wrapped, arena: Allocator, app_context: *Context, r: zap.Request) !void {
+                    pub fn onRequest(self: *Wrapped, arena: Allocator, app_context: *Context, r: Request) !void {
                         const ret = switch (r.methodAsEnum()) {
                             .GET => self.wrapped.*.get(arena, app_context, r),
                             .POST => self.wrapped.*.post(arena, app_context, r),
@@ -100,17 +111,17 @@ pub fn Create(comptime Context: type) type {
                 };
             }
 
-            pub fn init(T: type, value: *T, app_opts: Opts, app_context: *Context) Endpoint.Wrap(T) {
+            pub fn init(T: type, value: *T) Endpoint.Wrap(T) {
                 checkEndpointType(T);
-                var ret: Endpoint.Wrap(T) = .{
+                return .{
                     .wrapped = value,
-                    .wrapper = .{ .path = value.path },
-                    .opts = app_opts,
-                    .app_context = app_context,
+                    .interface = .{
+                        .path = value.path,
+                        .call = Endpoint.Wrap(T).onRequestWrapped,
+                        .destroy = Endpoint.Wrap(T).destroy,
+                    },
+                    .app_context = _static.context,
                 };
-                ret.wrapper.call = Endpoint.Wrap(T).onRequestWrapped;
-                ret.wrapper.destroy = Endpoint.Wrap(T).destroy;
-                return ret;
             }
 
             pub fn checkEndpointType(T: type) void {
@@ -140,8 +151,10 @@ pub fn Create(comptime Context: type) type {
                 };
                 inline for (methods_to_check) |method| {
                     if (@hasDecl(T, method)) {
-                        if (@TypeOf(@field(T, method)) != fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void) {
-                            @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void));
+                        const Method = @TypeOf(@field(T, method));
+                        const Expected = fn (_: *T, _: Allocator, _: *Context, _: Request) anyerror!void;
+                        if (Method != Expected) {
+                            @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(Method) ++ "\nexpected:\n" ++ @typeName(Expected));
                         }
                     } else {
                         @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
@@ -151,8 +164,10 @@ pub fn Create(comptime Context: type) type {
         };
 
         pub const ListenerSettings = struct {
-            port: usize,
+            /// IP interface, e.g. 0.0.0.0
             interface: [*c]const u8 = null,
+            /// IP port to listen on
+            port: usize,
             public_folder: ?[]const u8 = null,
             max_clients: ?isize = null,
             max_body_size: ?usize = null,
@@ -160,47 +175,79 @@ pub fn Create(comptime Context: type) type {
             tls: ?zap.Tls = null,
         };
 
-        pub fn init(gpa_: Allocator, context_: *Context, opts_: Opts) !App {
-            if (App._static._there_can_be_only_one) {
+        pub fn init(gpa_: Allocator, context_: *Context, opts_: AppOpts) !App {
+            if (_static.there_can_be_only_one) {
                 return error.OnlyOneAppAllowed;
             }
-            App._static.context = context_;
-            App._static.gpa = gpa_;
-            App._static.opts = opts_;
-            App._static.there_can_be_only_one = true;
+            _static.context = context_;
+            _static.gpa = gpa_;
+            _static.opts = opts_;
+            _static.there_can_be_only_one = true;
+
+            // set unhandled callback if provided by Context
+            if (@hasDecl(Context, "unhandled")) {
+                // try if we can use it
+                const Unhandled = @TypeOf(@field(Context, "unhandled"));
+                const Expected = fn (_: *Context, _: Allocator, _: Request) anyerror!void;
+                if (Unhandled != Expected) {
+                    @compileError("`unhandled` method of " ++ @typeName(Context) ++ " has wrong type:\n" ++ @typeName(Unhandled) ++ "\nexpected:\n" ++ @typeName(Expected));
+                }
+                _static.unhandled = Context.unhandled;
+            }
             return .{};
         }
 
-        pub fn deinit() void {
-            App._static.endpoints.deinit(_static.gpa);
+        pub fn deinit(_: *App) void {
+            // we created endpoint wrappers but only tracked their interfaces
+            // hence, we need to destroy the wrappers through their interfaces
+            if (false) {
+                var it = _static.endpoints.iterator();
+                while (it.next()) |kv| {
+                    const interface = kv.value_ptr;
+                    interface.*.destroy(_static.gpa);
+                }
+            } else {
+                for (_static.endpoints.items) |interface| {
+                    interface.destroy(interface, _static.gpa);
+                }
+            }
+            _static.endpoints.deinit(_static.gpa);
 
-            App._static.track_arena_lock.lock();
-            defer App._static.track_arena_lock.unlock();
-            for (App._static.track_arenas.items) |arena| {
+            _static.track_arena_lock.lock();
+            defer _static.track_arena_lock.unlock();
+
+            var it = _static.track_arenas.valueIterator();
+            while (it.next()) |arena| {
+                // std.debug.print("deiniting arena: {*}\n", .{arena});
                 arena.deinit();
             }
+            _static.track_arenas.deinit(_static.gpa);
         }
 
-        fn get_arena() !*ArenaAllocator {
-            App._static.track_arena_lock.lockShared();
-            if (_arena == null) {
-                App._static.track_arena_lock.unlockShared();
-                App._static.track_arena_lock.lock();
-                defer App._static.track_arena_lock.unlock();
-                _arena = ArenaAllocator.init(App._static.gpa);
-                try App._static.track_arenas.append(App._static.gpa, &_arena.?);
+        pub fn get_arena() !*ArenaAllocator {
+            const thread_id = std.Thread.getCurrentId();
+            _static.track_arena_lock.lockShared();
+            if (_static.track_arenas.getPtr(thread_id)) |arena| {
+                _static.track_arena_lock.unlockShared();
+                return arena;
             } else {
-                App._static.track_arena_lock.unlockShared();
-                return &_arena.?;
+                _static.track_arena_lock.unlockShared();
+                _static.track_arena_lock.lock();
+                defer _static.track_arena_lock.unlock();
+                const arena = ArenaAllocator.init(_static.gpa);
+                try _static.track_arenas.put(_static.gpa, thread_id, arena);
+                return _static.track_arenas.getPtr(thread_id).?;
             }
         }
 
         /// Register an endpoint with this listener.
-        /// NOTE: endpoint paths are matched with startsWith -> so use endpoints with distinctly starting names!!
-        /// If you try to register an endpoint whose path would shadow an already registered one, you will
-        /// receive an EndpointPathShadowError.
-        pub fn register(self: *App, endpoint: anytype) !void {
-            for (App._static.endpoints.items) |other| {
+        /// NOTE: endpoint paths are matched with startsWith
+        /// -> so use endpoints with distinctly starting names!!
+        /// If you try to register an endpoint whose path would shadow an
+        /// already registered one, you will receive an
+        /// EndpointPathShadowError.
+        pub fn register(_: *App, endpoint: anytype) !void {
+            for (_static.endpoints.items) |other| {
                 if (std.mem.startsWith(
                     u8,
                     other.path,
@@ -215,31 +262,38 @@ pub fn Create(comptime Context: type) type {
             }
             const EndpointType = @typeInfo(@TypeOf(endpoint)).pointer.child;
             Endpoint.checkEndpointType(EndpointType);
-            const wrapper = try self.gpa.create(Endpoint.Wrap(EndpointType));
+            const wrapper = try _static.gpa.create(Endpoint.Wrap(EndpointType));
             wrapper.* = Endpoint.init(EndpointType, endpoint);
-            try App._static.endpoints.append(self.gpa, &wrapper.wrapper);
+            try _static.endpoints.append(_static.gpa, &wrapper.interface);
         }
 
-        pub fn listen(self: *App, l: ListenerSettings) !void {
-            _ = self;
-            _ = l;
-            // TODO: do it
+        pub fn listen(_: *App, l: ListenerSettings) !void {
+            _static.listener = HttpListener.init(.{
+                .interface = l.interface,
+                .port = l.port,
+                .public_folder = l.public_folder,
+                .max_clients = l.max_clients,
+                .max_body_size = l.max_body_size,
+                .timeout = l.timeout,
+                .tls = l.tls,
+
+                .on_request = onRequest,
+            });
+            try _static.listener.listen();
         }
 
         fn onRequest(r: Request) !void {
             if (r.path) |p| {
-                for (App._static.endpoints.items) |wrapper| {
+                for (_static.endpoints.items) |wrapper| {
                     if (std.mem.startsWith(u8, p, wrapper.path)) {
                         return try wrapper.call(wrapper, r);
                     }
                 }
             }
             if (on_request) |foo| {
-                if (_arena == null) {
-                    _arena = ArenaAllocator.init(App._static.gpa);
-                }
-                foo(_arena.allocator(), App._static.context, r) catch |err| {
-                    switch (App._static.opts.default_error_strategy) {
+                var arena = try get_arena();
+                foo(arena.allocator(), _static.context, r) catch |err| {
+                    switch (_static.opts.default_error_strategy) {
                         .raise => return err,
                         .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
                         .log_to_console => zap.debug("Error in {} {s} : {}", .{ App, r.method orelse "(no method)", err }),

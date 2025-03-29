@@ -13,6 +13,8 @@ pub const Endpoint = @import("endpoint.zig");
 
 pub const Router = @import("router.zig");
 
+pub const App = @import("App.zig");
+
 /// A struct to handle Mustache templating.
 ///
 /// This is a wrapper around fiobj's mustache template handling.
