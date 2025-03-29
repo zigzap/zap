@@ -32,7 +32,7 @@ pub fn Create(comptime Context: type) type {
             context: *Context = undefined,
             gpa: Allocator = undefined,
             opts: Opts = undefined,
-            endpoints: std.StringArrayHashMapUnmanaged(*Endpoint.Wrapper.Interface) = .empty,
+            endpoints: std.StringArrayHashMapUnmanaged(*Endpoint.Interface) = .empty,
 
             there_can_be_only_one: bool = false,
             track_arenas: std.ArrayListUnmanaged(*ArenaAllocator) = .empty,
@@ -46,116 +46,118 @@ pub fn Create(comptime Context: type) type {
         var on_request: ?*const fn (Allocator, *Context, Request) anyerror!void = null;
 
         pub const Endpoint = struct {
-            pub const Wrapper = struct {
-                pub const Interface = struct {
-                    call: *const fn (*Interface, zap.Request) anyerror!void = undefined,
-                    path: []const u8,
-                    destroy: *const fn (allocator: Allocator, *Interface) void = undefined,
-                };
-                pub fn Wrap(T: type) type {
-                    return struct {
-                        wrapped: *T,
-                        interface: Interface,
-                        opts: Opts,
-                        app_context: *Context,
-
-                        const Wrapped = @This();
-
-                        pub fn unwrap(interface: *Interface) *Wrapped {
-                            const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
-                            return self;
-                        }
-
-                        pub fn destroy(allocator: Allocator, wrapper: *Interface) void {
-                            const self: *Wrapped = @alignCast(@fieldParentPtr("interface", wrapper));
-                            allocator.destroy(self);
-                        }
-
-                        pub fn onRequestWrapped(interface: *Interface, r: zap.Request) !void {
-                            var self: *Wrapped = Wrapped.unwrap(interface);
-                            const arena = try get_arena();
-                            try self.onRequest(arena.allocator(), self.app_context, r);
-                            arena.reset(.{ .retain_capacity = self.opts.arena_retain_capacity });
-                        }
-
-                        pub fn onRequest(self: *Wrapped, arena: Allocator, app_context: *Context, r: zap.Request) !void {
-                            const ret = switch (r.methodAsEnum()) {
-                                .GET => self.wrapped.*.get(arena, app_context, r),
-                                .POST => self.wrapped.*.post(arena, app_context, r),
-                                .PUT => self.wrapped.*.put(arena, app_context, r),
-                                .DELETE => self.wrapped.*.delete(arena, app_context, r),
-                                .PATCH => self.wrapped.*.patch(arena, app_context, r),
-                                .OPTIONS => self.wrapped.*.options(arena, app_context, r),
-                                else => error.UnsupportedHtmlRequestMethod,
-                            };
-                            if (ret) {
-                                // handled without error
-                            } else |err| {
-                                switch (self.wrapped.*.error_strategy) {
-                                    .raise => return err,
-                                    .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                                    .log_to_console => zap.debug("Error in {} {s} : {}", .{ Wrapped, r.method orelse "(no method)", err }),
-                                }
-                            }
-                        }
-                    };
-                }
-
-                pub fn init(T: type, value: *T, app_opts: Opts, app_context: *Context) Wrapper.Wrap(T) {
-                    checkEndpointType(T);
-                    var ret: Wrapper.Wrap(T) = .{
-                        .wrapped = value,
-                        .wrapper = .{ .path = value.path },
-                        .opts = app_opts,
-                        .app_context = app_context,
-                    };
-                    ret.wrapper.call = Wrapper.Wrap(T).onRequestWrapped;
-                    ret.wrapper.destroy = Wrapper.Wrap(T).destroy;
-                    return ret;
-                }
-
-                pub fn checkEndpointType(T: type) void {
-                    if (@hasField(T, "path")) {
-                        if (@FieldType(T, "path") != []const u8) {
-                            @compileError(@typeName(@FieldType(T, "path")) ++ " has wrong type, expected: []const u8");
-                        }
-                    } else {
-                        @compileError(@typeName(T) ++ " has no path field");
-                    }
-
-                    if (@hasField(T, "error_strategy")) {
-                        if (@FieldType(T, "error_strategy") != zap.Endpoint.ErrorStrategy) {
-                            @compileError(@typeName(@FieldType(T, "error_strategy")) ++ " has wrong type, expected: zap.Endpoint.ErrorStrategy");
-                        }
-                    } else {
-                        @compileError(@typeName(T) ++ " has no error_strategy field");
-                    }
-
-                    const methods_to_check = [_][]const u8{
-                        "get",
-                        "post",
-                        "put",
-                        "delete",
-                        "patch",
-                        "options",
-                    };
-                    inline for (methods_to_check) |method| {
-                        if (@hasDecl(T, method)) {
-                            if (@TypeOf(@field(T, method)) != fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void) {
-                                @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void));
-                            }
-                        } else {
-                            @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
-                        }
-                    }
-                }
+            pub const Interface = struct {
+                call: *const fn (*Interface, zap.Request) anyerror!void = undefined,
+                path: []const u8,
+                destroy: *const fn (allocator: Allocator, *Interface) void = undefined,
             };
+            pub fn Wrap(T: type) type {
+                return struct {
+                    wrapped: *T,
+                    interface: Interface,
+                    opts: Opts,
+                    app_context: *Context,
+
+                    const Wrapped = @This();
+
+                    pub fn unwrap(interface: *Interface) *Wrapped {
+                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
+                        return self;
+                    }
+
+                    pub fn destroy(allocator: Allocator, wrapper: *Interface) void {
+                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", wrapper));
+                        allocator.destroy(self);
+                    }
+
+                    pub fn onRequestWrapped(interface: *Interface, r: zap.Request) !void {
+                        var self: *Wrapped = Wrapped.unwrap(interface);
+                        const arena = try get_arena();
+                        try self.onRequest(arena.allocator(), self.app_context, r);
+                        arena.reset(.{ .retain_capacity = self.opts.arena_retain_capacity });
+                    }
+
+                    pub fn onRequest(self: *Wrapped, arena: Allocator, app_context: *Context, r: zap.Request) !void {
+                        const ret = switch (r.methodAsEnum()) {
+                            .GET => self.wrapped.*.get(arena, app_context, r),
+                            .POST => self.wrapped.*.post(arena, app_context, r),
+                            .PUT => self.wrapped.*.put(arena, app_context, r),
+                            .DELETE => self.wrapped.*.delete(arena, app_context, r),
+                            .PATCH => self.wrapped.*.patch(arena, app_context, r),
+                            .OPTIONS => self.wrapped.*.options(arena, app_context, r),
+                            else => error.UnsupportedHtmlRequestMethod,
+                        };
+                        if (ret) {
+                            // handled without error
+                        } else |err| {
+                            switch (self.wrapped.*.error_strategy) {
+                                .raise => return err,
+                                .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
+                                .log_to_console => zap.debug("Error in {} {s} : {}", .{ Wrapped, r.method orelse "(no method)", err }),
+                            }
+                        }
+                    }
+                };
+            }
+
+            pub fn init(T: type, value: *T, app_opts: Opts, app_context: *Context) Endpoint.Wrap(T) {
+                checkEndpointType(T);
+                var ret: Endpoint.Wrap(T) = .{
+                    .wrapped = value,
+                    .wrapper = .{ .path = value.path },
+                    .opts = app_opts,
+                    .app_context = app_context,
+                };
+                ret.wrapper.call = Endpoint.Wrap(T).onRequestWrapped;
+                ret.wrapper.destroy = Endpoint.Wrap(T).destroy;
+                return ret;
+            }
+
+            pub fn checkEndpointType(T: type) void {
+                if (@hasField(T, "path")) {
+                    if (@FieldType(T, "path") != []const u8) {
+                        @compileError(@typeName(@FieldType(T, "path")) ++ " has wrong type, expected: []const u8");
+                    }
+                } else {
+                    @compileError(@typeName(T) ++ " has no path field");
+                }
+
+                if (@hasField(T, "error_strategy")) {
+                    if (@FieldType(T, "error_strategy") != zap.Endpoint.ErrorStrategy) {
+                        @compileError(@typeName(@FieldType(T, "error_strategy")) ++ " has wrong type, expected: zap.Endpoint.ErrorStrategy");
+                    }
+                } else {
+                    @compileError(@typeName(T) ++ " has no error_strategy field");
+                }
+
+                const methods_to_check = [_][]const u8{
+                    "get",
+                    "post",
+                    "put",
+                    "delete",
+                    "patch",
+                    "options",
+                };
+                inline for (methods_to_check) |method| {
+                    if (@hasDecl(T, method)) {
+                        if (@TypeOf(@field(T, method)) != fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void) {
+                            @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Allocator, _: *Context, _: zap.Request) anyerror!void));
+                        }
+                    } else {
+                        @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
+                    }
+                }
+            }
         };
 
-        pub const Listener = struct {
-            pub const Settings = struct {
-                //
-            };
+        pub const ListenerSettings = struct {
+            port: usize,
+            interface: [*c]const u8 = null,
+            public_folder: ?[]const u8 = null,
+            max_clients: ?isize = null,
+            max_body_size: ?usize = null,
+            timeout: ?u8 = null,
+            tls: ?zap.Tls = null,
         };
 
         pub fn init(gpa_: Allocator, context_: *Context, opts_: Opts) !App {
@@ -208,17 +210,17 @@ pub fn Create(comptime Context: type) type {
                     endpoint.path,
                     other.path,
                 )) {
-                    return zap.Endpoint.EndpointListenerError.EndpointPathShadowError;
+                    return zap.Endpoint.ListenerError.EndpointPathShadowError;
                 }
             }
             const EndpointType = @typeInfo(@TypeOf(endpoint)).pointer.child;
-            Endpoint.Wrapper.checkEndpointType(EndpointType);
-            const wrapper = try self.gpa.create(Endpoint.Wrapper.Wrap(EndpointType));
-            wrapper.* = Endpoint.Wrapper.init(EndpointType, endpoint);
+            Endpoint.checkEndpointType(EndpointType);
+            const wrapper = try self.gpa.create(Endpoint.Wrap(EndpointType));
+            wrapper.* = Endpoint.init(EndpointType, endpoint);
             try App._static.endpoints.append(self.gpa, &wrapper.wrapper);
         }
 
-        pub fn listen(self: *App, l: Listener.Settings) !void {
+        pub fn listen(self: *App, l: ListenerSettings) !void {
             _ = self;
             _ = l;
             // TODO: do it

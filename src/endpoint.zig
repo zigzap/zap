@@ -246,7 +246,7 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
     };
 }
 
-pub const EndpointListenerError = error{
+pub const ListenerError = error{
     /// Since we use .startsWith to check for matching paths, you cannot use
     /// endpoint paths that overlap at the beginning. --> When trying to register
     /// an endpoint whose path would shadow an already registered one, you will
@@ -323,7 +323,7 @@ pub const Listener = struct {
                 e.path,
                 other.path,
             )) {
-                return EndpointListenerError.EndpointPathShadowError;
+                return ListenerError.EndpointPathShadowError;
             }
         }
         const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
