@@ -45,6 +45,7 @@ pub fn deinit(self: *Router) void {
 }
 
 /// Call this to add a route with an unbound handler: a handler that is not member of a struct.
+/// To be precise: a handler that doesn't take an instance pointer as first argument.
 pub fn handle_func_unbound(self: *Router, path: []const u8, h: zap.HttpRequestFn) !void {
     if (path.len == 0) {
         return RouterError.EmptyPath;
