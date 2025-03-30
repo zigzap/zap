@@ -50,7 +50,8 @@ pub fn build(b: *std.Build) !void {
         name: []const u8,
         src: []const u8,
     }{
-        .{ .name = "app", .src = "examples/app/main.zig" },
+        .{ .name = "app_basic", .src = "examples/app/basic.zig" },
+        .{ .name = "app_auth", .src = "examples/app/auth.zig" },
         .{ .name = "hello", .src = "examples/hello/hello.zig" },
         .{ .name = "https", .src = "examples/https/https.zig" },
         .{ .name = "hello2", .src = "examples/hello2/hello2.zig" },

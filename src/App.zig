@@ -14,10 +14,11 @@ const RwLock = Thread.RwLock;
 const zap = @import("zap.zig");
 const Request = zap.Request;
 const HttpListener = zap.HttpListener;
+const ErrorStrategy = zap.Endpoint.ErrorStrategy;
 
 pub const AppOpts = struct {
     /// ErrorStrategy for (optional) request handler if no endpoint matches
-    default_error_strategy: zap.Endpoint.ErrorStrategy = .log_to_console,
+    default_error_strategy: ErrorStrategy = .log_to_console,
     arena_retain_capacity: usize = 16 * 1024 * 1024,
 };
 
@@ -137,7 +138,7 @@ pub fn Create(comptime Context: type) type {
                 }
 
                 if (@hasField(T, "error_strategy")) {
-                    if (@FieldType(T, "error_strategy") != zap.Endpoint.ErrorStrategy) {
+                    if (@FieldType(T, "error_strategy") != ErrorStrategy) {
                         @compileError(@typeName(@FieldType(T, "error_strategy")) ++ " has wrong type, expected: zap.Endpoint.ErrorStrategy");
                     }
                 } else {
@@ -163,6 +164,83 @@ pub fn Create(comptime Context: type) type {
                         @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
                     }
                 }
+            }
+
+            /// Wrap an endpoint with an Authenticator
+            pub fn Authenticating(EndpointType: type, Authenticator: type) type {
+                return struct {
+                    authenticator: *Authenticator,
+                    ep: *EndpointType,
+                    path: []const u8,
+                    error_strategy: ErrorStrategy,
+                    const AuthenticatingEndpoint = @This();
+
+                    /// Init the authenticating endpoint. Pass in a pointer to the endpoint
+                    /// you want to wrap, and the Authenticator that takes care of authenticating
+                    /// requests.
+                    pub fn init(e: *EndpointType, authenticator: *Authenticator) AuthenticatingEndpoint {
+                        return .{
+                            .authenticator = authenticator,
+                            .ep = e,
+                            .path = e.path,
+                            .error_strategy = e.error_strategy,
+                        };
+                    }
+
+                    /// Authenticates GET requests using the Authenticator.
+                    pub fn get(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.get(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates POST requests using the Authenticator.
+                    pub fn post(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.post(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates PUT requests using the Authenticator.
+                    pub fn put(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.put(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates DELETE requests using the Authenticator.
+                    pub fn delete(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.delete(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates PATCH requests using the Authenticator.
+                    pub fn patch(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.patch(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates OPTIONS requests using the Authenticator.
+                    pub fn options(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.put(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+                };
             }
         };
 
