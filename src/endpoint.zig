@@ -95,10 +95,57 @@ pub fn checkEndpointType(T: type) void {
         "patch",
         "options",
     };
+
+    const params_to_check = [_]type{
+        *T,
+        Request,
+    };
+
     inline for (methods_to_check) |method| {
         if (@hasDecl(T, method)) {
-            if (@TypeOf(@field(T, method)) != fn (_: *T, _: Request) anyerror!void) {
-                @compileError(method ++ " method of " ++ @typeName(T) ++ " has wrong type:\n" ++ @typeName(@TypeOf(T.get)) ++ "\nexpected:\n" ++ @typeName(fn (_: *T, _: Request) anyerror!void));
+            const Method = @TypeOf(@field(T, method));
+            const method_info = @typeInfo(Method);
+            if (method_info != .@"fn") {
+                @compileError("Expected `" ++ @typeName(T) ++ "." ++ method ++ "` to be a request handler method, got: " ++ @typeName(Method));
+            }
+
+            // now check parameters
+            const params = method_info.@"fn".params;
+            if (params.len != params_to_check.len) {
+                @compileError(std.fmt.comptimePrint(
+                    "Expected method `{s}.{s}` to have {d} parameters, got {d}",
+                    .{
+                        @typeName(T),
+                        method,
+                        params_to_check.len,
+                        params.len,
+                    },
+                ));
+            }
+
+            inline for (params_to_check, 0..) |param_type_expected, i| {
+                if (params[i].type.? != param_type_expected) {
+                    @compileError(std.fmt.comptimePrint(
+                        "Expected parameter {d} of method {s}.{s} to be {s}, got {s}",
+                        .{
+                            i + 1,
+                            @typeName(T),
+                            method,
+                            @typeName(param_type_expected),
+                            @typeName(params[i].type.?),
+                        },
+                    ));
+                }
+            }
+
+            // check return type
+            const ret_type = method_info.@"fn".return_type.?;
+            const ret_info = @typeInfo(ret_type);
+            if (ret_info != .error_union) {
+                @compileError("Expected return type of method `" ++ @typeName(T) ++ "." ++ method ++ "` to be !void, got: " ++ @typeName(ret_type));
+            }
+            if (ret_info.error_union.payload != void) {
+                @compileError("Expected return type of method `" ++ @typeName(T) ++ "." ++ method ++ "` to be !void, got: !" ++ @typeName(ret_info.error_union.payload));
             }
         } else {
             @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");

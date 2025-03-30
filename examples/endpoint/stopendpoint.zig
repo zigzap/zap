@@ -14,14 +14,14 @@ pub fn init(path: []const u8) StopEndpoint {
     };
 }
 
-pub fn get(e: *StopEndpoint, r: zap.Request) anyerror!void {
+pub fn get(e: *StopEndpoint, r: zap.Request) !void {
     _ = e;
     _ = r;
     zap.stop();
 }
 
-pub fn post(_: *StopEndpoint, _: zap.Request) anyerror!void {}
-pub fn put(_: *StopEndpoint, _: zap.Request) anyerror!void {}
-pub fn delete(_: *StopEndpoint, _: zap.Request) anyerror!void {}
-pub fn patch(_: *StopEndpoint, _: zap.Request) anyerror!void {}
-pub fn options(_: *StopEndpoint, _: zap.Request) anyerror!void {}
+pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn options(_: *StopEndpoint, _: zap.Request) !void {}

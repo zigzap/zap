@@ -43,8 +43,9 @@ fn userIdFromPath(self: *UserWeb, path: []const u8) ?usize {
     return null;
 }
 
-pub fn put(_: *UserWeb, _: zap.Request) anyerror!void {}
-pub fn get(self: *UserWeb, r: zap.Request) anyerror!void {
+pub fn put(_: *UserWeb, _: zap.Request) !void {}
+
+pub fn get(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         // /users
         if (path.len == self.path.len) {
@@ -69,7 +70,7 @@ fn listUsers(self: *UserWeb, r: zap.Request) !void {
     }
 }
 
-pub fn post(self: *UserWeb, r: zap.Request) anyerror!void {
+pub fn post(self: *UserWeb, r: zap.Request) !void {
     if (r.body) |body| {
         const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
@@ -86,7 +87,7 @@ pub fn post(self: *UserWeb, r: zap.Request) anyerror!void {
     }
 }
 
-pub fn patch(self: *UserWeb, r: zap.Request) anyerror!void {
+pub fn patch(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
@@ -109,7 +110,7 @@ pub fn patch(self: *UserWeb, r: zap.Request) anyerror!void {
     }
 }
 
-pub fn delete(self: *UserWeb, r: zap.Request) anyerror!void {
+pub fn delete(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;
@@ -124,7 +125,7 @@ pub fn delete(self: *UserWeb, r: zap.Request) anyerror!void {
     }
 }
 
-pub fn options(_: *UserWeb, r: zap.Request) anyerror!void {
+pub fn options(_: *UserWeb, r: zap.Request) !void {
     try r.setHeader("Access-Control-Allow-Origin", "*");
     try r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     r.setStatus(zap.http.StatusCode.no_content);
