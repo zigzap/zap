@@ -215,7 +215,7 @@ really promising.
 
 ### 📣 Shout-Outs
 
-- [httpz](https://github.com/karlseguin/http.zig) : Pure Zig! Close to Zap's
+- [http.zig](https://github.com/karlseguin/http.zig) : Pure Zig! Close to Zap's
   model. Performance = good!
 - [jetzig](https://github.com/jetzig-framework/jetzig) : Comfortably develop
   modern web applications quickly, using http.zig under the hood
