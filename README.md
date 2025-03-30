@@ -177,12 +177,12 @@ claim any performance fame for itself. In this initial implementation of Zap,
 I didn't care about optimizations at all.
 
 But, how fast is it? Being blazingly fast is relative. When compared with a
-simple GO HTTP server, a simple Zig Zap HTTP server performed really good on my
+simple GO HTTP server, a simple Zig Zap HTTP server performed really well on my
 machine (x86_64-linux):
 
 - Zig Zap was nearly 30% faster than GO
 - Zig Zap had over 50% more throughput than GO
-- **YMMV !!!**
+- **YMMV!!!**
 
 So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
 ... of reasonable performance 😎.
@@ -190,7 +190,7 @@ So, being somewhere in the ballpark of basic GO performance, zig zap seems to be
 I can rest my case that developing ZAP was a good idea because it's faster than
 both alternatives: a) staying with Python, and b) creating a GO + Zig hybrid.
 
-### On (now missing) Micro-Benchmakrs
+### On (now missing) Micro-Benchmarks
 
 I used to have some micro-benchmarks in this repo, showing that Zap beat all the
 other things I tried, and eventually got tired of the meaningless discussions
