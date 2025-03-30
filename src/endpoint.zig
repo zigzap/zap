@@ -106,66 +106,68 @@ pub fn checkEndpointType(T: type) void {
     }
 }
 
-pub const Wrapper = struct {
+pub const Binder = struct {
     pub const Interface = struct {
         call: *const fn (*Interface, zap.Request) anyerror!void = undefined,
         path: []const u8,
-        destroy: *const fn (allocator: std.mem.Allocator, *Interface) void = undefined,
+        destroy: *const fn (*Interface, std.mem.Allocator) void = undefined,
     };
-    pub fn Wrap(T: type) type {
+    pub fn Bind(ArbitraryEndpoint: type) type {
         return struct {
-            wrapped: *T,
-            wrapper: Interface,
+            endpoint: *ArbitraryEndpoint,
+            interface: Interface,
 
-            const Wrapped = @This();
+            const Bound = @This();
 
-            pub fn unwrap(wrapper: *Interface) *Wrapped {
-                const self: *Wrapped = @alignCast(@fieldParentPtr("wrapper", wrapper));
+            pub fn unwrap(interface: *Interface) *Bound {
+                const self: *Bound = @alignCast(@fieldParentPtr("interface", interface));
                 return self;
             }
 
-            pub fn destroy(allocator: std.mem.Allocator, wrapper: *Interface) void {
-                const self: *Wrapped = @alignCast(@fieldParentPtr("wrapper", wrapper));
+            pub fn destroy(interface: *Interface, allocator: std.mem.Allocator) void {
+                const self: *Bound = @alignCast(@fieldParentPtr("interface", interface));
                 allocator.destroy(self);
             }
 
-            pub fn onRequestWrapped(wrapper: *Interface, r: zap.Request) !void {
-                var self: *Wrapped = Wrapped.unwrap(wrapper);
+            pub fn onRequestInterface(interface: *Interface, r: zap.Request) !void {
+                var self: *Bound = Bound.unwrap(interface);
                 try self.onRequest(r);
             }
 
-            pub fn onRequest(self: *Wrapped, r: zap.Request) !void {
+            pub fn onRequest(self: *Bound, r: zap.Request) !void {
                 const ret = switch (r.methodAsEnum()) {
-                    .GET => self.wrapped.*.get(r),
-                    .POST => self.wrapped.*.post(r),
-                    .PUT => self.wrapped.*.put(r),
-                    .DELETE => self.wrapped.*.delete(r),
-                    .PATCH => self.wrapped.*.patch(r),
-                    .OPTIONS => self.wrapped.*.options(r),
+                    .GET => self.endpoint.*.get(r),
+                    .POST => self.endpoint.*.post(r),
+                    .PUT => self.endpoint.*.put(r),
+                    .DELETE => self.endpoint.*.delete(r),
+                    .PATCH => self.endpoint.*.patch(r),
+                    .OPTIONS => self.endpoint.*.options(r),
                     else => error.UnsupportedHtmlRequestMethod,
                 };
                 if (ret) {
                     // handled without error
                 } else |err| {
-                    switch (self.wrapped.*.error_strategy) {
+                    switch (self.endpoint.*.error_strategy) {
                         .raise => return err,
                         .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                        .log_to_console => zap.debug("Error in {} {s} : {}", .{ Wrapped, r.method orelse "(no method)", err }),
+                        .log_to_console => zap.debug("Error in {} {s} : {}", .{ Bound, r.method orelse "(no method)", err }),
                     }
                 }
             }
         };
     }
 
-    pub fn init(T: type, value: *T) Wrapper.Wrap(T) {
-        checkEndpointType(T);
-        var ret: Wrapper.Wrap(T) = .{
-            .wrapped = value,
-            .wrapper = .{ .path = value.path },
+    pub fn init(ArbitraryEndpoint: type, value: *ArbitraryEndpoint) Binder.Bind(ArbitraryEndpoint) {
+        checkEndpointType(ArbitraryEndpoint);
+        const BoundEp = Binder.Bind(ArbitraryEndpoint);
+        return .{
+            .endpoint = value,
+            .interface = .{
+                .path = value.path,
+                .call = BoundEp.onRequestInterface,
+                .destroy = BoundEp.destroy,
+            },
         };
-        ret.wrapper.call = Wrapper.Wrap(T).onRequestWrapped;
-        ret.wrapper.destroy = Wrapper.Wrap(T).destroy;
-        return ret;
     }
 };
 
@@ -262,7 +264,7 @@ pub const Listener = struct {
     allocator: std.mem.Allocator,
 
     /// Internal static interface struct of member endpoints
-    var endpoints: std.ArrayListUnmanaged(*Wrapper.Interface) = .empty;
+    var endpoints: std.ArrayListUnmanaged(*Binder.Interface) = .empty;
 
     /// Internal, static request handler callback. Will be set to the optional,
     /// user-defined request callback that only gets called if no endpoints match
@@ -296,8 +298,8 @@ pub const Listener = struct {
     /// Registered endpoints will not be de-initialized automatically; just removed
     /// from the internal map.
     pub fn deinit(self: *Listener) void {
-        for (endpoints.items) |endpoint_wrapper| {
-            endpoint_wrapper.destroy(self.allocator, endpoint_wrapper);
+        for (endpoints.items) |interface| {
+            interface.destroy(interface, self.allocator);
         }
         endpoints.deinit(self.allocator);
     }
@@ -328,16 +330,16 @@ pub const Listener = struct {
         }
         const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
         checkEndpointType(EndpointType);
-        const wrapper = try self.allocator.create(Wrapper.Wrap(EndpointType));
-        wrapper.* = Wrapper.init(EndpointType, e);
-        try endpoints.append(self.allocator, &wrapper.wrapper);
+        const bound = try self.allocator.create(Binder.Bind(EndpointType));
+        bound.* = Binder.init(EndpointType, e);
+        try endpoints.append(self.allocator, &bound.interface);
     }
 
     fn onRequest(r: Request) !void {
         if (r.path) |p| {
-            for (endpoints.items) |wrapper| {
-                if (std.mem.startsWith(u8, p, wrapper.path)) {
-                    return try wrapper.call(wrapper, r);
+            for (endpoints.items) |interface| {
+                if (std.mem.startsWith(u8, p, interface.path)) {
+                    return try interface.call(interface, r);
                 }
             }
         }

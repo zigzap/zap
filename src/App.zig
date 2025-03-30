@@ -32,7 +32,6 @@ pub fn Create(comptime Context: type) type {
             context: *Context = undefined,
             gpa: Allocator = undefined,
             opts: AppOpts = undefined,
-            // endpoints: std.StringArrayHashMapUnmanaged(*Endpoint.Interface) = .empty,
             endpoints: std.ArrayListUnmanaged(*Endpoint.Interface) = .empty,
 
             there_can_be_only_one: bool = false,
@@ -61,64 +60,68 @@ pub fn Create(comptime Context: type) type {
                 path: []const u8,
                 destroy: *const fn (*Interface, Allocator) void = undefined,
             };
-            pub fn Wrap(T: type) type {
+            pub fn Bind(ArbitraryEndpoint: type) type {
                 return struct {
-                    wrapped: *T,
+                    endpoint: *ArbitraryEndpoint,
                     interface: Interface,
 
                     // tbh: unnecessary, since we have it in _static
                     app_context: *Context,
 
-                    const Wrapped = @This();
+                    const Bound = @This();
 
-                    pub fn unwrap(interface: *Interface) *Wrapped {
-                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
+                    pub fn unwrap(interface: *Interface) *Bound {
+                        const self: *Bound = @alignCast(@fieldParentPtr("interface", interface));
                         return self;
                     }
 
                     pub fn destroy(interface: *Interface, allocator: Allocator) void {
-                        const self: *Wrapped = @alignCast(@fieldParentPtr("interface", interface));
+                        const self: *Bound = @alignCast(@fieldParentPtr("interface", interface));
                         allocator.destroy(self);
                     }
 
-                    pub fn onRequestWrapped(interface: *Interface, r: Request) !void {
-                        var self: *Wrapped = Wrapped.unwrap(interface);
+                    pub fn onRequestInterface(interface: *Interface, r: Request) !void {
+                        var self: *Bound = Bound.unwrap(interface);
                         var arena = try get_arena();
                         try self.onRequest(arena.allocator(), self.app_context, r);
                         _ = arena.reset(.{ .retain_with_limit = _static.opts.arena_retain_capacity });
                     }
 
-                    pub fn onRequest(self: *Wrapped, arena: Allocator, app_context: *Context, r: Request) !void {
+                    pub fn onRequest(self: *Bound, arena: Allocator, app_context: *Context, r: Request) !void {
                         const ret = switch (r.methodAsEnum()) {
-                            .GET => self.wrapped.*.get(arena, app_context, r),
-                            .POST => self.wrapped.*.post(arena, app_context, r),
-                            .PUT => self.wrapped.*.put(arena, app_context, r),
-                            .DELETE => self.wrapped.*.delete(arena, app_context, r),
-                            .PATCH => self.wrapped.*.patch(arena, app_context, r),
-                            .OPTIONS => self.wrapped.*.options(arena, app_context, r),
+                            .GET => self.endpoint.*.get(arena, app_context, r),
+                            .POST => self.endpoint.*.post(arena, app_context, r),
+                            .PUT => self.endpoint.*.put(arena, app_context, r),
+                            .DELETE => self.endpoint.*.delete(arena, app_context, r),
+                            .PATCH => self.endpoint.*.patch(arena, app_context, r),
+                            .OPTIONS => self.endpoint.*.options(arena, app_context, r),
                             else => error.UnsupportedHtmlRequestMethod,
                         };
                         if (ret) {
                             // handled without error
                         } else |err| {
-                            switch (self.wrapped.*.error_strategy) {
+                            switch (self.endpoint.*.error_strategy) {
                                 .raise => return err,
                                 .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                                .log_to_console => zap.debug("Error in {} {s} : {}", .{ Wrapped, r.method orelse "(no method)", err }),
+                                .log_to_console => zap.debug(
+                                    "Error in {} {s} : {}",
+                                    .{ Bound, r.method orelse "(no method)", err },
+                                ),
                             }
                         }
                     }
                 };
             }
 
-            pub fn init(T: type, value: *T) Endpoint.Wrap(T) {
-                checkEndpointType(T);
+            pub fn init(ArbitraryEndpoint: type, endpoint: *ArbitraryEndpoint) Endpoint.Bind(ArbitraryEndpoint) {
+                checkEndpointType(ArbitraryEndpoint);
+                const BoundEp = Endpoint.Bind(ArbitraryEndpoint);
                 return .{
-                    .wrapped = value,
+                    .endpoint = endpoint,
                     .interface = .{
-                        .path = value.path,
-                        .call = Endpoint.Wrap(T).onRequestWrapped,
-                        .destroy = Endpoint.Wrap(T).destroy,
+                        .path = endpoint.path,
+                        .call = BoundEp.onRequestInterface,
+                        .destroy = BoundEp.destroy,
                     },
                     .app_context = _static.context,
                 };
@@ -262,9 +265,9 @@ pub fn Create(comptime Context: type) type {
             }
             const EndpointType = @typeInfo(@TypeOf(endpoint)).pointer.child;
             Endpoint.checkEndpointType(EndpointType);
-            const wrapper = try _static.gpa.create(Endpoint.Wrap(EndpointType));
-            wrapper.* = Endpoint.init(EndpointType, endpoint);
-            try _static.endpoints.append(_static.gpa, &wrapper.interface);
+            const bound = try _static.gpa.create(Endpoint.Bind(EndpointType));
+            bound.* = Endpoint.init(EndpointType, endpoint);
+            try _static.endpoints.append(_static.gpa, &bound.interface);
         }
 
         pub fn listen(_: *App, l: ListenerSettings) !void {
@@ -284,9 +287,9 @@ pub fn Create(comptime Context: type) type {
 
         fn onRequest(r: Request) !void {
             if (r.path) |p| {
-                for (_static.endpoints.items) |wrapper| {
-                    if (std.mem.startsWith(u8, p, wrapper.path)) {
-                        return try wrapper.call(wrapper, r);
+                for (_static.endpoints.items) |interface| {
+                    if (std.mem.startsWith(u8, p, interface.path)) {
+                        return try interface.call(interface, r);
                     }
                 }
             }
