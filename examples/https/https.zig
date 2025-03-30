@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build -Dopenssl=true     https`.
+//! Run   me with `zig build -Dopenssl=true run-https`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 

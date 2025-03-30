@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     simple_router`.
+//! Run   me with `zig build run-simple_router`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 const Allocator = std.mem.Allocator;

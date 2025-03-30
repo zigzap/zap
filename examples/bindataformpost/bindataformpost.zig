@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     bindataformpost`.
+//! Run   me with `zig build run-bindataformpost`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 

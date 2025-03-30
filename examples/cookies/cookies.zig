@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     cookies`.
+//! Run   me with `zig build run-cookies`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 

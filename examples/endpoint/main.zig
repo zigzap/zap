@@ -1,7 +1,14 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     endpoint`.
+//! Run   me with `zig build run-endpoint`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 const UserWeb = @import("userweb.zig");
 const StopEndpoint = @import("stopendpoint.zig");
+const ErrorEndpoint = @import("error.zig");
 
 // this is just to demo that we can catch arbitrary slugs as fallback
 fn on_request(r: zap.Request) !void {
@@ -39,10 +46,12 @@ pub fn main() !void {
         defer userWeb.deinit();
 
         var stopEp = StopEndpoint.init("/stop");
+        var errorEp: ErrorEndpoint = .{};
 
         // register endpoints with the listener
         try listener.register(&userWeb);
         try listener.register(&stopEp);
+        try listener.register(&errorEp);
 
         // fake some users
         var uid: usize = undefined;

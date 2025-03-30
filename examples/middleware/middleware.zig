@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     middleware`.
+//! Run   me with `zig build run-middleware`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 

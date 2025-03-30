@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     userpass_session`.
+//! Run   me with `zig build run-userpass_session`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 

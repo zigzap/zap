@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     mustache`.
+//! Run   me with `zig build run-mustache`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 const Mustache = @import("zap").Mustache;

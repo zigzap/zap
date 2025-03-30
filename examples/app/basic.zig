@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     app_basic`.
+//! Run   me with `zig build run-app_basic`.
+//!
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
@@ -32,7 +38,7 @@ const SimpleEndpoint = struct {
     }
 
     // handle GET requests
-    pub fn get(e: *SimpleEndpoint, arena: Allocator, context: *MyContext, r: zap.Request) anyerror!void {
+    pub fn get(e: *SimpleEndpoint, arena: Allocator, context: *MyContext, r: zap.Request) !void {
         const thread_id = std.Thread.getCurrentId();
 
         r.setStatus(.ok);
@@ -55,11 +61,11 @@ const SimpleEndpoint = struct {
     }
 
     // empty stubs for all other request methods
-    pub fn post(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) anyerror!void {}
-    pub fn put(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) anyerror!void {}
-    pub fn delete(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) anyerror!void {}
-    pub fn patch(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) anyerror!void {}
-    pub fn options(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) anyerror!void {}
+    pub fn post(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn put(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn delete(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn patch(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn options(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {

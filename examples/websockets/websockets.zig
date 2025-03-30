@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     websockets`.
+//! Run   me with `zig build run-websockets`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 const WebSockets = zap.WebSockets;
