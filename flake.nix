@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     # required for latest zig
@@ -38,28 +37,10 @@
       in rec {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-              # TODO: re-enable this once it is fixed: zigpkgs."0.14.0"
-            zigpkgs.master
+            zigpkgs."0.14.0"
             bat
             wrk
-            python3
-            python3Packages.sanic
-            python3Packages.setuptools
-            python3Packages.matplotlib
-            poetry
-            poetry
-            pkgs.rustc
-            pkgs.cargo
-            pkgs.gcc
-            pkgs.rustfmt
-            pkgs.clippy
-            pkgs.go
-            pkgs.gotools
-            pkgs.gopls
-            pkgs.golint
 
-            pkgs.dotnet-sdk_8
-            pkgs.dotnet-runtime_8
             pkgs.zlib
             pkgs.icu
             pkgs.openssl
@@ -85,9 +66,8 @@
 
         devShells.build = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
-            # zigpkgs."0.14.0"
+            zigpkgs."0.14.0"
             zigpkgs.master
-            pkgs.openssl
           ];
 
           buildInputs = with pkgs; [
