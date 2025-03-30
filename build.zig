@@ -60,8 +60,6 @@ pub fn build(b: *std.Build) !void {
         .{ .name = "serve", .src = "examples/serve/serve.zig" },
         .{ .name = "hello_json", .src = "examples/hello_json/hello_json.zig" },
         .{ .name = "endpoint", .src = "examples/endpoint/main.zig" },
-        .{ .name = "wrk", .src = "wrk/zig/main.zig" },
-        .{ .name = "wrk_zigstd", .src = "wrk/zigstd/main.zig" },
         .{ .name = "mustache", .src = "examples/mustache/mustache.zig" },
         .{ .name = "endpoint_auth", .src = "examples/endpoint_auth/endpoint_auth.zig" },
         .{ .name = "http_params", .src = "examples/http_params/http_params.zig" },

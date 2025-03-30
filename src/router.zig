@@ -82,10 +82,10 @@ pub fn handle_func(self: *Router, path: []const u8, instance: *anyopaque, handle
         // Need to check:
         // 1) handler is function pointer
         const f = blk: {
-            if (hand_info == .Pointer) {
-                const inner = @typeInfo(hand_info.Pointer.child);
-                if (inner == .Fn) {
-                    break :blk inner.Fn;
+            if (hand_info == .pointer) {
+                const inner = @typeInfo(hand_info.pointer.child);
+                if (inner == .@"fn") {
+                    break :blk inner.@"fn";
                 }
             }
             @compileError("Expected handler to be a function pointer. Found " ++
@@ -104,8 +104,14 @@ pub fn handle_func(self: *Router, path: []const u8, instance: *anyopaque, handle
 
         // 3) handler returns void
         const ret_info = @typeInfo(f.return_type.?);
-        if (ret_info != .Void) {
-            @compileError("Expected handler's return type to be void. Found " ++
+        if (ret_info != .error_union) {
+            @compileError("Expected handler's return type to be !void. Found " ++
+                @typeName(f.return_type.?));
+        }
+
+        const payload = @typeInfo(ret_info.error_union.payload);
+        if (payload != .void) {
+            @compileError("Expected handler's return type to be !void. Found " ++
                 @typeName(f.return_type.?));
         }
     }
