@@ -125,8 +125,9 @@ fn handle_websocket_message(
     message: []const u8,
     is_text: bool,
 ) void {
-    _ = is_text;
     _ = handle;
+    _ = is_text;
+
     if (context) |ctx| {
         // send message
         const buflen = 128; // arbitrary len

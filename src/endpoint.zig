@@ -43,9 +43,7 @@
 //!     pub fn patch(_: *StopEndpoint, _: zap.Request) void {}
 //!     pub fn options(_: *StopEndpoint, _: zap.Request) void {}
 //!
-//!     pub fn get(self: *StopEndpoint, r: zap.Request) void {
-//!         _ = self;
-//!         _ = r;
+//!     pub fn get(_: *StopEndpoint, _: zap.Request) void {
 //!         zap.stop();
 //!     }
 //! };

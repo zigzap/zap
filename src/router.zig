@@ -63,8 +63,7 @@ pub fn handle_func_unbound(self: *Router, path: []const u8, h: zap.HttpRequestFn
 ///
 /// ```zig
 /// const HandlerType = struct {
-///     pub fn getA(self: *HandlerType, r: zap.Request) void {
-///         _ = self;
+///     pub fn getA(_: *HandlerType, r: zap.Request) void {
 ///         r.sendBody("hello\n\n") catch return;
 ///     }
 /// }

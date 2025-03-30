@@ -7,9 +7,7 @@ pub const ErrorEndpoint = @This();
 path: []const u8 = "/error",
 error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
-pub fn get(e: *ErrorEndpoint, r: zap.Request) !void {
-    _ = e;
-    _ = r;
+pub fn get(_: *ErrorEndpoint, _: zap.Request) !void {
     return error.@"Oh-no!";
 }
 

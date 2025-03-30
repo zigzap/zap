@@ -151,16 +151,14 @@ pub const Endpoint = struct {
     path: []const u8,
     error_strategy: zap.Endpoint.ErrorStrategy = .raise,
 
-    pub fn get(e: *Endpoint, r: zap.Request) !void {
-        _ = e;
+    pub fn get(_: *Endpoint, r: zap.Request) !void {
         r.sendBody(HTTP_RESPONSE) catch return;
         received_response = HTTP_RESPONSE;
         std.time.sleep(1 * std.time.ns_per_s);
         zap.stop();
     }
 
-    pub fn unauthorized(e: *Endpoint, r: zap.Request) !void {
-        _ = e;
+    pub fn unauthorized(_: *Endpoint, r: zap.Request) !void {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
         received_response = "UNAUTHORIZED";
@@ -590,6 +588,8 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     var encoder = std.base64.url_safe.Encoder;
     var buffer: [256]u8 = undefined;
     const encoded = encoder.encode(&buffer, token);
+
+    // not interested in the encoded auth string; we want unauthorized
     _ = encoded;
 
     // create authenticator

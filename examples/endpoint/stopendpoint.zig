@@ -14,9 +14,7 @@ pub fn init(path: []const u8) StopEndpoint {
     };
 }
 
-pub fn get(e: *StopEndpoint, r: zap.Request) !void {
-    _ = e;
-    _ = r;
+pub fn get(_: *StopEndpoint, _: zap.Request) !void {
     zap.stop();
 }
 
