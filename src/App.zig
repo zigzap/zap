@@ -1,10 +1,3 @@
-//! WIP: zap.App.
-//!
-//! - Per Request Arena(s) thread-local?
-//! - Custom "State" Context, type-safe
-//! - route handlers
-//! - automatic error catching & logging, optional report to HTML
-
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const ArenaAllocator = std.heap.ArenaAllocator;

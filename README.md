@@ -220,7 +220,7 @@ really promising.
 - [jetzig](https://github.com/jetzig-framework/jetzig) : Comfortably develop
   modern web applications quickly, using http.zig under the hood
 - [zzz](https://github.com/tardy-org/zzz) : Super promising, super-fast,
-especially for IO-heavy tasks, io_uring support - need I say more?
+  especially for IO-heavy tasks, io_uring support - need I say more?
 
 
 ## 💪 Robust
