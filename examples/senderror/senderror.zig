@@ -5,7 +5,7 @@ fn MAKE_MEGA_ERROR() !void {
     return error.MEGA_ERROR;
 }
 
-fn MY_REQUEST_HANDLER(r: zap.Request) void {
+fn MY_REQUEST_HANDLER(r: zap.Request) !void {
     MAKE_MEGA_ERROR() catch |err| {
         r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505);
     };

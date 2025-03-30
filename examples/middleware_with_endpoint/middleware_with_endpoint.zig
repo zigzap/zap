@@ -6,8 +6,6 @@ const SharedAllocator = struct {
     // static
     var allocator: std.mem.Allocator = undefined;
 
-    const Self = @This();
-
     // just a convenience function
     pub fn init(a: std.mem.Allocator) void {
         allocator = a;
@@ -35,8 +33,6 @@ const Handler = zap.Middleware.Handler(Context);
 const UserMiddleWare = struct {
     handler: Handler,
 
-    const Self = @This();
-
     // Just some arbitrary struct we want in the per-request context
     // This is so that it can be constructed via .{}
     // as we can't expect the listener to know how to initialize our context structs
@@ -45,22 +41,22 @@ const UserMiddleWare = struct {
         email: []const u8 = undefined,
     };
 
-    pub fn init(other: ?*Handler) Self {
+    pub fn init(other: ?*Handler) UserMiddleWare {
         return .{
             .handler = Handler.init(onRequest, other),
         };
     }
 
     // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
+    pub fn getHandler(self: *UserMiddleWare) *Handler {
         return &self.handler;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
+    // note that the first parameter is of type *Handler, not *UserMiddleWare !!!
+    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) !bool {
 
         // this is how we would get our self pointer
-        const self: *Self = @fieldParentPtr("handler", handler);
+        const self: *UserMiddleWare = @fieldParentPtr("handler", handler);
         _ = self;
 
         // do our work: fill in the user field of the context
@@ -82,8 +78,6 @@ const UserMiddleWare = struct {
 const SessionMiddleWare = struct {
     handler: Handler,
 
-    const Self = @This();
-
     // Just some arbitrary struct we want in the per-request context
     // note: it MUST have all default values!!!
     const Session = struct {
@@ -91,21 +85,21 @@ const SessionMiddleWare = struct {
         token: []const u8 = undefined,
     };
 
-    pub fn init(other: ?*Handler) Self {
+    pub fn init(other: ?*Handler) SessionMiddleWare {
         return .{
             .handler = Handler.init(onRequest, other),
         };
     }
 
     // we need the handler as a common interface to chain stuff
-    pub fn getHandler(self: *Self) *Handler {
+    pub fn getHandler(self: *SessionMiddleWare) *Handler {
         return &self.handler;
     }
 
-    // note that the first parameter is of type *Handler, not *Self !!!
-    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) bool {
+    // note that the first parameter is of type *Handler, not *SessionMiddleWare !!!
+    pub fn onRequest(handler: *Handler, r: zap.Request, context: *Context) !bool {
         // this is how we would get our self pointer
-        const self: *Self = @fieldParentPtr("handler", handler);
+        const self: *SessionMiddleWare = @fieldParentPtr("handler", handler);
         _ = self;
 
         context.session = Session{
@@ -136,26 +130,21 @@ const SessionMiddleWare = struct {
 // `breakOnFinish` parameter.
 //
 const HtmlEndpoint = struct {
-    ep: zap.Endpoint = undefined,
-    const Self = @This();
+    path: []const u8 = "(undefined)",
 
-    pub fn init() Self {
+    pub fn init() HtmlEndpoint {
         return .{
-            .ep = zap.Endpoint.init(.{
-                .path = "/doesn't+matter",
-                .get = get,
-            }),
+            .path = "/doesn't+matter",
         };
     }
 
-    pub fn endpoint(self: *Self) *zap.Endpoint {
-        return &self.ep;
-    }
+    pub fn post(_: *HtmlEndpoint, _: zap.Request) !void {}
+    pub fn put(_: *HtmlEndpoint, _: zap.Request) !void {}
+    pub fn delete(_: *HtmlEndpoint, _: zap.Request) !void {}
+    pub fn patch(_: *HtmlEndpoint, _: zap.Request) !void {}
+    pub fn options(_: *HtmlEndpoint, _: zap.Request) !void {}
 
-    pub fn get(ep: *zap.Endpoint, r: zap.Request) void {
-        const self: *Self = @fieldParentPtr("ep", ep);
-        _ = self;
-
+    pub fn get(_: *HtmlEndpoint, r: zap.Request) !void {
         var buf: [1024]u8 = undefined;
         var userFound: bool = false;
         var sessionFound: bool = false;
@@ -172,12 +161,12 @@ const HtmlEndpoint = struct {
                     sessionFound = true;
 
                     std.debug.assert(r.isFinished() == false);
-                    const message = std.fmt.bufPrint(&buf, "User: {s} / {s}, Session: {s} / {s}", .{
+                    const message = try std.fmt.bufPrint(&buf, "User: {s} / {s}, Session: {s} / {s}", .{
                         user.name,
                         user.email,
                         session.info,
                         session.token,
-                    }) catch unreachable;
+                    });
                     r.setContentType(.TEXT) catch unreachable;
                     r.sendBody(message) catch unreachable;
                     std.debug.assert(r.isFinished() == true);
@@ -205,8 +194,8 @@ pub fn main() !void {
     var htmlEndpoint = HtmlEndpoint.init();
 
     // we wrap the endpoint with a middleware handler
-    var htmlHandler = zap.Middleware.EndpointHandler(Handler, Context).init(
-        htmlEndpoint.endpoint(), // the endpoint
+    var htmlHandler = zap.Middleware.EndpointHandler(Handler, HtmlEndpoint, Context).init(
+        &htmlEndpoint, // the endpoint
         null, // no other handler (we are the last in the chain)
         .{}, // We can set custom EndpointHandlerOptions here
     );

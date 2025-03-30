@@ -2,7 +2,7 @@ const std = @import("std");
 const zap = @import("zap");
 const Allocator = std.mem.Allocator;
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -14,13 +14,11 @@ fn on_request_verbose(r: zap.Request) void {
 }
 
 pub const SomePackage = struct {
-    const Self = @This();
-
     allocator: Allocator,
     a: i8,
     b: i8,
 
-    pub fn init(allocator: Allocator, a: i8, b: i8) Self {
+    pub fn init(allocator: Allocator, a: i8, b: i8) SomePackage {
         return .{
             .allocator = allocator,
             .a = a,
@@ -28,7 +26,7 @@ pub const SomePackage = struct {
         };
     }
 
-    pub fn getA(self: *Self, req: zap.Request) void {
+    pub fn getA(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("get_a_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -41,7 +39,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn getB(self: *Self, req: zap.Request) void {
+    pub fn getB(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("get_b_requested", .{});
 
         const string = std.fmt.allocPrint(
@@ -54,7 +52,7 @@ pub const SomePackage = struct {
         req.sendBody(string) catch return;
     }
 
-    pub fn incrementA(self: *Self, req: zap.Request) void {
+    pub fn incrementA(self: *SomePackage, req: zap.Request) !void {
         std.log.warn("increment_a_requested", .{});
 
         self.a += 1;
@@ -63,10 +61,10 @@ pub const SomePackage = struct {
     }
 };
 
-fn not_found(req: zap.Request) void {
+fn not_found(req: zap.Request) !void {
     std.debug.print("not found handler", .{});
 
-    req.sendBody("Not found") catch return;
+    try req.sendBody("Not found");
 }
 
 pub fn main() !void {
@@ -98,8 +96,17 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
-
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\ 
+        \\ Test me with:
+        \\    curl http://localhost:3000/
+        \\    curl http://localhost:3000/geta
+        \\    curl http://localhost:3000/getb
+        \\    curl http://localhost:3000/inca
+        \\
+        \\
+    , .{});
     // start worker threads
     zap.start(.{
         .threads = 2,

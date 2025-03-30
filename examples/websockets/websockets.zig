@@ -20,13 +20,11 @@ const ContextManager = struct {
     lock: std.Thread.Mutex = .{},
     contexts: ContextList = undefined,
 
-    const Self = @This();
-
     pub fn init(
         allocator: std.mem.Allocator,
         channelName: []const u8,
         usernamePrefix: []const u8,
-    ) Self {
+    ) ContextManager {
         return .{
             .allocator = allocator,
             .channel = channelName,
@@ -35,14 +33,14 @@ const ContextManager = struct {
         };
     }
 
-    pub fn deinit(self: *Self) void {
+    pub fn deinit(self: *ContextManager) void {
         for (self.contexts.items) |ctx| {
             self.allocator.free(ctx.userName);
         }
         self.contexts.deinit();
     }
 
-    pub fn newContext(self: *Self) !*Context {
+    pub fn newContext(self: *ContextManager) !*Context {
         self.lock.lock();
         defer self.lock.unlock();
 
@@ -163,13 +161,13 @@ fn handle_websocket_message(
 //
 // HTTP stuff
 //
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     r.setHeader("Server", "zap.example") catch unreachable;
-    r.sendBody(
+    try r.sendBody(
         \\ <html><body>
         \\ <h1>This is a simple Websocket chatroom example</h1>
         \\ </body></html>
-    ) catch return;
+    );
 }
 
 fn on_upgrade(r: zap.Request, target_protocol: []const u8) void {

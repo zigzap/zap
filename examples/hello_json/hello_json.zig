@@ -6,7 +6,7 @@ const User = struct {
     last_name: ?[]const u8 = null,
 };
 
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     if (r.methodAsEnum() != .GET) return;
 
     // /user/n
@@ -14,16 +14,16 @@ fn on_request(r: zap.Request) void {
         if (the_path.len < 7 or !std.mem.startsWith(u8, the_path, "/user/"))
             return;
 
-        const user_id: usize = @as(usize, @intCast(the_path[6] - 0x30));
+        const user_id: usize = @intCast(the_path[6] - 0x30);
+        std.debug.print("user_id: {d}\n", .{user_id});
+        std.debug.print("users: {d}\n", .{users.count()});
         const user = users.get(user_id);
+        std.debug.print("user: {?}\n", .{user});
 
-        var buf: [100]u8 = undefined;
+        var buf: [256]u8 = undefined;
         var json_to_send: []const u8 = undefined;
-        if (zap.stringifyBuf(&buf, user, .{})) |json| {
-            json_to_send = json;
-        } else {
-            json_to_send = "null";
-        }
+        json_to_send = try zap.util.stringifyBuf(&buf, user, .{});
+
         std.debug.print("<< json: {s}\n", .{json_to_send});
         r.setContentType(.JSON) catch return;
         r.setContentTypeFromFilename("test.json") catch return;
@@ -43,6 +43,7 @@ fn setupUserData(a: std.mem.Allocator) !void {
 pub fn main() !void {
     const a = std.heap.page_allocator;
     try setupUserData(a);
+    defer users.deinit();
     var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
