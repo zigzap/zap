@@ -68,6 +68,27 @@ const SimpleEndpoint = struct {
     pub fn options(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
+const StopEndpoint = struct {
+    path: []const u8,
+    error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
+
+    pub fn get(_: *StopEndpoint, _: Allocator, context: *MyContext, _: zap.Request) !void {
+        std.debug.print(
+            \\Before I stop, let me dump the app context:
+            \\db_connection='{s}'
+            \\ 
+            \\
+        , .{context.*.db_connection});
+        zap.stop();
+    }
+
+    pub fn post(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn put(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn delete(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn patch(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn options(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+};
+
 pub fn main() !void {
     // setup allocations
     var gpa: std.heap.GeneralPurposeAllocator(.{
@@ -85,11 +106,13 @@ pub fn main() !void {
     var app = try App.init(allocator, &my_context, .{});
     defer app.deinit();
 
-    // create the endpoint
-    var my_endpoint = SimpleEndpoint.init("/", "some endpoint specific data");
-
-    // register the endpoint with the app
+    // create the endpoints
+    var my_endpoint = SimpleEndpoint.init("/test", "some endpoint specific data");
+    var stop_endpoint: StopEndpoint = .{ .path = "/stop" };
+    //
+    // register the endpoints with the app
     try app.register(&my_endpoint);
+    try app.register(&stop_endpoint);
 
     // listen on the network
     try app.listen(.{
@@ -97,6 +120,14 @@ pub fn main() !void {
         .port = 3000,
     });
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+
+    std.debug.print(
+        \\ Try me via:
+        \\ curl http://localhost:3000/test
+        \\ Stop me via:
+        \\ curl http://localhost:3000/stop
+        \\
+    , .{});
 
     // start worker threads -- only 1 process!!!
     zap.start(.{
