@@ -51,7 +51,7 @@ proved to be:
 
 ## Here's what works
 
-**NOTE:** I recommend checking out **the new App-based** or the Endpoint-based
+I recommend checking out **the new App-based** or the Endpoint-based
 examples, as they reflect how I intended Zap to be used.
 
 Most of the examples are super stripped down to only include what's necessary to
@@ -65,7 +65,7 @@ port and docs dir: `zig build docserver && zig-out/bin/docserver --port=8989
 
 - **[app_basic](examples/app/basic.zig)**: Shows how to use zap.App with a
 simple Endpoint.
-- **[app_basic](examples/app/auth.zig)**: Shows how to use zap.App with an
+- **[app_auth](examples/app/auth.zig)**: Shows how to use zap.App with an
 Endpoint using an Authenticator.
 
 See the other examples for specific uses of Zap.

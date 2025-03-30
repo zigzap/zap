@@ -1,4 +1,4 @@
-name: Works with Zig 0.13.0
+name: Works with Zig 0.14.0
 on:
   push:
     branches:
