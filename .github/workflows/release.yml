@@ -39,7 +39,7 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ steps.tag.outputs.version }} # Remove 'refs/tags/' from the tag name
         body_path: relnotes.md
-        prerelease: true
+        prerelease: false
 
     - name: Announce Release
       env:
