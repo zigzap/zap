@@ -209,10 +209,6 @@ test "BearerAuthSingle authenticateRequest OK" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("\n\n*******************************************\n", .{});
-    // std.debug.print("\n\nPlease run the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client_runner\n", .{});
-    // std.debug.print("\n\n*******************************************\n", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
@@ -266,8 +262,6 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
     try listener.register(&auth_ep);
 
     try listener.listen();
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Bearer invalid\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
@@ -279,7 +273,6 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
     });
 
     try std.testing.expectEqualStrings("UNAUTHORIZED", received_response);
-    std.debug.print("\nI made it\n", .{});
 }
 
 test "BearerAuthMulti authenticateRequest OK" {
@@ -316,8 +309,6 @@ test "BearerAuthMulti authenticateRequest OK" {
     try listener.register(&auth_ep);
 
     try listener.listen();
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer " ++ token ++ "\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
@@ -365,8 +356,6 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client_runner http://127.0.0.1:3000/test Bearer invalid\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
@@ -419,8 +408,6 @@ test "BasicAuth Token68 authenticateRequest" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ token ++ "\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = token });
     defer thread.join();
@@ -473,8 +460,6 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic " ++ "invalid\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();
@@ -537,8 +522,6 @@ test "BasicAuth UserPass authenticateRequest" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic {s}\r", .{encoded});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = encoded });
     defer thread.join();
@@ -604,8 +587,6 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     try listener.register(&auth_ep);
 
     listener.listen() catch {};
-    // std.debug.print("Waiting for the following:\n", .{});
-    // std.debug.print("./zig-out/bin/http_client http://127.0.0.1:3000/test Basic invalid\r", .{});
 
     const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();

@@ -1,23 +1,18 @@
-const std = @import("std");
-
-// TODO: rework logging in zap
-
-debugOn: bool,
-
-/// Access to facil.io's logging facilities
-const Log = @This();
-
-pub fn init(comptime debug: bool) Log {
-    return .{
-        .debugOn = debug,
-    };
-}
-
-pub fn log(self: *const Log, comptime fmt: []const u8, args: anytype) void {
-    if (self.debugOn) {
-        std.debug.print("[zap] - " ++ fmt, args);
-    }
-}
+//! Access to facil.io's logging facilities
+//!
+//! Zap uses Zig's standard logging facilities, which you can control like this:
+//!
+//! ```zig
+//! pub const std_options: std.Options = .{
+//!     // general log level
+//!     .log_level = .info,
+//!     .log_scope_levels = &[_]std.log.ScopeLevel{
+//!         // log level specific to zap
+//!         .{ .scope = .zap, .level = .debug },
+//!     },
+//! };
+//! ```
+const Logging = @This();
 
 pub extern const fio_log_level_none: c_int;
 pub extern const fio_log_level_fatal: c_int;
@@ -34,12 +29,9 @@ pub extern fn fio_log_error(msg: [*c]const u8) void;
 pub extern fn fio_log_fatal(msg: [*c]const u8) void;
 pub extern fn fio_log_debug(msg: [*c]const u8) void;
 
-// pub fn getDebugLogger(comptime debug: bool) type {
-//     return struct {
-//         pub fn log(comptime fmt: []const u8, args: anytype) void {
-//             if (debug) {
-//                 std.debug.print("[zap] - " ++ fmt, args);
-//             }
-//         }
-//     };
-// }
+/// Error reporting of last resort
+pub fn on_uncaught_error(comptime domain: []const u8, err: anyerror) void {
+    const std = @import("std");
+    const log = std.log.scoped(.zap);
+    log.err(domain ++ " : {}", .{err});
+}

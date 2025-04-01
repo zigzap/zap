@@ -1,6 +1,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
@@ -64,7 +72,6 @@ test "http parameters" {
             .max_body_size = 1 * 1024,
         },
     );
-    zap.enableDebugLog();
     try listener.listen();
 
     const thread = try makeRequestThread(allocator, "http://127.0.0.1:3001/?one=1&two=2&string=hello+world&float=6.28&bool=true");

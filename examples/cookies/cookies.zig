@@ -7,6 +7,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 // We send ourselves a request with a cookie
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     const uri = try std.Uri.parse(url);
@@ -113,7 +121,6 @@ pub fn main() !void {
             .max_body_size = 1 * 1024,
         },
     );
-    zap.enableDebugLog();
     try listener.listen();
     std.log.info("\n\nTerminate with CTRL+C", .{});
 

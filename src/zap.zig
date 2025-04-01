@@ -37,12 +37,11 @@ pub const Middleware = @import("middleware.zig");
 /// Websocket API
 pub const WebSockets = @import("websockets.zig");
 
-pub const Log = @import("log.zig");
+pub const Logging = @import("Logging.zig");
+pub const log = std.log.scoped(.zap);
+
 pub const http = @import("http.zig");
 pub const util = @import("util.zig");
-
-// TODO: replace with comptime debug logger like in log.zig
-var _debug: bool = false;
 
 /// Start the IO reactor
 ///
@@ -60,23 +59,9 @@ pub fn stop() void {
     fio.fio_stop();
 }
 
-/// Extremely simplistic zap debug function.
-/// TODO: re-wwrite logging or use std.log
+/// Extremely simplistic zap debug function, to save a few keystrokes
 pub fn debug(comptime fmt: []const u8, args: anytype) void {
-    if (_debug) {
-        std.debug.print("[zap] - " ++ fmt, args);
-    }
-}
-
-/// Enable zap debug logging
-pub fn enableDebugLog() void {
-    _debug = true;
-}
-
-/// start Zap with debug logging on
-pub fn startWithLogging(args: fio.fio_start_args) void {
-    _debug = true;
-    fio.fio_start(args);
+    log.debug("[zap] - " ++ fmt, args);
 }
 
 /// Registers a new mimetype to be used for files ending with the given extension.
@@ -138,14 +123,14 @@ pub const HttpRequestFn = *const fn (Request) anyerror!void;
 
 /// websocket connection upgrade callback type
 /// fn(request, targetstring)
-pub const HttpUpgradeFn = *const fn (r: Request, target_protocol: []const u8) void;
+pub const HttpUpgradeFn = *const fn (r: Request, target_protocol: []const u8) anyerror!void;
 
 /// http finish, called when zap finishes. You get your udata back in the
 /// HttpFinishSetting struct.
 pub const HttpFinishSettings = [*c]fio.struct_http_settings_s;
 
 /// Http finish callback type
-pub const HttpFinishFn = *const fn (HttpFinishSettings) void;
+pub const HttpFinishFn = *const fn (HttpFinishSettings) anyerror!void;
 
 /// Listener settings
 pub const HttpListenerSettings = struct {
@@ -204,8 +189,7 @@ pub const HttpListener = struct {
             std.debug.assert(l.settings.on_request != null);
             if (l.settings.on_request) |on_request| {
                 on_request(req) catch |err| {
-                    // TODO: log / handle the error in a better way
-                    std.debug.print("zap on_request error: {}", .{err});
+                    Logging.on_uncaught_error("HttpListener on_request", err);
                 };
             }
         }
@@ -229,8 +213,7 @@ pub const HttpListener = struct {
             req._user_context = &user_context;
 
             l.settings.on_response.?(req) catch |err| {
-                // TODO: log / handle the error in a better way
-                std.debug.print("zap on_response error: {}", .{err});
+                Logging.on_uncaught_error("HttpListener on_response", err);
             };
         }
     }
@@ -253,14 +236,18 @@ pub const HttpListener = struct {
             var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
-            l.settings.on_upgrade.?(req, zigtarget);
+            l.settings.on_upgrade.?(req, zigtarget) catch |err| {
+                Logging.on_uncaught_error("HttpListener on_upgrade", err);
+            };
         }
     }
 
     /// Used internally: the listener's facilio finish callback
     pub fn theOneAndOnlyFinishCallBack(s: [*c]fio.struct_http_settings_s) callconv(.C) void {
         if (the_one_and_only_listener) |l| {
-            l.settings.on_finish.?(s);
+            l.settings.on_finish.?(s) catch |err| {
+                Logging.on_uncaught_error("HttpListener on_finish", err);
+            };
         }
     }
 
@@ -390,7 +377,6 @@ pub const LowLevel = struct {
             *anyopaque,
             @ptrFromInt(@intFromPtr(body.ptr)),
         ), body.len);
-        debug("sendBody(): ret = {}\n", .{ret});
         if (ret != -1) return error.HttpSendBody;
     }
 };

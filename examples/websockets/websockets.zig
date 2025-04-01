@@ -81,20 +81,17 @@ const ContextManager = struct {
 //
 // Websocket Callbacks
 //
-fn on_open_websocket(context: ?*Context, handle: WebSockets.WsHandle) void {
+fn on_open_websocket(context: ?*Context, handle: WebSockets.WsHandle) !void {
     if (context) |ctx| {
-        _ = WebsocketHandler.subscribe(handle, &ctx.subscribeArgs) catch |err| {
-            std.log.err("Error opening websocket: {any}", .{err});
-            return;
-        };
+        _ = try WebsocketHandler.subscribe(handle, &ctx.subscribeArgs);
 
         // say hello
         var buf: [128]u8 = undefined;
-        const message = std.fmt.bufPrint(
+        const message = try std.fmt.bufPrint(
             &buf,
             "{s} joined the chat.",
             .{ctx.userName},
-        ) catch unreachable;
+        );
 
         // send notification to all others
         WebsocketHandler.publish(.{ .channel = ctx.channel, .message = message });
@@ -102,16 +99,16 @@ fn on_open_websocket(context: ?*Context, handle: WebSockets.WsHandle) void {
     }
 }
 
-fn on_close_websocket(context: ?*Context, uuid: isize) void {
+fn on_close_websocket(context: ?*Context, uuid: isize) !void {
     _ = uuid;
     if (context) |ctx| {
         // say goodbye
         var buf: [128]u8 = undefined;
-        const message = std.fmt.bufPrint(
+        const message = try std.fmt.bufPrint(
             &buf,
             "{s} left the chat.",
             .{ctx.userName},
-        ) catch unreachable;
+        );
 
         // send notification to all others
         WebsocketHandler.publish(.{ .channel = ctx.channel, .message = message });
@@ -124,7 +121,7 @@ fn handle_websocket_message(
     handle: WebSockets.WsHandle,
     message: []const u8,
     is_text: bool,
-) void {
+) !void {
     _ = handle;
     _ = is_text;
 
@@ -145,11 +142,11 @@ fn handle_websocket_message(
             if (message.len > max_msg_len) {
                 trimmed_message = message[0..max_msg_len];
             }
-            const chat_message = std.fmt.bufPrint(
+            const chat_message = try std.fmt.bufPrint(
                 &buf,
                 format_string,
                 .{ ctx.userName, trimmed_message },
-            ) catch unreachable;
+            );
 
             // send notification to all others
             WebsocketHandler.publish(
@@ -169,7 +166,7 @@ fn handle_websocket_message(
 // HTTP stuff
 //
 fn on_request(r: zap.Request) !void {
-    r.setHeader("Server", "zap.example") catch unreachable;
+    try r.setHeader("Server", "zap.example");
     try r.sendBody(
         \\ <html><body>
         \\ <h1>This is a simple Websocket chatroom example</h1>
@@ -177,7 +174,7 @@ fn on_request(r: zap.Request) !void {
     );
 }
 
-fn on_upgrade(r: zap.Request, target_protocol: []const u8) void {
+fn on_upgrade(r: zap.Request, target_protocol: []const u8) !void {
     // make sure we're talking the right protocol
     if (!std.mem.eql(u8, target_protocol, "websocket")) {
         std.log.warn("received illegal protocol: {s}", .{target_protocol});
@@ -190,10 +187,7 @@ fn on_upgrade(r: zap.Request, target_protocol: []const u8) void {
         return;
     };
 
-    WebsocketHandler.upgrade(r.h, &context.settings) catch |err| {
-        std.log.err("Error in websocketUpgrade(): {any}", .{err});
-        return;
-    };
+    try WebsocketHandler.upgrade(r.h, &context.settings);
     std.log.info("connection upgrade OK", .{});
 }
 

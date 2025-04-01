@@ -7,6 +7,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 const Handler = struct {
     var alloc: std.mem.Allocator = undefined;
 
@@ -100,7 +108,7 @@ pub fn main() !void {
             .public_folder = ".",
         },
     );
-    zap.enableDebugLog();
+
     try listener.listen();
     std.log.info("\n\nURL is http://localhost:3000\n", .{});
     std.log.info("\ncurl -v --request POST -F img=@test012345.bin http://127.0.0.1:3000\n", .{});

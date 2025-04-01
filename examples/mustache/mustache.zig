@@ -8,6 +8,14 @@ const std = @import("std");
 const zap = @import("zap");
 const Mustache = @import("zap").Mustache;
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 fn on_request(r: zap.Request) !void {
     const template =
         \\ {{=<< >>=}}
@@ -63,12 +71,9 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    // zap.enableDebugLog();
-    // zap.debug("ZAP debug logging is on\n", .{});
-
     // we can also use facilio logging
-    // zap.Log.fio_set_log_level(zap.Log.fio_log_level_debug);
-    // zap.Log.fio_log_debug("hello from fio\n");
+    // zap.Logging.fio_set_log_level(zap.Log.fio_log_level_debug);
+    // zap.Logging.fio_log_debug("hello from fio\n");
 
     std.debug.print("Listening on 0.0.0.0:3000\n", .{});
 

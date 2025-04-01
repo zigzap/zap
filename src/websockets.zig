@@ -21,15 +21,15 @@ pub fn Handler(comptime ContextType: type) type {
             message: []const u8,
             /// indicator if message is text or binary
             is_text: bool,
-        ) void;
+        ) anyerror!void;
 
         /// Callback (type) when websocket is closed. uuid is a connection identifier,
         /// it is -1 if a connection could not be established
-        pub const WsOnCloseFn = *const fn (context: ?*ContextType, uuid: isize) void;
+        pub const WsOnCloseFn = *const fn (context: ?*ContextType, uuid: isize) anyerror!void;
 
         /// A websocket callback function type. provides the context passed in at
         /// websocketHttpUpgrade().
-        pub const WsFn = *const fn (context: ?*ContextType, handle: WsHandle) void;
+        pub const WsFn = *const fn (context: ?*ContextType, handle: WsHandle) anyerror!void;
 
         /// Websocket connection handler creation settings. Provide the callbacks you need,
         /// and an optional context.
@@ -68,7 +68,9 @@ pub fn Handler(comptime ContextType: type) type {
             const message = msg.data[0..msg.len];
             if (user_provided_settings) |settings| {
                 if (settings.on_message) |on_message| {
-                    on_message(settings.context, handle, message, is_text == 1);
+                    on_message(settings.context, handle, message, is_text == 1) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Handler on_message", err);
+                    };
                 }
             }
         }
@@ -77,7 +79,9 @@ pub fn Handler(comptime ContextType: type) type {
             const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_open) |on_open| {
-                    on_open(settings.context, handle);
+                    on_open(settings.context, handle) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Handler on_open", err);
+                    };
                 }
             }
         }
@@ -86,7 +90,9 @@ pub fn Handler(comptime ContextType: type) type {
             const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_ready) |on_ready| {
-                    on_ready(settings.context, handle);
+                    on_ready(settings.context, handle) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Handler on_ready", err);
+                    };
                 }
             }
         }
@@ -95,7 +101,9 @@ pub fn Handler(comptime ContextType: type) type {
             const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(fio.websocket_udata_get(handle))));
             if (user_provided_settings) |settings| {
                 if (settings.on_shutdown) |on_shutdown| {
-                    on_shutdown(settings.context, handle);
+                    on_shutdown(settings.context, handle) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Handler on_shutdown", err);
+                    };
                 }
             }
         }
@@ -104,7 +112,9 @@ pub fn Handler(comptime ContextType: type) type {
             const user_provided_settings: ?*WebSocketSettings = @as(?*WebSocketSettings, @ptrCast(@alignCast(udata)));
             if (user_provided_settings) |settings| {
                 if (settings.on_close) |on_close| {
-                    on_close(settings.context, uuid);
+                    on_close(settings.context, uuid) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Handler on_close", err);
+                    };
                 }
             }
         }
@@ -155,10 +165,10 @@ pub fn Handler(comptime ContextType: type) type {
         }
 
         /// Type for callback on subscription message.
-        pub const SubscriptionOnMessageFn = *const fn (context: ?*ContextType, handle: WsHandle, channel: []const u8, message: []const u8) void;
+        pub const SubscriptionOnMessageFn = *const fn (context: ?*ContextType, handle: WsHandle, channel: []const u8, message: []const u8) anyerror!void;
 
         /// Type for callback on unsubscribe message.
-        pub const SubscriptionOnUnsubscribeFn = *const fn (context: ?*ContextType) void;
+        pub const SubscriptionOnUnsubscribeFn = *const fn (context: ?*ContextType) anyerror!void;
 
         /// Settings for subscribing to a channel.
         pub const SubscribeArgs = struct {
@@ -213,7 +223,9 @@ pub fn Handler(comptime ContextType: type) type {
             if (udata) |p| {
                 const args = @as(*SubscribeArgs, @ptrCast(@alignCast(p)));
                 if (args.on_message) |on_message| {
-                    on_message(args.context, handle, channel.data[0..channel.len], message.data[0..message.len]);
+                    on_message(args.context, handle, channel.data[0..channel.len], message.data[0..message.len]) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Subscription on_message", err);
+                    };
                 }
             }
         }
@@ -221,7 +233,9 @@ pub fn Handler(comptime ContextType: type) type {
             if (udata) |p| {
                 const args = @as(*SubscribeArgs, @ptrCast(@alignCast(p)));
                 if (args.on_unsubscribe) |on_unsubscribe| {
-                    on_unsubscribe(args.context);
+                    on_unsubscribe(args.context) catch |err| {
+                        zap.Logging.on_uncaught_error("WebSocket Subscription on_unsubscribe", err);
+                    };
                 }
             }
         }

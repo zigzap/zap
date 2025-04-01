@@ -194,18 +194,13 @@ fn fiobjectify(
         .@"struct" => |S| {
             // create a new fio hashmap
             const m = fio.fiobj_hash_new();
-            // std.debug.print("new struct\n", .{});
             inline for (S.fields) |Field| {
                 // don't include void fields
                 if (Field.type == void) continue;
 
-                // std.debug.print("    new field: {s}\n", .{Field.name});
                 const fname = fio.fiobj_str_new(util.toCharPtr(Field.name), Field.name.len);
-                // std.debug.print("    fiobj name : {any}\n", .{fname});
                 const v = @field(value, Field.name);
-                // std.debug.print("    value: {any}\n", .{v});
                 const fvalue = fiobjectify(v);
-                // std.debug.print("    fiobj value: {any}\n", .{fvalue});
                 _ = fio.fiobj_hash_set(m, fname, fvalue);
                 fio.fiobj_free_wrapped(fname);
             }
@@ -225,7 +220,6 @@ fn fiobjectify(
             },
             // TODO: .Many when there is a sentinel (waiting for https://github.com/ziglang/zig/pull/3972)
             .slice => {
-                // std.debug.print("new slice\n", .{});
                 if (ptr_info.child == u8 and std.unicode.utf8ValidateSlice(value)) {
                     return fio.fiobj_str_new(util.toCharPtr(value), value.len);
                 }

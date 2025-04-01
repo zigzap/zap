@@ -1,6 +1,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 var buffer: [1024]u8 = undefined;
 var read_len: ?usize = null;
 
@@ -41,7 +49,6 @@ test "send file" {
             .max_body_size = 1 * 1024,
         },
     );
-    zap.enableDebugLog();
     try listener.listen();
 
     const thread = try makeRequestThread(allocator, "http://127.0.0.1:3002/?file=src/tests/testfile.txt");

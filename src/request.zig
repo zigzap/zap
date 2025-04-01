@@ -1,7 +1,6 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
-const Log = @import("log.zig");
 const http = @import("http.zig");
 const fio = @import("fio.zig");
 
@@ -138,24 +137,24 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
             fio.FIOBJ_T_DATA => {
                 if (fio.is_invalid(data) == 1) {
                     data_slice = "(zap: invalid data)";
-                    std.log.warn("WARNING: HTTP param binary file is not a data object\n", .{});
+                    zap.log.warn("HTTP param binary file is not a data object\n", .{});
                 } else {
                     // the data
                     const data_len = fio.fiobj_data_len(data);
                     var data_buf = fio.fiobj_data_read(data, data_len);
 
                     if (data_len < 0) {
-                        std.log.warn("WARNING: HTTP param binary file size negative: {d}\n", .{data_len});
-                        std.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
+                        zap.log.warn("HTTP param binary file size negative: {d}\n", .{data_len});
+                        zap.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
                     } else {
                         if (data_buf.len != data_len) {
-                            std.log.warn("WARNING: HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
+                            zap.log.warn("HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
                         }
 
                         if (data_buf.len > 0) {
                             data_slice = data_buf.data[0..data_buf.len];
                         } else {
-                            std.log.warn("WARNING: HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
+                            zap.log.warn("HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
                             data_slice = "(zap: invalid data: negative BUFFER size)";
                         }
                     }
@@ -165,7 +164,7 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
                 const fiostr = fio.fiobj_obj2cstr(data);
                 if (fiostr.len == 0) {
                     data_slice = "(zap: empty string data)";
-                    std.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
+                    zap.log.warn("WARNING: HTTP param binary file has empty string object\n", .{});
                 } else {
                     data_slice = fiostr.data[0..fiostr.len];
                 }
@@ -185,15 +184,15 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
                         const file_mimetype_obj = fio.fiobj_ary_entry(mt_ary, i);
                         var has_error: bool = false;
                         if (fio.is_invalid(file_data_obj) == 1) {
-                            std.log.debug("file data invalid in array", .{});
+                            zap.log.debug("file data invalid in array", .{});
                             has_error = true;
                         }
                         if (fio.is_invalid(file_name_obj) == 1) {
-                            std.log.debug("file name invalid in array", .{});
+                            zap.log.debug("file name invalid in array", .{});
                             has_error = true;
                         }
                         if (fio.is_invalid(file_mimetype_obj) == 1) {
-                            std.log.debug("file mimetype invalid in array", .{});
+                            zap.log.debug("file mimetype invalid in array", .{});
                             has_error = true;
                         }
                         if (has_error) {
@@ -358,7 +357,6 @@ pub fn sendBody(self: *const Request, body: []const u8) HttpError!void {
         *anyopaque,
         @ptrFromInt(@intFromPtr(body.ptr)),
     ), body.len);
-    zap.debug("Request.sendBody(): ret = {}\n", .{ret});
     if (ret == -1) return error.HttpSendBody;
     self.markAsFinished(true);
 }
@@ -381,7 +379,7 @@ pub fn setContentType(self: *const Request, c: ContentType) HttpError!void {
         .JSON => "application/json",
         else => "text/html",
     };
-    zap.debug("setting content-type to {s}\n", .{s});
+    zap.log.debug("setting content-type to {s}\n", .{s});
     return self.setHeader("content-type", s);
 }
 
@@ -391,21 +389,6 @@ pub fn redirectTo(self: *const Request, path: []const u8, code: ?http.StatusCode
     try self.setHeader("Location", path);
     try self.sendBody("moved");
     self.markAsFinished(true);
-}
-
-/// shows how to use the logger
-pub fn setContentTypeWithLogger(
-    self: *const Request,
-    c: ContentType,
-    logger: *const Log,
-) HttpError!void {
-    const s = switch (c) {
-        .TEXT => "text/plain",
-        .JSON => "application/json",
-        else => "text/html",
-    };
-    logger.log("setting content-type to {s}\n", .{s});
-    return self.setHeader("content-type", s);
 }
 
 /// Tries to determine the content type by file extension of request path, and sets it.
@@ -518,21 +501,18 @@ pub fn setHeader(self: *const Request, name: []const u8, value: []const u8) Http
         .capa = name.len,
     };
 
-    zap.debug("setHeader: hname = {s}\n", .{name});
     const vname: fio.fio_str_info_s = .{
         .data = util.toCharPtr(value),
         .len = value.len,
         .capa = value.len,
     };
-    zap.debug("setHeader: vname = {s}\n", .{value});
     const ret = fio.http_set_header2(self.h, hname, vname);
 
     // FIXME without the following if, we get errors in release builds
     // at least we don't have to log unconditionally
     if (ret == -1) {
-        std.debug.print("***************** zap.zig:274\n", .{});
+        zap.log.debug("***************** zap.zig:274\n", .{});
     }
-    zap.debug("setHeader: ret = {}\n", .{ret});
 
     if (ret == 0) return;
     return error.HttpSetHeader;
@@ -700,7 +680,7 @@ pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
     // TODO: still happening?
     const ret = fio.http_set_cookie(self.h, c);
     if (ret == -1) {
-        std.log.err("fio.http_set_cookie returned: {}\n", .{ret});
+        zap.log.err("fio.http_set_cookie returned: {}\n", .{ret});
         return error.SetCookie;
     }
 }

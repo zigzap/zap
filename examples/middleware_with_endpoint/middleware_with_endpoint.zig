@@ -7,6 +7,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 // just a way to share our allocator via callback
 const SharedAllocator = struct {
     // static
@@ -224,7 +232,7 @@ pub fn main() !void {
         userHandler.getHandler(),
         SharedAllocator.getAllocator,
     );
-    zap.enableDebugLog();
+
     listener.listen() catch |err| {
         std.debug.print("\nLISTEN ERROR: {any}\n", .{err});
         return;

@@ -10,17 +10,18 @@
 //! ```zig
 //! /// The http request path / slug of the endpoint
 //! path: []const u8,
+//! error_strategy: zap.Endpoint.ErrorStrategy,
 //!
 //! /// Handlers by request method:
-//! pub fn get(_: *Self, _: zap.Request) void {}
-//! pub fn post(_: *Self, _: zap.Request) void {}
-//! pub fn put(_: *Self, _: zap.Request) void {}
-//! pub fn delete(_: *Self, _: zap.Request) void {}
-//! pub fn patch(_: *Self, _: zap.Request) void {}
-//! pub fn options(_: *Self, _: zap.Request) void {}
+//! pub fn get(_: *Self, _: zap.Request) !void {}
+//! pub fn post(_: *Self, _: zap.Request) !void {}
+//! pub fn put(_: *Self, _: zap.Request) !void {}
+//! pub fn delete(_: *Self, _: zap.Request) !void {}
+//! pub fn patch(_: *Self, _: zap.Request) !void {}
+//! pub fn options(_: *Self, _: zap.Request) !void {}
 //!
 //! // optional, if auth stuff is used:
-//! pub fn unauthorized(_: *Self, _: zap.Request) void {}
+//! pub fn unauthorized(_: *Self, _: zap.Request) !void {}
 //! ```
 //!
 //! Example:
@@ -30,22 +31,24 @@
 //!
 //! ```zig
 //! const StopEndpoint = struct {
+//!     path: []const u8,
+//!     error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 //!
-//!     pub fn init( path: []const u8,) StopEndpoint {
+//!     pub fn init(path: []const u8) StopEndpoint {
 //!         return .{
 //!             .path = path,
 //!         };
 //!     }
 //!
-//!     pub fn post(_: *StopEndpoint, _: zap.Request) void {}
-//!     pub fn put(_: *StopEndpoint, _: zap.Request) void {}
-//!     pub fn delete(_: *StopEndpoint, _: zap.Request) void {}
-//!     pub fn patch(_: *StopEndpoint, _: zap.Request) void {}
-//!     pub fn options(_: *StopEndpoint, _: zap.Request) void {}
-//!
-//!     pub fn get(_: *StopEndpoint, _: zap.Request) void {
+//!     pub fn get(_: *StopEndpoint, _: zap.Request) !void {
 //!         zap.stop();
 //!     }
+//!
+//!     pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn options(_: *StopEndpoint, _: zap.Request) !void {}
 //! };
 //! ```
 
@@ -57,9 +60,11 @@ const auth = @import("http_auth.zig");
 pub const ErrorStrategy = enum {
     /// log errors to console
     log_to_console,
-    /// log errors to console AND generate a HTML response
+    /// send an HTML response containing an error trace
     log_to_response,
-    /// raise errors -> TODO: clarify: where can they be caught? in App.run()
+    /// raise errors.
+    /// raised errors, if kept unhandled,  will ultimately be logged by
+    /// zap.Logging.on_uncaught_error()
     raise,
 };
 
@@ -195,7 +200,7 @@ pub const Binder = struct {
                     switch (self.endpoint.*.error_strategy) {
                         .raise => return err,
                         .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                        .log_to_console => zap.debug("Error in {} {s} : {}", .{ Bound, r.method orelse "(no method)", err }),
+                        .log_to_console => zap.log.err("Error in {} {s} : {}", .{ Bound, r.method orelse "(no method)", err }),
                     }
                 }
             }
@@ -384,13 +389,20 @@ pub const Listener = struct {
         if (r.path) |p| {
             for (endpoints.items) |interface| {
                 if (std.mem.startsWith(u8, p, interface.path)) {
-                    return try interface.call(interface, r);
+                    return interface.call(interface, r) catch |err| {
+                        zap.log.err(
+                            "Endpoint onRequest error {} in endpoint interface {}\n",
+                            .{ err, interface },
+                        );
+                    };
                 }
             }
         }
         // if set, call the user-provided default callback
         if (on_request) |foo| {
-            try foo(r);
+            foo(r) catch |err| {
+                zap.Logging.on_uncaught_error("Endpoint on_request", err);
+            };
         }
     }
 };

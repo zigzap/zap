@@ -1,3 +1,16 @@
+//! zap.App takes the zap.Endpoint concept one step further: instead of having
+//! only per-endpoint instance data (fields of your Endpoint struct), endpoints
+//! in a zap.App easily share a global 'App Context'.
+//!
+//! In addition to the global App Context, all Endpoint request handlers also
+//! receive an arena allocator for easy, care-free allocations. There is one
+//! arena allocator per thread, and arenas are reset after each request.
+//!
+//! Just like regular / legacy zap.Endpoints, returning errors from request
+//! handlers is OK. It's decided on a per-endpoint basis how errors are dealt
+//! with, via the ErrorStrategy enum field.
+//!
+//! See `App.Create()`.
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const ArenaAllocator = std.heap.ArenaAllocator;
@@ -16,7 +29,10 @@ pub const AppOpts = struct {
 };
 
 /// creates an App with custom app context
-pub fn Create(comptime Context: type) type {
+pub fn Create(
+    /// Your user-defined "Global App Context" type
+    comptime Context: type,
+) type {
     return struct {
         const App = @This();
 
@@ -336,7 +352,6 @@ pub fn Create(comptime Context: type) type {
 
             var it = _static.track_arenas.valueIterator();
             while (it.next()) |arena| {
-                // std.debug.print("deiniting arena: {*}\n", .{arena});
                 arena.deinit();
             }
             _static.track_arenas.deinit(_static.gpa);

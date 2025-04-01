@@ -7,6 +7,14 @@
 const std = @import("std");
 const zap = @import("zap");
 
+// set default log level to .info and ZAP log level to .debug
+pub const std_options: std.Options = .{
+    .log_level = .info,
+    .log_scope_levels = &[_]std.log.ScopeLevel{
+        .{ .scope = .zap, .level = .debug },
+    },
+};
+
 const Lookup = std.StringHashMap([]const u8);
 const auth_lock_pw_table = false;
 
@@ -139,8 +147,6 @@ pub fn main() !void {
             .max_clients = 100000,
         });
         try listener.listen();
-
-        zap.enableDebugLog();
 
         // Usernames -> Passwords for the /login page
         // ------------------------------------------
