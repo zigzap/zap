@@ -18,8 +18,11 @@ pub fn get(_: *StopEndpoint, _: zap.Request) !void {
     zap.stop();
 }
 
+// not implemented:
+pub fn custom_method(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn head(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn options(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
 pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
 pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
-pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
-pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
-pub fn options(_: *StopEndpoint, _: zap.Request) !void {}

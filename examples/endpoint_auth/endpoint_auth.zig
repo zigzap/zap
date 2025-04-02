@@ -33,11 +33,13 @@ const Endpoint = struct {
     }
 
     // not implemented, don't care
+    pub fn custom_method(_: *Endpoint, _: zap.Request) !void {}
+    pub fn delete(_: *Endpoint, _: zap.Request) !void {}
+    pub fn head(_: *Endpoint, _: zap.Request) !void {}
+    pub fn options(_: *Endpoint, _: zap.Request) !void {}
     pub fn post(_: *Endpoint, _: zap.Request) !void {}
     pub fn put(_: *Endpoint, _: zap.Request) !void {}
-    pub fn delete(_: *Endpoint, _: zap.Request) !void {}
     pub fn patch(_: *Endpoint, _: zap.Request) !void {}
-    pub fn options(_: *Endpoint, _: zap.Request) !void {}
 };
 
 pub fn main() !void {

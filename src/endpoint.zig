@@ -14,11 +14,13 @@
 //!
 //! /// Handlers by request method:
 //! pub fn get(_: *Self, _: zap.Request) !void {}
+//! pub fn head(_: *Self, _: zap.Request) !void {}
 //! pub fn post(_: *Self, _: zap.Request) !void {}
 //! pub fn put(_: *Self, _: zap.Request) !void {}
 //! pub fn delete(_: *Self, _: zap.Request) !void {}
 //! pub fn patch(_: *Self, _: zap.Request) !void {}
 //! pub fn options(_: *Self, _: zap.Request) !void {}
+//! pub fn custom_method(_: *Self, _: zap.Request) !void {}
 //!
 //! // optional, if auth stuff is used:
 //! pub fn unauthorized(_: *Self, _: zap.Request) !void {}
@@ -44,11 +46,13 @@
 //!         zap.stop();
 //!     }
 //!
+//!     pub fn head(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn options(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn custom_method(_: *StopEndpoint, _: zap.Request) !void {}
 //! };
 //! ```
 
@@ -73,7 +77,20 @@ const Request = zap.Request;
 const ListenerSettings = zap.HttpListenerSettings;
 const HttpListener = zap.HttpListener;
 
-pub fn checkEndpointType(T: type) void {
+const ImplementedMethods = struct {
+    get: bool = false,
+    head: bool = false,
+    post: bool = false,
+    put: bool = false,
+    delete: bool = false,
+    patch: bool = false,
+    options: bool = false,
+    custom_method: bool = false,
+};
+
+pub fn checkEndpointType(T: type) ImplementedMethods {
+    var implemented_methods: ImplementedMethods = .{};
+
     if (@hasField(T, "path")) {
         if (@FieldType(T, "path") != []const u8) {
             @compileError(@typeName(@FieldType(T, "path")) ++ " has wrong type, expected: []const u8");
@@ -90,13 +107,16 @@ pub fn checkEndpointType(T: type) void {
         @compileError(@typeName(T) ++ " has no error_strategy field");
     }
 
+    // TODO: use field names of ImplementedMethods
     const methods_to_check = [_][]const u8{
         "get",
+        "head",
         "post",
         "put",
         "delete",
         "patch",
         "options",
+        "custom_method",
     };
 
     const params_to_check = [_]type{
@@ -150,10 +170,16 @@ pub fn checkEndpointType(T: type) void {
             if (ret_info.error_union.payload != void) {
                 @compileError("Expected return type of method `" ++ @typeName(T) ++ "." ++ method ++ "` to be !void, got: !" ++ @typeName(ret_info.error_union.payload));
             }
+            @field(implemented_methods, method) = true;
         } else {
             @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
+            // TODO: shall we warn?
+            // No, we should provide a default implementation that calls
+            // "unhandled request" callback, and if that's not defined, log the
+            // request as being unhandled.
         }
     }
+    return implemented_methods;
 }
 
 pub const Binder = struct {
@@ -161,6 +187,7 @@ pub const Binder = struct {
         call: *const fn (*Interface, zap.Request) anyerror!void = undefined,
         path: []const u8,
         destroy: *const fn (*Interface, std.mem.Allocator) void = undefined,
+        implemented_methods: ImplementedMethods = undefined,
     };
     pub fn Bind(ArbitraryEndpoint: type) type {
         return struct {
@@ -187,12 +214,13 @@ pub const Binder = struct {
             pub fn onRequest(self: *Bound, r: zap.Request) !void {
                 const ret = switch (r.methodAsEnum()) {
                     .GET => self.endpoint.*.get(r),
+                    .HEAD => self.endpoint.*.head(r),
                     .POST => self.endpoint.*.post(r),
                     .PUT => self.endpoint.*.put(r),
                     .DELETE => self.endpoint.*.delete(r),
                     .PATCH => self.endpoint.*.patch(r),
                     .OPTIONS => self.endpoint.*.options(r),
-                    else => error.UnsupportedHtmlRequestMethod,
+                    .UNKNOWN => self.endpoint.*.custom_method(r),
                 };
                 if (ret) {
                     // handled without error
@@ -208,7 +236,7 @@ pub const Binder = struct {
     }
 
     pub fn init(ArbitraryEndpoint: type, value: *ArbitraryEndpoint) Binder.Bind(ArbitraryEndpoint) {
-        checkEndpointType(ArbitraryEndpoint);
+        const implemented_methods = checkEndpointType(ArbitraryEndpoint);
         const BoundEp = Binder.Bind(ArbitraryEndpoint);
         return .{
             .endpoint = value,
@@ -216,6 +244,7 @@ pub const Binder = struct {
                 .path = value.path,
                 .call = BoundEp.onRequestInterface,
                 .destroy = BoundEp.destroy,
+                .implemented_methods = implemented_methods,
             },
         };
     }
@@ -242,11 +271,29 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
             };
         }
 
+        /// Authenticates all other requests using the Authenticator.
+        pub fn custom_method(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.custom_method(r),
+                .Handled => {},
+            };
+        }
+
         /// Authenticates GET requests using the Authenticator.
         pub fn get(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.get(r),
+                .Handled => {},
+            };
+        }
+
+        /// Authenticates HEAD requests using the Authenticator.
+        pub fn head(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.head(r),
                 .Handled => {},
             };
         }
@@ -320,6 +367,7 @@ pub const Listener = struct {
         /// User-defined request callback that only gets called if no endpoints
         /// match a request.
         on_request: ?zap.HttpRequestFn,
+
         on_response: ?zap.HttpRequestFn = null,
         on_upgrade: ?zap.HttpUpgradeFn = null,
         on_finish: ?zap.HttpFinishFn = null,
@@ -346,7 +394,7 @@ pub const Listener = struct {
     /// Internal, static request handler callback. Will be set to the optional,
     /// user-defined request callback that only gets called if no endpoints match
     /// a request.
-    var on_request: ?zap.HttpRequestFn = null;
+    var on_unhandled_request: ?zap.HttpRequestFn = null;
 
     /// Callback, called if an error is raised and not caught by the ErrorStrategy
     var on_error: ?*const fn (Request, anyerror) void = null;
@@ -385,7 +433,7 @@ pub const Listener = struct {
         ls.on_request = Listener.onRequest;
 
         // store the settings-provided request callbacks for later use
-        on_request = settings.on_request;
+        on_unhandled_request = settings.on_request;
         on_error = settings.on_error;
 
         return .{
@@ -429,7 +477,6 @@ pub const Listener = struct {
             }
         }
         const EndpointType = @typeInfo(@TypeOf(e)).pointer.child;
-        checkEndpointType(EndpointType);
         const bound = try self.allocator.create(Binder.Bind(EndpointType));
         bound.* = Binder.init(EndpointType, e);
         try endpoints.append(self.allocator, &bound.interface);
@@ -440,6 +487,25 @@ pub const Listener = struct {
             for (endpoints.items) |interface| {
                 if (std.mem.startsWith(u8, p, interface.path)) {
                     return interface.call(interface, r) catch |err| {
+                        if (err == error.NotImplemented) {
+                            // we can try the on_unhandled_request
+                            if (on_unhandled_request) |callback| {
+                                // perform the callback and catch the error
+                                callback(r) catch |cb_err| {
+                                    // if an error happened in the callback
+                                    // AND we have an on_error callback:
+                                    if (on_error) |error_cb| {
+                                        error_cb(r, cb_err);
+                                    } else {
+                                        zap.log.err(
+                                            "Endpoint onRequest error {} in endpoint interface {}\n",
+                                            .{ err, interface },
+                                        );
+                                    }
+                                };
+                            }
+                            return;
+                        }
                         // if error is not dealt with in the entpoint, e.g.
                         // if error strategy is .raise:
                         if (on_error) |error_cb| {
@@ -455,7 +521,7 @@ pub const Listener = struct {
             }
         }
         // if set, call the user-provided default callback
-        if (on_request) |foo| {
+        if (on_unhandled_request) |foo| {
             foo(r) catch |err| {
                 // if error is not dealt with in the entpoint, e.g.
                 // if error strategy is .raise:

@@ -131,3 +131,7 @@ pub fn options(_: *UserWeb, r: zap.Request) !void {
     r.setStatus(zap.http.StatusCode.no_content);
     r.markAsFinished(true);
 }
+
+// not implemented:
+pub fn custom_method(_: *UserWeb, _: zap.Request) !void {}
+pub fn head(_: *UserWeb, _: zap.Request) !void {}

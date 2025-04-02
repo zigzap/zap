@@ -14,9 +14,11 @@ pub fn get(_: *ErrorEndpoint, _: zap.Request) !void {
     return error.@"Oh-no!";
 }
 
-// unused:
+// not implemented, don't care
+pub fn custom_method(_: *ErrorEndpoint, _: zap.Request) !void {}
+pub fn delete(_: *ErrorEndpoint, _: zap.Request) !void {}
+pub fn head(_: *ErrorEndpoint, _: zap.Request) !void {}
+pub fn options(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn post(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn put(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn delete(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn patch(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn options(_: *ErrorEndpoint, _: zap.Request) !void {}
