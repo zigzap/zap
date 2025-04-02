@@ -313,6 +313,33 @@ pub const Listener = struct {
     listener: HttpListener,
     allocator: std.mem.Allocator,
 
+    pub const Settings = struct {
+        port: usize,
+        interface: [*c]const u8 = null,
+
+        /// User-defined request callback that only gets called if no endpoints
+        /// match a request.
+        on_request: ?zap.HttpRequestFn,
+        on_response: ?zap.HttpRequestFn = null,
+        on_upgrade: ?zap.HttpUpgradeFn = null,
+        on_finish: ?zap.HttpFinishFn = null,
+
+        /// Callback, called if an error is raised and not caught by the
+        /// ErrorStrategy
+        on_error: ?*const fn (Request, anyerror) void = null,
+
+        // provide any pointer in there for "user data". it will be passed pack in
+        // on_finish()'s copy of the struct_http_settings_s
+        udata: ?*anyopaque = null,
+        public_folder: ?[]const u8 = null,
+        max_clients: ?isize = null,
+        max_body_size: ?usize = null,
+        timeout: ?u8 = null,
+        log: bool = false,
+        ws_timeout: u8 = 40,
+        ws_max_msg_size: usize = 262144,
+        tls: ?zap.Tls = null,
+    };
     /// Internal static interface struct of member endpoints
     var endpoints: std.ArrayListUnmanaged(*Binder.Interface) = .empty;
 
@@ -321,23 +348,46 @@ pub const Listener = struct {
     /// a request.
     var on_request: ?zap.HttpRequestFn = null;
 
+    /// Callback, called if an error is raised and not caught by the ErrorStrategy
+    var on_error: ?*const fn (Request, anyerror) void = null;
+
     /// Initialize a new endpoint listener. Note, if you pass an `on_request`
     /// callback in the provided ListenerSettings, this request callback will be
     /// called every time a request arrives that no endpoint matches.
-    pub fn init(a: std.mem.Allocator, l: ListenerSettings) Listener {
+    pub fn init(a: std.mem.Allocator, settings: Settings) Listener {
         // reset the global in case init is called multiple times, as is the
         // case in the authentication tests
         endpoints = .empty;
 
-        // take copy of listener settings before modifying the callback field
-        var ls = l;
+        var ls: zap.HttpListenerSettings = .{
+            .port = settings.port,
+            .interface = settings.interface,
+
+            // we set to our own handler
+            .on_request = onRequest,
+
+            .on_response = settings.on_response,
+            .on_upgrade = settings.on_upgrade,
+            .on_finish = settings.on_finish,
+            .udata = settings.udata,
+            .public_folder = settings.public_folder,
+            .max_clients = settings.max_clients,
+            .max_body_size = settings.max_body_size,
+            .timeout = settings.timeout,
+            .log = settings.log,
+            .ws_timeout = settings.ws_timeout,
+            .ws_max_msg_size = settings.ws_max_msg_size,
+            .tls = settings.tls,
+        };
 
         // override the settings with our internal, actual callback function
         // so that "we" will be called on request
         ls.on_request = Listener.onRequest;
 
-        // store the settings-provided request callback for later use
-        on_request = l.on_request;
+        // store the settings-provided request callbacks for later use
+        on_request = settings.on_request;
+        on_error = settings.on_error;
+
         return .{
             .listener = HttpListener.init(ls),
             .allocator = a,
@@ -390,10 +440,16 @@ pub const Listener = struct {
             for (endpoints.items) |interface| {
                 if (std.mem.startsWith(u8, p, interface.path)) {
                     return interface.call(interface, r) catch |err| {
-                        zap.log.err(
-                            "Endpoint onRequest error {} in endpoint interface {}\n",
-                            .{ err, interface },
-                        );
+                        // if error is not dealt with in the entpoint, e.g.
+                        // if error strategy is .raise:
+                        if (on_error) |error_cb| {
+                            error_cb(r, err);
+                        } else {
+                            zap.log.err(
+                                "Endpoint onRequest error {} in endpoint interface {}\n",
+                                .{ err, interface },
+                            );
+                        }
                     };
                 }
             }
@@ -401,7 +457,13 @@ pub const Listener = struct {
         // if set, call the user-provided default callback
         if (on_request) |foo| {
             foo(r) catch |err| {
-                zap.Logging.on_uncaught_error("Endpoint on_request", err);
+                // if error is not dealt with in the entpoint, e.g.
+                // if error strategy is .raise:
+                if (on_error) |error_cb| {
+                    error_cb(r, err);
+                } else {
+                    zap.Logging.on_uncaught_error("Endpoint on_request", err);
+                }
             };
         }
     }

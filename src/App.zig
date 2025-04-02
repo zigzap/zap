@@ -29,6 +29,16 @@ pub const AppOpts = struct {
 };
 
 /// creates an App with custom app context
+///
+/// About App Contexts:
+///
+/// ```zig
+/// const MyContext = struct {
+///     // You may (optionally) define the following global handlers:
+///     pub fn unhandledRequest(_: *MyContext, _: Allocator, _: Request) anyerror!void {}
+///     pub fn unhandledError(_: *MyContext, _: Request, _: anyerror) void {}
+/// };
+/// ```
 pub fn Create(
     /// Your user-defined "Global App Context" type
     comptime Context: type,
@@ -51,18 +61,20 @@ pub fn Create(
             /// the internal http listener
             listener: HttpListener = undefined,
 
-            /// function pointer to handler for otherwise unhandled requests
-            /// Will automatically be set if your Context provides an unhandled
-            /// function of type `fn(*Context, Allocator, Request)`
-            ///
-            unhandled: ?*const fn (*Context, Allocator, Request) anyerror!void = null,
+            /// function pointer to handler for otherwise unhandled requests.
+            /// Will automatically be set if your Context provides an
+            /// `unhandledRequest` function of type `fn(*Context, Allocator,
+            /// Request) !void`.
+            unhandled_request: ?*const fn (*Context, Allocator, Request) anyerror!void = null,
+
+            /// function pointer to handler for unhandled errors.
+            /// Errors are unhandled if they are not logged but raised by the
+            /// ErrorStrategy. Will automatically be set if your Context
+            /// provides an `unhandledError` function of type `fn(*Context,
+            /// Allocator, Request, anyerror) void`.
+            unhandled_error: ?*const fn (*Context, Request, anyerror) void = null,
         };
         var _static: InstanceData = .{};
-
-        /// Internal, static request handler callback. Will be set to the optional,
-        /// user-defined request callback that only gets called if no endpoints match
-        /// a request.
-        var on_request: ?*const fn (Allocator, *Context, Request) anyerror!void = null;
 
         pub const Endpoint = struct {
             pub const Interface = struct {
@@ -113,7 +125,7 @@ pub fn Create(
                             switch (self.endpoint.*.error_strategy) {
                                 .raise => return err,
                                 .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                                .log_to_console => zap.debug(
+                                .log_to_console => zap.log.err(
                                     "Error in {} {s} : {}",
                                     .{ Bound, r.method orelse "(no method)", err },
                                 ),
@@ -318,15 +330,24 @@ pub fn Create(
             _static.opts = opts_;
             _static.there_can_be_only_one = true;
 
-            // set unhandled callback if provided by Context
-            if (@hasDecl(Context, "unhandled")) {
+            // set unhandled_request callback if provided by Context
+            if (@hasDecl(Context, "unhandledRequest")) {
                 // try if we can use it
-                const Unhandled = @TypeOf(@field(Context, "unhandled"));
+                const Unhandled = @TypeOf(@field(Context, "unhandledRequest"));
                 const Expected = fn (_: *Context, _: Allocator, _: Request) anyerror!void;
                 if (Unhandled != Expected) {
-                    @compileError("`unhandled` method of " ++ @typeName(Context) ++ " has wrong type:\n" ++ @typeName(Unhandled) ++ "\nexpected:\n" ++ @typeName(Expected));
+                    @compileError("`unhandledRequest` method of " ++ @typeName(Context) ++ " has wrong type:\n" ++ @typeName(Unhandled) ++ "\nexpected:\n" ++ @typeName(Expected));
                 }
-                _static.unhandled = Context.unhandled;
+                _static.unhandled_request = Context.unhandledRequest;
+            }
+            if (@hasDecl(Context, "unhandledError")) {
+                // try if we can use it
+                const Unhandled = @TypeOf(@field(Context, "unhandledError"));
+                const Expected = fn (_: *Context, _: Request, _: anyerror) void;
+                if (Unhandled != Expected) {
+                    @compileError("`unhandledError` method of " ++ @typeName(Context) ++ " has wrong type:\n" ++ @typeName(Unhandled) ++ "\nexpected:\n" ++ @typeName(Expected));
+                }
+                _static.unhandled_error = Context.unhandledError;
             }
             return .{};
         }
@@ -419,17 +440,34 @@ pub fn Create(
             if (r.path) |p| {
                 for (_static.endpoints.items) |interface| {
                     if (std.mem.startsWith(u8, p, interface.path)) {
-                        return try interface.call(interface, r);
+                        return interface.call(interface, r) catch |err| {
+                            // if error is not dealt with in the interface, e.g.
+                            // if error strategy is .raise:
+                            if (_static.unhandled_error) |error_cb| {
+                                error_cb(_static.context, r, err);
+                            } else {
+                                zap.log.err(
+                                    "App.Endpoint onRequest error {} in endpoint interface {}\n",
+                                    .{ err, interface },
+                                );
+                            }
+                        };
                     }
                 }
             }
-            if (on_request) |foo| {
+
+            // this is basically the "not found" handler
+            if (_static.unhandled_request) |foo| {
                 var arena = try get_arena();
-                foo(arena.allocator(), _static.context, r) catch |err| {
+                foo(_static.context, arena.allocator(), r) catch |err| {
                     switch (_static.opts.default_error_strategy) {
-                        .raise => return err,
+                        .raise => if (_static.unhandled_error) |error_cb| {
+                            error_cb(_static.context, r, err);
+                        } else {
+                            zap.Logging.on_uncaught_error("App on_request", err);
+                        },
                         .log_to_response => return r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505),
-                        .log_to_console => zap.debug("Error in {} {s} : {}", .{ App, r.method orelse "(no method)", err }),
+                        .log_to_console => zap.log.err("Error in {} {s} : {}", .{ App, r.method orelse "(no method)", err }),
                     }
                 };
             }

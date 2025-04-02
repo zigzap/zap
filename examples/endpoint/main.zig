@@ -19,6 +19,11 @@ fn on_request(r: zap.Request) !void {
     try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
+// this is just to demo that we could catch arbitrary errors as fallback
+fn on_error(_: zap.Request, err: anyerror) void {
+    std.debug.print("\n\n\nOh no!!! We didn't chatch this error: {}\n\n\n", .{err});
+}
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
@@ -33,6 +38,8 @@ pub fn main() !void {
             .{
                 .port = 3000,
                 .on_request = on_request,
+                // optional
+                .on_error = on_error,
                 .log = true,
                 .public_folder = "examples/endpoint/html",
                 .max_clients = 100000,
@@ -47,11 +54,13 @@ pub fn main() !void {
 
         var stopEp = StopEndpoint.init("/stop");
         var errorEp: ErrorEndpoint = .{};
+        var unhandledErrorEp: ErrorEndpoint = .{ .error_strategy = .raise, .path = "/unhandled" };
 
         // register endpoints with the listener
         try listener.register(&userWeb);
         try listener.register(&stopEp);
         try listener.register(&errorEp);
+        try listener.register(&unhandledErrorEp);
 
         // fake some users
         var uid: usize = undefined;
