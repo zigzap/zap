@@ -376,7 +376,7 @@ $ zig build run-routes
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
