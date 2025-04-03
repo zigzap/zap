@@ -131,21 +131,21 @@ pub const StatusCode = enum(u16) {
 };
 
 pub const Method = enum {
-    GET,
-    HEAD,
-    POST,
-    PUT,
-    DELETE,
-    PATCH,
-    OPTIONS,
-    UNKNOWN,
+    get,
+    head,
+    post,
+    put,
+    delete,
+    patch,
+    options,
+    unknown,
 };
 
 pub fn methodToEnum(method: ?[]const u8) Method {
     {
         if (method) |m| {
-            return std.meta.stringToEnum(Method, m) orelse .UNKNOWN;
+            return std.meta.stringToEnum(Method, m) orelse .unknown;
         }
-        return Method.UNKNOWN;
+        return .unknown;
     }
 }
