@@ -4,7 +4,7 @@
     .dependencies = .{
         .upstream = .{
             .url = "git+https://github.com/boazsegev/facil.io#512a354dbd31e1895647df852d1565f9d408ed91",
-            .hash = "12203c234c0e07604235162ef65bcffa6396f1b77da66810f31e08573a777e97f63d",
+            .hash = "N-V-__8AAL7sgAA8I0wOB2BCNRYu9lvP-mOW8bd9pmgQ8x4I",
         },
     },
     .paths = .{
