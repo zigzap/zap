@@ -3,27 +3,23 @@ const zap = @import("zap");
 
 /// A simple endpoint listening on the /stop route that shuts down zap
 /// the main thread usually continues at the instructions after the call to zap.start().
-pub const Self = @This();
+pub const StopEndpoint = @This();
 
-ep: zap.Endpoint = undefined,
+path: []const u8,
+error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
-pub fn init(
-    path: []const u8,
-) Self {
+pub fn init(path: []const u8) StopEndpoint {
     return .{
-        .ep = zap.Endpoint.init(.{
-            .path = path,
-            .get = get,
-        }),
+        .path = path,
     };
 }
 
-pub fn endpoint(self: *Self) *zap.Endpoint {
-    return &self.ep;
-}
-
-fn get(e: *zap.Endpoint, r: zap.Request) void {
-    _ = e;
-    _ = r;
+pub fn get(_: *StopEndpoint, _: zap.Request) !void {
     zap.stop();
 }
+
+pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
+pub fn options(_: *StopEndpoint, _: zap.Request) !void {}

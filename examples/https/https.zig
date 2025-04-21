@@ -1,7 +1,13 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build -Dopenssl=true     https`.
+//! Run   me with `zig build -Dopenssl=true run-https`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     if (r.path) |the_path| {
         std.debug.print("PATH: {s}\n", .{the_path});
     }
@@ -9,11 +15,11 @@ fn on_request_verbose(r: zap.Request) void {
     if (r.query) |the_query| {
         std.debug.print("QUERY: {s}\n", .{the_query});
     }
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+    try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
-fn on_request_minimal(r: zap.Request) void {
-    r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+fn on_request_minimal(r: zap.Request) !void {
+    try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
 }
 
 fn help_and_exit(filename: []const u8, err: anyerror) void {
@@ -64,9 +70,9 @@ pub fn main() !void {
     std.debug.print("", .{});
     std.debug.print(
         \\
-        \\   ***********************************************
-        \\   *** Try me with: curl -k -v localhost:4443/ ***
-        \\   ***********************************************
+        \\   *******************************************************
+        \\   *** Try me with: curl -k -v https://localhost:4443/ ***
+        \\   *******************************************************
         \\
         \\Your browser may lie to you, indicate a non-secure connection because of the self-created certificate, and make you believe that HTTPS / TLS "does not work".
         \\

@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     senderror`.
+//! Run   me with `zig build run-senderror`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
@@ -5,7 +11,7 @@ fn MAKE_MEGA_ERROR() !void {
     return error.MEGA_ERROR;
 }
 
-fn MY_REQUEST_HANDLER(r: zap.Request) void {
+fn MY_REQUEST_HANDLER(r: zap.Request) !void {
     MAKE_MEGA_ERROR() catch |err| {
         r.sendError(err, if (@errorReturnTrace()) |t| t.* else null, 505);
     };

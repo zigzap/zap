@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     cookies`.
+//! Run   me with `zig build run-cookies`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
@@ -35,7 +41,7 @@ pub fn main() !void {
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
 
-        pub fn on_request(r: zap.Request) void {
+        pub fn on_request(r: zap.Request) !void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
@@ -44,12 +50,12 @@ pub fn main() !void {
             const cookie_count = r.getCookiesCount();
             std.log.info("cookie_count: {}", .{cookie_count});
 
-            // iterate over all cookies as strings (always_alloc=false)
-            var strCookies = r.cookiesToOwnedStrList(alloc, false) catch unreachable;
+            // iterate over all cookies as strings
+            var strCookies = r.cookiesToOwnedStrList(alloc) catch unreachable;
             defer strCookies.deinit();
             std.debug.print("\n", .{});
             for (strCookies.items) |kv| {
-                std.log.info("CookieStr `{s}` is `{s}`", .{ kv.key.str, kv.value.str });
+                std.log.info("CookieStr `{s}` is `{s}`", .{ kv.key, kv.value });
                 // we don't need to deinit kv.key and kv.value because we requested always_alloc=false
                 // so they are just slices into the request buffer
             }
@@ -57,26 +63,22 @@ pub fn main() !void {
             std.debug.print("\n", .{});
 
             // // iterate over all cookies
-            const cookies = r.cookiesToOwnedList(alloc, false) catch unreachable;
+            const cookies = r.cookiesToOwnedList(alloc) catch unreachable;
             defer cookies.deinit();
             for (cookies.items) |kv| {
-                std.log.info("cookie `{s}` is {any}", .{ kv.key.str, kv.value });
+                std.log.info("cookie `{s}` is {any}", .{ kv.key, kv.value });
             }
 
             // let's get cookie "ZIG_ZAP" by name
             std.debug.print("\n", .{});
-            if (r.getCookieStr(alloc, "ZIG_ZAP", false)) |maybe_str| {
-                if (maybe_str) |*s| {
-                    defer s.deinit(); // unnecessary because always_alloc=false
-
-                    std.log.info("Cookie ZIG_ZAP = {s}", .{s.str});
+            if (r.getCookieStr(alloc, "ZIG_ZAP")) |maybe_str| {
+                if (maybe_str) |s| {
+                    defer alloc.free(s);
+                    std.log.info("Cookie ZIG_ZAP = {s}", .{s});
                 } else {
                     std.log.info("Cookie ZIG_ZAP not found!", .{});
                 }
-            }
-            // since we provided "false" for duplicating strings in the call
-            // to getCookieStr(), there won't be an allocation error
-            else |err| {
+            } else |err| {
                 std.log.err("ERROR!\n", .{});
                 std.log.err("cannot check for `ZIG_ZAP` cookie: {any}\n", .{err});
             }

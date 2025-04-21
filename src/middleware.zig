@@ -17,7 +17,7 @@ pub fn Handler(comptime ContextType: anytype) type {
         // will be set
         allocator: ?std.mem.Allocator = null,
 
-        pub const RequestFn = *const fn (*Self, zap.Request, *ContextType) bool;
+        pub const RequestFn = *const fn (*Self, zap.Request, *ContextType) anyerror!bool;
         const Self = @This();
 
         pub fn init(on_request: RequestFn, other: ?*Self) Self {
@@ -30,7 +30,7 @@ pub fn Handler(comptime ContextType: anytype) type {
         // example for handling a request request
         // which you can use in your components, e.g.:
         // return self.handler.handleOther(r, context);
-        pub fn handleOther(self: *Self, r: zap.Request, context: *ContextType) bool {
+        pub fn handleOther(self: *Self, r: zap.Request, context: *ContextType) !bool {
             // in structs embedding a handler, we'd @fieldParentPtr the first
             // param to get to the real self
 
@@ -41,7 +41,7 @@ pub fn Handler(comptime ContextType: anytype) type {
             var other_handler_finished = false;
             if (self.other_handler) |other_handler| {
                 if (other_handler.on_request) |on_request| {
-                    other_handler_finished = on_request(other_handler, r, context);
+                    other_handler_finished = try on_request(other_handler, r, context);
                 }
             }
 
@@ -63,10 +63,10 @@ pub const EndpointHandlerOptions = struct {
 };
 
 /// A convenience handler for artibrary zap.Endpoint
-pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anytype) type {
+pub fn EndpointHandler(comptime HandlerType: anytype, comptime EndpointType: anytype, comptime ContextType: anytype) type {
     return struct {
         handler: HandlerType,
-        endpoint: *zap.Endpoint,
+        endpoint: *EndpointType,
         options: EndpointHandlerOptions,
 
         const Self = @This();
@@ -78,7 +78,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         ///
         /// If the `breakOnFinish` option is `true`, the handler will stop handing requests down the chain
         /// if the endpoint processed the request.
-        pub fn init(endpoint: *zap.Endpoint, other: ?*HandlerType, options: EndpointHandlerOptions) Self {
+        pub fn init(endpoint: *EndpointType, other: ?*HandlerType, options: EndpointHandlerOptions) Self {
             return .{
                 .handler = HandlerType.init(onRequest, other),
                 .endpoint = endpoint,
@@ -96,13 +96,21 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime ContextType: anyt
         ///
         /// If `breakOnFinish` is `true`, the handler will stop handing requests down the chain if
         /// the endpoint processed the request.
-        pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) bool {
+        pub fn onRequest(handler: *HandlerType, r: zap.Request, context: *ContextType) !bool {
             const self: *Self = @fieldParentPtr("handler", handler);
             r.setUserContext(context);
             if (!self.options.checkPath or
-                std.mem.startsWith(u8, r.path orelse "", self.endpoint.settings.path))
+                std.mem.startsWith(u8, r.path orelse "", self.endpoint.path))
             {
-                self.endpoint.onRequest(r);
+                switch (r.methodAsEnum()) {
+                    .GET => try self.endpoint.*.get(r),
+                    .POST => try self.endpoint.*.post(r),
+                    .PUT => try self.endpoint.*.put(r),
+                    .DELETE => try self.endpoint.*.delete(r),
+                    .PATCH => try self.endpoint.*.patch(r),
+                    .OPTIONS => try self.endpoint.*.options(r),
+                    else => {},
+                }
             }
 
             // if the request was handled by the endpoint, we may break the chain here
@@ -168,7 +176,7 @@ pub fn Listener(comptime ContextType: anytype) type {
         /// Create your own listener if you want different behavior.
         /// (Didn't want to make this a callback. Submit an issue if you really
         /// think that's an issue).
-        pub fn onRequest(r: zap.Request) void {
+        pub fn onRequest(r: zap.Request) !void {
             // we are the 1st handler in the chain, so we create a context
             var context: ContextType = .{};
 
@@ -183,7 +191,7 @@ pub fn Listener(comptime ContextType: anytype) type {
                 initial_handler.allocator = allocator;
                 if (initial_handler.on_request) |on_request| {
                     // we don't care about the return value at the top level
-                    _ = on_request(initial_handler, r, &context);
+                    _ = try on_request(initial_handler, r, &context);
                 }
             }
         }

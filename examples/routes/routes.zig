@@ -1,41 +1,47 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     routes`.
+//! Run   me with `zig build run-routes`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
 // NOTE: this is a super simplified example, just using a hashmap to map
 // from HTTP path to request function.
-fn dispatch_routes(r: zap.Request) void {
+fn dispatch_routes(r: zap.Request) !void {
     // dispatch
     if (r.path) |the_path| {
         if (routes.get(the_path)) |foo| {
-            foo(r);
+            try foo(r);
             return;
         }
     }
     // or default: present menu
-    r.sendBody(
+    try r.sendBody(
         \\ <html>
         \\   <body>
         \\     <p><a href="/static">static</a></p>
         \\     <p><a href="/dynamic">dynamic</a></p>
         \\   </body>
         \\ </html>
-    ) catch return;
+    );
 }
 
-fn static_site(r: zap.Request) void {
-    r.sendBody("<html><body><h1>Hello from STATIC ZAP!</h1></body></html>") catch return;
+fn static_site(r: zap.Request) !void {
+    try r.sendBody("<html><body><h1>Hello from STATIC ZAP!</h1></body></html>");
 }
 
 var dynamic_counter: i32 = 0;
-fn dynamic_site(r: zap.Request) void {
+fn dynamic_site(r: zap.Request) !void {
     dynamic_counter += 1;
     var buf: [128]u8 = undefined;
-    const filled_buf = std.fmt.bufPrintZ(
+    const filled_buf = try std.fmt.bufPrintZ(
         &buf,
         "<html><body><h1>Hello # {d} from DYNAMIC ZAP!!!</h1></body></html>",
         .{dynamic_counter},
-    ) catch "ERROR";
-    r.sendBody(filled_buf) catch return;
+    );
+    try r.sendBody(filled_buf);
 }
 
 fn setup_routes(a: std.mem.Allocator) !void {

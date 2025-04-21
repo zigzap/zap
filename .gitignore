@@ -1,4 +1,5 @@
 zig-out/
+zig-cache/
 .zig-cache/
 *.tar.gz
 flake.lock.bak
@@ -15,3 +16,6 @@ scratch
 .vs/
 **/*.perflog
 wrk/*.png
+mycert.pem
+release.md
+mykey.pem

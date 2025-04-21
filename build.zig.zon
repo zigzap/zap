@@ -1,6 +1,6 @@
 .{
-    .name = "zap",
-    .version = "0.8.0",
+    .name = .zap,
+    .version = "0.9.1",
     .dependencies = .{
         .@"facil.io" = .{
             .path = "./facil.io",
@@ -12,4 +12,5 @@
         "src",
         "facil.io",
     },
+    .fingerprint = 0x8ac41f4ef381871a,
 }

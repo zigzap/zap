@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     accept`.
+//! Run   me with `zig build run-accept`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
@@ -5,7 +11,7 @@ var gpa = std.heap.GeneralPurposeAllocator(.{
     .thread_safe = true,
 }){};
 
-fn on_request_verbose(r: zap.Request) void {
+fn on_request_verbose(r: zap.Request) !void {
     // use a local buffer for the parsed accept headers
     var accept_buffer: [1024]u8 = undefined;
     var fba = std.heap.FixedBufferAllocator.init(&accept_buffer);
@@ -21,38 +27,53 @@ fn on_request_verbose(r: zap.Request) void {
         break :content_type .HTML;
     };
 
-    r.setContentType(content_type) catch return;
+    // just for fun: print ALL headers
+    var maybe_headers: ?zap.Request.HttpParamStrKVList = blk: {
+        const h = r.headersToOwnedList(gpa.allocator()) catch |err| {
+            std.debug.print("Error getting headers: {}\n", .{err});
+            break :blk null;
+        };
+        break :blk h;
+    };
+    if (maybe_headers) |*headers| {
+        defer headers.deinit();
+        for (headers.items) |header| {
+            std.debug.print("Header {s} = {s}\n", .{ header.key, header.value });
+        }
+    }
+
+    try r.setContentType(content_type);
     switch (content_type) {
         .TEXT => {
-            r.sendBody("Hello from ZAP!!!") catch return;
+            try r.sendBody("Hello from ZAP!!!");
         },
         .HTML => {
-            r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>") catch return;
+            try r.sendBody("<html><body><h1>Hello from ZAP!!!</h1></body></html>");
         },
         .XML => {
-            r.sendBody(
+            try r.sendBody(
                 \\<?xml version="1.0" encoding="UTF-8"?>
                 \\<message>
                 \\    <warning>
                 \\        Hello from ZAP!!!
                 \\    </warning>
                 \\</message>
-            ) catch return;
+            );
         },
         .JSON => {
             var buffer: [128]u8 = undefined;
-            const json = zap.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{}) orelse return;
-            r.sendJson(json) catch return;
+            const json = try zap.util.stringifyBuf(&buffer, .{ .message = "Hello from ZAP!!!" }, .{});
+            try r.sendJson(json);
         },
         .XHTML => {
-            r.sendBody(
+            try r.sendBody(
                 \\<?xml version="1.0" encoding="UTF-8"?>
                 \\<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
                 \\  <body>
                 \\    <h1>Hello from ZAP!!!</h1>
                 \\  </body>
                 \\</html>    
-            ) catch return;
+            );
         },
     }
 }
@@ -66,7 +87,18 @@ pub fn main() !void {
     });
     try listener.listen();
 
-    std.debug.print("Listening on 0.0.0.0:3000\n", .{});
+    std.debug.print(
+        \\ Listening on 0.0.0.0:3000
+        \\
+        \\ Test me with:
+        \\    curl --header "Accept: text/plain"            localhost:3000
+        \\    curl --header "Accept: text/html"             localhost:3000
+        \\    curl --header "Accept: application/xml"       localhost:3000
+        \\    curl --header "Accept: application/json"      localhost:3000
+        \\    curl --header "Accept: application/xhtml+xml" localhost:3000
+        \\
+        \\
+    , .{});
 
     // start worker threads
     zap.start(.{

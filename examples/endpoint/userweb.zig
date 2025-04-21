@@ -5,93 +5,80 @@ const User = Users.User;
 
 // an Endpoint
 
-pub const Self = @This();
+pub const UserWeb = @This();
 
 alloc: std.mem.Allocator = undefined,
-ep: zap.Endpoint = undefined,
 _users: Users = undefined,
+
+path: []const u8,
+error_strategy: zap.Endpoint.ErrorStrategy = .log_to_response,
 
 pub fn init(
     a: std.mem.Allocator,
     user_path: []const u8,
-) Self {
+) UserWeb {
     return .{
         .alloc = a,
         ._users = Users.init(a),
-        .ep = zap.Endpoint.init(.{
-            .path = user_path,
-            .get = getUser,
-            .post = postUser,
-            .put = putUser,
-            .patch = putUser,
-            .delete = deleteUser,
-            .options = optionsUser,
-        }),
+        .path = user_path,
     };
 }
 
-pub fn deinit(self: *Self) void {
+pub fn deinit(self: *UserWeb) void {
     self._users.deinit();
 }
 
-pub fn users(self: *Self) *Users {
+pub fn users(self: *UserWeb) *Users {
     return &self._users;
 }
 
-pub fn endpoint(self: *Self) *zap.Endpoint {
-    return &self.ep;
-}
-
-fn userIdFromPath(self: *Self, path: []const u8) ?usize {
-    if (path.len >= self.ep.settings.path.len + 2) {
-        if (path[self.ep.settings.path.len] != '/') {
+fn userIdFromPath(self: *UserWeb, path: []const u8) ?usize {
+    if (path.len >= self.path.len + 2) {
+        if (path[self.path.len] != '/') {
             return null;
         }
-        const idstr = path[self.ep.settings.path.len + 1 ..];
+        const idstr = path[self.path.len + 1 ..];
         return std.fmt.parseUnsigned(usize, idstr, 10) catch null;
     }
     return null;
 }
 
-fn getUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn put(_: *UserWeb, _: zap.Request) !void {}
 
+pub fn get(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         // /users
-        if (path.len == e.settings.path.len) {
+        if (path.len == self.path.len) {
             return self.listUsers(r);
         }
         var jsonbuf: [256]u8 = undefined;
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |user| {
-                if (zap.stringifyBuf(&jsonbuf, user, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, user, .{});
+                try r.sendJson(json);
             }
         }
     }
 }
 
-fn listUsers(self: *Self, r: zap.Request) void {
+fn listUsers(self: *UserWeb, r: zap.Request) !void {
     if (self._users.toJSON()) |json| {
         defer self.alloc.free(json);
-        r.sendJson(json) catch return;
+        try r.sendJson(json);
     } else |err| {
-        std.debug.print("LIST error: {}\n", .{err});
+        return err;
     }
 }
 
-fn postUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn post(self: *UserWeb, r: zap.Request) !void {
     if (r.body) |body| {
         const maybe_user: ?std.json.Parsed(User) = std.json.parseFromSlice(User, self.alloc, body, .{}) catch null;
         if (maybe_user) |u| {
             defer u.deinit();
             if (self._users.addByName(u.value.first_name, u.value.last_name)) |id| {
                 var jsonbuf: [128]u8 = undefined;
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                try r.sendJson(json);
             } else |err| {
                 std.debug.print("ADDING error: {}\n", .{err});
                 return;
@@ -100,8 +87,7 @@ fn postUser(e: *zap.Endpoint, r: zap.Request) void {
     }
 }
 
-fn putUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn patch(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             if (self._users.get(id)) |_| {
@@ -111,13 +97,11 @@ fn putUser(e: *zap.Endpoint, r: zap.Request) void {
                         defer u.deinit();
                         var jsonbuf: [128]u8 = undefined;
                         if (self._users.update(id, u.value.first_name, u.value.last_name)) {
-                            if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                                r.sendJson(json) catch return;
-                            }
+                            const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                            try r.sendJson(json);
                         } else {
-                            if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                                r.sendJson(json) catch return;
-                            }
+                            const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{});
+                            try r.sendJson(json);
                         }
                     }
                 }
@@ -126,28 +110,24 @@ fn putUser(e: *zap.Endpoint, r: zap.Request) void {
     }
 }
 
-fn deleteUser(e: *zap.Endpoint, r: zap.Request) void {
-    const self: *Self = @fieldParentPtr("ep", e);
+pub fn delete(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {
         if (self.userIdFromPath(path)) |id| {
             var jsonbuf: [128]u8 = undefined;
             if (self._users.delete(id)) {
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "OK", .id = id }, .{});
+                try r.sendJson(json);
             } else {
-                if (zap.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{})) |json| {
-                    r.sendJson(json) catch return;
-                }
+                const json = try zap.util.stringifyBuf(&jsonbuf, .{ .status = "ERROR", .id = id }, .{});
+                try r.sendJson(json);
             }
         }
     }
 }
 
-fn optionsUser(e: *zap.Endpoint, r: zap.Request) void {
-    _ = e;
-    r.setHeader("Access-Control-Allow-Origin", "*") catch return;
-    r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS") catch return;
-    r.setStatus(zap.StatusCode.no_content);
+pub fn options(_: *UserWeb, r: zap.Request) !void {
+    try r.setHeader("Access-Control-Allow-Origin", "*");
+    try r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    r.setStatus(zap.http.StatusCode.no_content);
     r.markAsFinished(true);
 }

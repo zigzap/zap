@@ -9,53 +9,11 @@ pub const fio = @import("fio.zig");
 /// Server-Side TLS function wrapper
 pub const Tls = @import("tls.zig");
 
-/// Endpoint and supporting types.
-/// Create one and pass in your callbacks. Then,
-/// pass it to a HttpListener's `register()` function to register with the
-/// listener.
-///
-/// **NOTE**: A common endpoint pattern for zap is to create your own struct
-/// that embeds an Endpoint, provides specific callbacks, and uses
-/// `@fieldParentPtr` to get a reference to itself.
-///
-/// Example:
-/// A simple endpoint listening on the /stop route that shuts down zap.
-/// The main thread usually continues at the instructions after the call to zap.start().
-///
-/// ```zig
-/// const StopEndpoint = struct {
-///     ep: zap.Endpoint = undefined,
-///
-///     pub fn init(
-///         path: []const u8,
-///     ) StopEndpoint {
-///         return .{
-///             .ep = zap.Endpoint.init(.{
-///                 .path = path,
-///                 .get = get,
-///             }),
-///         };
-///     }
-///
-///     // access the internal Endpoint
-///     pub fn endpoint(self: *StopEndpoint) *zap.Endpoint {
-///         return &self.ep;
-///     }
-///
-///     fn get(e: *zap.Endpoint, r: zap.Request) void {
-///         const self: *StopEndpoint = @fieldParentPtr("ep", e);
-///         _ = self;
-///         _ = r;
-///         zap.stop();
-///     }
-/// };
-/// ```
 pub const Endpoint = @import("endpoint.zig");
 
 pub const Router = @import("router.zig");
 
-pub usingnamespace @import("util.zig");
-pub usingnamespace @import("http.zig");
+pub const App = @import("App.zig");
 
 /// A struct to handle Mustache templating.
 ///
@@ -80,9 +38,8 @@ pub const Middleware = @import("middleware.zig");
 pub const WebSockets = @import("websockets.zig");
 
 pub const Log = @import("log.zig");
-const http = @import("http.zig");
-
-const util = @import("util.zig");
+pub const http = @import("http.zig");
+pub const util = @import("util.zig");
 
 // TODO: replace with comptime debug logger like in log.zig
 var _debug: bool = false;
@@ -177,7 +134,7 @@ pub const ContentType = enum {
 pub const FioHttpRequestFn = *const fn (r: [*c]fio.http_s) callconv(.C) void;
 
 /// Zap Http request callback function type.
-pub const HttpRequestFn = *const fn (Request) void;
+pub const HttpRequestFn = *const fn (Request) anyerror!void;
 
 /// websocket connection upgrade callback type
 /// fn(request, targetstring)
@@ -215,11 +172,10 @@ pub const HttpListenerSettings = struct {
 pub const HttpListener = struct {
     settings: HttpListenerSettings,
 
-    const Self = @This();
     var the_one_and_only_listener: ?*HttpListener = null;
 
     /// Create a listener
-    pub fn init(settings: HttpListenerSettings) Self {
+    pub fn init(settings: HttpListenerSettings) HttpListener {
         std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
@@ -247,8 +203,10 @@ pub const HttpListener = struct {
             req.markAsFinished(false);
             std.debug.assert(l.settings.on_request != null);
             if (l.settings.on_request) |on_request| {
-                // l.settings.on_request.?(req);
-                on_request(req);
+                on_request(req) catch |err| {
+                    // TODO: log / handle the error in a better way
+                    std.debug.print("zap on_request error: {}", .{err});
+                };
             }
         }
     }
@@ -270,7 +228,10 @@ pub const HttpListener = struct {
             var user_context: Request.UserContext = .{};
             req._user_context = &user_context;
 
-            l.settings.on_response.?(req);
+            l.settings.on_response.?(req) catch |err| {
+                // TODO: log / handle the error in a better way
+                std.debug.print("zap on_response error: {}", .{err});
+            };
         }
     }
 
@@ -304,7 +265,7 @@ pub const HttpListener = struct {
     }
 
     /// Start listening
-    pub fn listen(self: *Self) !void {
+    pub fn listen(self: *HttpListener) !void {
         var pfolder: [*c]const u8 = null;
         var pfolder_len: usize = 0;
 
@@ -315,10 +276,10 @@ pub const HttpListener = struct {
         }
 
         const x: fio.http_settings_s = .{
-            .on_request = if (self.settings.on_request) |_| Self.theOneAndOnlyRequestCallBack else null,
-            .on_upgrade = if (self.settings.on_upgrade) |_| Self.theOneAndOnlyUpgradeCallBack else null,
-            .on_response = if (self.settings.on_response) |_| Self.theOneAndOnlyResponseCallBack else null,
-            .on_finish = if (self.settings.on_finish) |_| Self.theOneAndOnlyFinishCallBack else null,
+            .on_request = if (self.settings.on_request) |_| HttpListener.theOneAndOnlyRequestCallBack else null,
+            .on_upgrade = if (self.settings.on_upgrade) |_| HttpListener.theOneAndOnlyUpgradeCallBack else null,
+            .on_response = if (self.settings.on_response) |_| HttpListener.theOneAndOnlyResponseCallBack else null,
+            .on_finish = if (self.settings.on_finish) |_| HttpListener.theOneAndOnlyFinishCallBack else null,
             .udata = null,
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
@@ -356,7 +317,7 @@ pub const HttpListener = struct {
         // the request if it isn't set. hence, if started under full load, the
         // first request(s) might not be serviced, as long as it takes from
         // fio.http_listen() to here
-        Self.the_one_and_only_listener = self;
+        HttpListener.the_one_and_only_listener = self;
     }
 };
 
@@ -376,10 +337,8 @@ pub const LowLevel = struct {
         keepalive_timeout_s: u8 = 5,
         log: bool = false,
 
-        const Self = @This();
-
         /// Create settings with defaults
-        pub fn init() Self {
+        pub fn init() ListenSettings {
             return .{};
         }
     };

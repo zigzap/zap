@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     websockets`.
+//! Run   me with `zig build run-websockets`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 const WebSockets = zap.WebSockets;
@@ -20,13 +26,11 @@ const ContextManager = struct {
     lock: std.Thread.Mutex = .{},
     contexts: ContextList = undefined,
 
-    const Self = @This();
-
     pub fn init(
         allocator: std.mem.Allocator,
         channelName: []const u8,
         usernamePrefix: []const u8,
-    ) Self {
+    ) ContextManager {
         return .{
             .allocator = allocator,
             .channel = channelName,
@@ -35,14 +39,14 @@ const ContextManager = struct {
         };
     }
 
-    pub fn deinit(self: *Self) void {
+    pub fn deinit(self: *ContextManager) void {
         for (self.contexts.items) |ctx| {
             self.allocator.free(ctx.userName);
         }
         self.contexts.deinit();
     }
 
-    pub fn newContext(self: *Self) !*Context {
+    pub fn newContext(self: *ContextManager) !*Context {
         self.lock.lock();
         defer self.lock.unlock();
 
@@ -121,8 +125,9 @@ fn handle_websocket_message(
     message: []const u8,
     is_text: bool,
 ) void {
-    _ = is_text;
     _ = handle;
+    _ = is_text;
+
     if (context) |ctx| {
         // send message
         const buflen = 128; // arbitrary len
@@ -163,13 +168,13 @@ fn handle_websocket_message(
 //
 // HTTP stuff
 //
-fn on_request(r: zap.Request) void {
+fn on_request(r: zap.Request) !void {
     r.setHeader("Server", "zap.example") catch unreachable;
-    r.sendBody(
+    try r.sendBody(
         \\ <html><body>
         \\ <h1>This is a simple Websocket chatroom example</h1>
         \\ </body></html>
-    ) catch return;
+    );
 }
 
 fn on_upgrade(r: zap.Request, target_protocol: []const u8) void {

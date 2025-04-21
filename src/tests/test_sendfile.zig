@@ -24,7 +24,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
     return try std.Thread.spawn(.{}, makeRequest, .{ a, url });
 }
-pub fn on_request(r: zap.Request) void {
+pub fn on_request(r: zap.Request) !void {
     r.sendFile("src/tests/testfile.txt") catch unreachable;
 }
 

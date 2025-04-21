@@ -1,3 +1,9 @@
+//!
+//! Part of the Zap examples.
+//!
+//! Build me with `zig build     http_params`.
+//! Run   me with `zig build run-http_params`.
+//!
 const std = @import("std");
 const zap = @import("zap");
 
@@ -27,12 +33,14 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{
         .thread_safe = true,
     }){};
+    defer _ = gpa.detectLeaks();
+
     const allocator = gpa.allocator();
 
     const Handler = struct {
         var alloc: std.mem.Allocator = undefined;
 
-        pub fn on_request(r: zap.Request) void {
+        pub fn on_request(r: zap.Request) !void {
             std.debug.print("\n=====================================================\n", .{});
             defer std.debug.print("=====================================================\n\n", .{});
 
@@ -69,42 +77,38 @@ pub fn main() !void {
             // ================================================================
 
             // iterate over all params as strings
-            var strparams = r.parametersToOwnedStrList(alloc, false) catch unreachable;
+            var strparams = try r.parametersToOwnedStrList(alloc);
             defer strparams.deinit();
             std.debug.print("\n", .{});
             for (strparams.items) |kv| {
-                std.log.info("ParamStr `{s}` is `{s}`", .{ kv.key.str, kv.value.str });
+                std.log.info("ParamStr `{s}` is `{s}`", .{ kv.key, kv.value });
             }
 
             std.debug.print("\n", .{});
 
             // iterate over all params
-            const params = r.parametersToOwnedList(alloc, false) catch unreachable;
+            const params = try r.parametersToOwnedList(alloc);
             defer params.deinit();
             for (params.items) |kv| {
-                std.log.info("Param `{s}` is {any}", .{ kv.key.str, kv.value });
+                std.log.info("Param `{s}` is {any}", .{ kv.key, kv.value });
             }
 
             // let's get param "one" by name
             std.debug.print("\n", .{});
-            if (r.getParamStr(alloc, "one", false)) |maybe_str| {
-                if (maybe_str) |*s| {
-                    defer s.deinit();
-
-                    std.log.info("Param one = {s}", .{s.str});
+            if (r.getParamStr(alloc, "one")) |maybe_str| {
+                if (maybe_str) |s| {
+                    defer alloc.free(s);
+                    std.log.info("Param one = {s}", .{s});
                 } else {
                     std.log.info("Param one not found!", .{});
                 }
-            }
-            // since we provided "false" for duplicating strings in the call
-            // to getParamStr(), there won't be an allocation error
-            else |err| {
+            } else |err| {
                 std.log.err("cannot check for `one` param: {any}\n", .{err});
             }
 
             // check if we received a terminate=true parameter
-            if (r.getParamSlice("terminate")) |maybe_str| {
-                if (std.mem.eql(u8, maybe_str, "true")) {
+            if (r.getParamSlice("terminate")) |s| {
+                if (std.mem.eql(u8, s, "true")) {
                     zap.stop();
                 }
             }

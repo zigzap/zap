@@ -5,15 +5,15 @@ const std = @import("std");
 debugOn: bool,
 
 /// Access to facil.io's logging facilities
-const Self = @This();
+const Log = @This();
 
-pub fn init(comptime debug: bool) Self {
+pub fn init(comptime debug: bool) Log {
     return .{
         .debugOn = debug,
     };
 }
 
-pub fn log(self: *const Self, comptime fmt: []const u8, args: anytype) void {
+pub fn log(self: *const Log, comptime fmt: []const u8, args: anytype) void {
     if (self.debugOn) {
         std.debug.print("[zap] - " ++ fmt, args);
     }

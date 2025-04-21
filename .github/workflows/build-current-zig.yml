@@ -1,5 +1,5 @@
-name: Works with Zig 0.13.0
-on: 
+name: Works with Zig 0.14.0
+on:
   push:
     branches:
     - master
@@ -7,7 +7,7 @@ on:
     branches:
     - master
   workflow_dispatch:
-  
+
 jobs:
   ci:
     strategy:
@@ -18,14 +18,14 @@ jobs:
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: 0.13.0
+          version: 0.14.0
       - name: Check zig version
         run: zig version
       - name: Build all examples
         run: zig build all
-      # - name: Run all tests
-      #   run: zig build test
       # Run tests separately so we can see more clearly which one fails
+      # Also, the test runner tries to run tests concurrently, which causes
+      # conflicts when port numbers are re-used in the tests
       - name: Run mustache tests
         run: zig build test-mustache
       - name: Run httpparams tests

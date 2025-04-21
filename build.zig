@@ -53,6 +53,8 @@ pub fn build(b: *std.Build) !void {
         name: []const u8,
         src: []const u8,
     }{
+        .{ .name = "app_basic", .src = "examples/app/basic.zig" },
+        .{ .name = "app_auth", .src = "examples/app/auth.zig" },
         .{ .name = "hello", .src = "examples/hello/hello.zig" },
         .{ .name = "https", .src = "examples/https/https.zig" },
         .{ .name = "hello2", .src = "examples/hello2/hello2.zig" },
@@ -61,8 +63,6 @@ pub fn build(b: *std.Build) !void {
         .{ .name = "serve", .src = "examples/serve/serve.zig" },
         .{ .name = "hello_json", .src = "examples/hello_json/hello_json.zig" },
         .{ .name = "endpoint", .src = "examples/endpoint/main.zig" },
-        .{ .name = "wrk", .src = "wrk/zig/main.zig" },
-        .{ .name = "wrk_zigstd", .src = "wrk/zigstd/main.zig" },
         .{ .name = "mustache", .src = "examples/mustache/mustache.zig" },
         .{ .name = "endpoint_auth", .src = "examples/endpoint_auth/endpoint_auth.zig" },
         .{ .name = "http_params", .src = "examples/http_params/http_params.zig" },

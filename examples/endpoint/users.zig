@@ -5,7 +5,7 @@ users: std.AutoHashMap(usize, InternalUser) = undefined,
 lock: std.Thread.Mutex = undefined,
 count: usize = 0,
 
-pub const Self = @This();
+pub const Users = @This();
 
 const InternalUser = struct {
     id: usize = 0,
@@ -21,7 +21,7 @@ pub const User = struct {
     last_name: []const u8,
 };
 
-pub fn init(a: std.mem.Allocator) Self {
+pub fn init(a: std.mem.Allocator) Users {
     return .{
         .alloc = a,
         .users = std.AutoHashMap(usize, InternalUser).init(a),
@@ -29,13 +29,13 @@ pub fn init(a: std.mem.Allocator) Self {
     };
 }
 
-pub fn deinit(self: *Self) void {
+pub fn deinit(self: *Users) void {
     self.users.deinit();
 }
 
 // the request will be freed (and its mem reused by facilio) when it's
 // completed, so we take copies of the names
-pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
+pub fn addByName(self: *Users, first: ?[]const u8, last: ?[]const u8) !usize {
     var user: InternalUser = undefined;
     user.firstnamelen = 0;
     user.lastnamelen = 0;
@@ -64,7 +64,7 @@ pub fn addByName(self: *Self, first: ?[]const u8, last: ?[]const u8) !usize {
     }
 }
 
-pub fn delete(self: *Self, id: usize) bool {
+pub fn delete(self: *Users, id: usize) bool {
     // We lock only on insertion, deletion, and listing
     self.lock.lock();
     defer self.lock.unlock();
@@ -76,7 +76,7 @@ pub fn delete(self: *Self, id: usize) bool {
     return ret;
 }
 
-pub fn get(self: *Self, id: usize) ?User {
+pub fn get(self: *Users, id: usize) ?User {
     // we don't care about locking here, as our usage-pattern is unlikely to
     // get a user by id that is not known yet
     if (self.users.getPtr(id)) |pUser| {
@@ -90,7 +90,7 @@ pub fn get(self: *Self, id: usize) ?User {
 }
 
 pub fn update(
-    self: *Self,
+    self: *Users,
     id: usize,
     first: ?[]const u8,
     last: ?[]const u8,
@@ -112,7 +112,7 @@ pub fn update(
     return false;
 }
 
-pub fn toJSON(self: *Self) ![]const u8 {
+pub fn toJSON(self: *Users) ![]const u8 {
     self.lock.lock();
     defer self.lock.unlock();
 
@@ -137,7 +137,7 @@ pub fn toJSON(self: *Self) ![]const u8 {
 //
 // Note: the following code is kept in here because it taught us a lesson
 //
-pub fn listWithRaceCondition(self: *Self, out: *std.ArrayList(User)) !void {
+pub fn listWithRaceCondition(self: *Users, out: *std.ArrayList(User)) !void {
     // We lock only on insertion, deletion, and listing
     //
     // NOTE: race condition:
@@ -169,18 +169,14 @@ pub fn listWithRaceCondition(self: *Self, out: *std.ArrayList(User)) !void {
 
 const JsonUserIteratorWithRaceCondition = struct {
     it: std.AutoHashMap(usize, InternalUser).ValueIterator = undefined,
-    const This = @This();
 
-    // careful:
-    // - Self refers to the file's struct
-    // - This refers to the JsonUserIterator struct
-    pub fn init(internal_users: *std.AutoHashMap(usize, InternalUser)) This {
+    pub fn init(internal_users: *std.AutoHashMap(usize, InternalUser)) JsonUserIteratorWithRaceCondition {
         return .{
             .it = internal_users.valueIterator(),
         };
     }
 
-    pub fn next(this: *This) ?User {
+    pub fn next(this: *JsonUserIteratorWithRaceCondition) ?User {
         if (this.it.next()) |pUser| {
             // we get a pointer to the internal user. so it should be safe to
             // create slices from its first and last name buffers
