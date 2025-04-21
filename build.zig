@@ -19,7 +19,7 @@ pub fn build(b: *std.Build) !void {
         break :blk false;
     };
 
-    const facilio = b.dependency("facil.io", .{
+    const facil_io = b.dependency("facil_io", .{
         .target = target,
         .optimize = optimize,
         .use_openssl = use_openssl,
@@ -30,7 +30,7 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    zap_module.linkLibrary(facilio.artifact("facil.io"));
+    zap_module.linkLibrary(facil_io.artifact("facil.io"));
 
     const all_step = b.step("all", "build all examples");
 

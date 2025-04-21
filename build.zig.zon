@@ -2,7 +2,7 @@
     .name = .zap,
     .version = "0.9.1",
     .dependencies = .{
-        .@"facil.io" = .{
+        .facil_io = .{
             .path = "./facil.io",
         },
     },

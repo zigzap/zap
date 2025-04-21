@@ -1,8 +1,8 @@
 .{
-    .name = "facil.io",
+    .name = .facil_io,
     .version = "0.0.12",
     .dependencies = .{
-        .@"facil.io" = .{
+        .upstream = .{
             .url = "git+https://github.com/boazsegev/facil.io#512a354dbd31e1895647df852d1565f9d408ed91",
             .hash = "12203c234c0e07604235162ef65bcffa6396f1b77da66810f31e08573a777e97f63d",
         },
@@ -12,4 +12,5 @@
         "build.zig.zon",
         "src",
     },
+    .fingerprint = 0x3b07d4dd92035426,
 }

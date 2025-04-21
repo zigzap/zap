@@ -5,7 +5,7 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     const use_openssl = b.option(bool, "use_openssl", "Use OpenSSL") orelse false;
 
-    const upstream = b.dependency("facil.io", .{ .target = target, .optimize = optimize });
+    const upstream = b.dependency("upstream", .{ .target = target, .optimize = optimize });
 
     const lib = try build_facilio(b, upstream, target, optimize, use_openssl);
 
