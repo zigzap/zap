@@ -68,7 +68,6 @@ pub fn build_facilio(
             "lib/facil/fio.c",
             "lib/facil/http/http.c",
             "lib/facil/http/http1.c",
-            "lib/facil/http/websockets.c",
             "lib/facil/http/http_internal.c",
             "lib/facil/fiobj/fiobj_numbers.c",
             "lib/facil/fiobj/fio_siphash.c",
@@ -80,6 +79,15 @@ pub fn build_facilio(
             "lib/facil/fiobj/fiobject.c",
             "lib/facil/fiobj/fiobj_mustache.c",
             "lib/facil/cli/fio_cli.c",
+        },
+        .flags = flags.items,
+    });
+
+    // Add patched files
+    lib.addCSourceFiles(.{
+        .root = b.path("."),
+        .files = &.{
+            "lib/facil/http/websockets.c",
         },
         .flags = flags.items,
     });
