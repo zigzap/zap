@@ -117,6 +117,7 @@ pub fn Create(
                             .DELETE => self.endpoint.*.delete(arena, app_context, r),
                             .PATCH => self.endpoint.*.patch(arena, app_context, r),
                             .OPTIONS => self.endpoint.*.options(arena, app_context, r),
+                            .HEAD => self.endpoint.*.head(arena, app_context, r),
                             else => error.UnsupportedHtmlRequestMethod,
                         };
                         if (ret) {
@@ -173,6 +174,7 @@ pub fn Create(
                     "delete",
                     "patch",
                     "options",
+                    "head",
                 };
                 const params_to_check = [_]type{
                     *T,
@@ -302,6 +304,15 @@ pub fn Create(
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
                             .AuthOK => self.ep.*.put(arena, context, request),
+                            .Handled => {},
+                        };
+                    }
+
+                    /// Authenticates HEAD requests using the Authenticator.
+                    pub fn head(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
+                        try switch (self.authenticator.authenticateRequest(&request)) {
+                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthOK => self.ep.*.head(arena, context, request),
                             .Handled => {},
                         };
                     }

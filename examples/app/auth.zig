@@ -65,6 +65,7 @@ const MyEndpoint = struct {
     pub fn delete(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn patch(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn options(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn head(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {

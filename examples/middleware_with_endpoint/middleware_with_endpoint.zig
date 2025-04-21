@@ -157,6 +157,7 @@ const HtmlEndpoint = struct {
     pub fn delete(_: *HtmlEndpoint, _: zap.Request) !void {}
     pub fn patch(_: *HtmlEndpoint, _: zap.Request) !void {}
     pub fn options(_: *HtmlEndpoint, _: zap.Request) !void {}
+    pub fn head(_: *HtmlEndpoint, _: zap.Request) !void {}
 
     pub fn get(_: *HtmlEndpoint, r: zap.Request) !void {
         var buf: [1024]u8 = undefined;

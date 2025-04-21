@@ -109,6 +109,7 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime EndpointType: any
                     .DELETE => try self.endpoint.*.delete(r),
                     .PATCH => try self.endpoint.*.patch(r),
                     .OPTIONS => try self.endpoint.*.options(r),
+                    .HEAD => try self.endpoint.*.head(r),
                     else => {},
                 }
             }
