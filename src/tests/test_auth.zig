@@ -170,6 +170,7 @@ pub const Endpoint = struct {
     pub fn delete(_: *Endpoint, _: zap.Request) !void {}
     pub fn patch(_: *Endpoint, _: zap.Request) !void {}
     pub fn options(_: *Endpoint, _: zap.Request) !void {}
+    pub fn head(_: *Endpoint, _: zap.Request) !void {}
 };
 //
 // end of http client code

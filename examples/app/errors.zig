@@ -53,6 +53,7 @@ const ErrorEndpoint = struct {
     pub fn delete(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn patch(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn options(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn head(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 const StopEndpoint = struct {

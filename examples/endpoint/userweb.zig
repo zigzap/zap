@@ -127,7 +127,12 @@ pub fn delete(self: *UserWeb, r: zap.Request) !void {
 
 pub fn options(_: *UserWeb, r: zap.Request) !void {
     try r.setHeader("Access-Control-Allow-Origin", "*");
-    try r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    try r.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD");
+    r.setStatus(zap.http.StatusCode.no_content);
+    r.markAsFinished(true);
+}
+
+pub fn head(_: *UserWeb, r: zap.Request) !void {
     r.setStatus(zap.http.StatusCode.no_content);
     r.markAsFinished(true);
 }

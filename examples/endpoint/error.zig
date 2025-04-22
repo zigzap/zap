@@ -20,3 +20,4 @@ pub fn put(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn delete(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn patch(_: *ErrorEndpoint, _: zap.Request) !void {}
 pub fn options(_: *ErrorEndpoint, _: zap.Request) !void {}
+pub fn head(_: *ErrorEndpoint, _: zap.Request) !void {}

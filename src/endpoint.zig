@@ -19,6 +19,7 @@
 //! pub fn delete(_: *Self, _: zap.Request) !void {}
 //! pub fn patch(_: *Self, _: zap.Request) !void {}
 //! pub fn options(_: *Self, _: zap.Request) !void {}
+//! pub fn head(_: *Self, _: zap.Request) !void {}
 //!
 //! // optional, if auth stuff is used:
 //! pub fn unauthorized(_: *Self, _: zap.Request) !void {}
@@ -49,6 +50,7 @@
 //!     pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
 //!     pub fn options(_: *StopEndpoint, _: zap.Request) !void {}
+//!     pub fn head(_: *StopEndpoint, _: zap.Request) !void {}
 //! };
 //! ```
 
@@ -97,6 +99,7 @@ pub fn checkEndpointType(T: type) void {
         "delete",
         "patch",
         "options",
+        "head",
     };
 
     const params_to_check = [_]type{
@@ -192,6 +195,7 @@ pub const Binder = struct {
                     .DELETE => self.endpoint.*.delete(r),
                     .PATCH => self.endpoint.*.patch(r),
                     .OPTIONS => self.endpoint.*.options(r),
+                    .HEAD => self.endpoint.*.head(r),
                     else => error.UnsupportedHtmlRequestMethod,
                 };
                 if (ret) {
@@ -292,6 +296,15 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
             try switch (self.authenticator.authenticateRequest(&r)) {
                 .AuthFailed => return self.ep.*.unauthorized(r),
                 .AuthOK => self.ep.*.put(r),
+                .Handled => {},
+            };
+        }
+        
+        /// Authenticates HEAD requests using the Authenticator.
+        pub fn head(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
+            try switch (self.authenticator.authenticateRequest(&r)) {
+                .AuthFailed => return self.ep.*.unauthorized(r),
+                .AuthOK => self.ep.*.head(r),
                 .Handled => {},
             };
         }
