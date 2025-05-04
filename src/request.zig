@@ -125,11 +125,18 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
         fio.fiobj_free_wrapped(key_name);
         fio.fiobj_free_wrapped(key_data);
         fio.fiobj_free_wrapped(key_type);
-    } // files: they should have "data", "type", and "filename" keys
-    if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_type) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
+    } // files: they should have "data" and "filename" keys
+    if (fio.fiobj_hash_haskey(o, key_data) == 1 and fio.fiobj_hash_haskey(o, key_name) == 1) {
         const filename = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_name));
-        const mimetype = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
         const data = fio.fiobj_hash_get(o, key_data);
+
+        var mimetype: []const u8 = undefined;
+        if (fio.fiobj_hash_haskey(o, key_type) == 1) {
+            const mt = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
+            mimetype = mt.data[0..mt.len];
+        } else {
+            mimetype = &"application/octet-stream".*;
+        }
 
         var data_slice: ?[]const u8 = null;
 
@@ -221,7 +228,7 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
 
         return .{ .Hash_Binfile = .{
             .filename = filename.data[0..filename.len],
-            .mimetype = mimetype.data[0..mimetype.len],
+            .mimetype = mimetype,
             .data = data_slice,
         } };
     } else {
