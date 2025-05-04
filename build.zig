@@ -186,6 +186,28 @@ pub fn build(b: *std.Build) !void {
     const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
     const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
 
+    const recvfile_tests = b.addTest(.{
+        .name = "recv_tests",
+        .root_source_file = b.path("src/tests/test_recvfile.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    recvfile_tests.root_module.addImport("zap", zap_module);
+    const run_recvfile_tests = b.addRunArtifact(recvfile_tests);
+    const install_recvfile_tests = b.addInstallArtifact(recvfile_tests, .{});
+
+    const recvfile_notype_tests = b.addTest(.{
+        .name = "recv_tests",
+        .root_source_file = b.path("src/tests/test_recvfile_notype.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    recvfile_notype_tests.root_module.addImport("zap", zap_module);
+    const run_recvfile_notype_tests = b.addRunArtifact(recvfile_notype_tests);
+    const install_recvfile_notype_tests = b.addInstallArtifact(recvfile_notype_tests, .{});
+
     // test commands
     const run_auth_test_step = b.step("test-authentication", "Run auth unit tests [REMOVE zig-cache!]");
     run_auth_test_step.dependOn(&run_auth_tests.step);
@@ -203,6 +225,14 @@ pub fn build(b: *std.Build) !void {
     run_sendfile_test_step.dependOn(&run_sendfile_tests.step);
     run_sendfile_test_step.dependOn(&install_sendfile_tests.step);
 
+    const run_recvfile_test_step = b.step("test-recvfile", "Run http param unit tests [REMOVE zig-cache!]");
+    run_recvfile_test_step.dependOn(&run_recvfile_tests.step);
+    run_recvfile_test_step.dependOn(&install_recvfile_tests.step);
+
+    const run_recvfile_notype_test_step = b.step("test-recvfile_notype", "Run http param unit tests [REMOVE zig-cache!]");
+    run_recvfile_notype_test_step.dependOn(&run_recvfile_notype_tests.step);
+    run_recvfile_notype_test_step.dependOn(&install_recvfile_notype_tests.step);
+
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the participant to request
     // running the unit tests.
@@ -211,6 +241,8 @@ pub fn build(b: *std.Build) !void {
     test_step.dependOn(&run_mustache_tests.step);
     test_step.dependOn(&run_httpparams_tests.step);
     test_step.dependOn(&run_sendfile_tests.step);
+    test_step.dependOn(&run_recvfile_tests.step);
+    test_step.dependOn(&run_recvfile_notype_tests.step);
 
     //
     // docserver
