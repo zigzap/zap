@@ -111,7 +111,7 @@ pub fn main() !void {
                     std.log.info("Param one not found!", .{});
                 }
             } else |err| {
-                std.log.err("cannot check for `one` param: {any}\n", .{err});
+                std.log.err("cannot check for `one` param: {any}", .{err});
             }
 
             // check if we received a terminate=true parameter
@@ -137,7 +137,7 @@ pub fn main() !void {
     );
 
     try listener.listen();
-    std.log.info("\n\nTerminate with CTRL+C or by sending query param terminate=true\n", .{});
+    std.log.info("\n\nTerminate with CTRL+C or by sending query param terminate=true", .{});
 
     const thread = try makeRequestThread(allocator, "http://127.0.0.1:3000/?one=1&two=2&string=hello+world&float=6.28&bool=true");
     defer thread.join();
