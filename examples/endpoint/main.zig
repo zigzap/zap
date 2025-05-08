@@ -86,5 +86,5 @@ pub fn main() !void {
 
     // show potential memory leaks when ZAP is shut down
     const has_leaked = gpa.detectLeaks();
-    std.log.debug("Has leaked: {}\n", .{has_leaked});
+    std.log.debug("Has leaked: {}", .{has_leaked});
 }

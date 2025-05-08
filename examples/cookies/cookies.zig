@@ -87,8 +87,8 @@ pub fn main() !void {
                     std.log.info("Cookie ZIG_ZAP not found!", .{});
                 }
             } else |err| {
-                std.log.err("ERROR!\n", .{});
-                std.log.err("cannot check for `ZIG_ZAP` cookie: {any}\n", .{err});
+                std.log.err("ERROR!", .{});
+                std.log.err("cannot check for `ZIG_ZAP` cookie: {any}", .{err});
             }
 
             r.setCookie(.{
@@ -101,8 +101,8 @@ pub fn main() !void {
                 //
                 // check out other params: domain, path, secure, http_only
             }) catch |err| {
-                std.log.err("ERROR!\n", .{});
-                std.log.err("cannot set cookie: {any}\n", .{err});
+                std.log.err("ERROR!", .{});
+                std.log.err("cannot set cookie: {any}", .{err});
             };
 
             r.sendBody("Hello") catch unreachable;

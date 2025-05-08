@@ -137,24 +137,24 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
             fio.FIOBJ_T_DATA => {
                 if (fio.is_invalid(data) == 1) {
                     data_slice = "(zap: invalid data)";
-                    zap.log.warn("HTTP param binary file is not a data object\n", .{});
+                    zap.log.warn("HTTP param binary file is not a data object", .{});
                 } else {
                     // the data
                     const data_len = fio.fiobj_data_len(data);
                     var data_buf = fio.fiobj_data_read(data, data_len);
 
                     if (data_len < 0) {
-                        zap.log.warn("HTTP param binary file size negative: {d}\n", .{data_len});
-                        zap.log.warn("FIOBJ_TYPE of data is: {d}\n", .{fio.fiobj_type(data)});
+                        zap.log.warn("HTTP param binary file size negative: {d}", .{data_len});
+                        zap.log.warn("FIOBJ_TYPE of data is: {d}", .{fio.fiobj_type(data)});
                     } else {
                         if (data_buf.len != data_len) {
-                            zap.log.warn("HTTP param binary file size mismatch: should {d}, is: {d}\n", .{ data_len, data_buf.len });
+                            zap.log.warn("HTTP param binary file size mismatch: should {d}, is: {d}", .{ data_len, data_buf.len });
                         }
 
                         if (data_buf.len > 0) {
                             data_slice = data_buf.data[0..data_buf.len];
                         } else {
-                            zap.log.warn("HTTP param binary file buffer size negative: {d}\n", .{data_buf.len});
+                            zap.log.warn("HTTP param binary file buffer size negative: {d}", .{data_buf.len});
                             data_slice = "(zap: invalid data: negative BUFFER size)";
                         }
                     }
@@ -379,7 +379,7 @@ pub fn setContentType(self: *const Request, c: ContentType) HttpError!void {
         .JSON => "application/json",
         else => "text/html",
     };
-    zap.log.debug("setting content-type to {s}\n", .{s});
+    zap.log.debug("setting content-type to {s}", .{s});
     return self.setHeader("content-type", s);
 }
 
@@ -511,7 +511,7 @@ pub fn setHeader(self: *const Request, name: []const u8, value: []const u8) Http
     // FIXME without the following if, we get errors in release builds
     // at least we don't have to log unconditionally
     if (ret == -1) {
-        zap.log.debug("***************** zap.zig:274\n", .{});
+        zap.log.debug("***************** zap.zig:274", .{});
     }
 
     if (ret == 0) return;
@@ -680,7 +680,7 @@ pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
     // TODO: still happening?
     const ret = fio.http_set_cookie(self.h, c);
     if (ret == -1) {
-        zap.log.err("fio.http_set_cookie returned: {}\n", .{ret});
+        zap.log.err("fio.http_set_cookie returned: {}", .{ret});
         return error.SetCookie;
     }
 }
