@@ -88,6 +88,7 @@ const StopEndpoint = struct {
     pub fn delete(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn patch(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
     pub fn options(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
+    pub fn head(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {
