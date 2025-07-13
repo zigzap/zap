@@ -110,14 +110,15 @@ pub fn Create(
                     }
 
                     pub fn onRequest(self: *Bound, arena: Allocator, app_context: *Context, r: Request) !void {
+                        // TODO: simplitfy this with @tagName?
                         const ret = switch (r.methodAsEnum()) {
-                            .GET => self.endpoint.*.get(arena, app_context, r),
-                            .POST => self.endpoint.*.post(arena, app_context, r),
-                            .PUT => self.endpoint.*.put(arena, app_context, r),
-                            .DELETE => self.endpoint.*.delete(arena, app_context, r),
-                            .PATCH => self.endpoint.*.patch(arena, app_context, r),
-                            .OPTIONS => self.endpoint.*.options(arena, app_context, r),
-                            .HEAD => self.endpoint.*.head(arena, app_context, r),
+                            .GET => callHandlerIfExist("get", self.endpoint, arena, app_context, r),
+                            .POST => callHandlerIfExist("post", self.endpoint, arena, app_context, r),
+                            .PUT => callHandlerIfExist("put", self.endpoint, arena, app_context, r),
+                            .DELETE => callHandlerIfExist("delete", self.endpoint, arena, app_context, r),
+                            .PATCH => callHandlerIfExist("patch", self.endpoint, arena, app_context, r),
+                            .OPTIONS => callHandlerIfExist("options", self.endpoint, arena, app_context, r),
+                            .HEAD => callHandlerIfExist("head", self.endpoint, arena, app_context, r),
                             else => error.UnsupportedHtmlRequestMethod,
                         };
                         if (ret) {
@@ -227,8 +228,6 @@ pub fn Create(
                         if (ret_info.error_union.payload != void) {
                             @compileError("Expected return type of method `" ++ @typeName(T) ++ "." ++ method ++ "` to be !void, got: !" ++ @typeName(ret_info.error_union.payload));
                         }
-                    } else {
-                        @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
                     }
                 }
             }
@@ -258,7 +257,7 @@ pub fn Create(
                     pub fn get(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.get(arena, context, request),
+                            .AuthOK => callHandlerIfExist("get", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -267,7 +266,7 @@ pub fn Create(
                     pub fn post(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.post(arena, context, request),
+                            .AuthOK => callHandlerIfExist("post", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -276,7 +275,7 @@ pub fn Create(
                     pub fn put(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.put(arena, context, request),
+                            .AuthOK => callHandlerIfExist("put", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -285,7 +284,7 @@ pub fn Create(
                     pub fn delete(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.delete(arena, context, request),
+                            .AuthOK => callHandlerIfExist("delete", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -294,7 +293,7 @@ pub fn Create(
                     pub fn patch(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.patch(arena, context, request),
+                            .AuthOK => callHandlerIfExist("patch", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -303,7 +302,7 @@ pub fn Create(
                     pub fn options(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.put(arena, context, request),
+                            .AuthOK => callHandlerIfExist("options", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -312,7 +311,7 @@ pub fn Create(
                     pub fn head(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
                             .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
-                            .AuthOK => self.ep.*.head(arena, context, request),
+                            .AuthOK => callHandlerIfExist("head", self.ep, arena, context, request),
                             .Handled => {},
                         };
                     }
@@ -332,7 +331,7 @@ pub fn Create(
             tls: ?zap.Tls = null,
         };
 
-        pub fn init(gpa_: Allocator, context_: *Context, opts_: AppOpts) !App {
+        pub fn init(gpa_: Allocator, context_: *Context, opts_: AppOpts) !void {
             if (_static.there_can_be_only_one) {
                 return error.OnlyOneAppAllowed;
             }
@@ -360,10 +359,9 @@ pub fn Create(
                 }
                 _static.unhandled_error = Context.unhandledError;
             }
-            return .{};
         }
 
-        pub fn deinit(_: *App) void {
+        pub fn deinit() void {
             // we created endpoint wrappers but only tracked their interfaces
             // hence, we need to destroy the wrappers through their interfaces
             if (false) {
@@ -389,6 +387,15 @@ pub fn Create(
             _static.track_arenas.deinit(_static.gpa);
         }
 
+        // This can be resolved at comptime so *perhaps it does affect optimiazation
+        pub fn callHandlerIfExist(comptime fn_name: []const u8, e: anytype, arena: Allocator, ctx: *Context, r: Request) anyerror!void {
+            const EndPoint = @TypeOf(e.*);
+            if (@hasDecl(EndPoint, fn_name)) {
+                return @field(EndPoint, fn_name)(e, arena, ctx, r);
+            }
+            return;
+        }
+
         pub fn get_arena() !*ArenaAllocator {
             const thread_id = std.Thread.getCurrentId();
             _static.track_arena_lock.lockShared();
@@ -411,7 +418,7 @@ pub fn Create(
         /// If you try to register an endpoint whose path would shadow an
         /// already registered one, you will receive an
         /// EndpointPathShadowError.
-        pub fn register(_: *App, endpoint: anytype) !void {
+        pub fn register(endpoint: anytype) !void {
             for (_static.endpoints.items) |other| {
                 if (std.mem.startsWith(
                     u8,
@@ -432,7 +439,7 @@ pub fn Create(
             try _static.endpoints.append(_static.gpa, &bound.interface);
         }
 
-        pub fn listen(_: *App, l: ListenerSettings) !void {
+        pub fn listen(l: ListenerSettings) !void {
             _static.listener = HttpListener.init(.{
                 .interface = l.interface,
                 .port = l.port,

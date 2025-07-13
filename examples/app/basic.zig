@@ -59,15 +59,7 @@ const SimpleEndpoint = struct {
         try r.sendBody(response_text);
         std.time.sleep(std.time.ns_per_ms * 300);
     }
-
-    // empty stubs for all other request methods
-    pub fn post(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn put(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn delete(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn patch(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn options(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn head(_: *SimpleEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-};
+ };
 
 const StopEndpoint = struct {
     path: []const u8,
@@ -82,12 +74,6 @@ const StopEndpoint = struct {
         , .{context.*.db_connection});
         zap.stop();
     }
-
-    pub fn post(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn put(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn delete(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn patch(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn options(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {
@@ -104,19 +90,19 @@ pub fn main() !void {
 
     // create an App instance
     const App = zap.App.Create(MyContext);
-    var app = try App.init(allocator, &my_context, .{});
-    defer app.deinit();
+    try App.init(allocator, &my_context, .{});
+    defer App.deinit();
 
     // create the endpoints
     var my_endpoint = SimpleEndpoint.init("/test", "some endpoint specific data");
     var stop_endpoint: StopEndpoint = .{ .path = "/stop" };
     //
-    // register the endpoints with the app
-    try app.register(&my_endpoint);
-    try app.register(&stop_endpoint);
+    // register the endpoints with the App
+    try App.register(&my_endpoint);
+    try App.register(&stop_endpoint);
 
     // listen on the network
-    try app.listen(.{
+    try App.listen(.{
         .interface = "0.0.0.0",
         .port = 3000,
     });

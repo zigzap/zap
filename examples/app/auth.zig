@@ -58,14 +58,6 @@ const MyEndpoint = struct {
         );
         try r.sendBody(response);
     }
-
-    // not implemented, don't care
-    pub fn post(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn put(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn delete(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn patch(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn options(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn head(_: *MyEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {
@@ -83,8 +75,8 @@ pub fn main() !void {
     // App is the type
     // app is the instance
     const App = zap.App.Create(MyContext);
-    var app = try App.init(allocator, &my_context, .{});
-    defer app.deinit();
+    try App.init(allocator, &my_context, .{});
+    defer App.deinit();
 
     // create mini endpoint
     var ep: MyEndpoint = .{
@@ -101,10 +93,10 @@ pub fn main() !void {
     var auth_ep = BearerAuthEndpoint.init(&ep, &authenticator);
 
     // make the authenticating endpoint known to the app
-    try app.register(&auth_ep);
+    try App.register(&auth_ep);
 
     // listen
-    try app.listen(.{
+    try App.listen(.{
         .interface = "0.0.0.0",
         .port = 3000,
     });

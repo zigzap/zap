@@ -86,24 +86,24 @@ pub fn main() !void {
     defer std.debug.print("\n\nLeaks detected: {}\n\n", .{gpa.deinit() != .ok});
     const allocator = gpa.allocator();
 
-    // create an app context
+    // create an App context
     var my_context: MyContext = .{ .db_connection = "db connection established!" };
 
     // create an App instance
     const App = zap.App.Create(MyContext);
-    var app = try App.init(allocator, &my_context, .{});
-    defer app.deinit();
+    try App.init(allocator, &my_context, .{});
+    defer App.deinit();
 
     // create the endpoints
     var my_endpoint = ErrorEndpoint.init("/error", "some endpoint specific data");
     var stop_endpoint: StopEndpoint = .{ .path = "/stop" };
     //
-    // register the endpoints with the app
-    try app.register(&my_endpoint);
-    try app.register(&stop_endpoint);
+    // register the endpoints with the App
+    try App.register(&my_endpoint);
+    try App.register(&stop_endpoint);
 
     // listen on the network
-    try app.listen(.{
+    try App.listen(.{
         .interface = "0.0.0.0",
         .port = 3000,
     });
