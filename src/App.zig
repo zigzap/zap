@@ -256,7 +256,7 @@ pub fn Create(
                     /// Authenticates GET requests using the Authenticator.
                     pub fn get(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("get", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -265,7 +265,7 @@ pub fn Create(
                     /// Authenticates POST requests using the Authenticator.
                     pub fn post(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("post", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -274,7 +274,7 @@ pub fn Create(
                     /// Authenticates PUT requests using the Authenticator.
                     pub fn put(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("put", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -283,7 +283,7 @@ pub fn Create(
                     /// Authenticates DELETE requests using the Authenticator.
                     pub fn delete(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("delete", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -292,7 +292,7 @@ pub fn Create(
                     /// Authenticates PATCH requests using the Authenticator.
                     pub fn patch(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("patch", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -301,7 +301,7 @@ pub fn Create(
                     /// Authenticates OPTIONS requests using the Authenticator.
                     pub fn options(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("options", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -310,7 +310,7 @@ pub fn Create(
                     /// Authenticates HEAD requests using the Authenticator.
                     pub fn head(self: *AuthenticatingEndpoint, arena: Allocator, context: *Context, request: zap.Request) anyerror!void {
                         try switch (self.authenticator.authenticateRequest(&request)) {
-                            .AuthFailed => return self.ep.*.unauthorized(arena, context, request),
+                            .AuthFailed => callHandlerIfExist("unauthorized", self.ep, arena, context, request),
                             .AuthOK => callHandlerIfExist("head", self.ep, arena, context, request),
                             .Handled => {},
                         };
@@ -393,6 +393,12 @@ pub fn Create(
             if (@hasDecl(EndPoint, fn_name)) {
                 return @field(EndPoint, fn_name)(e, arena, ctx, r);
             }
+            zap.log.debug(
+                "Unhandled `{s}` {s} request ({s} not implemented in {s})",
+                .{ r.method orelse "<unknown>", r.path orelse "", fn_name, @typeName(Endpoint) },
+            );
+            r.setStatus(.method_not_allowed);
+            try r.sendBody("405 - method not allowed\r\n");
             return;
         }
 
