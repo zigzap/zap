@@ -440,9 +440,9 @@ pub fn UserPassSession(comptime Lookup: type, comptime lockedPwLookups: bool) ty
                 .value = "invalid",
                 .max_age_s = -1,
             })) {
-                zap.debug("logout ok\n", .{});
+                zap.debug("logout ok", .{});
             } else |err| {
-                zap.debug("logout cookie setting failed: {any}\n", .{err});
+                zap.debug("logout cookie setting failed: {any}", .{err});
             }
 
             r.parseCookies(false);

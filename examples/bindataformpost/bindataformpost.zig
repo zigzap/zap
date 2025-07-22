@@ -25,7 +25,7 @@ const Handler = struct {
         };
 
         if (r.body) |body| {
-            std.log.info("Body length is {any}\n", .{body.len});
+            std.log.info("Body length is {any}", .{body.len});
         }
 
         // parse potential query params (for ?terminate=true)
@@ -43,7 +43,7 @@ const Handler = struct {
         for (params.items) |kv| {
             if (kv.value) |v| {
                 std.debug.print("\n", .{});
-                std.log.info("Param `{s}` in owned list is {any}\n", .{ kv.key, v });
+                std.log.info("Param `{s}` in owned list is {any}", .{ kv.key, v });
                 switch (v) {
                     // single-file upload
                     zap.Request.HttpParam.Hash_Binfile => |*file| {
@@ -51,9 +51,9 @@ const Handler = struct {
                         const mimetype = file.mimetype orelse "(no mimetype)";
                         const data = file.data orelse "";
 
-                        std.log.debug("    filename: `{s}`\n", .{filename});
-                        std.log.debug("    mimetype: {s}\n", .{mimetype});
-                        std.log.debug("    contents: {any}\n", .{data});
+                        std.log.debug("    filename: `{s}`", .{filename});
+                        std.log.debug("    mimetype: {s}", .{mimetype});
+                        std.log.debug("    contents: {any}", .{data});
                     },
                     // multi-file upload
                     zap.Request.HttpParam.Array_Binfile => |*files| {
@@ -62,9 +62,9 @@ const Handler = struct {
                             const mimetype = file.mimetype orelse "(no mimetype)";
                             const data = file.data orelse "";
 
-                            std.log.debug("    filename: `{s}`\n", .{filename});
-                            std.log.debug("    mimetype: {s}\n", .{mimetype});
-                            std.log.debug("    contents: {any}\n", .{data});
+                            std.log.debug("    filename: `{s}`", .{filename});
+                            std.log.debug("    mimetype: {s}", .{mimetype});
+                            std.log.debug("    contents: {any}", .{data});
                         }
                         files.*.deinit();
                     },
@@ -79,7 +79,7 @@ const Handler = struct {
 
         // check if we received a terminate=true parameter
         if (r.getParamSlice("terminate")) |str| {
-            std.log.info("?terminate={s}\n", .{str});
+            std.log.info("?terminate={s}", .{str});
             if (std.mem.eql(u8, str, "true")) {
                 zap.stop();
             }
@@ -110,9 +110,9 @@ pub fn main() !void {
     );
 
     try listener.listen();
-    std.log.info("\n\nURL is http://localhost:3000\n", .{});
-    std.log.info("\ncurl -v --request POST -F img=@test012345.bin http://127.0.0.1:3000\n", .{});
-    std.log.info("\n\nTerminate with CTRL+C or by sending query param terminate=true\n", .{});
+    std.log.info("\n\nURL is http://localhost:3000", .{});
+    std.log.info("\ncurl -v --request POST -F img=@test012345.bin http://127.0.0.1:3000", .{});
+    std.log.info("\n\nTerminate with CTRL+C or by sending query param terminate=true", .{});
 
     zap.start(.{
         .threads = 1,
