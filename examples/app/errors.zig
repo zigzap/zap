@@ -14,7 +14,7 @@ const MyContext = struct {
     db_connection: []const u8,
 
     // we don't use this
-    pub fn unhandledRequest(_: *MyContext, _: Allocator, _: zap.Request) anyerror!void {}
+    // pub fn unhandledRequest(_: *MyContext, _: Allocator, _: zap.Request) anyerror!void {}
 
     pub fn unhandledError(_: *MyContext, _: zap.Request, err: anyerror) void {
         std.debug.print("\n\n\nUNHANDLED ERROR: {} !!! \n\n\n", .{err});
@@ -46,14 +46,6 @@ const ErrorEndpoint = struct {
         // -> error will be raised and dispatched to MyContext.unhandledError
         return error.@"Oh-No!";
     }
-
-    // empty stubs for all other request methods
-    pub fn post(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn put(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn delete(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn patch(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn options(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn head(_: *ErrorEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 const StopEndpoint = struct {
@@ -64,17 +56,11 @@ const StopEndpoint = struct {
         std.debug.print(
             \\Before I stop, let me dump the app context:
             \\db_connection='{s}'
-            \\ 
+            \\
             \\
         , .{context.*.db_connection});
         zap.stop();
     }
-
-    pub fn post(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn put(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn delete(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn patch(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
-    pub fn options(_: *StopEndpoint, _: Allocator, _: *MyContext, _: zap.Request) !void {}
 };
 
 pub fn main() !void {
