@@ -59,7 +59,7 @@ const SimpleEndpoint = struct {
         try r.sendBody(response_text);
         std.time.sleep(std.time.ns_per_ms * 300);
     }
- };
+};
 
 const StopEndpoint = struct {
     path: []const u8,
@@ -69,7 +69,7 @@ const StopEndpoint = struct {
         std.debug.print(
             \\Before I stop, let me dump the app context:
             \\db_connection='{s}'
-            \\ 
+            \\
             \\
         , .{context.*.db_connection});
         zap.stop();

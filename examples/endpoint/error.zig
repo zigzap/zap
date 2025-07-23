@@ -13,11 +13,3 @@ pub fn get(_: *ErrorEndpoint, _: zap.Request) !void {
     // --> this error will be shown in the browser, with a nice error trace
     return error.@"Oh-no!";
 }
-
-// unused:
-pub fn post(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn put(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn delete(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn patch(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn options(_: *ErrorEndpoint, _: zap.Request) !void {}
-pub fn head(_: *ErrorEndpoint, _: zap.Request) !void {}

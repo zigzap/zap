@@ -5,7 +5,11 @@
 //! Pass an instance of an Endpoint struct  to zap.Endpoint.Listener.register()
 //! function to register with the listener.
 //!
-//! **NOTE**: Endpoints must implement the following "interface":
+//! **NOTE**: Endpoints can implement the following "interface":
+//!
+//! Any method handler that's not implemented will be handled automatically:
+//! - zap will log it
+//! - a response with status code 405 (method not allowed) is sent to the client
 //!
 //! ```zig
 //! /// The http request path / slug of the endpoint
@@ -13,6 +17,7 @@
 //! error_strategy: zap.Endpoint.ErrorStrategy,
 //!
 //! /// Handlers by request method:
+//! /// implement any of the following
 //! pub fn get(_: *Self, _: zap.Request) !void {}
 //! pub fn post(_: *Self, _: zap.Request) !void {}
 //! pub fn put(_: *Self, _: zap.Request) !void {}
@@ -44,13 +49,6 @@
 //!     pub fn get(_: *StopEndpoint, _: zap.Request) !void {
 //!         zap.stop();
 //!     }
-//!
-//!     pub fn post(_: *StopEndpoint, _: zap.Request) !void {}
-//!     pub fn put(_: *StopEndpoint, _: zap.Request) !void {}
-//!     pub fn delete(_: *StopEndpoint, _: zap.Request) !void {}
-//!     pub fn patch(_: *StopEndpoint, _: zap.Request) !void {}
-//!     pub fn options(_: *StopEndpoint, _: zap.Request) !void {}
-//!     pub fn head(_: *StopEndpoint, _: zap.Request) !void {}
 //! };
 //! ```
 
@@ -154,9 +152,24 @@ pub fn checkEndpointType(T: type) void {
                 @compileError("Expected return type of method `" ++ @typeName(T) ++ "." ++ method ++ "` to be !void, got: !" ++ @typeName(ret_info.error_union.payload));
             }
         } else {
-            @compileError(@typeName(T) ++ " has no method named `" ++ method ++ "`");
+            // it is ok not to implement a method handler
+            // pass
         }
     }
+}
+// This can be resolved at comptime so *perhaps it does affect optimiazation
+pub fn callHandlerIfExist(comptime fn_name: []const u8, e: anytype, r: Request) anyerror!void {
+    const EndPointType = @TypeOf(e.*);
+    if (@hasDecl(EndPointType, fn_name)) {
+        return @field(EndPointType, fn_name)(e, r);
+    }
+    zap.log.debug(
+        "Unhandled `{s}` {s} request ({s} not implemented in {s})",
+        .{ r.method orelse "<unknown>", r.path orelse "", fn_name, @typeName(EndPointType) },
+    );
+    r.setStatus(.method_not_allowed);
+    try r.sendBody("405 - method not allowed\r\n");
+    return;
 }
 
 pub const Binder = struct {
@@ -189,13 +202,13 @@ pub const Binder = struct {
 
             pub fn onRequest(self: *Bound, r: zap.Request) !void {
                 const ret = switch (r.methodAsEnum()) {
-                    .GET => self.endpoint.*.get(r),
-                    .POST => self.endpoint.*.post(r),
-                    .PUT => self.endpoint.*.put(r),
-                    .DELETE => self.endpoint.*.delete(r),
-                    .PATCH => self.endpoint.*.patch(r),
-                    .OPTIONS => self.endpoint.*.options(r),
-                    .HEAD => self.endpoint.*.head(r),
+                    .GET => callHandlerIfExist("get", self.endpoint, r),
+                    .POST => callHandlerIfExist("post", self.endpoint, r),
+                    .PUT => callHandlerIfExist("put", self.endpoint, r),
+                    .DELETE => callHandlerIfExist("delete", self.endpoint, r),
+                    .PATCH => callHandlerIfExist("patch", self.endpoint, r),
+                    .OPTIONS => callHandlerIfExist("options", self.endpoint, r),
+                    .HEAD => callHandlerIfExist("head", self.endpoint, r),
                     else => error.UnsupportedHtmlRequestMethod,
                 };
                 if (ret) {
@@ -249,8 +262,8 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates GET requests using the Authenticator.
         pub fn get(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.get(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("get", self.ep, r),
                 .Handled => {},
             };
         }
@@ -258,8 +271,8 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates POST requests using the Authenticator.
         pub fn post(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.post(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("post", self.ep, r),
                 .Handled => {},
             };
         }
@@ -267,8 +280,8 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates PUT requests using the Authenticator.
         pub fn put(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.put(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("put", self.ep, r),
                 .Handled => {},
             };
         }
@@ -276,8 +289,8 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates DELETE requests using the Authenticator.
         pub fn delete(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.delete(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("delete", self.ep, r),
                 .Handled => {},
             };
         }
@@ -285,8 +298,8 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates PATCH requests using the Authenticator.
         pub fn patch(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.patch(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("patch", self.ep, r),
                 .Handled => {},
             };
         }
@@ -294,17 +307,17 @@ pub fn Authenticating(EndpointType: type, Authenticator: type) type {
         /// Authenticates OPTIONS requests using the Authenticator.
         pub fn options(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.put(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("options", self.ep, r),
                 .Handled => {},
             };
         }
-        
+
         /// Authenticates HEAD requests using the Authenticator.
         pub fn head(self: *AuthenticatingEndpoint, r: zap.Request) anyerror!void {
             try switch (self.authenticator.authenticateRequest(&r)) {
-                .AuthFailed => return self.ep.*.unauthorized(r),
-                .AuthOK => self.ep.*.head(r),
+                .AuthFailed => callHandlerIfExist("unauthorized", self.ep, r),
+                .AuthOK => callHandlerIfExist("head", self.ep, r),
                 .Handled => {},
             };
         }

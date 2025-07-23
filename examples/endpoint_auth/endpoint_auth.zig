@@ -31,14 +31,6 @@ const Endpoint = struct {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
     }
-
-    // not implemented, don't care
-    pub fn post(_: *Endpoint, _: zap.Request) !void {}
-    pub fn put(_: *Endpoint, _: zap.Request) !void {}
-    pub fn delete(_: *Endpoint, _: zap.Request) !void {}
-    pub fn patch(_: *Endpoint, _: zap.Request) !void {}
-    pub fn options(_: *Endpoint, _: zap.Request) !void {}
-    pub fn head(_: *Endpoint, _: zap.Request) !void {}
 };
 
 pub fn main() !void {
@@ -74,7 +66,7 @@ pub fn main() !void {
     listener.listen() catch {};
     std.debug.print(
         \\ Run the following:
-        \\ 
+        \\
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer ABCDEFG" -v
         \\ curl http://localhost:3000/test -i -H "Authorization: Bearer invalid" -v
         \\

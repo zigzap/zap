@@ -43,7 +43,8 @@ fn userIdFromPath(self: *UserWeb, path: []const u8) ?usize {
     return null;
 }
 
-pub fn put(_: *UserWeb, _: zap.Request) !void {}
+// not implemented
+// pub fn put(_: *UserWeb, _: zap.Request) !void {}
 
 pub fn get(self: *UserWeb, r: zap.Request) !void {
     if (r.path) |path| {

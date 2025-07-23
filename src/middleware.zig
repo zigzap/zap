@@ -1,5 +1,6 @@
 const std = @import("std");
 const zap = @import("zap.zig");
+const callHandlerIfExist = @import("endpoint.zig").callHandlerIfExist;
 
 /// Your middleware components need to contain a handler.
 ///
@@ -102,16 +103,16 @@ pub fn EndpointHandler(comptime HandlerType: anytype, comptime EndpointType: any
             if (!self.options.checkPath or
                 std.mem.startsWith(u8, r.path orelse "", self.endpoint.path))
             {
-                switch (r.methodAsEnum()) {
-                    .GET => try self.endpoint.*.get(r),
-                    .POST => try self.endpoint.*.post(r),
-                    .PUT => try self.endpoint.*.put(r),
-                    .DELETE => try self.endpoint.*.delete(r),
-                    .PATCH => try self.endpoint.*.patch(r),
-                    .OPTIONS => try self.endpoint.*.options(r),
-                    .HEAD => try self.endpoint.*.head(r),
+                try switch (r.methodAsEnum()) {
+                    .GET => callHandlerIfExist("get", self.endpoint, r),
+                    .POST => callHandlerIfExist("post", self.endpoint, r),
+                    .PUT => callHandlerIfExist("put", self.endpoint, r),
+                    .DELETE => callHandlerIfExist("delete", self.endpoint, r),
+                    .PATCH => callHandlerIfExist("patch", self.endpoint, r),
+                    .OPTIONS => callHandlerIfExist("options", self.endpoint, r),
+                    .HEAD => callHandlerIfExist("head", self.endpoint, r),
                     else => {},
-                }
+                };
             }
 
             // if the request was handled by the endpoint, we may break the chain here
