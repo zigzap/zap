@@ -65,7 +65,7 @@ test "http parameters" {
     // setup listener
     var listener = zap.HttpListener.init(
         .{
-            .port = 3001,
+            .port = 3010,
             .on_request = Handler.on_request,
             .log = false,
             .max_clients = 10,
@@ -74,7 +74,7 @@ test "http parameters" {
     );
     try listener.listen();
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3001/?one=1&two=2&string=hello+world&float=6.28&bool=true");
+    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3010/?one=1&two=2&string=hello+world&float=6.28&bool=true");
     defer thread.join();
     zap.start(.{
         .threads = 1,

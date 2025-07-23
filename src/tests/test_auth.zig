@@ -184,7 +184,7 @@ test "BearerAuthSingle authenticateRequest OK" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3001,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -211,7 +211,7 @@ test "BearerAuthSingle authenticateRequest OK" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3001/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -231,7 +231,7 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3002,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -264,7 +264,7 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
 
     try listener.listen();
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3002/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -284,7 +284,7 @@ test "BearerAuthMulti authenticateRequest OK" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3003,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -311,7 +311,7 @@ test "BearerAuthMulti authenticateRequest OK" {
 
     try listener.listen();
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = token });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3003/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -331,7 +331,7 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3004,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -358,7 +358,7 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Bearer, .token = "invalid" });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3004/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -378,7 +378,7 @@ test "BasicAuth Token68 authenticateRequest" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3005,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -410,7 +410,7 @@ test "BasicAuth Token68 authenticateRequest" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = token });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3005/test", .{ .auth = .Basic, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -430,7 +430,7 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3006,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -462,7 +462,7 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3006/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -481,7 +481,7 @@ test "BasicAuth UserPass authenticateRequest" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3007,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -524,7 +524,7 @@ test "BasicAuth UserPass authenticateRequest" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = encoded });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3007/test", .{ .auth = .Basic, .token = encoded });
     defer thread.join();
 
     // start worker threads
@@ -543,7 +543,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
     var listener = zap.Endpoint.Listener.init(
         a,
         .{
-            .port = 3000,
+            .port = 3008,
             .on_request = null,
             .log = false,
             .max_clients = 10,
@@ -589,7 +589,7 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3000/test", .{ .auth = .Basic, .token = "invalid" });
+    const thread = try makeRequestThread(a, "http://127.0.0.1:3008/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();
 
     // start worker threads

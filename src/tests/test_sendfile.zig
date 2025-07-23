@@ -42,7 +42,7 @@ test "send file" {
     // setup listener
     var listener = zap.HttpListener.init(
         .{
-            .port = 3002,
+            .port = 3040,
             .on_request = on_request,
             .log = false,
             .max_clients = 10,
@@ -51,7 +51,7 @@ test "send file" {
     );
     try listener.listen();
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3002/?file=src/tests/testfile.txt");
+    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3040/?file=src/tests/testfile.txt");
     defer thread.join();
     zap.start(.{
         .threads = 1,

@@ -110,7 +110,7 @@ test "recv file" {
 
     var listener = zap.HttpListener.init(
         .{
-            .port = 3003,
+            .port = 3020,
             .on_request = on_request,
             .log = false,
             .max_clients = 10,
@@ -119,7 +119,7 @@ test "recv file" {
     );
     try listener.listen();
 
-    const t1 = try std.Thread.spawn(.{}, makeRequest, .{ allocator, "http://127.0.0.1:3003" });
+    const t1 = try std.Thread.spawn(.{}, makeRequest, .{ allocator, "http://127.0.0.1:3020" });
     defer t1.join();
 
     zap.start(.{
