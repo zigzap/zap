@@ -17,6 +17,23 @@ pub fn fio2str(o: fio.FIOBJ) ?[]const u8 {
     return x.data[0..x.len];
 }
 
+pub fn fiobj_type_as_string(o: zap.fio.FIOBJ) []const u8 {
+    const value_type = switch (zap.fio.fiobj_type(o)) {
+        zap.fio.FIOBJ_T_NULL => "null",
+        zap.fio.FIOBJ_T_TRUE => "true",
+        zap.fio.FIOBJ_T_FALSE => "false",
+        zap.fio.FIOBJ_T_NUMBER => "number",
+        zap.fio.FIOBJ_T_FLOAT => "float",
+        zap.fio.FIOBJ_T_STRING => "string",
+        zap.fio.FIOBJ_T_ARRAY => "array",
+        zap.fio.FIOBJ_T_HASH => "hash",
+        zap.fio.FIOBJ_T_DATA => "data",
+        zap.fio.FIOBJ_T_UNKNOWN => "unknown",
+        else => "unreachable",
+    };
+    return value_type;
+}
+
 /// Used internally: convert a FIO object into its string representation.
 /// This always allocates, so choose your allocator wisely.
 /// Let's never use that

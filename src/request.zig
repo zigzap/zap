@@ -132,8 +132,14 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
 
         var mimetype: []const u8 = undefined;
         if (fio.fiobj_hash_haskey(o, key_type) == 1) {
-            const mt = fio.fiobj_obj2cstr(fio.fiobj_hash_get(o, key_type));
-            mimetype = mt.data[0..mt.len];
+            const mt_fiobj = fio.fiobj_hash_get(o, key_type);
+            // for some reason, mimetype can be an array
+            if (fio.fiobj_type_is(mt_fiobj, fio.FIOBJ_T_STRING) == 1) {
+                const mt = fio.fiobj_obj2cstr(mt_fiobj);
+                mimetype = mt.data[0..mt.len];
+            } else {
+                mimetype = &"application/octet-stream".*;
+            }
         } else {
             mimetype = &"application/octet-stream".*;
         }
