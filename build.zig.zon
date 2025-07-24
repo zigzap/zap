@@ -1,6 +1,6 @@
 .{
     .name = .zap,
-    .version = "0.10.5",
+    .version = "0.10.6",
     .paths = .{
         "build.zig",
         "build.zig.zon",
