@@ -320,6 +320,9 @@ int http_set_cookie(http_s *h, http_cookie_args_s cookie) {
   if (cookie.secure) {
     fiobj_str_write(c, "secure;", 7);
   }
+  if(cookie.partitioned) {
+    fiobj_str_write(c, "Partitioned;", 12);
+  }
   set_header_add(h->private_data.out_headers, HTTP_HEADER_SET_COOKIE, c);
   return 0;
 }

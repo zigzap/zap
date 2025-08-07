@@ -153,6 +153,8 @@ typedef struct {
   unsigned secure : 1;
   /** Limit cookie to HTTP (intended to prevent javascript access/hijacking).*/
   unsigned http_only : 1;
+  /** Partitioned storage, with a separate cookie jar per top-level site */
+  unsigned partitioned: 1;
 } http_cookie_args_s;
 
 /**

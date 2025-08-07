@@ -116,6 +116,7 @@ pub const http_cookie_args_s = extern struct {
     max_age: c_int,
     secure: c_uint,
     http_only: c_uint,
+    partitioned: c_uint,
 };
 
 pub const struct_fio_str_info_s = extern struct {

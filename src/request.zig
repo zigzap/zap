@@ -273,6 +273,7 @@ pub const CookieArgs = struct {
     max_age_s: c_int = 0,
     secure: bool = true,
     http_only: bool = true,
+    partitioned: bool = false,
 };
 
 path: ?[]const u8,
@@ -683,6 +684,7 @@ pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
         .max_age = args.max_age_s,
         .secure = if (args.secure) 1 else 0,
         .http_only = if (args.http_only) 1 else 0,
+        .partitioned = if (args.partitioned) 1 else 0,
     };
 
     // TODO WAT?
