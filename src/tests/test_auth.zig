@@ -154,7 +154,7 @@ pub const Endpoint = struct {
     pub fn get(_: *Endpoint, r: zap.Request) !void {
         r.sendBody(HTTP_RESPONSE) catch return;
         received_response = HTTP_RESPONSE;
-        std.time.sleep(1 * std.time.ns_per_s);
+        std.Thread.sleep(1 * std.time.ns_per_s);
         zap.stop();
     }
 
@@ -162,7 +162,7 @@ pub const Endpoint = struct {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
         received_response = "UNAUTHORIZED";
-        std.time.sleep(1 * std.time.ns_per_s);
+        std.Thread.sleep(1 * std.time.ns_per_s);
         zap.stop();
     }
 };

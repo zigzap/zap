@@ -362,12 +362,14 @@ pub fn _internal_sendError(self: *const Request, err: anyerror, err_trace: ?std.
     var fba = std.heap.FixedBufferAllocator.init(&buf);
     var string = std.ArrayList(u8).init(fba.allocator());
     var writer = string.writer();
+    // TODO: fix this when 0.15 is released?
+    var new_api_adapter = writer.adaptToNewApi();
     try writer.print("ERROR: {any}\n\n", .{err});
 
     if (err_trace) |trace| {
         const debugInfo = try std.debug.getSelfDebugInfo();
         const ttyConfig: std.io.tty.Config = .no_color;
-        try std.debug.writeStackTrace(trace, writer, debugInfo, ttyConfig);
+        try std.debug.writeStackTrace(trace, &new_api_adapter.new_interface, debugInfo, ttyConfig);
     }
 
     try self.sendBody(string.items);
@@ -751,7 +753,7 @@ const CallbackContext_KV = struct {
     params: *std.ArrayList(HttpParamKV),
     last_error: ?anyerror = null,
 
-    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
+    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.c) c_int {
         const ctx: *CallbackContext_KV = @as(*CallbackContext_KV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
@@ -780,7 +782,7 @@ const CallbackContext_StrKV = struct {
     params: *std.ArrayList(HttpParamStrKV),
     last_error: ?anyerror = null,
 
-    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.C) c_int {
+    pub fn callback(fiobj_value: fio.FIOBJ, context_: ?*anyopaque) callconv(.c) c_int {
         const ctx: *CallbackContext_StrKV = @as(*CallbackContext_StrKV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
