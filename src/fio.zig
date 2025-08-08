@@ -39,10 +39,10 @@ pub const struct_timespec = extern struct {
     tv_nsec: __syscall_slong_t,
 };
 pub const struct_http_settings_s = extern struct {
-    on_request: ?*const fn ([*c]http_s) callconv(.C) void,
-    on_upgrade: ?*const fn ([*c]http_s, [*c]u8, usize) callconv(.C) void,
-    on_response: ?*const fn ([*c]http_s) callconv(.C) void,
-    on_finish: ?*const fn ([*c]struct_http_settings_s) callconv(.C) void,
+    on_request: ?*const fn ([*c]http_s) callconv(.c) void,
+    on_upgrade: ?*const fn ([*c]http_s, [*c]u8, usize) callconv(.c) void,
+    on_response: ?*const fn ([*c]http_s) callconv(.c) void,
+    on_finish: ?*const fn ([*c]struct_http_settings_s) callconv(.c) void,
     udata: ?*anyopaque,
     public_folder: [*c]const u8,
     public_folder_length: usize,
@@ -126,7 +126,7 @@ pub const struct_fio_str_info_s = extern struct {
 };
 pub const fio_str_info_s = struct_fio_str_info_s;
 pub extern fn http_send_body(h: [*c]http_s, data: ?*anyopaque, length: usize) c_int;
-pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, arg_arg: ?*anyopaque) callconv(.C) usize {
+pub fn fiobj_each1(arg_o: FIOBJ, arg_start_at: usize, arg_task: ?*const fn (FIOBJ, ?*anyopaque) callconv(.c) c_int, arg_arg: ?*anyopaque) callconv(.c) usize {
     const o = arg_o;
     const start_at = arg_start_at;
     const task = arg_task;
@@ -162,7 +162,7 @@ pub extern fn fiobj_float_new(num: f64) FIOBJ;
 pub extern fn fiobj_num_new_bignum(num: isize) FIOBJ;
 
 pub extern fn fiobj_data_newstr() FIOBJ;
-pub extern fn fiobj_data_newstr2(buffer: ?*anyopaque, length: usize, dealloc: ?*const fn (?*anyopaque) callconv(.C) void) FIOBJ;
+pub extern fn fiobj_data_newstr2(buffer: ?*anyopaque, length: usize, dealloc: ?*const fn (?*anyopaque) callconv(.c) void) FIOBJ;
 pub extern fn fiobj_data_newtmpfile() FIOBJ;
 pub extern fn fiobj_data_newfd(fd: c_int) FIOBJ;
 pub extern fn fiobj_data_slice(parent: FIOBJ, offset: isize, length: usize) FIOBJ;
@@ -224,14 +224,14 @@ pub extern fn fio_tls_accept(uuid: *u32, tls: ?*anyopaque, udata: ?*anyopaque) v
 /// were added using fio_tls_alpn_add).
 pub extern fn fio_tls_connect(uuid: *u32, tls: ?*anyopaque, udata: ?*anyopaque) void;
 
-pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.C) void;
-pub fn fiobj_null() callconv(.C) FIOBJ {
+pub extern fn fiobj_free_wrapped(o: FIOBJ) callconv(.c) void;
+pub fn fiobj_null() callconv(.c) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_NULL)));
 }
-pub fn fiobj_true() callconv(.C) FIOBJ {
+pub fn fiobj_true() callconv(.c) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_TRUE)));
 }
-pub fn fiobj_false() callconv(.C) FIOBJ {
+pub fn fiobj_false() callconv(.c) FIOBJ {
     return @as(FIOBJ, @bitCast(@as(c_long, FIOBJ_T_FALSE)));
 }
 pub extern fn fiobj_str_new(str: [*c]const u8, len: usize) FIOBJ;
@@ -283,20 +283,20 @@ pub const FIOBJ_T_UNKNOWN: c_int = 44;
 pub const fiobj_type_enum = u8;
 pub const fiobj_object_vtable_s = extern struct {
     class_name: [*c]const u8,
-    dealloc: ?*const fn (FIOBJ, ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) void, ?*anyopaque) callconv(.C) void,
-    count: ?*const fn (FIOBJ) callconv(.C) usize,
-    is_true: ?*const fn (FIOBJ) callconv(.C) usize,
-    is_eq: ?*const fn (FIOBJ, FIOBJ) callconv(.C) usize,
-    each: ?*const fn (FIOBJ, usize, ?*const fn (FIOBJ, ?*anyopaque) callconv(.C) c_int, ?*anyopaque) callconv(.C) usize,
-    to_str: ?*const fn (FIOBJ) callconv(.C) fio_str_info_s,
-    to_i: ?*const fn (FIOBJ) callconv(.C) isize,
-    to_f: ?*const fn (FIOBJ) callconv(.C) f64,
+    dealloc: ?*const fn (FIOBJ, ?*const fn (FIOBJ, ?*anyopaque) callconv(.c) void, ?*anyopaque) callconv(.c) void,
+    count: ?*const fn (FIOBJ) callconv(.c) usize,
+    is_true: ?*const fn (FIOBJ) callconv(.c) usize,
+    is_eq: ?*const fn (FIOBJ, FIOBJ) callconv(.c) usize,
+    each: ?*const fn (FIOBJ, usize, ?*const fn (FIOBJ, ?*anyopaque) callconv(.c) c_int, ?*anyopaque) callconv(.c) usize,
+    to_str: ?*const fn (FIOBJ) callconv(.c) fio_str_info_s,
+    to_i: ?*const fn (FIOBJ) callconv(.c) isize,
+    to_f: ?*const fn (FIOBJ) callconv(.c) f64,
 };
 pub const fiobj_object_header_s = extern struct {
     type: fiobj_type_enum,
     ref: u32,
 };
-pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize {
+pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.c) usize {
     const o = arg_o;
     const @"type" = arg_type;
     while (true) {
@@ -319,7 +319,7 @@ pub fn fiobj_type_is(arg_o: FIOBJ, arg_type: fiobj_type_enum) callconv(.C) usize
     }
     return @as(usize, @bitCast(@as(c_long, @intFromBool((((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6)))))) and (@as(c_int, @bitCast(@as(c_uint, @as([*c]fiobj_type_enum, @ptrCast(@alignCast(@as(?*anyopaque, @ptrFromInt(o & ~@as(usize, @bitCast(@as(c_long, @as(c_int, 7)))))))))[@as(c_uint, @intCast(@as(c_int, 0)))]))) == @as(c_int, @bitCast(@as(c_uint, @"type"))))))));
 }
-pub fn fiobj_type(arg_o: FIOBJ) callconv(.C) fiobj_type_enum {
+pub fn fiobj_type(arg_o: FIOBJ) callconv(.c) fiobj_type_enum {
     const o = arg_o;
     if (!(o != 0)) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NULL))));
     if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(u8, @bitCast(@as(i8, @truncate(FIOBJ_T_NUMBER))));
@@ -334,7 +334,7 @@ pub extern const FIOBJECT_VTABLE_STRING: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_ARRAY: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_HASH: fiobj_object_vtable_s;
 pub extern const FIOBJECT_VTABLE_DATA: fiobj_object_vtable_s;
-pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtable_s {
+pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.c) [*c]const fiobj_object_vtable_s {
     const o = arg_o;
     while (true) {
         switch (@as(c_int, @bitCast(@as(c_uint, fiobj_type(o))))) {
@@ -352,7 +352,7 @@ pub fn fiobj_type_vtable(arg_o: FIOBJ) callconv(.C) [*c]const fiobj_object_vtabl
     return null;
 }
 
-pub fn fiobj_obj2num(o: FIOBJ) callconv(.C) isize {
+pub fn fiobj_obj2num(o: FIOBJ) callconv(.c) isize {
     if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) {
         const sign: usize = if ((o & ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) != 0) ~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) | (~(~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) >> @as(@import("std").math.Log2Int(usize), @intCast(1))) else @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0))));
         return @as(isize, @bitCast(((o & (~@as(usize, @bitCast(@as(c_long, @as(c_int, 0)))) >> @as(@import("std").math.Log2Int(usize), @intCast(1)))) >> @as(@import("std").math.Log2Int(c_ulong), @intCast(1))) | sign));
@@ -360,7 +360,7 @@ pub fn fiobj_obj2num(o: FIOBJ) callconv(.C) isize {
     if (!(o != 0) or !(((o != 0) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) == @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 0)))))) and ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))) != @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 6))))))) return @as(isize, @bitCast(@as(c_long, @intFromBool(o == @as(c_ulong, @bitCast(@as(c_long, FIOBJ_T_TRUE)))))));
     return fiobj_type_vtable(o).*.to_i.?(o);
 }
-pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
+pub fn fiobj_obj2float(o: FIOBJ) callconv(.c) f64 {
     if ((o & @as(c_ulong, @bitCast(@as(c_long, @as(c_int, 1))))) != 0) return @as(f64, @floatFromInt(fiobj_obj2num(o)));
     // the below doesn't parse and we don't support ints here anyway
     // if (!(o != 0) or ((o & @bitCast(c_ulong, @as(c_long, @as(c_int, 6)))) == @bitCast(c_ulong, @as(c_long, @as(c_int, 6))))) return @intToFloat(f64, o == @bitCast(c_ulong, @as(c_long, FIOBJ_T_TRUE)));
@@ -368,7 +368,7 @@ pub fn fiobj_obj2float(o: FIOBJ) callconv(.C) f64 {
 }
 
 pub extern fn fio_ltocstr(c_long) fio_str_info_s;
-pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.C) fio_str_info_s {
+pub fn fiobj_obj2cstr(o: FIOBJ) callconv(.c) fio_str_info_s {
     if (!(o != 0)) {
         const ret: fio_str_info_s = fio_str_info_s{
             .capa = @as(usize, @bitCast(@as(c_long, @as(c_int, 0)))),
@@ -433,8 +433,8 @@ pub extern fn http_push_data(h: [*c]http_s, data: ?*anyopaque, length: usize, mi
 pub extern fn http_push_file(h: [*c]http_s, filename: FIOBJ, mime_type: FIOBJ) c_int;
 pub const struct_http_pause_handle_s = opaque {};
 pub const http_pause_handle_s = struct_http_pause_handle_s;
-pub extern fn http_pause(h: [*c]http_s, task: ?*const fn (?*http_pause_handle_s) callconv(.C) void) void;
-pub extern fn http_resume(http: ?*http_pause_handle_s, task: ?*const fn ([*c]http_s) callconv(.C) void, fallback: ?*const fn (?*anyopaque) callconv(.C) void) void;
+pub extern fn http_pause(h: [*c]http_s, task: ?*const fn (?*http_pause_handle_s) callconv(.c) void) void;
+pub extern fn http_resume(http: ?*http_pause_handle_s, task: ?*const fn ([*c]http_s) callconv(.c) void, fallback: ?*const fn (?*anyopaque) callconv(.c) void) void;
 pub extern fn http_paused_udata_get(http: ?*http_pause_handle_s) ?*anyopaque;
 pub extern fn http_paused_udata_set(http: ?*http_pause_handle_s, udata: ?*anyopaque) ?*anyopaque;
 pub extern fn http_listen(port: [*c]const u8, binding: [*c]const u8, struct_http_settings_s) isize;
@@ -445,11 +445,11 @@ pub extern fn http_hijack(h: [*c]http_s, leftover: [*c]fio_str_info_s) isize;
 pub const struct_ws_s = opaque {};
 pub const ws_s = struct_ws_s;
 pub const websocket_settings_s = extern struct {
-    on_message: ?*const fn (?*ws_s, fio_str_info_s, u8) callconv(.C) void,
-    on_open: ?*const fn (?*ws_s) callconv(.C) void,
-    on_ready: ?*const fn (?*ws_s) callconv(.C) void,
-    on_shutdown: ?*const fn (?*ws_s) callconv(.C) void,
-    on_close: ?*const fn (isize, ?*anyopaque) callconv(.C) void,
+    on_message: ?*const fn (?*ws_s, fio_str_info_s, u8) callconv(.c) void,
+    on_open: ?*const fn (?*ws_s) callconv(.c) void,
+    on_ready: ?*const fn (?*ws_s) callconv(.c) void,
+    on_shutdown: ?*const fn (?*ws_s) callconv(.c) void,
+    on_close: ?*const fn (isize, ?*anyopaque) callconv(.c) void,
     udata: ?*anyopaque,
 };
 
@@ -467,8 +467,8 @@ pub const websocket_settings_s = extern struct {
 pub const websocket_subscribe_s_zigcompat = extern struct {
     ws: ?*ws_s,
     channel: fio_str_info_s,
-    on_message: ?*const fn (?*ws_s, fio_str_info_s, fio_str_info_s, ?*anyopaque) callconv(.C) void,
-    on_unsubscribe: ?*const fn (?*anyopaque) callconv(.C) void,
+    on_message: ?*const fn (?*ws_s, fio_str_info_s, fio_str_info_s, ?*anyopaque) callconv(.c) void,
+    on_unsubscribe: ?*const fn (?*anyopaque) callconv(.c) void,
     udata: ?*anyopaque,
     match: fio_match_fn,
     force_binary: u8,
@@ -476,7 +476,7 @@ pub const websocket_subscribe_s_zigcompat = extern struct {
 };
 
 /// 0 on failure
-pub extern fn websocket_subscribe_zigcompat(websocket_subscribe_s_zigcompat) callconv(.C) usize;
+pub extern fn websocket_subscribe_zigcompat(websocket_subscribe_s_zigcompat) callconv(.c) usize;
 
 pub extern fn http_upgrade2ws(http: [*c]http_s, websocket_settings_s) c_int;
 pub extern fn websocket_connect(url: [*c]const u8, settings: websocket_settings_s) c_int;
@@ -506,19 +506,19 @@ pub const struct_fio_publish_args_s = extern struct {
 
 pub const http_sse_s = struct_http_sse_s;
 pub const struct_http_sse_s = extern struct {
-    on_open: ?*const fn ([*c]http_sse_s) callconv(.C) void,
-    on_ready: ?*const fn ([*c]http_sse_s) callconv(.C) void,
-    on_shutdown: ?*const fn ([*c]http_sse_s) callconv(.C) void,
-    on_close: ?*const fn ([*c]http_sse_s) callconv(.C) void,
+    on_open: ?*const fn ([*c]http_sse_s) callconv(.c) void,
+    on_ready: ?*const fn ([*c]http_sse_s) callconv(.c) void,
+    on_shutdown: ?*const fn ([*c]http_sse_s) callconv(.c) void,
+    on_close: ?*const fn ([*c]http_sse_s) callconv(.c) void,
     udata: ?*anyopaque,
 };
 pub extern fn http_upgrade2sse(h: [*c]http_s, http_sse_s) c_int;
 pub extern fn http_sse_set_timout(sse: [*c]http_sse_s, timeout: u8) void;
-pub const fio_match_fn = ?*const fn (fio_str_info_s, fio_str_info_s) callconv(.C) c_int;
+pub const fio_match_fn = ?*const fn (fio_str_info_s, fio_str_info_s) callconv(.c) c_int;
 pub const struct_http_sse_subscribe_args = extern struct {
     channel: fio_str_info_s,
-    on_message: ?*const fn ([*c]http_sse_s, fio_str_info_s, fio_str_info_s, ?*anyopaque) callconv(.C) void,
-    on_unsubscribe: ?*const fn (?*anyopaque) callconv(.C) void,
+    on_message: ?*const fn ([*c]http_sse_s, fio_str_info_s, fio_str_info_s, ?*anyopaque) callconv(.c) void,
+    on_unsubscribe: ?*const fn (?*anyopaque) callconv(.c) void,
     udata: ?*anyopaque,
     match: fio_match_fn,
 };
@@ -566,7 +566,7 @@ pub extern fn http_gmtime(timer: time_t, tmbuf: [*c]struct_tm) [*c]struct_tm;
 pub extern fn http_date2rfc7231(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
 pub extern fn http_date2rfc2109(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
 pub extern fn http_date2rfc2822(target: [*c]u8, tmbuf: [*c]struct_tm) usize;
-pub fn http_date2str(arg_target: [*c]u8, arg_tmbuf: [*c]struct_tm) callconv(.C) usize {
+pub fn http_date2str(arg_target: [*c]u8, arg_tmbuf: [*c]struct_tm) callconv(.c) usize {
     const target = arg_target;
     const tmbuf = arg_tmbuf;
     return http_date2rfc7231(target, tmbuf);

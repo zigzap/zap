@@ -1,6 +1,41 @@
 const std = @import("std");
 const build_facilio = @import("facil.io/build.zig").build_facilio;
 
+// Basically a wrapper around some common params that you would pass around to create tests (zig made them very verbose lately, unfortunately),
+// save these to a struct so you don't have to pass the same params all the time.
+const TestSystem = struct {
+    b: *std.Build,
+    zap_module: *std.Build.Module,
+    target: std.Build.ResolvedTarget,
+    optimize: std.builtin.OptimizeMode,
+    combine_test_step: *std.Build.Step,
+
+    pub fn addTest(self: TestSystem, root_src: []const u8, test_name: []const u8) void {
+        const tests_module = self.b.addModule(test_name, .{
+            .root_source_file = self.b.path(root_src),
+            .target = self.target,
+            .optimize = self.optimize,
+        });
+        const tests = self.b.addTest(.{
+            .name = self.b.fmt("{s}_tests", .{test_name}),
+            .root_module = tests_module,
+        });
+        tests.root_module.addImport("zap", self.zap_module);
+
+        const step = self.b.step(self.b.fmt("test{s}", .{test_name}),  self.b.fmt("Run {s} unit tests [REMOVE zig-cache!]", .{test_name}));
+        self.addRunInstallToStep(tests, step);
+    }
+
+    fn addRunInstallToStep(self: TestSystem, tests: *std.Build.Step.Compile, step: *std.Build.Step) void {
+        const run_tests = self.b.addRunArtifact(tests);
+        const install_tests = self.b.addInstallArtifact(tests, .{});
+        step.dependOn(&run_tests.step);
+        step.dependOn(&install_tests.step);
+
+        self.combine_test_step.dependOn(step);
+    }
+};
+
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     if (target.result.os.tag == .windows) {
@@ -34,9 +69,7 @@ pub fn build(b: *std.Build) !void {
     // -- Docs
     const docs_obj = b.addObject(.{
         .name = "zap", // name doesn't seem to matter
-        .root_source_file = b.path("src/zap.zig"),
-        .target = target,
-        .optimize = .Debug,
+        .root_module = zap_module,
     });
     const install_docs = b.addInstallDirectory(.{
         .install_dir = .prefix,
@@ -95,11 +128,15 @@ pub fn build(b: *std.Build) !void {
         const example_run_step = b.step(ex_run_stepname, ex_run_stepdesc);
         const example_step = b.step(ex_name, ex_build_desc);
 
-        var example = b.addExecutable(.{
-            .name = ex_name,
+        const exe_mod = b.addModule(ex_name, .{
             .root_source_file = b.path(ex_src),
             .target = target,
             .optimize = optimize,
+        });
+
+        var example = b.addExecutable(.{
+            .name = ex_name,
+            .root_module = exe_mod,
         });
 
         example.root_module.addImport("zap", zap_module);
@@ -132,126 +169,33 @@ pub fn build(b: *std.Build) !void {
     //       So, for now, we just force the exe to be built, so in order that
     //       we can call it again when needed.
 
+    const test_step = b.step("test", "Run unit tests");
+    const test_system = TestSystem {.b = b, .zap_module = zap_module, .target = target, .optimize = optimize, .combine_test_step = test_step};
     // authentication tests
-    //
-    const auth_tests = b.addTest(.{
-        .name = "auth_tests",
-        .root_source_file = b.path("src/tests/test_auth.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    auth_tests.root_module.addImport("zap", zap_module);
-
-    const run_auth_tests = b.addRunArtifact(auth_tests);
-    const install_auth_tests = b.addInstallArtifact(auth_tests, .{});
-
+    test_system.addTest("src/tests/test_auth.zig", "auth");
     // mustache tests
-    const mustache_tests = b.addTest(.{
-        .name = "mustache_tests",
-        .root_source_file = b.path("src/tests/test_mustache.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    mustache_tests.root_module.addImport("zap", zap_module);
-
-    const run_mustache_tests = b.addRunArtifact(mustache_tests);
-    const install_mustache_tests = b.addInstallArtifact(mustache_tests, .{});
-
+    test_system.addTest("src/tests/test_mustache.zig", "mustache");
     // http paramters (qyery, body) tests
-    const httpparams_tests = b.addTest(.{
-        .name = "http_params_tests",
-        .root_source_file = b.path("src/tests/test_http_params.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    httpparams_tests.root_module.addImport("zap", zap_module);
-
-    const run_httpparams_tests = b.addRunArtifact(httpparams_tests);
+    test_system.addTest("src/tests/test_http_params.zig", "http_params");
+    // http paramters (qyery, body) tests
+    test_system.addTest("src/tests/test_sendfile.zig", "sendfile");
+    test_system.addTest("src/tests/test_recvfile.zig", "recv");
+    test_system.addTest("src/tests/test_recvfile_notype.zig", "recv_notype");
     // TODO: for some reason, tests aren't run more than once unless
     //       dependencies have changed.
     //       So, for now, we just force the exe to be built, so in order that
     //       we can call it again when needed.
-    const install_httpparams_tests = b.addInstallArtifact(httpparams_tests, .{});
-
-    // http paramters (qyery, body) tests
-    const sendfile_tests = b.addTest(.{
-        .name = "sendfile_tests",
-        .root_source_file = b.path("src/tests/test_sendfile.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    sendfile_tests.root_module.addImport("zap", zap_module);
-    const run_sendfile_tests = b.addRunArtifact(sendfile_tests);
-    const install_sendfile_tests = b.addInstallArtifact(sendfile_tests, .{});
-
-    const recvfile_tests = b.addTest(.{
-        .name = "recv_tests",
-        .root_source_file = b.path("src/tests/test_recvfile.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    recvfile_tests.root_module.addImport("zap", zap_module);
-    const run_recvfile_tests = b.addRunArtifact(recvfile_tests);
-    const install_recvfile_tests = b.addInstallArtifact(recvfile_tests, .{});
-
-    const recvfile_notype_tests = b.addTest(.{
-        .name = "recv_tests",
-        .root_source_file = b.path("src/tests/test_recvfile_notype.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    recvfile_notype_tests.root_module.addImport("zap", zap_module);
-    const run_recvfile_notype_tests = b.addRunArtifact(recvfile_notype_tests);
-    const install_recvfile_notype_tests = b.addInstallArtifact(recvfile_notype_tests, .{});
-
-    // test commands
-    const run_auth_test_step = b.step("test-authentication", "Run auth unit tests [REMOVE zig-cache!]");
-    run_auth_test_step.dependOn(&run_auth_tests.step);
-    run_auth_test_step.dependOn(&install_auth_tests.step);
-
-    const run_mustache_test_step = b.step("test-mustache", "Run mustache unit tests [REMOVE zig-cache!]");
-    run_mustache_test_step.dependOn(&run_mustache_tests.step);
-    run_mustache_test_step.dependOn(&install_mustache_tests.step);
-
-    const run_httpparams_test_step = b.step("test-httpparams", "Run http param unit tests [REMOVE zig-cache!]");
-    run_httpparams_test_step.dependOn(&run_httpparams_tests.step);
-    run_httpparams_test_step.dependOn(&install_httpparams_tests.step);
-
-    const run_sendfile_test_step = b.step("test-sendfile", "Run http param unit tests [REMOVE zig-cache!]");
-    run_sendfile_test_step.dependOn(&run_sendfile_tests.step);
-    run_sendfile_test_step.dependOn(&install_sendfile_tests.step);
-
-    const run_recvfile_test_step = b.step("test-recvfile", "Run http param unit tests [REMOVE zig-cache!]");
-    run_recvfile_test_step.dependOn(&run_recvfile_tests.step);
-    run_recvfile_test_step.dependOn(&install_recvfile_tests.step);
-
-    const run_recvfile_notype_test_step = b.step("test-recvfile_notype", "Run http param unit tests [REMOVE zig-cache!]");
-    run_recvfile_notype_test_step.dependOn(&run_recvfile_notype_tests.step);
-    run_recvfile_notype_test_step.dependOn(&install_recvfile_notype_tests.step);
-
-    // Similar to creating the run step earlier, this exposes a `test` step to
-    // the `zig build --help` menu, providing a way for the participant to request
-    // running the unit tests.
-    const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&run_auth_tests.step);
-    test_step.dependOn(&run_mustache_tests.step);
-    test_step.dependOn(&run_httpparams_tests.step);
-    test_step.dependOn(&run_sendfile_tests.step);
-    test_step.dependOn(&run_recvfile_tests.step);
-    test_step.dependOn(&run_recvfile_notype_tests.step);
-
+        
     //
     // docserver
-    //
-    const docserver_exe = b.addExecutable(.{
-        .name = "docserver",
+    const docserver_mod = b.addModule("docserver", .{
         .root_source_file = b.path("./tools/docserver.zig"),
         .target = target,
         .optimize = optimize,
+    });
+    const docserver_exe = b.addExecutable(.{
+        .name = "docserver",
+        .root_module = docserver_mod,
     });
     docserver_exe.root_module.addImport("zap", zap_module);
     var docserver_step = b.step("docserver", "Build docserver");
@@ -271,11 +215,14 @@ pub fn build(b: *std.Build) !void {
     //
     // announceybot
     //
-    const announceybot_exe = b.addExecutable(.{
-        .name = "announceybot",
+    const announceybot_mod = b.addModule("announceybot", .{
         .root_source_file = b.path("./tools/announceybot.zig"),
         .target = target,
         .optimize = optimize,
+    });
+    const announceybot_exe = b.addExecutable(.{
+        .name = "announceybot",
+        .root_module = announceybot_mod,
     });
     var announceybot_step = b.step("announceybot", "Build announceybot");
     const announceybot_build_step = b.addInstallArtifact(announceybot_exe, .{});

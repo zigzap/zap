@@ -7,10 +7,16 @@ pub fn build_facilio(
     optimize: std.builtin.OptimizeMode,
     use_openssl: bool,
 ) !*std.Build.Step.Compile {
-    const lib = b.addStaticLibrary(.{
-        .name = "facil.io",
+    const mod = b.addModule("facil.io", .{
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const lib = b.addLibrary(.{
+        .name = "facil.io",
+        .root_module = mod,
+        .linkage = .dynamic
     });
 
     // Generate flags
@@ -32,17 +38,17 @@ pub fn build_facilio(
         try flags.append("-DHAVE_OPENSSL -DFIO_TLS_FOUND");
 
     // Include paths
-    lib.addIncludePath(b.path(subdir ++ "/."));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/fiobj"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/cli"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http"));
-    lib.addIncludePath(b.path(subdir ++ "/lib/facil/http/parsers"));
+    mod.addIncludePath(b.path(subdir ++ "/."));
+    mod.addIncludePath(b.path(subdir ++ "/lib/facil"));
+    mod.addIncludePath(b.path(subdir ++ "/lib/facil/fiobj"));
+    mod.addIncludePath(b.path(subdir ++ "/lib/facil/cli"));
+    mod.addIncludePath(b.path(subdir ++ "/lib/facil/http"));
+    mod.addIncludePath(b.path(subdir ++ "/lib/facil/http/parsers"));
     if (use_openssl)
-        lib.addIncludePath(b.path(subdir ++ "/lib/facil/tls"));
+        mod.addIncludePath(b.path(subdir ++ "/lib/facil/tls"));
 
     // C source files
-    lib.addCSourceFiles(.{
+    mod.addCSourceFiles(.{
         .files = &.{
             subdir ++ "/lib/facil/fio.c",
             subdir ++ "/lib/facil/fio_zig.c",
@@ -65,7 +71,7 @@ pub fn build_facilio(
     });
 
     if (use_openssl) {
-        lib.addCSourceFiles(.{
+        mod.addCSourceFiles(.{
             .files = &.{
                 subdir ++ "/lib/facil/tls/fio_tls_openssl.c",
                 subdir ++ "/lib/facil/tls/fio_tls_missing.c",
@@ -74,13 +80,10 @@ pub fn build_facilio(
         });
     }
 
-    // link against libc
-    lib.linkLibC();
-
-    // link in libopenssl and libcrypto on demand
+    // link in modopenssl and libcrypto on demand
     if (use_openssl) {
-        lib.linkSystemLibrary("ssl");
-        lib.linkSystemLibrary("crypto");
+        mod.linkSystemLibrary("ssl", .{});
+        mod.linkSystemLibrary("crypto", .{});
     }
 
     b.installArtifact(lib);
