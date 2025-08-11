@@ -103,7 +103,7 @@ pub const http_s = extern struct {
 //   unsigned http_only : 1;
 // } http_cookie_args_s;
 
-pub const http_cookie_args_s = extern struct {
+pub const http_cookie_args_s =  extern struct {
     name: [*c]u8,
     value: [*c]u8,
     domain: [*c]u8,
@@ -114,9 +114,7 @@ pub const http_cookie_args_s = extern struct {
     path_len: isize,
     /// in seconds
     max_age: c_int,
-    secure: c_uint,
-    http_only: c_uint,
-    partitioned: c_uint,
+    flags: c_uint,
 };
 
 pub const struct_fio_str_info_s = extern struct {

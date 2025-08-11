@@ -263,6 +263,13 @@ pub fn fiobj2HttpParam(a: Allocator, o: fio.FIOBJ) !?HttpParam {
     };
 }
 
+pub const CookieSameSite = enum(u8) {
+    Default,
+    Lax,
+    Strict,
+    None
+};
+
 /// Args for setting a cookie
 pub const CookieArgs = struct {
     name: []const u8,
@@ -274,6 +281,7 @@ pub const CookieArgs = struct {
     secure: bool = true,
     http_only: bool = true,
     partitioned: bool = false,
+    same_site: CookieSameSite = .Default,
 };
 
 path: ?[]const u8,
@@ -682,9 +690,17 @@ pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
         .path = if (args.path) |p| util.toCharPtr(p) else null,
         .path_len = if (args.path) |p| @as(isize, @intCast(p.len)) else 0,
         .max_age = args.max_age_s,
-        .secure = if (args.secure) 1 else 0,
-        .http_only = if (args.http_only) 1 else 0,
-        .partitioned = if (args.partitioned) 1 else 0,
+        .flags = (
+            ((if (args.secure) @as(c_uint,1) else 0) << 0) |
+            ((if (args.http_only) @as(c_uint,1) else 0) << 1) |
+            ((if (args.partitioned) @as(c_uint,1) else 0) << 2) |
+            ((switch (args.same_site) {
+                .Default => @as(c_uint, 0),
+                .Lax => @as(c_uint,1),
+                .Strict => @as(c_uint,2),
+                .None => @as(c_uint,3)
+            }) << 3)
+        )
     };
 
     // TODO WAT?
