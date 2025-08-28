@@ -75,12 +75,11 @@ pub fn toCharPtr(s: []const u8) [*c]u8 {
 pub fn stringifyBuf(
     buffer: []u8,
     value: anytype,
-    options: std.json.StringifyOptions,
+    options: std.json.Stringify.Options,
 ) ![]const u8 {
-    var fba = std.heap.FixedBufferAllocator.init(buffer);
-    var string = std.ArrayList(u8).init(fba.allocator());
-    if (std.json.stringify(value, options, string.writer())) {
-        return string.items;
+    var w: std.io.Writer = .fixed(buffer);
+    if (std.json.Stringify.value(value, options, &w)) {
+        return w.buffered();
     } else |err| { // error
         return err;
     }
