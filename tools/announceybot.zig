@@ -25,7 +25,7 @@ fn usage() void {
         \\
         \\    release-notes: print release notes for the given git tag
         \\
-        \\    update-readme: modify the README.md to the latest build.zig.zon 
+        \\    update-readme: modify the README.md to the latest build.zig.zon
         \\                   instructions
     ;
     std.debug.print("{s}", .{message});
@@ -122,38 +122,21 @@ fn renderTemplate(allocator: std.mem.Allocator, template: []const u8, substitute
 }
 
 fn sendToDiscordPart(allocator: std.mem.Allocator, url: []const u8, message_json: []const u8) !void {
-    // url
-    const uri = try std.Uri.parse(url);
 
     // client
     var http_client: std.http.Client = .{ .allocator = allocator };
-    defer http_client.deinit();
 
-    var server_header_buffer: [2048]u8 = undefined;
-
-    // request
-    var req = try http_client.open(.POST, uri, .{
-        .server_header_buffer = &server_header_buffer,
-        .extra_headers = &.{
-            .{ .name = "accept", .value = "*/*" },
-            .{ .name = "Content-Type", .value = "application/json" },
-        },
+    const response = try http_client.fetch(.{
+        .location = .{ .url = url },
+        .payload = message_json,
+        .method = .POST,
+        .headers = .{ .content_type = .{ .override = "application/json" } },
+        .keep_alive = false,
     });
-    defer req.deinit();
-
-    req.transfer_encoding = .chunked;
-
-    // connect, send request
-    try req.send();
-
-    // send POST payload
-    try req.writer().writeAll(message_json);
-    try req.finish();
-
-    // wait for response
-    try req.wait();
-    var buffer: [1024]u8 = undefined;
-    _ = try req.readAll(&buffer);
+    if (response.status.class() != .success) {
+        std.debug.print("Discord: {?s}", .{response.status.phrase()});
+        return error.DiscordPostError;
+    }
 }
 
 fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const u8) !void {
@@ -161,20 +144,15 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
     // max size: 100kB
     const buf: []u8 = try allocator.alloc(u8, 100 * 1024);
     defer allocator.free(buf);
-    var fba = std.heap.FixedBufferAllocator.init(buf);
-    var string = std.ArrayList(u8).init(fba.allocator());
-    try std.json.stringify(.{ .content = message }, .{}, string.writer());
+    var w: std.io.Writer = .fixed(buf);
+    try std.json.Stringify.value(.{ .content = message }, .{}, &w);
+    const string = w.buffered();
 
     // We need to split shit into max 2000 characters
-    if (string.items.len < 1999) {
-        defer string.deinit();
-        try sendToDiscordPart(allocator, url, string.items);
+    if (string.len < 1999) {
+        try sendToDiscordPart(allocator, url, string);
         return;
     }
-
-    // we don't use it anymore
-    string.deinit();
-    fba.reset();
 
     // we can re-use the buf now
 
@@ -187,21 +165,21 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
         from: usize,
         to: usize,
     };
-    var chunks = std.ArrayList(Desc).init(allocator);
-    defer chunks.deinit();
+    var chunks = std.ArrayList(Desc).empty;
+    defer chunks.deinit(allocator);
     var i: usize = 0;
     var chunk_i: usize = 0;
     var last_newline_index: usize = 0;
     var last_from: usize = 0;
     var in_code_block: bool = false;
 
-    std.debug.print("Needing to split message of size {}.\n", .{message.len});
+    std.debug.print("Needing to split message of size {d}.\n", .{message.len});
     while (true) {
         if (chunk_i > SPLIT_THRESHOLD) {
             // start a new chunk
             // we assume, there was a newline in 1990 bytes
             // try chunks.append(message[last_newline_index..i]);
-            try chunks.append(.{ .from = last_from, .to = last_newline_index });
+            try chunks.append(allocator, .{ .from = last_from, .to = last_newline_index });
             chunk_i = 0;
             last_from = last_newline_index + 1;
             i = last_from;
@@ -260,7 +238,7 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
         if (i >= message.len) {
             // push last part
             // try chunks.append(message[last_newline_index..i]);
-            try chunks.append(.{ .from = last_from, .to = i });
+            try chunks.append(allocator, .{ .from = last_from, .to = i });
             break;
         }
     }
@@ -284,12 +262,13 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
     while (it < chunks.items.len) {
         const desc = chunks.items[it];
         const part = message[desc.from..desc.to];
-        fba.reset();
-        var part_string = std.ArrayList(u8).init(fba.allocator());
-        defer part_string.deinit();
-        try std.json.stringify(.{ .content = part }, .{}, part_string.writer());
-        std.debug.print("SENDING PART {} / {}: ... ", .{ it, chunks.items.len });
-        try sendToDiscordPart(allocator, url, part_string.items);
+
+        var ww: std.io.Writer = .fixed(buf);
+        try std.json.Stringify.value(.{ .content = part }, .{}, &ww);
+        const part_string = ww.buffered();
+
+        std.debug.print("SENDING PART {d} / {d}: ... ", .{ it, chunks.items.len });
+        try sendToDiscordPart(allocator, url, part_string);
         std.debug.print("done!\n", .{});
         it += 1;
     }
@@ -323,7 +302,12 @@ fn command_releasenotes(allocator: std.mem.Allocator, tag: []const u8) !void {
         .annotation = annotation,
     });
     defer allocator.free(release_notes);
-    try std.io.getStdOut().writeAll(release_notes);
+
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
+    try stdout.writeAll(release_notes);
+    try stdout.flush();
 }
 fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
     const annotation = try get_tag_annotation(allocator, tag);
@@ -340,10 +324,10 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
     defer allocator.free(readme);
 
     var output_file = try std.fs.cwd().createFile(README_PATH, .{});
-    var writer = output_file.writer();
     defer output_file.close();
-
-    // var writer = std.io.getStdOut().writer();
+    var output_buffer: [2048]u8 = undefined;
+    var output_writer = output_file.writer(&output_buffer);
+    const writer = &output_writer.interface;
 
     // iterate over lines
     var in_replace_block: bool = false;
@@ -356,11 +340,11 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
             continue;
         }
         if (std.mem.startsWith(u8, line, REPLACE_BEGIN_MARKER)) {
-            _ = try writer.write(REPLACE_BEGIN_MARKER);
-            _ = try writer.write("\n");
-            _ = try writer.write(update_part);
-            _ = try writer.write(REPLACE_END_MARKER);
-            _ = try writer.write("\n");
+            _ = try writer.writeAll(REPLACE_BEGIN_MARKER);
+            _ = try writer.writeByte('\n');
+            _ = try writer.writeAll(update_part);
+            _ = try writer.writeAll(REPLACE_END_MARKER);
+            _ = try writer.writeByte('\n');
             in_replace_block = true;
             continue;
         }
@@ -369,6 +353,7 @@ fn command_update_readme(allocator: std.mem.Allocator, tag: []const u8) !void {
         // returns indices etc
         const output_line = try std.fmt.allocPrint(allocator, "{s}\n", .{line});
         defer allocator.free(output_line);
-        _ = try writer.write(output_line);
+        _ = try writer.writeAll(output_line);
     }
+    try writer.flush(); // don't forget to flush!
 }
