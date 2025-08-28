@@ -17,14 +17,18 @@ const testfile = @embedFile("testfile.txt");
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
-    var response = std.ArrayList(u8).init(a);
-    defer response.deinit();
+
+    var response_writer = std.io.Writer.Allocating.init(a);
+    defer response_writer.deinit();
+
     _ = try http_client.fetch(.{
         .location = .{ .url = url },
-        .response_storage = .{ .dynamic = &response },
+        .response_writer = &response_writer.writer,
     });
-    read_len = response.items.len;
-    @memcpy(buffer[0..read_len.?], response.items);
+
+    const response_text = response_writer.written();
+    read_len = response_text.len;
+    @memcpy(buffer[0..read_len.?], response_text);
 
     zap.stop();
 }

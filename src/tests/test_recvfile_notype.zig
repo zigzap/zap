@@ -42,7 +42,6 @@ fn makeRequest(allocator: std.mem.Allocator, url: []const u8) !void {
     defer allocator.free(request_content_type);
 
     // Allocate a buffer for server headers
-    var buf: [4096]u8 = undefined;
     _ = try http_client.fetch(.{
         .method = .POST,
         .location = .{ .url = url },
@@ -50,7 +49,6 @@ fn makeRequest(allocator: std.mem.Allocator, url: []const u8) !void {
             .content_type = .{ .override = request_content_type },
         },
         .payload = payload,
-        .server_header_buffer = &buf,
     });
 
     zap.stop();
@@ -65,7 +63,7 @@ pub fn on_request(r: zap.Request) !void {
 
 pub fn on_request_inner(r: zap.Request) !void {
     try r.parseBody();
-    const params = try r.parametersToOwnedList(std.testing.allocator);
+    var params = try r.parametersToOwnedList(std.testing.allocator);
     defer params.deinit();
 
     std.testing.expect(params.items.len == 1) catch |err| {
