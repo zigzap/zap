@@ -795,7 +795,7 @@ pub fn cookiesToOwnedStrList(self: *const Request, a: Allocator) anyerror!HttpPa
     if (howmany != self.getCookiesCount()) {
         return error.HttpIterParams;
     }
-    return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    return .{ .items = try params.toOwnedSlice(a), .allocator = a };
 }
 
 /// Same as parametersToOwnedList() but for cookies
@@ -806,7 +806,7 @@ pub fn cookiesToOwnedList(self: *const Request, a: Allocator) !HttpParamKVList {
     if (howmany != self.getCookiesCount()) {
         return error.HttpIterParams;
     }
-    return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    return .{ .items = try params.toOwnedSlice(a), .allocator = a };
 }
 
 /// Returns the query / body parameters as key/value pairs, as strings.

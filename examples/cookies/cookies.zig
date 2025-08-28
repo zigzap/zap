@@ -17,22 +17,16 @@ pub const std_options: std.Options = .{
 
 // We send ourselves a request with a cookie
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    const uri = try std.Uri.parse(url);
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var server_header_buffer: [2048]u8 = undefined;
-    var req = try http_client.open(.GET, uri, .{
-        .server_header_buffer = &server_header_buffer,
+    _ = try http_client.fetch(.{
+        .location = .{ .url = url },
+        .method = .GET,
         .extra_headers = &.{
             .{ .name = "cookie", .value = "ZIG_ZAP=awesome" },
         },
     });
-    defer req.deinit();
-
-    try req.send();
-    try req.wait();
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
@@ -71,7 +65,7 @@ pub fn main() !void {
             std.debug.print("\n", .{});
 
             // // iterate over all cookies
-            const cookies = r.cookiesToOwnedList(alloc) catch unreachable;
+            var cookies = r.cookiesToOwnedList(alloc) catch unreachable;
             defer cookies.deinit();
             for (cookies.items) |kv| {
                 std.log.info("cookie `{s}` is {any}", .{ kv.key, kv.value });
