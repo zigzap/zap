@@ -18,21 +18,22 @@ jobs:
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: 0.14.0
+          version: 0.15.1
       - name: Check zig version
         run: zig version
       - name: Build all examples
         run: zig build all
       # Run tests separately so we can see more clearly which one fails
       # Also, the test runner tries to run tests concurrently, which causes
-      # conflicts when port numbers are re-used in the tests
+      # conflicts when port numbers are re-used in the tests (which they aren't
+      # anymore)
       - name: Run mustache tests
         run: zig build test-mustache
       - name: Run httpparams tests
-        run: zig build test-httpparams
+        run: zig build test-http_params
       - name: Run sendfile tests
         run: zig build test-sendfile
       - name: Run authentication tests
-        run: zig build test-authentication
+        run: zig build test-auth
       - name: Report end of tests
         run: echo "tests finished"

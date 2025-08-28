@@ -31,11 +31,10 @@ jobs:
       - name: Run mustache tests
         run: zig build test-mustache
       - name: Run httpparams tests
-        run: zig build test-httpparams
+        run: zig build test-http_params
       - name: Run sendfile tests
         run: zig build test-sendfile
       - name: Run authentication tests
-        run: zig build test-authentication
+        run: zig build test-auth
       - name: Report end of tests
         run: echo "tests finished"
-

@@ -22,7 +22,7 @@ const TestSystem = struct {
         });
         tests.root_module.addImport("zap", self.zap_module);
 
-        const step = self.b.step(self.b.fmt("test{s}", .{test_name}),  self.b.fmt("Run {s} unit tests [REMOVE zig-cache!]", .{test_name}));
+        const step = self.b.step(self.b.fmt("test-{s}", .{test_name}), self.b.fmt("Run {s} unit tests [REMOVE zig-cache!]", .{test_name}));
         self.addRunInstallToStep(tests, step);
     }
 
@@ -170,7 +170,7 @@ pub fn build(b: *std.Build) !void {
     //       we can call it again when needed.
 
     const test_step = b.step("test", "Run unit tests");
-    const test_system = TestSystem {.b = b, .zap_module = zap_module, .target = target, .optimize = optimize, .combine_test_step = test_step};
+    const test_system = TestSystem{ .b = b, .zap_module = zap_module, .target = target, .optimize = optimize, .combine_test_step = test_step };
     // authentication tests
     test_system.addTest("src/tests/test_auth.zig", "auth");
     // mustache tests
@@ -185,7 +185,7 @@ pub fn build(b: *std.Build) !void {
     //       dependencies have changed.
     //       So, for now, we just force the exe to be built, so in order that
     //       we can call it again when needed.
-        
+
     //
     // docserver
     const docserver_mod = b.addModule("docserver", .{
