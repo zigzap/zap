@@ -17,19 +17,18 @@ pub const std_options: std.Options = .{
 
 // We send ourselves a request
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    const uri = try std.Uri.parse(url);
-
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var server_header_buffer: [2048]u8 = undefined;
-    var req = try http_client.open(.GET, uri, .{
-        .server_header_buffer = &server_header_buffer,
+    const response = try http_client.fetch(.{
+        .location = .{ .url = url },
+        .method = .GET,
+        .payload = null,
+        .keep_alive = false,
     });
-    defer req.deinit();
-
-    try req.send();
-    try req.wait();
+    if (response.status.class() != .success) {
+        std.debug.print("HTTP Error: {?s}", .{response.status.phrase()});
+    }
 }
 
 fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
@@ -95,7 +94,7 @@ pub fn main() !void {
             std.debug.print("\n", .{});
 
             // iterate over all params
-            const params = try r.parametersToOwnedList(alloc);
+            var params = try r.parametersToOwnedList(alloc);
             defer params.deinit();
             for (params.items) |kv| {
                 std.log.info("Param `{s}` is {any}", .{ kv.key, kv.value });

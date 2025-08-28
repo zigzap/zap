@@ -43,10 +43,10 @@ pub const HttpParamStrKVList = struct {
 pub const HttpParamKVList = struct {
     items: []HttpParamKV,
     allocator: Allocator,
-    pub fn deinit(self: *const HttpParamKVList) void {
-        for (self.items) |item| {
+    pub fn deinit(self: *HttpParamKVList) void {
+        for (self.items) |*item| {
             self.allocator.free(item.key);
-            if (item.value) |v| {
+            if (item.value) |*v| {
                 v.free(self.allocator);
             }
         }
@@ -80,11 +80,11 @@ pub const HttpParam = union(HttpParamValueType) {
     /// value will always be null
     Array_Binfile: std.ArrayList(HttpParamBinaryFile),
 
-    pub fn free(self: HttpParam, alloc: Allocator) void {
-        switch (self) {
+    pub fn free(self: *HttpParam, alloc: Allocator) void {
+        switch (self.*) {
             .String => |s| alloc.free(s),
-            .Array_Binfile => |a| {
-                a.deinit();
+            .Array_Binfile => |*a| {
+                a.deinit(alloc);
             },
             else => {
                 // nothing to free
@@ -190,7 +190,7 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
 
                 if (fio.fiobj_ary_count(fn_ary) == len and fio.fiobj_ary_count(mt_ary) == len) {
                     var i: isize = 0;
-                    var ret = std.ArrayList(HttpParamBinaryFile).init(a);
+                    var ret = std.ArrayList(HttpParamBinaryFile).empty;
                     while (i < len) : (i += 1) {
                         const file_data_obj = fio.fiobj_ary_entry(data, i);
                         const file_name_obj = fio.fiobj_ary_entry(fn_ary, i);
@@ -215,7 +215,7 @@ fn parseBinfilesFrom(a: Allocator, o: fio.FIOBJ) !HttpParam {
                         const file_data = fio.fiobj_obj2cstr(file_data_obj);
                         const file_name = fio.fiobj_obj2cstr(file_name_obj);
                         const file_mimetype = fio.fiobj_obj2cstr(file_mimetype_obj);
-                        try ret.append(.{
+                        try ret.append(a, .{
                             .data = file_data.data[0..file_data.len],
                             .mimetype = file_mimetype.data[0..file_mimetype.len],
                             .filename = file_name.data[0..file_name.len],
@@ -735,7 +735,7 @@ const CallbackContext_KV = struct {
         const ctx: *CallbackContext_KV = @as(*CallbackContext_KV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
-        ctx.params.append(.{
+        ctx.params.append(ctx.allocator, .{
             .key = util.fio2strAlloc(ctx.allocator, fiobj_key) catch |err| {
                 ctx.last_error = err;
                 return -1;
@@ -764,7 +764,7 @@ const CallbackContext_StrKV = struct {
         const ctx: *CallbackContext_StrKV = @as(*CallbackContext_StrKV, @ptrCast(@alignCast(context_)));
         // this is thread-safe, guaranteed by fio
         const fiobj_key: fio.FIOBJ = fio.fiobj_hash_key_in_loop();
-        ctx.params.append(.{
+        ctx.params.append(ctx.allocator, .{
             .key = util.fio2strAlloc(ctx.allocator, fiobj_key) catch |err| {
                 ctx.last_error = err;
                 return -1;
@@ -834,7 +834,7 @@ pub fn parametersToOwnedStrList(self: *const Request, a: Allocator) anyerror!Htt
     if (howmany != self.getParamCount()) {
         return error.HttpIterParams;
     }
-    return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    return .{ .items = try params.toOwnedSlice(a), .allocator = a };
 }
 
 /// Returns the query / body parameters as key/value pairs
@@ -859,7 +859,7 @@ pub fn parametersToOwnedList(self: *const Request, a: Allocator) !HttpParamKVLis
     if (howmany != self.getParamCount()) {
         return error.HttpIterParams;
     }
-    return .{ .items = try params.toOwnedSlice(), .allocator = a };
+    return .{ .items = try params.toOwnedSlice(a), .allocator = a };
 }
 
 /// get named parameter (parsed) as string
