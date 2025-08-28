@@ -121,17 +121,18 @@ pub fn toJSON(self: *Users) ![]const u8 {
     // working directly with InternalUser elements of the users hashmap.
     // might actually save some memory
     // TODO: maybe do it directly with the user.items
-    var l: std.ArrayList(User) = std.ArrayList(User).init(self.alloc);
-    defer l.deinit();
+    var l: std.ArrayList(User) = std.ArrayList(User).empty;
+    defer l.deinit(self.alloc);
 
     // the potential race condition is fixed by jsonifying with the mutex locked
     var it = JsonUserIteratorWithRaceCondition.init(&self.users);
     while (it.next()) |user| {
-        try l.append(user);
+        try l.append(self.alloc, user);
     }
     std.debug.assert(self.users.count() == l.items.len);
     std.debug.assert(self.count == l.items.len);
-    return std.json.stringifyAlloc(self.alloc, l.items, .{});
+
+    return std.json.Stringify.valueAlloc(self.alloc, l.items, .{});
 }
 
 //
