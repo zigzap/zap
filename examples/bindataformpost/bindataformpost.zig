@@ -38,13 +38,13 @@ const Handler = struct {
         //
         // HERE WE HANDLE THE BINARY FILE
         //
-        const params = try r.parametersToOwnedList(Handler.alloc);
+        var params = try r.parametersToOwnedList(Handler.alloc);
         defer params.deinit();
-        for (params.items) |kv| {
-            if (kv.value) |v| {
+        for (params.items) |*kv| {
+            if (kv.value) |*v| {
                 std.debug.print("\n", .{});
                 std.log.info("Param `{s}` in owned list is {any}", .{ kv.key, v });
-                switch (v) {
+                switch (v.*) {
                     // single-file upload
                     zap.Request.HttpParam.Hash_Binfile => |*file| {
                         const filename = file.filename orelse "(no filename)";
@@ -66,7 +66,7 @@ const Handler = struct {
                             std.log.debug("    mimetype: {s}", .{mimetype});
                             std.log.debug("    contents: {any}", .{data});
                         }
-                        files.*.deinit();
+                        files.deinit(alloc);
                     },
                     else => {
                         // let's just get it as its raw slice
