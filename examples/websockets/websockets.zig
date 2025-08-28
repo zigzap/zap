@@ -35,7 +35,7 @@ const ContextManager = struct {
             .allocator = allocator,
             .channel = channelName,
             .usernamePrefix = usernamePrefix,
-            .contexts = ContextList.init(allocator),
+            .contexts = ContextList.empty,
         };
     }
 
@@ -43,7 +43,7 @@ const ContextManager = struct {
         for (self.contexts.items) |ctx| {
             self.allocator.free(ctx.userName);
         }
-        self.contexts.deinit();
+        self.contexts.deinit(self.allocator);
     }
 
     pub fn newContext(self: *ContextManager) !*Context {
@@ -73,7 +73,7 @@ const ContextManager = struct {
                 .context = ctx,
             },
         };
-        try self.contexts.append(ctx);
+        try self.contexts.append(self.allocator, ctx);
         return ctx;
     }
 };
