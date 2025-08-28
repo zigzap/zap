@@ -82,22 +82,36 @@ pub const StatusCode = enum(u16) {
     /// for example: .ResetContent returns "Returns Content".
     pub fn toString(self: StatusCode) []const u8 {
         return switch (self) {
+        // 1xx
             .@"continue" => "Continue",
             .switching_protocols => "Switching Protocols",
-            .ok => "Ok",
+            .processing => "Processing",
+            .early_hints => "Early Hints",
+
+            // 2xx
+            .ok => "OK",
             .created => "Created",
             .accepted => "Accepted",
             .non_authoritative_information => "Non Authoritative Information",
             .no_content => "No Content",
             .reset_content => "Reset Content",
             .partial_content => "Partial Content",
+            .multi_status => "Multi-Status",
+            .already_reported => "Already Reported",
+            .im_used => "IM Used",
+
+            // 3xx
             .multiple_choices => "Multiple Choices",
             .moved_permanently => "Moved Permanently",
             .found => "Found",
             .see_other => "See Other",
             .not_modified => "Not Modified",
             .use_proxy => "Use Proxy",
+            .unused => "Unused",
             .temporary_redirect => "Temporary Redirect",
+            .permanent_redirect => "Permanent Redirect",
+
+            // 4xx
             .bad_request => "Bad Request",
             .unauthorized => "Unauthorized",
             .payment_required => "Payment Required",
@@ -111,20 +125,36 @@ pub const StatusCode = enum(u16) {
             .gone => "Gone",
             .length_required => "Length Required",
             .precondition_failed => "Precondition Failed",
-            .request_entity_too_large => "Request Entity Too Large",
-            .request_uri_too_long => "Request-URI Too Long",
-            .unsupported_mediatype => "Unsupported Media Type",
-            .requested_range_not_satisfiable => "Requested Range Not Satisfiable",
-            .teapot => "I'm a Teapot",
-            .upgrade_required => "Upgrade Required",
-            .request_header_fields_too_large => "Request Header Fields Too Large",
+            .payload_too_large => "Payload Too Large",
+            .uri_too_long => "URI Too Long",
+            .unsupported_media_type => "Unsupported Media Type",
+            .range_not_satisfiable => "Range Not Satisfiable",
             .expectation_failed => "Expectation Failed",
+            .im_a_teapot => "I'm a Teapot",
+            .misdirected_request => "Misdirected Request",
+            .unprocessable_content => "Unprocessable Content",
+            .locked => "Locked",
+            .failed_dependency => "Failed Dependency",
+            .too_early => "Too Early",
+            .upgrade_required => "Upgrade Required",
+            .precondition_required => "Precondition Required",
+            .too_many_requests => "Too Many Requests",
+            .request_header_fields_too_large => "Request Header Fields Too Large",
+            .unavailable_for_legal_reasons => "Unavailable For Legal Reasons",
+
+            // 5xx
             .internal_server_error => "Internal Server Error",
             .not_implemented => "Not Implemented",
             .bad_gateway => "Bad Gateway",
             .service_unavailable => "Service Unavailable",
             .gateway_timeout => "Gateway Timeout",
             .http_version_not_supported => "HTTP Version Not Supported",
+            .variant_also_negotiates => "Variant Also Negotiates",
+            .insufficient_storage => "Insufficient Storage",
+            .loop_detected => "Loop Detected",
+            .not_extended => "Not Extended",
+            .network_authentication_required => "Network Authentication Required",
+
             _ => "",
         };
     }
