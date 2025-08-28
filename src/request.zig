@@ -263,12 +263,7 @@ pub fn fiobj2HttpParam(a: Allocator, o: fio.FIOBJ) !?HttpParam {
     };
 }
 
-pub const CookieSameSite = enum(u8) {
-    Default,
-    Lax,
-    Strict,
-    None
-};
+pub const CookieSameSite = enum(u8) { Default, Lax, Strict, None };
 
 /// Args for setting a cookie
 pub const CookieArgs = struct {
@@ -359,20 +354,16 @@ pub fn _internal_sendError(self: *const Request, err: anyerror, err_trace: ?std.
     // TODO: let's hope 20k is enough. Maybe just really allocate here
     self.h.*.status = errorcode_num;
     var buf: [20 * 1024]u8 = undefined;
-    var fba = std.heap.FixedBufferAllocator.init(&buf);
-    var string = std.ArrayList(u8).init(fba.allocator());
-    var writer = string.writer();
-    // TODO: fix this when 0.15 is released?
-    var new_api_adapter = writer.adaptToNewApi();
+    var writer = std.io.Writer.fixed(&buf);
     try writer.print("ERROR: {any}\n\n", .{err});
 
     if (err_trace) |trace| {
         const debugInfo = try std.debug.getSelfDebugInfo();
         const ttyConfig: std.io.tty.Config = .no_color;
-        try std.debug.writeStackTrace(trace, &new_api_adapter.new_interface, debugInfo, ttyConfig);
+        try std.debug.writeStackTrace(trace, &writer, debugInfo, ttyConfig);
     }
 
-    try self.sendBody(string.items);
+    try self.sendBody(writer.buffered());
 }
 
 /// Send body.
@@ -682,28 +673,15 @@ pub fn parseAcceptHeaders(self: *const Request, allocator: Allocator) !AcceptHea
 
 /// Set a response cookie
 pub fn setCookie(self: *const Request, args: CookieArgs) HttpError!void {
-    const c: fio.http_cookie_args_s = .{
-        .name = util.toCharPtr(args.name),
-        .name_len = @as(isize, @intCast(args.name.len)),
-        .value = util.toCharPtr(args.value),
-        .value_len = @as(isize, @intCast(args.value.len)),
-        .domain = if (args.domain) |p| util.toCharPtr(p) else null,
-        .domain_len = if (args.domain) |p| @as(isize, @intCast(p.len)) else 0,
-        .path = if (args.path) |p| util.toCharPtr(p) else null,
-        .path_len = if (args.path) |p| @as(isize, @intCast(p.len)) else 0,
-        .max_age = args.max_age_s,
-        .flags = (
-            ((if (args.secure) @as(c_uint,1) else 0) << 0) |
-            ((if (args.http_only) @as(c_uint,1) else 0) << 1) |
-            ((if (args.partitioned) @as(c_uint,1) else 0) << 2) |
-            ((switch (args.same_site) {
-                .Default => @as(c_uint, 0),
-                .Lax => @as(c_uint,1),
-                .Strict => @as(c_uint,2),
-                .None => @as(c_uint,3)
-            }) << 3)
-        )
-    };
+    const c: fio.http_cookie_args_s = .{ .name = util.toCharPtr(args.name), .name_len = @as(isize, @intCast(args.name.len)), .value = util.toCharPtr(args.value), .value_len = @as(isize, @intCast(args.value.len)), .domain = if (args.domain) |p| util.toCharPtr(p) else null, .domain_len = if (args.domain) |p| @as(isize, @intCast(p.len)) else 0, .path = if (args.path) |p| util.toCharPtr(p) else null, .path_len = if (args.path) |p| @as(isize, @intCast(p.len)) else 0, .max_age = args.max_age_s, .flags = (((if (args.secure) @as(c_uint, 1) else 0) << 0) |
+        ((if (args.http_only) @as(c_uint, 1) else 0) << 1) |
+        ((if (args.partitioned) @as(c_uint, 1) else 0) << 2) |
+        ((switch (args.same_site) {
+            .Default => @as(c_uint, 0),
+            .Lax => @as(c_uint, 1),
+            .Strict => @as(c_uint, 2),
+            .None => @as(c_uint, 3),
+        }) << 3)) };
 
     // TODO WAT?
     // if we:
