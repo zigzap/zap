@@ -19,7 +19,7 @@ fn on_request_verbose(r: zap.Request) !void {
 
     const content_type: zap.ContentType = content_type: {
         var accept_list = r.parseAcceptHeaders(accept_allocator) catch break :content_type .HTML;
-        defer accept_list.deinit();
+        defer accept_list.deinit(accept_allocator);
 
         for (accept_list.items) |accept| {
             break :content_type accept.toContentType() orelse continue;
@@ -72,7 +72,7 @@ fn on_request_verbose(r: zap.Request) !void {
                 \\  <body>
                 \\    <h1>Hello from ZAP!!!</h1>
                 \\  </body>
-                \\</html>    
+                \\</html>
             );
         },
     }
