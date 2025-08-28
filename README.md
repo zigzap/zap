@@ -25,7 +25,7 @@ proved to be:
 ## FAQ:
 
 - Q: **What version of Zig does Zap support?**
-    - Zap uses the latest stable zig release (0.14.1), so you don't have to keep
+    - Zap uses the latest stable zig release (0.15.1), so you don't have to keep
       up with frequent breaking changes. It's an "LTS feature".
 - Q: **Can Zap build with Zig's master branch?**
     - See the `zig-master` branch. Please note that the zig-master branch is not
@@ -266,7 +266,7 @@ code leaks memory.
 
 ## Getting started
 
-Make sure you have **zig 0.14.1** installed. Fetch it from
+Make sure you have **zig 0.15.1** installed. Fetch it from
 [here](https://ziglang.org/download).
 
 ```shell
@@ -279,7 +279,7 @@ $ # open http://localhost:3000 in your browser
 
 ## Using ⚡zap⚡ in your own projects
 
-Make sure you have **the latest zig release (0.14.1)** installed. Fetch it from
+Make sure you have **the latest zig release (0.15.1)** installed. Fetch it from
 [here](https://ziglang.org/download).
 
 If you don't have an existing zig project, create one like this:
