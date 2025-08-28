@@ -317,11 +317,19 @@ int http_set_cookie(http_s *h, http_cookie_args_s cookie) {
   if (cookie.http_only) {
     fiobj_str_write(c, "HttpOnly;", 9);
   }
-  if (cookie.secure) {
-    fiobj_str_write(c, "secure;", 7);
-  }
   if(cookie.partitioned) {
     fiobj_str_write(c, "Partitioned;", 12);
+  }
+  if(cookie.same_site == HTTP_COOKIE_SAME_SITE_LAX) {
+    fiobj_str_write(c, "SameSite=Lax;", 13);
+  } else if (cookie.same_site == HTTP_COOKIE_SAME_SITE_STRICT) {
+    fiobj_str_write(c, "SameSite=Strict;", 16);
+  } else if (cookie.same_site == HTTP_COOKIE_SAME_SITE_NONE) {
+    fiobj_str_write(c, "SameSite=None;", 14);
+  }
+
+  if (cookie.secure) {
+    fiobj_str_write(c, "secure;", 7);
   }
   set_header_add(h->private_data.out_headers, HTTP_HEADER_SET_COOKIE, c);
   return 0;
