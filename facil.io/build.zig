@@ -16,7 +16,7 @@ pub fn build_facilio(
     const lib = b.addLibrary(.{
         .name = "facil.io",
         .root_module = mod,
-        .linkage = .dynamic,
+        .linkage = .static,
     });
 
     // Generate flags
