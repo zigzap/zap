@@ -14,6 +14,7 @@ scratch
 **/.mypy_cache/*
 .DS_Store
 .vs/
+.idea/
 **/*.perflog
 wrk/*.png
 mycert.pem
