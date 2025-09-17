@@ -18,7 +18,7 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     var http_client: std.http.Client = .{ .allocator = a };
     defer http_client.deinit();
 
-    var response_writer = std.io.Writer.Allocating.init(a);
+    var response_writer = std.Io.Writer.Allocating.init(a);
     defer response_writer.deinit();
 
     _ = try http_client.fetch(.{
