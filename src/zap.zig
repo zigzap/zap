@@ -140,8 +140,8 @@ pub const HttpListenerSettings = struct {
     on_response: ?HttpRequestFn = null,
     on_upgrade: ?HttpUpgradeFn = null,
     on_finish: ?HttpFinishFn = null,
-    // provide any pointer in there for "user data". it will be passed pack in
-    // on_finish()'s copy of the struct_http_settings_s
+    /// User defined data can be extracted in a request handler using `Request.getUserContext(T)`
+    /// In `on_finish()` it can be extracted using `HttpListener.getUserContext(T, fio.struct_http_settings_s.udata.?)`
     udata: ?*anyopaque = null,
     public_folder: ?[]const u8 = null,
     max_clients: ?isize = null,
@@ -156,99 +156,101 @@ pub const HttpListenerSettings = struct {
 /// Http listener
 pub const HttpListener = struct {
     settings: HttpListenerSettings,
+    userData: ?*anyopaque,
 
-    var the_one_and_only_listener: ?*HttpListener = null;
+    const Self = @This();
 
     /// Create a listener
     pub fn init(settings: HttpListenerSettings) HttpListener {
         std.debug.assert(settings.on_request != null);
         return .{
             .settings = settings,
+            .userData = settings.udata,
         };
     }
 
-    // we could make it dynamic by passing a HttpListener via udata
+    pub fn getUserContext(comptime T: type, udata: *anyopaque) ?*T {
+        const self: *Self = @ptrCast(@alignCast(udata));
+        return @ptrCast(@alignCast(self.userData));
+    }
+
     /// Used internally: the listener's facilio request callback
     pub fn theOneAndOnlyRequestCallBack(r: [*c]fio.http_s) callconv(.c) void {
-        if (the_one_and_only_listener) |l| {
-            var req: Request = .{
-                .path = util.fio2str(r.*.path),
-                .query = util.fio2str(r.*.query),
-                .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
-                .h = r,
-                ._is_finished_request_global = false,
-                ._user_context = undefined,
+        const self: *Self = @ptrCast(@alignCast(r.*.udata.?));
+        var req: Request = .{
+            .path = util.fio2str(r.*.path),
+            .query = util.fio2str(r.*.query),
+            .body = util.fio2str(r.*.body),
+            .method = util.fio2str(r.*.method),
+            .h = r,
+            ._is_finished_request_global = false,
+            ._user_context = undefined,
+        };
+        req._is_finished = &req._is_finished_request_global;
+
+        var user_context: Request.UserContext = .{ .user_context = self.userData };
+        req._user_context = &user_context;
+
+        req.markAsFinished(false);
+        std.debug.assert(self.settings.on_request != null);
+        if (self.settings.on_request) |on_request| {
+            on_request(req) catch |err| {
+                Logging.on_uncaught_error("HttpListener on_request", err);
             };
-            req._is_finished = &req._is_finished_request_global;
-
-            var user_context: Request.UserContext = .{};
-            req._user_context = &user_context;
-
-            req.markAsFinished(false);
-            std.debug.assert(l.settings.on_request != null);
-            if (l.settings.on_request) |on_request| {
-                on_request(req) catch |err| {
-                    Logging.on_uncaught_error("HttpListener on_request", err);
-                };
-            }
         }
     }
 
     /// Used internally: the listener's facilio response callback
     pub fn theOneAndOnlyResponseCallBack(r: [*c]fio.http_s) callconv(.c) void {
-        if (the_one_and_only_listener) |l| {
-            var req: Request = .{
-                .path = util.fio2str(r.*.path),
-                .query = util.fio2str(r.*.query),
-                .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
-                .h = r,
-                ._is_finished_request_global = false,
-                ._user_context = undefined,
-            };
-            req._is_finished = &req._is_finished_request_global;
+        const self: *Self = @ptrCast(@alignCast(r.*.udata.?));
+        var req: Request = .{
+            .path = util.fio2str(r.*.path),
+            .query = util.fio2str(r.*.query),
+            .body = util.fio2str(r.*.body),
+            .method = util.fio2str(r.*.method),
+            .h = r,
+            ._is_finished_request_global = false,
+            ._user_context = undefined,
+        };
+        req._is_finished = &req._is_finished_request_global;
 
-            var user_context: Request.UserContext = .{};
-            req._user_context = &user_context;
+        var user_context: Request.UserContext = .{ .user_context = self.userData };
+        req._user_context = &user_context;
 
-            l.settings.on_response.?(req) catch |err| {
-                Logging.on_uncaught_error("HttpListener on_response", err);
-            };
-        }
+        self.settings.on_response.?(req) catch |err| {
+            Logging.on_uncaught_error("HttpListener on_response", err);
+        };
     }
 
     /// Used internally: the listener's facilio upgrade callback
     pub fn theOneAndOnlyUpgradeCallBack(r: [*c]fio.http_s, target: [*c]u8, target_len: usize) callconv(.c) void {
-        if (the_one_and_only_listener) |l| {
-            var req: Request = .{
-                .path = util.fio2str(r.*.path),
-                .query = util.fio2str(r.*.query),
-                .body = util.fio2str(r.*.body),
-                .method = util.fio2str(r.*.method),
-                .h = r,
-                ._is_finished_request_global = false,
-                ._user_context = undefined,
-            };
-            const zigtarget: []u8 = target[0..target_len];
-            req._is_finished = &req._is_finished_request_global;
+        const self: *Self = @ptrCast(@alignCast(r.*.udata.?));
+        var req: Request = .{
+            .path = util.fio2str(r.*.path),
+            .query = util.fio2str(r.*.query),
+            .body = util.fio2str(r.*.body),
+            .method = util.fio2str(r.*.method),
+            .h = r,
+            ._is_finished_request_global = false,
+            ._user_context = undefined,
+        };
+        const zigtarget: []u8 = target[0..target_len];
+        req._is_finished = &req._is_finished_request_global;
 
-            var user_context: Request.UserContext = .{};
-            req._user_context = &user_context;
+        var user_context: Request.UserContext = .{ .user_context = self.userData };
+        req._user_context = &user_context;
 
-            l.settings.on_upgrade.?(req, zigtarget) catch |err| {
-                Logging.on_uncaught_error("HttpListener on_upgrade", err);
-            };
-        }
+        self.settings.on_upgrade.?(req, zigtarget) catch |err| {
+            Logging.on_uncaught_error("HttpListener on_upgrade", err);
+        };
     }
 
     /// Used internally: the listener's facilio finish callback
     pub fn theOneAndOnlyFinishCallBack(s: [*c]fio.struct_http_settings_s) callconv(.c) void {
-        if (the_one_and_only_listener) |l| {
-            l.settings.on_finish.?(s) catch |err| {
-                Logging.on_uncaught_error("HttpListener on_finish", err);
-            };
-        }
+        const self: *Self = @ptrCast(@alignCast(s.*.udata.?));
+        self.settings.on_finish.?(s) catch |err| {
+            Logging.on_uncaught_error("HttpListener on_finish", err);
+        };
     }
 
     /// Start listening
@@ -267,7 +269,7 @@ pub const HttpListener = struct {
             .on_upgrade = if (self.settings.on_upgrade) |_| HttpListener.theOneAndOnlyUpgradeCallBack else null,
             .on_response = if (self.settings.on_response) |_| HttpListener.theOneAndOnlyResponseCallBack else null,
             .on_finish = if (self.settings.on_finish) |_| HttpListener.theOneAndOnlyFinishCallBack else null,
-            .udata = null,
+            .udata = self,
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
             .max_header_size = 32 * 1024,
@@ -297,14 +299,6 @@ pub const HttpListener = struct {
         if (ret == -1) {
             return error.ListenError;
         }
-
-        // set ourselves up to handle requests:
-        // TODO: do we mind the race condition?
-        // the HttpRequestFn will check if this is null and not process
-        // the request if it isn't set. hence, if started under full load, the
-        // first request(s) might not be serviced, as long as it takes from
-        // fio.http_listen() to here
-        HttpListener.the_one_and_only_listener = self;
     }
 };
 
@@ -323,6 +317,7 @@ pub const LowLevel = struct {
         max_clients: isize = 100,
         keepalive_timeout_s: u8 = 5,
         log: bool = false,
+        udata: ?*anyopaque = null,
 
         /// Create settings with defaults
         pub fn init() ListenSettings {
@@ -344,7 +339,7 @@ pub const LowLevel = struct {
             .on_upgrade = settings.on_upgrade,
             .on_response = settings.on_response,
             .on_finish = settings.on_finish,
-            .udata = null,
+            .udata = settings.udata,
             .public_folder = pfolder,
             .public_folder_length = pfolder_len,
             .max_header_size = settings.max_header_size,
