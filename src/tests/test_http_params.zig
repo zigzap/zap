@@ -9,8 +9,8 @@ pub const std_options: std.Options = .{
     },
 };
 
-fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+fn makeRequest(a: std.mem.Allocator, io: std.Io, url: []const u8) !void {
+    var http_client: std.http.Client = .{ .allocator = a, .io = io };
     defer http_client.deinit();
 
     _ = try http_client.fetch(.{
@@ -20,8 +20,8 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     zap.stop();
 }
 
-fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
-    return try std.Thread.spawn(.{}, makeRequest, .{ a, url });
+fn makeRequestThread(a: std.mem.Allocator, io: std.Io, url: []const u8) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, io, url });
 }
 
 test "http parameters" {
@@ -74,7 +74,11 @@ test "http parameters" {
     );
     try listener.listen();
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3010/?one=1&two=2&string=hello+world&float=6.28&bool=true");
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(allocator, io, "http://127.0.0.1:3010/?one=1&two=2&string=hello+world&float=6.28&bool=true");
     defer thread.join();
     zap.start(.{
         .threads = 1,

@@ -110,8 +110,8 @@ const ClientAuthReqHeaderFields = struct {
     token: []const u8,
 };
 
-fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+fn makeRequest(a: std.mem.Allocator, io: std.Io, url: []const u8, auth: ?ClientAuthReqHeaderFields) !void {
+    var http_client: std.http.Client = .{ .allocator = a, .io = io };
     defer http_client.deinit();
 
     var auth_buf: [256]u8 = undefined;
@@ -143,8 +143,8 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeader
     zap.stop();
 }
 
-fn makeRequestThread(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !std.Thread {
-    return try std.Thread.spawn(.{}, makeRequest, .{ a, url, auth });
+fn makeRequestThread(a: std.mem.Allocator, io: std.Io, url: []const u8, auth: ?ClientAuthReqHeaderFields) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, io, url, auth });
 }
 
 pub const Endpoint = struct {
@@ -154,7 +154,7 @@ pub const Endpoint = struct {
     pub fn get(_: *Endpoint, r: zap.Request) !void {
         r.sendBody(HTTP_RESPONSE) catch return;
         received_response = HTTP_RESPONSE;
-        std.Thread.sleep(1 * std.time.ns_per_s);
+        std.posix.nanosleep(1, 0);
         zap.stop();
     }
 
@@ -162,7 +162,7 @@ pub const Endpoint = struct {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
         received_response = "UNAUTHORIZED";
-        std.Thread.sleep(1 * std.time.ns_per_s);
+        std.posix.nanosleep(1, 0);
         zap.stop();
     }
 };
@@ -205,7 +205,11 @@ test "BearerAuthSingle authenticateRequest OK" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3001/test", .{ .auth = .Bearer, .token = token });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3001/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -258,7 +262,11 @@ test "BearerAuthSingle authenticateRequest test-unauthorized" {
 
     try listener.listen();
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3002/test", .{ .auth = .Bearer, .token = "invalid" });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3002/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -305,7 +313,11 @@ test "BearerAuthMulti authenticateRequest OK" {
 
     try listener.listen();
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3003/test", .{ .auth = .Bearer, .token = token });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3003/test", .{ .auth = .Bearer, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -352,7 +364,11 @@ test "BearerAuthMulti authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3004/test", .{ .auth = .Bearer, .token = "invalid" });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3004/test", .{ .auth = .Bearer, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -404,7 +420,11 @@ test "BasicAuth Token68 authenticateRequest" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3005/test", .{ .auth = .Basic, .token = token });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3005/test", .{ .auth = .Basic, .token = token });
     defer thread.join();
 
     // start worker threads
@@ -456,7 +476,11 @@ test "BasicAuth Token68 authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3006/test", .{ .auth = .Basic, .token = "invalid" });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3006/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();
 
     // start worker threads
@@ -518,7 +542,11 @@ test "BasicAuth UserPass authenticateRequest" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3007/test", .{ .auth = .Basic, .token = encoded });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3007/test", .{ .auth = .Basic, .token = encoded });
     defer thread.join();
 
     // start worker threads
@@ -583,7 +611,11 @@ test "BasicAuth UserPass authenticateRequest test-unauthorized" {
 
     listener.listen() catch {};
 
-    const thread = try makeRequestThread(a, "http://127.0.0.1:3008/test", .{ .auth = .Basic, .token = "invalid" });
+    var threaded = std.Io.Threaded.init(a);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(a, io, "http://127.0.0.1:3008/test", .{ .auth = .Basic, .token = "invalid" });
     defer thread.join();
 
     // start worker threads

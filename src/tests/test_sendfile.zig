@@ -14,11 +14,11 @@ var read_len: ?usize = null;
 
 const testfile = @embedFile("testfile.txt");
 
-fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+fn makeRequest(a: std.mem.Allocator, io: std.Io, url: []const u8) !void {
+    var http_client: std.http.Client = .{ .allocator = a, .io = io };
     defer http_client.deinit();
 
-    var response_writer = std.io.Writer.Allocating.init(a);
+    var response_writer = std.Io.Writer.Allocating.init(a);
     defer response_writer.deinit();
 
     _ = try http_client.fetch(.{
@@ -33,8 +33,8 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     zap.stop();
 }
 
-fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
-    return try std.Thread.spawn(.{}, makeRequest, .{ a, url });
+fn makeRequestThread(a: std.mem.Allocator, io: std.Io, url: []const u8) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, io, url });
 }
 pub fn on_request(r: zap.Request) !void {
     r.sendFile("src/tests/testfile.txt") catch unreachable;
@@ -55,7 +55,11 @@ test "send file" {
     );
     try listener.listen();
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3040/?file=src/tests/testfile.txt");
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(allocator, io, "http://127.0.0.1:3040/?file=src/tests/testfile.txt");
     defer thread.join();
     zap.start(.{
         .threads = 1,

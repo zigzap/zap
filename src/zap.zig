@@ -288,7 +288,7 @@ pub const HttpListener = struct {
         // in debug2 and debug3 of hello example
         // std.debug.print("X\n", .{});
         // TODO: still happening?
-        std.Thread.sleep(500 * std.time.ns_per_ms);
+        std.posix.nanosleep(0, 500 * std.time.ns_per_ms);
 
         var portbuf: [100]u8 = undefined;
         const printed_port = try std.fmt.bufPrintZ(&portbuf, "{d}", .{self.settings.port});
@@ -364,7 +364,7 @@ pub const LowLevel = struct {
         // in debug2 and debug3 of hello example
         // std.debug.print("X\n", .{});
         // TODO: still happening?
-        std.Thread.sleep(500 * std.time.ns_per_ms);
+        std.posix.nanosleep(0, 500 * std.time.ns_per_ms);
 
         if (fio.http_listen(port, interface, x) == -1) {
             return error.ListenError;

@@ -16,8 +16,8 @@ pub const std_options: std.Options = .{
 };
 
 // We send ourselves a request with a cookie
-fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+fn makeRequest(a: std.mem.Allocator, io: std.Io, url: []const u8) !void {
+    var http_client: std.http.Client = .{ .allocator = a, .io = io };
     defer http_client.deinit();
 
     _ = try http_client.fetch(.{
@@ -29,8 +29,8 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     });
 }
 
-fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
-    return try std.Thread.spawn(.{}, makeRequest, .{ a, url });
+fn makeRequestThread(a: std.mem.Allocator, io: std.Io, url: []const u8) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, io, url });
 }
 
 // here we go
@@ -118,7 +118,11 @@ pub fn main() !void {
     try listener.listen();
     std.log.info("\n\nTerminate with CTRL+C", .{});
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3000");
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(allocator, io, "http://127.0.0.1:3000");
     defer thread.join();
     zap.start(.{
         .threads = 1,

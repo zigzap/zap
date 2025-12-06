@@ -18,8 +18,8 @@ const EXPECTED_FILENAME = "myfile.txt";
 
 var test_error: ?anyerror = null;
 
-fn makeRequest(allocator: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = allocator };
+fn makeRequest(allocator: std.mem.Allocator, io: std.Io, url: []const u8) !void {
+    var http_client: std.http.Client = .{ .allocator = allocator, .io = io };
     defer http_client.deinit();
 
     const payload_wrong_line_ending = try std.fmt.allocPrint(allocator,
@@ -117,7 +117,11 @@ test "recv file" {
     );
     try listener.listen();
 
-    const t1 = try std.Thread.spawn(.{}, makeRequest, .{ allocator, "http://127.0.0.1:3020" });
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const t1 = try std.Thread.spawn(.{}, makeRequest, .{ allocator, io, "http://127.0.0.1:3020" });
     defer t1.join();
 
     zap.start(.{

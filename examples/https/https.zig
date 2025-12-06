@@ -39,14 +39,21 @@ fn help_and_exit(filename: []const u8, err: anyerror) void {
     std.process.exit(1);
 }
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+
+    var threaded = std.Io.Threaded.init(gpa.allocator());
+    defer threaded.deinit();
+    const io = threaded.io();
+
     const CERT_FILE = "mycert.pem";
     const KEY_FILE = "mykey.pem";
 
-    std.fs.cwd().access(CERT_FILE, .{}) catch |err| {
+    std.Io.Dir.cwd().access(io, CERT_FILE, .{}) catch |err| {
         help_and_exit(CERT_FILE, err);
     };
 
-    std.fs.cwd().access(KEY_FILE, .{}) catch |err| {
+    std.Io.Dir.cwd().access(io, KEY_FILE, .{}) catch |err| {
         help_and_exit(KEY_FILE, err);
     };
 

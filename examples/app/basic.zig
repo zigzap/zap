@@ -57,7 +57,7 @@ const SimpleEndpoint = struct {
             .{ context.db_connection, e.some_data, arena.ptr, thread_id },
         );
         try r.sendBody(response_text);
-        std.Thread.sleep(std.time.ns_per_ms * 300);
+        std.posix.nanosleep(0, std.time.ns_per_ms * 300);
     }
 };
 

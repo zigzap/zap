@@ -16,8 +16,8 @@ pub const std_options: std.Options = .{
 };
 
 // We send ourselves a request
-fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+fn makeRequest(a: std.mem.Allocator, io: std.Io, url: []const u8) !void {
+    var http_client: std.http.Client = .{ .allocator = a, .io = io };
     defer http_client.deinit();
 
     const response = try http_client.fetch(.{
@@ -31,8 +31,8 @@ fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
     }
 }
 
-fn makeRequestThread(a: std.mem.Allocator, url: []const u8) !std.Thread {
-    return try std.Thread.spawn(.{}, makeRequest, .{ a, url });
+fn makeRequestThread(a: std.mem.Allocator, io: std.Io, url: []const u8) !std.Thread {
+    return try std.Thread.spawn(.{}, makeRequest, .{ a, io, url });
 }
 
 // here we go
@@ -138,7 +138,11 @@ pub fn main() !void {
     try listener.listen();
     std.log.info("\n\nTerminate with CTRL+C or by sending query param terminate=true", .{});
 
-    const thread = try makeRequestThread(allocator, "http://127.0.0.1:3000/?one=1&two=2&string=hello+world&float=6.28&bool=true");
+    var threaded = std.Io.Threaded.init(allocator);
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    const thread = try makeRequestThread(allocator, io, "http://127.0.0.1:3000/?one=1&two=2&string=hello+world&float=6.28&bool=true");
     defer thread.join();
     zap.start(.{
         .threads = 1,
