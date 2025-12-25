@@ -15,10 +15,12 @@ var read_len: ?usize = null;
 const testfile = @embedFile("testfile.txt");
 
 fn makeRequest(a: std.mem.Allocator, url: []const u8) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+    var thread: std.Io.Threaded = .init(a);
+    defer thread.deinit();
+    var http_client: std.http.Client = .{ .allocator = a, .io = thread.io()  };
     defer http_client.deinit();
 
-    var response_writer = std.io.Writer.Allocating.init(a);
+    var response_writer = std.Io.Writer.Allocating.init(a);
     defer response_writer.deinit();
 
     _ = try http_client.fetch(.{

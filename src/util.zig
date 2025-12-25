@@ -77,7 +77,7 @@ pub fn stringifyBuf(
     value: anytype,
     options: std.json.Stringify.Options,
 ) ![]const u8 {
-    var w: std.io.Writer = .fixed(buffer);
+    var w: std.Io.Writer = .fixed(buffer);
     if (std.json.Stringify.value(value, options, &w)) {
         return w.buffered();
     } else |err| { // error
