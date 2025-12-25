@@ -111,7 +111,9 @@ const ClientAuthReqHeaderFields = struct {
 };
 
 fn makeRequest(a: std.mem.Allocator, url: []const u8, auth: ?ClientAuthReqHeaderFields) !void {
-    var http_client: std.http.Client = .{ .allocator = a };
+    var thread: std.Io.Threaded = .init(a);
+    defer thread.deinit();
+    var http_client: std.http.Client = .{ .allocator = a, .io = thread.io() };
     defer http_client.deinit();
 
     var auth_buf: [256]u8 = undefined;
@@ -154,7 +156,7 @@ pub const Endpoint = struct {
     pub fn get(_: *Endpoint, r: zap.Request) !void {
         r.sendBody(HTTP_RESPONSE) catch return;
         received_response = HTTP_RESPONSE;
-        std.Thread.sleep(1 * std.time.ns_per_s);
+        std.posix.nanosleep(1,0);
         zap.stop();
     }
 
@@ -162,7 +164,7 @@ pub const Endpoint = struct {
         r.setStatus(.unauthorized);
         r.sendBody("UNAUTHORIZED ACCESS") catch return;
         received_response = "UNAUTHORIZED";
-        std.Thread.sleep(1 * std.time.ns_per_s);
+        std.posix.nanosleep(1, 0);
         zap.stop();
     }
 };

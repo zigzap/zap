@@ -144,7 +144,7 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
     // max size: 100kB
     const buf: []u8 = try allocator.alloc(u8, 100 * 1024);
     defer allocator.free(buf);
-    var w: std.io.Writer = .fixed(buf);
+    var w: std.Io.Writer = .fixed(buf);
     try std.json.Stringify.value(.{ .content = message }, .{}, &w);
     const string = w.buffered();
 
@@ -263,7 +263,7 @@ fn sendToDiscord(allocator: std.mem.Allocator, url: []const u8, message: []const
         const desc = chunks.items[it];
         const part = message[desc.from..desc.to];
 
-        var ww: std.io.Writer = .fixed(buf);
+        var ww: std.Io.Writer = .fixed(buf);
         try std.json.Stringify.value(.{ .content = part }, .{}, &ww);
         const part_string = ww.buffered();
 
