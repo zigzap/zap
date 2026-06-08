@@ -145,7 +145,7 @@ pub const StatusCode = enum(u16) {
             .not_extended => "Not Extended",
             .network_authentication_required => "Network Authentication Required",
             .processing => "Processing",
-            .multiple_choices => "Multiple Chouces",
+            .multiple_choices => "Multiple Choices",
             _ => "(Unknown)",
         };
     }
