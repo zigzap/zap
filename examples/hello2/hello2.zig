@@ -26,7 +26,7 @@ fn on_request(r: zap.Request) !void {
         std.debug.print(">> BODY: {s}\n", .{the_body});
     }
 
-    try r.setContentTypeFromPath();
+    try r.setContentType(.HTML);
     try r.sendBody(
         \\ <html><body>
         \\   <h1>Hello from ZAP!!!</h1>
