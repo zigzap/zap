@@ -1,3 +1,18 @@
+# This repository has been archived
+
+**Thank you to all contributors!** Whether you contributed code, documentation,
+bug reports, testing, ideas, or support for other users, you helped make Zap what
+it is. Thank you for helping build and improve Zap.
+
+But fear not! An alternative is on the way:
+**[Baz — Bounded Async Zap](https://github.com/technologylab-ai/baz)**
+([website & documentation](https://technologylab-ai.github.io/baz/)),
+a pure Zig successor built for Zig 0.16.0, based on
+**[bounded/http](https://github.com/technologylab-ai/bounded-http)**
+([website & documentation](https://technologylab-ai.github.io/bounded-http/)).
+
+---
+
 # ⚡zap⚡ - blazingly fast backends in zig
 
 ![](https://github.com/zigzap/zap/actions/workflows/build-current-zig.yml/badge.svg) ![](https://github.com/zigzap/zap/actions/workflows/mastercheck.yml/badge.svg) [![Discord](https://img.shields.io/discord/1107835896356675706?label=chat&logo=discord&style=plastic)](https://discord.gg/jQAAN6Ubyj)
